@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X, Shield, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, role, profile, signOut } = useAuth();
 
   const menuItems = [
     { label: "Accueil", href: "#" },
@@ -18,6 +23,35 @@ const Header = () => {
     { label: "Aide & Tutoriels", href: "#aide" },
     { label: "Paramètres", href: "#parametres" },
   ];
+
+  const getRoleLabel = (role: string | null) => {
+    switch (role) {
+      case 'super_admin': return 'Super Admin';
+      case 'admin': return 'Protocole d\'État';
+      case 'agent': return 'Agent DGSS';
+      case 'user': return 'Citoyen';
+      default: return 'Utilisateur';
+    }
+  };
+
+  const getRoleColor = (role: string | null) => {
+    switch (role) {
+      case 'super_admin': return 'destructive';
+      case 'admin': return 'default';
+      case 'agent': return 'secondary';
+      case 'user': return 'outline';
+      default: return 'outline';
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -41,9 +75,17 @@ const Header = () => {
               <a href={item.href}>{item.label}</a>
             </Button>
           ))}
-          <Button variant="default" className="ml-4">
-            Se connecter
-          </Button>
+          <div className="flex items-center gap-2 ml-4">
+            {role && (
+              <Badge variant={getRoleColor(role) as any} className="text-xs">
+                {getRoleLabel(role)}
+              </Badge>
+            )}
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
         </nav>
 
         {/* Mobile Menu */}
@@ -55,6 +97,20 @@ const Header = () => {
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] sm:w-[350px]">
             <nav className="flex flex-col space-y-4 mt-8">
+              {role && (
+                <div className="pb-4 border-b border-border">
+                  <p className="text-sm text-muted-foreground mb-2">Connecté en tant que</p>
+                  <Badge variant={getRoleColor(role) as any}>
+                    {getRoleLabel(role)}
+                  </Badge>
+                  {profile?.full_name && (
+                    <p className="text-sm font-medium mt-2">{profile.full_name}</p>
+                  )}
+                  {profile?.email && (
+                    <p className="text-xs text-muted-foreground">{profile.email}</p>
+                  )}
+                </div>
+              )}
               {menuItems.map((item) => (
                 <a
                   key={item.label}
@@ -65,8 +121,9 @@ const Header = () => {
                   {item.label}
                 </a>
               ))}
-              <Button variant="default" className="mt-4">
-                Se connecter
+              <Button variant="destructive" className="mt-4" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Déconnexion
               </Button>
             </nav>
           </SheetContent>
