@@ -70,21 +70,29 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          {menuItems.map((item) => (
+          {user && menuItems.map((item) => (
             <Button key={item.label} variant="ghost" asChild>
               <a href={item.href}>{item.label}</a>
             </Button>
           ))}
           <div className="flex items-center gap-2 ml-4">
-            {role && (
-              <Badge variant={getRoleColor(role) as any} className="text-xs">
-                {getRoleLabel(role)}
-              </Badge>
+            {user ? (
+              <>
+                {role && (
+                  <Badge variant={getRoleColor(role) as any} className="text-xs">
+                    {getRoleLabel(role)}
+                  </Badge>
+                )}
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Déconnexion
+                </Button>
+              </>
+            ) : (
+              <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
+                Se connecter
+              </Button>
             )}
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Déconnexion
-            </Button>
           </div>
         </nav>
 
@@ -97,34 +105,42 @@ const Header = () => {
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] sm:w-[350px]">
             <nav className="flex flex-col space-y-4 mt-8">
-              {role && (
-                <div className="pb-4 border-b border-border">
-                  <p className="text-sm text-muted-foreground mb-2">Connecté en tant que</p>
-                  <Badge variant={getRoleColor(role) as any}>
-                    {getRoleLabel(role)}
-                  </Badge>
-                  {profile?.full_name && (
-                    <p className="text-sm font-medium mt-2">{profile.full_name}</p>
+              {user ? (
+                <>
+                  {role && (
+                    <div className="pb-4 border-b border-border">
+                      <p className="text-sm text-muted-foreground mb-2">Connecté en tant que</p>
+                      <Badge variant={getRoleColor(role) as any}>
+                        {getRoleLabel(role)}
+                      </Badge>
+                      {profile?.full_name && (
+                        <p className="text-sm font-medium mt-2">{profile.full_name}</p>
+                      )}
+                      {profile?.email && (
+                        <p className="text-xs text-muted-foreground">{profile.email}</p>
+                      )}
+                    </div>
                   )}
-                  {profile?.email && (
-                    <p className="text-xs text-muted-foreground">{profile.email}</p>
-                  )}
-                </div>
+                  {menuItems.map((item) => (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      className="text-lg font-medium hover:text-primary transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                  <Button variant="destructive" className="mt-4" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Déconnexion
+                  </Button>
+                </>
+              ) : (
+                <Button variant="default" onClick={() => { navigate('/auth'); setIsOpen(false); }}>
+                  Se connecter
+                </Button>
               )}
-              {menuItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-lg font-medium hover:text-primary transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </a>
-              ))}
-              <Button variant="destructive" className="mt-4" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Déconnexion
-              </Button>
             </nav>
           </SheetContent>
         </Sheet>
