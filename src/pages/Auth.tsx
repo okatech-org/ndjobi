@@ -9,7 +9,7 @@ import { DemoAccount } from '@/types/auth';
 
 const demoAccounts: DemoAccount[] = [
   {
-    email: 'citoyen@demo.ndjobi.ga',
+    email: 'citoyen+v2@demo.ndjobi.ga',
     password: 'demo123456',
     role: 'user',
     label: 'Citoyen',
@@ -18,7 +18,7 @@ const demoAccounts: DemoAccount[] = [
     color: 'from-primary/90 to-primary/70',
   },
   {
-    email: 'agent@demo.ndjobi.ga',
+    email: 'agent+v2@demo.ndjobi.ga',
     password: 'demo123456',
     role: 'agent',
     label: 'Agent DGSS',
@@ -27,7 +27,7 @@ const demoAccounts: DemoAccount[] = [
     color: 'from-secondary/90 to-secondary/70',
   },
   {
-    email: 'president@demo.ndjobi.ga',
+    email: 'president+v2@demo.ndjobi.ga',
     password: 'demo123456',
     role: 'admin',
     label: 'Protocole d\'État',
@@ -36,7 +36,7 @@ const demoAccounts: DemoAccount[] = [
     color: 'from-accent/90 to-accent/70',
   },
   {
-    email: 'superadmin@demo.ndjobi.ga',
+    email: 'superadmin+v2@demo.ndjobi.ga',
     password: 'demo123456',
     role: 'super_admin',
     label: 'Super Admin',
@@ -63,74 +63,70 @@ const Auth = () => {
 
   const handleDemoLogin = async (account: DemoAccount) => {
     setLoading(account.email);
-    
+
+    const makeUniqueEmail = (email: string) => {
+      const [local, domain] = email.split('@');
+      const ts = Date.now();
+      // Preserve existing +tag if present, append timestamp to ensure uniqueness
+      const [name, tag] = local.split('+');
+      const newLocal = tag ? `${name}+${tag}.${ts}` : `${name}+${ts}`;
+      return `${newLocal}@${domain}`;
+    };
+
     try {
       const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
+
+      // 1) Try to ensure account exists and is confirmed (auto-confirm enabled)
+      const { error: signUpError } = await supabase.auth.signUp({
         email: account.email,
+        password: account.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: { full_name: account.label },
+        },
+      });
+      // Ignore if already registered
+
+      // 2) Try to sign in
+      let emailToUse = account.email;
+      let { data: signInData, error: signInError }: any = await supabase.auth.signInWithPassword({
+        email: emailToUse,
         password: account.password,
       });
 
-      if (error) {
-        // If account doesn't exist, create it
-        if (error.message.includes('Invalid login credentials')) {
-          toast({
-            title: 'Création du compte démo...',
-            description: 'Premier accès, initialisation en cours',
-          });
-
-          const { error: signUpError } = await supabase.auth.signUp({
-            email: account.email,
-            password: account.password,
-            options: {
-              emailRedirectTo: redirectUrl,
-              data: {
-                full_name: account.label,
-              },
-            },
-          });
-
-          if (signUpError) throw signUpError;
-
-          // Try to sign in again
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: account.email,
-            password: account.password,
-          });
-
-          if (signInError) throw signInError;
-
-          // Assign role
-          if (signInData.user) {
-            const { error: roleError } = await supabase
-              .from('user_roles')
-              .insert({
-                user_id: signInData.user.id,
-                role: account.role,
-              });
-
-            if (roleError) {
-              console.error('Error assigning role:', roleError);
-            }
-          }
-        } else {
-          throw error;
-        }
+      // 3) If blocked due to old unconfirmed user, create a fresh unique account and sign in
+      if (signInError && (signInError.code === 'email_not_confirmed' || /Email not confirmed/i.test(signInError.message))) {
+        const uniqueEmail = makeUniqueEmail(account.email);
+        const { error: su2 } = await supabase.auth.signUp({
+          email: uniqueEmail,
+          password: account.password,
+          options: { emailRedirectTo: redirectUrl, data: { full_name: account.label } },
+        });
+        if (su2) throw su2;
+        emailToUse = uniqueEmail;
+        const res2 = await supabase.auth.signInWithPassword({ email: emailToUse, password: account.password });
+        signInData = res2.data;
+        signInError = res2.error;
       }
 
-      toast({
-        title: 'Connexion réussie !',
-        description: `Bienvenue, ${account.label}`,
-      });
+      if (signInError) throw signInError;
 
+      // 4) Attempt to assign role (best-effort; may be restricted by policies)
+      if (signInData?.user) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: signInData.user.id, role: account.role });
+        if (roleError) console.error('Error assigning role:', roleError);
+      }
+
+      toast({ title: 'Connexion réussie !', description: `Bienvenue, ${account.label}` });
       navigate('/');
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
         variant: 'destructive',
         title: 'Erreur de connexion',
-        description: error.message || 'Une erreur est survenue lors de la connexion',
+        description: error?.message || 'Une erreur est survenue lors de la connexion',
       });
     } finally {
       setLoading(null);
