@@ -15,10 +15,10 @@ const TrustSection = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <CardDescription className="text-base space-y-2">
+            <div className="text-base space-y-2 text-muted-foreground">
               <p className="font-medium text-foreground">Protection par cryptage AES-256</p>
               <p>Votre identité reste 100% confidentielle. Nos serveurs sont hébergés au Gabon et respectent la souveraineté des données.</p>
-            </CardDescription>
+            </div>
           </CardContent>
         </Card>
 
@@ -32,10 +32,10 @@ const TrustSection = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <CardDescription className="text-base space-y-2">
+            <div className="text-base space-y-2 text-muted-foreground">
               <p className="font-medium text-foreground">Réponse sous 48 heures</p>
               <p>Votre signalement est analysé par notre équipe et les autorités compétentes. Vous recevez des notifications à chaque étape.</p>
-            </CardDescription>
+            </div>
           </CardContent>
         </Card>
       </div>

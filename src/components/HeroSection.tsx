@@ -1,14 +1,18 @@
 import heroImage from "@/assets/hero-ndjobi.jpg";
+import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={heroImage} 
-          alt="Protection citoyenne au Gabon" 
+        <img
+          src={heroImage}
+          alt="NDJOBI - Protection citoyenne au Gabon"
           className="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/70" />
       </div>
@@ -37,16 +41,12 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <a href="#signaler" className="group">
-              <button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                🚨 Signaler un cas
-              </button>
-            </a>
-            <a href="#proteger" className="group">
-              <button className="w-full sm:w-auto px-8 py-4 bg-secondary text-secondary-foreground font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                🔒 Protéger mon projet
-              </button>
-            </a>
+            <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg hover:shadow-xl transition-all">
+              <a href="#signaler" aria-label="Signaler un cas">🚨 Signaler un cas</a>
+            </Button>
+            <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto shadow-lg hover:shadow-xl transition-all">
+              <a href="#proteger" aria-label="Protéger mon projet">🔒 Protéger mon projet</a>
+            </Button>
           </div>
         </div>
       </div>
