@@ -1,40 +1,46 @@
 import { Shield, Zap } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const TrustSection = () => {
   return (
-    <section className="container py-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+    <section className="container py-12 sm:py-16 md:py-20 bg-muted/30">
+      <div className="text-center mb-10 sm:mb-12 space-y-3 sm:space-y-4 px-4">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
+          Pourquoi faire confiance à NDJOBI ?
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto px-4 sm:px-0">
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Shield className="h-6 w-6 text-primary" />
+          <CardHeader className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-2.5 rounded-lg bg-primary/10 flex-shrink-0">
+                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Anonymat garanti</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Anonymat garanti</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-base space-y-2 text-muted-foreground">
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+            <div className="text-sm sm:text-base space-y-2 text-muted-foreground">
               <p className="font-medium text-foreground">Protection par cryptage AES-256</p>
-              <p>Votre identité reste 100% confidentielle. Nos serveurs sont hébergés au Gabon et respectent la souveraineté des données.</p>
+              <p className="leading-relaxed">Votre identité reste 100% confidentielle. Nos serveurs sont hébergés au Gabon et respectent la souveraineté des données.</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-secondary/20 bg-gradient-to-br from-secondary/5 to-transparent">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-secondary/10">
-                <Zap className="h-6 w-6 text-secondary" />
+          <CardHeader className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-2.5 rounded-lg bg-secondary/10 flex-shrink-0">
+                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
               </div>
-              <CardTitle className="text-xl">Traitement rapide</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Traitement rapide</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-base space-y-2 text-muted-foreground">
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+            <div className="text-sm sm:text-base space-y-2 text-muted-foreground">
               <p className="font-medium text-foreground">Réponse sous 48 heures</p>
-              <p>Votre signalement est analysé par notre équipe et les autorités compétentes. Vous recevez des notifications à chaque étape.</p>
+              <p className="leading-relaxed">Votre signalement est analysé par notre équipe et les autorités compétentes. Vous recevez des notifications à chaque étape.</p>
             </div>
           </CardContent>
         </Card>

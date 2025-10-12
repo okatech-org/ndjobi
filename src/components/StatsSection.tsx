@@ -79,15 +79,17 @@ const StatsSection = () => {
   ];
 
   return (
-    <section id="statistiques" className="container py-16">
-      <div className="text-center mb-12 space-y-4">
-        <h2 className="text-3xl md:text-4xl font-bold">Impact en temps réel</h2>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+    <section id="statistiques" className="container py-12 sm:py-16 md:py-20">
+      <div className="text-center mb-10 sm:mb-12 space-y-3 sm:space-y-4 px-4">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
+          Impact en temps réel
+        </h2>
+        <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto">
           Ensemble, nous construisons un Gabon plus transparent
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-0">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -95,14 +97,14 @@ const StatsSection = () => {
               key={index}
               className="relative group"
             >
-              <div className="p-6 rounded-2xl border-2 border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
-                <div className={`inline-flex p-3 rounded-xl ${stat.bgColor} mb-4`}>
-                  <Icon className={`h-6 w-6 ${stat.color}`} />
+              <div className="p-5 sm:p-6 rounded-2xl border-2 border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+                <div className={`inline-flex p-2.5 sm:p-3 rounded-xl ${stat.bgColor} mb-3 sm:mb-4`}>
+                  <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${stat.color}`} />
                 </div>
-                <div className="text-3xl md:text-4xl font-bold mb-2 tabular-nums">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 tabular-nums">
                   {stat.value}
                 </div>
-                <div className="text-sm text-muted-foreground font-medium">
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">
                   {stat.label}
                 </div>
               </div>
