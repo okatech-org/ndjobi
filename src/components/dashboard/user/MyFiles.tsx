@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { FileText, Shield, Calendar, Eye, Download, AlertCircle, FolderLock } from 'lucide-react';
+import { FileText, Shield, Calendar, Eye, Download, AlertCircle, FolderLock, MapPin, X } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { LocationMap } from '@/components/dashboard/LocationMap';
 
 interface Report {
   id: string;
@@ -17,6 +19,8 @@ interface Report {
   status: 'pending' | 'processing' | 'resolved' | 'closed';
   created_at: string;
   anonymous: boolean;
+  gps_latitude?: number;
+  gps_longitude?: number;
 }
 
 interface Project {
@@ -27,6 +31,9 @@ interface Project {
   status: 'protected' | 'reviewed';
   timestamp: string;
   created_at: string;
+  location?: string;
+  gps_latitude?: number;
+  gps_longitude?: number;
 }
 
 export const MyFiles = () => {
@@ -34,6 +41,8 @@ export const MyFiles = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<Report | Project | null>(null);
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -119,6 +128,11 @@ export const MyFiles = () => {
     return categories[category] || category;
   };
 
+  const handleShowMap = (item: Report | Project) => {
+    setSelectedItem(item);
+    setMapDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -178,6 +192,11 @@ export const MyFiles = () => {
                       </CardDescription>
                     </div>
                     <div className="flex gap-2">
+                      {report.gps_latitude && report.gps_longitude && (
+                        <Button size="sm" variant="outline" onClick={() => handleShowMap(report)}>
+                          <MapPin className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button size="sm" variant="outline">
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -188,9 +207,18 @@ export const MyFiles = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Lieu :</strong> {report.location}
-                  </p>
+                  <div className="flex items-start gap-2 mb-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Lieu :</strong> {report.location}
+                      {report.gps_latitude && report.gps_longitude && (
+                        <Badge variant="outline" className="ml-2">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          GPS
+                        </Badge>
+                      )}
+                    </p>
+                  </div>
                   <p className="text-sm line-clamp-2">{report.description}</p>
                   {report.anonymous && (
                     <Badge variant="secondary" className="mt-2">
@@ -233,6 +261,11 @@ export const MyFiles = () => {
                       </CardDescription>
                     </div>
                     <div className="flex gap-2">
+                      {project.gps_latitude && project.gps_longitude && (
+                        <Button size="sm" variant="outline" onClick={() => handleShowMap(project)}>
+                          <MapPin className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button size="sm" variant="outline">
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -246,6 +279,20 @@ export const MyFiles = () => {
                   <p className="text-sm text-muted-foreground mb-2">
                     <strong>Catégorie :</strong> {getCategoryLabel(project.category)}
                   </p>
+                  {project.location && (
+                    <div className="flex items-start gap-2 mb-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Lieu :</strong> {project.location}
+                        {project.gps_latitude && project.gps_longitude && (
+                          <Badge variant="outline" className="ml-2">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            GPS
+                          </Badge>
+                        )}
+                      </p>
+                    </div>
+                  )}
                   <p className="text-sm line-clamp-3">{project.description}</p>
                   <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                     <Shield className="h-3 w-3" />
@@ -257,6 +304,34 @@ export const MyFiles = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Map Dialog */}
+      <Dialog open={mapDialogOpen} onOpenChange={setMapDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              Localisation sur la carte
+            </DialogTitle>
+            <DialogDescription>
+              {selectedItem && 'type' in selectedItem 
+                ? `Signalement : ${getTypeLabel(selectedItem.type)}`
+                : selectedItem && 'title' in selectedItem
+                ? `Projet : ${selectedItem.title}`
+                : 'Détails de localisation'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedItem && (
+            <LocationMap
+              latitude={selectedItem.gps_latitude}
+              longitude={selectedItem.gps_longitude}
+              address={'location' in selectedItem ? selectedItem.location : ''}
+              showMap={true}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
