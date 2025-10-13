@@ -186,15 +186,17 @@ const Auth = () => {
                 <div className={`absolute inset-0 bg-gradient-to-br ${account.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
 
                 <CardHeader className="relative p-3 sm:p-4 pb-2 sm:pb-3">
-                  <div className="flex items-center gap-3 mb-2 sm:mb-3">
+                  <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br ${account.color} shadow-lg flex items-center justify-center flex-shrink-0`}>
                       <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <CardTitle className="text-base sm:text-lg">{account.label}</CardTitle>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-base sm:text-lg mb-1">{account.label}</CardTitle>
+                      <CardDescription className="text-xs line-clamp-2">
+                        {account.description}
+                      </CardDescription>
+                    </div>
                   </div>
-                  <CardDescription className="text-xs line-clamp-2">
-                    {account.description}
-                  </CardDescription>
                 </CardHeader>
 
                 <CardContent className="relative p-3 sm:p-4 pt-0">
