@@ -215,12 +215,6 @@ const Auth = () => {
                       'Se connecter'
                     )}
                   </Button>
-
-                  <div className="mt-2 pt-2 border-t border-border/50">
-                    <p className="text-[10px] text-muted-foreground text-center font-mono">
-                      {account.email}
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
             );
