@@ -56,12 +56,12 @@ export const MyFiles = () => {
     try {
       const [reportsResult, projectsResult] = await Promise.all([
         supabase
-          .from('reports')
+          .from('signalements')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false }),
         supabase
-          .from('protected_projects')
+          .from('projets')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })

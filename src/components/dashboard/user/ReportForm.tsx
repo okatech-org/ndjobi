@@ -37,6 +37,7 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
   const [locationType, setLocationType] = useState<'manual' | 'gps'>('manual');
   const [gettingLocation, setGettingLocation] = useState(false);
   const [coordinates, setCoordinates] = useState<{lat: number, lng: number} | null>(null);
+  const [detectedAddress, setDetectedAddress] = useState<string | null>(null);
 
   const {
     register,
@@ -126,6 +127,7 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
         });
         
         const address = await reverseGeocode(latitude, longitude);
+        setDetectedAddress(address);
         setValue('location', address);
         
         toast({
@@ -168,7 +170,7 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
       }
 
       const { error } = await supabase
-        .from('reports')
+        .from('signalements')
         .insert(reportData);
 
       if (error) throw error;
@@ -180,6 +182,7 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
       
       reset();
       setCoordinates(null);
+      setDetectedAddress(null);
       setLocationType('manual');
       if (onSuccess) onSuccess();
     } catch (error: any) {
@@ -288,8 +291,13 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
                   <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 text-sm">
                     <div className="flex items-start gap-2">
                       <MapPin className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium text-green-900 dark:text-green-100 mb-1">Position détectée avec succès</p>
+                        {detectedAddress && (
+                          <p className="text-sm text-green-800 dark:text-green-200 mb-2 font-medium">
+                            📍 {detectedAddress}
+                          </p>
+                        )}
                         <p className="text-xs text-green-700 dark:text-green-300">
                           Coordonnées GPS : {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
                         </p>

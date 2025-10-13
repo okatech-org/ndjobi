@@ -176,7 +176,7 @@ export const ProjectProtectionForm = ({ onSuccess, onCancel }: ProjectProtection
       }
 
       const { error } = await supabase
-        .from('protected_projects')
+        .from('projets')
         .insert(projectData);
 
       if (error) throw error;
