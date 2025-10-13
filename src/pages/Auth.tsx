@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Shield, User, Users, Crown, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DemoAccount } from '@/types/auth';
-import { AuthTabs } from '@/components/auth/AuthTabs';
 import { PhoneAuth } from '@/components/auth/PhoneAuth';
 import { Separator } from '@/components/ui/separator';
 
@@ -155,18 +153,7 @@ const Auth = () => {
         </div>
 
         {/* Auth Methods */}
-        <Tabs defaultValue="phone" className="w-full max-w-md mx-auto">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="phone">Téléphone</TabsTrigger>
-            <TabsTrigger value="email">Email</TabsTrigger>
-          </TabsList>
-          <TabsContent value="phone" className="mt-6">
-            <PhoneAuth />
-          </TabsContent>
-          <TabsContent value="email" className="mt-6">
-            <AuthTabs />
-          </TabsContent>
-        </Tabs>
+        <PhoneAuth />
 
         {/* Separator */}
         <div className="relative">
