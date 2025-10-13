@@ -47,13 +47,10 @@ export const SignupForm = () => {
   const onSubmit = async (data: SignupFormData) => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
-
       const { data: signUpData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             full_name: data.fullName,
           },

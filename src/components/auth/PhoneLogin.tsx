@@ -126,8 +126,7 @@ export const PhoneLogin = () => {
               <SelectItem value="+27">🇿🇦 +27</SelectItem>
               <SelectItem value="+233">🇬🇭 +233</SelectItem>
               <SelectItem value="+240">🇬🇶 +240</SelectItem>
-              <SelectItem value="+1">🇺🇸 +1</SelectItem>
-              <SelectItem value="+1">🇨🇦 +1</SelectItem>
+              <SelectItem value="+1">🇺🇸🇨🇦 +1</SelectItem>
               <SelectItem value="+86">🇨🇳 +86</SelectItem>
             </SelectContent>
           </Select>

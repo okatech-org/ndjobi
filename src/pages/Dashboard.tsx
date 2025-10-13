@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,12 +8,15 @@ import Footer from '@/components/Footer';
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, role, isLoading } = useAuth();
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && !hasNavigated.current) {
       if (!user) {
+        hasNavigated.current = true;
         navigate('/auth');
       } else if (role) {
+        hasNavigated.current = true;
         // Redirect based on role
         switch (role) {
           case 'super_admin':
@@ -29,8 +32,12 @@ const Dashboard = () => {
             navigate('/dashboard/user', { replace: true });
             break;
           default:
-            navigate('/auth');
+            navigate('/dashboard/user', { replace: true });
         }
+      } else if (!role && user) {
+        // Si l'utilisateur est connecté mais n'a pas de rôle, rediriger vers user par défaut
+        hasNavigated.current = true;
+        navigate('/dashboard/user', { replace: true });
       }
     }
   }, [user, role, isLoading, navigate]);

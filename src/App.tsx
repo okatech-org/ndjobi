@@ -1,10 +1,12 @@
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { getDashboardUrl } from "@/lib/roleUtils";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -45,6 +47,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Si l'utilisateur est connecté, rediriger vers Dashboard qui gère la redirection par rôle
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -58,7 +61,12 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <Routes>
             <Route
               path="/"

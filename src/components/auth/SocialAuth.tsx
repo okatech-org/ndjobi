@@ -17,13 +17,11 @@ export const SocialAuth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: window.location.origin,
         },
       });
 
       if (error) throw error;
-
-      // User will be redirected to the provider's login page
     } catch (error: any) {
       console.error(`${provider} login error:`, error);
       toast({

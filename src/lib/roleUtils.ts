@@ -11,7 +11,7 @@ export const getDashboardUrl = (role: UserRole | null): string => {
     case 'user':
       return '/dashboard/user';
     default:
-      return '/dashboard';
+      return '/dashboard/user'; // Default to user dashboard instead of /dashboard
   }
 };
 

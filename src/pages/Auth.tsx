@@ -77,25 +77,32 @@ const Auth = () => {
     };
 
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
-
-      // 1) Try to ensure account exists and is confirmed (auto-confirm enabled)
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: account.email,
-        password: account.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: { full_name: account.label },
-        },
-      });
-      // Ignore if already registered
-
-      // 2) Try to sign in
+      // 1) Try to sign in first
       let emailToUse = account.email;
       let { data: signInData, error: signInError }: any = await supabase.auth.signInWithPassword({
         email: emailToUse,
         password: account.password,
       });
+
+      // 2) If user doesn't exist, try to sign up
+      if (signInError && (signInError.status === 400 || signInError.message?.includes('Invalid login'))) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: account.email,
+          password: account.password,
+          options: {
+            data: { full_name: account.label },
+          },
+        });
+
+        if (signUpError) throw signUpError;
+
+        const res = await supabase.auth.signInWithPassword({
+          email: account.email,
+          password: account.password,
+        });
+        signInData = res.data;
+        signInError = res.error;
+      }
 
       // 3) If blocked due to old unconfirmed user, create a fresh unique account and sign in
       if (signInError && (signInError.code === 'email_not_confirmed' || /Email not confirmed/i.test(signInError.message))) {
@@ -103,7 +110,7 @@ const Auth = () => {
         const { error: su2 } = await supabase.auth.signUp({
           email: uniqueEmail,
           password: account.password,
-          options: { emailRedirectTo: redirectUrl, data: { full_name: account.label } },
+          options: { data: { full_name: account.label } },
         });
         if (su2) throw su2;
         emailToUse = uniqueEmail;

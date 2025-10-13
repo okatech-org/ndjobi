@@ -47,33 +47,29 @@ export const useAuth = () => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
-        // Defer fetching additional data with setTimeout
+        // Fetch additional data
         if (currentSession?.user) {
-          setTimeout(() => {
-            fetchUserData(currentSession.user.id);
-          }, 0);
+          await fetchUserData(currentSession.user.id);
+          setIsLoading(false);
         } else {
           setProfile(null);
           setRole(null);
+          setIsLoading(false);
         }
-
-        setIsLoading(false);
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
 
       if (currentSession?.user) {
-        setTimeout(() => {
-          fetchUserData(currentSession.user.id);
-        }, 0);
+        await fetchUserData(currentSession.user.id);
       }
 
       setIsLoading(false);
