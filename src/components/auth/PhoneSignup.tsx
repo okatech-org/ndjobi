@@ -40,7 +40,7 @@ export const PhoneSignup = () => {
   const [step, setStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [otpCode, setOtpCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [countryCode, setCountryCode] = useState('+242');
+  const [countryCode, setCountryCode] = useState('+241');
 
   const {
     register: registerPhone,
@@ -49,7 +49,7 @@ export const PhoneSignup = () => {
   } = useForm<PhoneFormData>({
     resolver: zodResolver(phoneSchema),
     defaultValues: {
-      countryCode: '+242',
+      countryCode: '+241',
       phoneNumber: '',
     },
   });
@@ -170,11 +170,20 @@ export const PhoneSignup = () => {
               <SelectTrigger className="w-[110px]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background z-50">
+                <SelectItem value="+241">🇬🇦 +241</SelectItem>
                 <SelectItem value="+242">🇨🇬 +242</SelectItem>
+                <SelectItem value="+237">🇨🇲 +237</SelectItem>
+                <SelectItem value="+225">🇨🇮 +225</SelectItem>
                 <SelectItem value="+33">🇫🇷 +33</SelectItem>
+                <SelectItem value="+221">🇸🇳 +221</SelectItem>
+                <SelectItem value="+212">🇲🇦 +212</SelectItem>
+                <SelectItem value="+27">🇿🇦 +27</SelectItem>
+                <SelectItem value="+233">🇬🇭 +233</SelectItem>
+                <SelectItem value="+240">🇬🇶 +240</SelectItem>
                 <SelectItem value="+1">🇺🇸 +1</SelectItem>
-                <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                <SelectItem value="+1">🇨🇦 +1</SelectItem>
+                <SelectItem value="+86">🇨🇳 +86</SelectItem>
               </SelectContent>
             </Select>
             <div className="relative flex-1">
