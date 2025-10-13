@@ -76,7 +76,7 @@ const Auth = () => {
     };
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/dashboard`;
 
       // 1) Try to ensure account exists and is confirmed (auto-confirm enabled)
       const { error: signUpError } = await supabase.auth.signUp({
@@ -122,7 +122,7 @@ const Auth = () => {
       }
 
       toast({ title: 'Connexion réussie !', description: `Bienvenue, ${account.label}` });
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       toast({

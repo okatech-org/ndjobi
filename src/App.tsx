@@ -8,6 +8,11 @@ import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashboard";
+import UserDashboard from "./pages/dashboards/UserDashboard";
+import AgentDashboard from "./pages/dashboards/AgentDashboard";
+import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import SuperAdminDashboard from "./pages/dashboards/SuperAdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +46,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
@@ -65,6 +70,46 @@ const App = () => {
                 <PublicRoute>
                   <Auth />
                 </PublicRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/user"
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/agent"
+              element={
+                <ProtectedRoute>
+                  <AgentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin"
+              element={
+                <ProtectedRoute>
+                  <SuperAdminDashboard />
+                </ProtectedRoute>
               }
             />
             <Route path="*" element={<NotFound />} />

@@ -46,7 +46,7 @@ export const SignupForm = () => {
   const onSubmit = async (data: SignupFormData) => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/dashboard`;
 
       const { error } = await supabase.auth.signUp({
         email: data.email,
@@ -65,7 +65,7 @@ export const SignupForm = () => {
         title: 'Compte créé !',
         description: 'Vous êtes maintenant connecté',
       });
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',

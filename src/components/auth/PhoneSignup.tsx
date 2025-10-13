@@ -148,7 +148,7 @@ export const PhoneSignup = () => {
         title: 'Inscription réussie !',
         description: 'Votre compte a été créé avec succès',
       });
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',

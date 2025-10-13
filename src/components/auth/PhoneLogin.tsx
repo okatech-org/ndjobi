@@ -72,7 +72,7 @@ export const PhoneLogin = () => {
         title: 'Connexion réussie !',
         description: 'Vous êtes maintenant connecté',
       });
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',
