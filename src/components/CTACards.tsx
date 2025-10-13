@@ -1,6 +1,10 @@
 import { AlertCircle, FolderLock, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import reportCaseImg from "@/assets/report-case.jpg";
+import protectProjectImg from "@/assets/protect-project.jpg";
+import myFilesImg from "@/assets/my-files.jpg";
 
 const CTACards = () => {
   const cards = [
@@ -11,6 +15,7 @@ const CTACards = () => {
       gradient: "from-destructive/90 to-destructive/70",
       href: "#signalement",
       badge: null,
+      image: reportCaseImg,
     },
     {
       icon: FolderLock,
@@ -19,6 +24,7 @@ const CTACards = () => {
       gradient: "from-secondary/90 to-secondary/70",
       href: "#projet",
       badge: "Profil requis",
+      image: protectProjectImg,
     },
     {
       icon: FileText,
@@ -27,6 +33,7 @@ const CTACards = () => {
       gradient: "from-primary/90 to-primary/70",
       href: "#dossiers",
       badge: "3 actifs",
+      image: myFilesImg,
     },
   ];
 
@@ -47,8 +54,17 @@ const CTACards = () => {
           return (
             <a key={index} href={card.href} className="block group">
               <Card className="h-full transition-all duration-300 hover:scale-[1.02] sm:hover:scale-105 hover:shadow-xl border-2 hover:border-primary/50 relative overflow-hidden">
-                {/* Gradient Background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                {/* Image illustrative */}
+                <div className="relative w-full overflow-hidden">
+                  <AspectRatio ratio={4 / 3}>
+                    <img 
+                      src={card.image} 
+                      alt={card.title}
+                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+                    />
+                  </AspectRatio>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-20 group-hover:opacity-30 transition-opacity`} />
+                </div>
                 
                 <CardHeader className="relative p-4 sm:p-6">
                   <div className="flex items-start justify-between mb-3 sm:mb-0">
