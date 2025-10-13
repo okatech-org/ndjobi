@@ -64,21 +64,19 @@ const CTACards = () => {
                     />
                   </AspectRatio>
                   <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-20 group-hover:opacity-30 transition-opacity`} />
+                  {card.badge && (
+                    <Badge variant="secondary" className="absolute top-3 right-3 text-[10px] sm:text-xs whitespace-normal text-center leading-tight">
+                      {card.badge}
+                    </Badge>
+                  )}
                 </div>
                 
                 <CardHeader className="relative p-4 sm:p-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className={`p-2.5 sm:p-3 rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg flex-shrink-0`}>
-                        <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                      </div>
-                      <CardTitle className="text-lg sm:text-xl">{card.title}</CardTitle>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2.5 sm:p-3 rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg flex-shrink-0`}>
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    {card.badge && (
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs flex-shrink-0 whitespace-normal text-center leading-tight">
-                        {card.badge}
-                      </Badge>
-                    )}
+                    <CardTitle className="text-lg sm:text-xl">{card.title}</CardTitle>
                   </div>
                 </CardHeader>
                 
