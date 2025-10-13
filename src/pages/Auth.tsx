@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DemoAccount } from '@/types/auth';
+import { AuthTabs } from '@/components/auth/AuthTabs';
+import { Separator } from '@/components/ui/separator';
 
 const demoAccounts: DemoAccount[] = [
   {
@@ -135,23 +137,42 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-4 py-12">
-      <div className="w-full max-w-6xl">
+      <div className="w-full max-w-6xl space-y-8 sm:space-y-12">
         {/* Header */}
-        <div className="text-center mb-10 sm:mb-12 space-y-3 sm:space-y-4">
+        <div className="text-center space-y-3 sm:space-y-4">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">NDJOBI</h1>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
-            Accès Démo
+            Authentification
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-            Connectez-vous en un clic avec l'un des comptes de démonstration
+            Connectez-vous ou créez un compte pour accéder à la plateforme
           </p>
         </div>
 
-        {/* Demo Accounts Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Auth Forms */}
+        <AuthTabs />
+
+        {/* Separator */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator className="w-full" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Ou essayez avec un compte démo
+            </span>
+          </div>
+        </div>
+
+        {/* Demo Accounts */}
+        <div>
+          <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 sm:mb-6">
+            Comptes de Démonstration
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {demoAccounts.map((account) => {
             const Icon = getIcon(account.icon);
             const isLoading = loading === account.email;
@@ -200,6 +221,7 @@ const Auth = () => {
               </Card>
             );
           })}
+          </div>
         </div>
 
         {/* Info Footer */}
