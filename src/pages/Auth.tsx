@@ -162,7 +162,7 @@ const Auth = () => {
             Authentification
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-            Connectez-vous ou créez un compte pour accéder à la plateforme
+            Connectez-vous ou créez un&nbsp;compte pour accéder à&nbsp;la&nbsp;plateforme
           </p>
         </div>
 
