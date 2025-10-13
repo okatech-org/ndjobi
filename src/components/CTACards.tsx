@@ -67,17 +67,19 @@ const CTACards = () => {
                 </div>
                 
                 <CardHeader className="relative p-4 sm:p-6">
-                  <div className="flex items-start justify-between mb-3 sm:mb-0">
-                    <div className={`p-2.5 sm:p-3 rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg`}>
-                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={`p-2.5 sm:p-3 rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg flex-shrink-0`}>
+                        <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                      </div>
+                      <CardTitle className="text-lg sm:text-xl">{card.title}</CardTitle>
                     </div>
                     {card.badge && (
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs">
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs flex-shrink-0">
                         {card.badge}
                       </Badge>
                     )}
                   </div>
-                  <CardTitle className="text-lg sm:text-xl mt-3 sm:mt-4">{card.title}</CardTitle>
                 </CardHeader>
                 
                 <CardContent className="relative p-4 sm:p-6 pt-0 sm:pt-0">
