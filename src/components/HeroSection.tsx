@@ -4,7 +4,7 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden bg-background">
       {/* Content */}
-      <div className="container relative z-10 py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6">
+      <div className="container relative z-10 py-8 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6">
         <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fade-in">
           <div className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full">
             <span className="text-xs sm:text-sm font-medium text-primary">

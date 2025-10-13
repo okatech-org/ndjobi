@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const TrustSection = () => {
   return (
-    <section className="container py-12 sm:py-16 md:py-20 bg-muted/30">
-      <div className="text-center mb-10 sm:mb-12 space-y-3 sm:space-y-4 px-4">
+    <section className="container py-6 sm:py-16 md:py-20 bg-muted/30">
+      <div className="text-center mb-6 sm:mb-12 space-y-3 sm:space-y-4 px-4">
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
           Pourquoi faire confiance à NDJOBI ?
         </h2>

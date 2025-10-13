@@ -31,8 +31,8 @@ const CTACards = () => {
   ];
 
   return (
-    <section id="signaler" className="container py-12 sm:py-16 md:py-20">
-      <div className="text-center mb-10 sm:mb-12 space-y-3 sm:space-y-4 px-4">
+    <section id="signaler" className="container py-6 sm:py-16 md:py-20">
+      <div className="text-center mb-6 sm:mb-12 space-y-3 sm:space-y-4 px-4">
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
           Comment pouvons-nous vous aider ?
         </h2>
