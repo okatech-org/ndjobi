@@ -138,6 +138,20 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-4 py-12">
       <div className="w-full max-w-6xl space-y-8 sm:space-y-12">
+        {/* Back Button */}
+        <div className="flex justify-start">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="gap-2"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Retour à l'accueil
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="text-center space-y-3 sm:space-y-4">
           <div className="flex items-center justify-center space-x-3 mb-4">
