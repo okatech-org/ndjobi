@@ -38,8 +38,7 @@ export const SocialAuth = () => {
     <div className="flex gap-2 justify-center flex-wrap">
       <Button
         variant="outline"
-        size="icon"
-        className="h-12 w-12"
+        className="h-12 w-24"
         onClick={() => handleSocialLogin('google')}
         disabled={!!loading}
         title="Continuer avec Google"
@@ -70,8 +69,7 @@ export const SocialAuth = () => {
 
       <Button
         variant="outline"
-        size="icon"
-        className="h-12 w-12"
+        className="h-12 w-24"
         onClick={() => handleSocialLogin('apple')}
         disabled={!!loading}
         title="Continuer avec Apple"
@@ -87,8 +85,7 @@ export const SocialAuth = () => {
 
       <Button
         variant="outline"
-        size="icon"
-        className="h-12 w-12"
+        className="h-12 w-24"
         onClick={() => handleSocialLogin('facebook')}
         disabled={!!loading}
         title="Continuer avec Facebook"
