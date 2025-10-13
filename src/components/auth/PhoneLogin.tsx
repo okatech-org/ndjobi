@@ -99,6 +99,10 @@ export const PhoneLogin = () => {
               <SelectItem value="+237">🇨🇲 +237</SelectItem>
               <SelectItem value="+225">🇨🇮 +225</SelectItem>
               <SelectItem value="+33">🇫🇷 +33</SelectItem>
+              <SelectItem value="+32">🇧🇪 +32</SelectItem>
+              <SelectItem value="+49">🇩🇪 +49</SelectItem>
+              <SelectItem value="+44">🇬🇧 +44</SelectItem>
+              <SelectItem value="+34">🇪🇸 +34</SelectItem>
               <SelectItem value="+221">🇸🇳 +221</SelectItem>
               <SelectItem value="+212">🇲🇦 +212</SelectItem>
               <SelectItem value="+27">🇿🇦 +27</SelectItem>
