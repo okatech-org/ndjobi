@@ -7,14 +7,16 @@ import { Loader2, Phone, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const loginSchema = z.object({
-  phone: z.string()
+  countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
+  phoneNumber: z.string()
     .trim()
-    .regex(/^\+?[1-9]\d{1,14}$/, { message: 'Numéro de téléphone invalide (format: +242XXXXXXXXX)' })
-    .max(20, { message: 'Numéro trop long' }),
+    .regex(/^\d{9,}$/, { message: 'Numéro de téléphone invalide (9 chiffres minimum)' })
+    .max(15, { message: 'Numéro trop long' }),
   pin: z.string()
     .length(6, { message: 'Le code PIN doit contenir 6 chiffres' })
     .regex(/^\d+$/, { message: 'Le code PIN ne doit contenir que des chiffres' }),
@@ -26,6 +28,7 @@ export const PhoneLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [countryCode, setCountryCode] = useState('+242');
 
   const {
     register,
@@ -33,14 +36,19 @@ export const PhoneLogin = () => {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      countryCode: '+242',
+    },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     try {
+      const fullPhone = `${data.countryCode}${data.phoneNumber}`;
+      
       // First, get user by phone number
       const { data: { user }, error: userError } = await supabase.auth.signInWithOtp({
-        phone: data.phone,
+        phone: fullPhone,
         options: {
           shouldCreateUser: false,
         },
@@ -51,7 +59,7 @@ export const PhoneLogin = () => {
       // Verify PIN via edge function
       const { data: verifyResult, error: verifyError } = await supabase.functions.invoke('verify-pin', {
         body: {
-          phone: data.phone,
+          phone: fullPhone,
           pin: data.pin,
         },
       });
@@ -80,18 +88,32 @@ export const PhoneLogin = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="login-phone">Numéro de téléphone</Label>
-        <div className="relative">
-          <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            id="login-phone"
-            type="tel"
-            placeholder="+242 XX XXX XXXX"
-            className="pl-10"
-            {...register('phone')}
-          />
+        <div className="flex gap-2">
+          <Select value={countryCode} onValueChange={setCountryCode}>
+            <SelectTrigger className="w-[110px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="+242">🇨🇬 +242</SelectItem>
+              <SelectItem value="+33">🇫🇷 +33</SelectItem>
+              <SelectItem value="+1">🇺🇸 +1</SelectItem>
+              <SelectItem value="+44">🇬🇧 +44</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="relative flex-1">
+            <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="login-phone"
+              type="tel"
+              placeholder="XX XXX XXXX"
+              className="pl-10"
+              {...register('phoneNumber')}
+            />
+            <input type="hidden" {...register('countryCode')} value={countryCode} />
+          </div>
         </div>
-        {errors.phone && (
-          <p className="text-xs text-destructive">{errors.phone.message}</p>
+        {errors.phoneNumber && (
+          <p className="text-xs text-destructive">{errors.phoneNumber.message}</p>
         )}
       </div>
 

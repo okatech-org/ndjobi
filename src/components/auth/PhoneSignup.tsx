@@ -7,15 +7,17 @@ import { Loader2, Phone, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const phoneSchema = z.object({
-  phone: z.string()
+  countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
+  phoneNumber: z.string()
     .trim()
-    .regex(/^\+?[1-9]\d{1,14}$/, { message: 'Numéro de téléphone invalide (format: +242XXXXXXXXX)' })
-    .max(20, { message: 'Numéro trop long' }),
+    .regex(/^\d{9,}$/, { message: 'Numéro de téléphone invalide (9 chiffres minimum)' })
+    .max(15, { message: 'Numéro trop long' }),
 });
 
 const pinSchema = z.object({
@@ -38,6 +40,7 @@ export const PhoneSignup = () => {
   const [step, setStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [otpCode, setOtpCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+242');
 
   const {
     register: registerPhone,
@@ -45,6 +48,10 @@ export const PhoneSignup = () => {
     formState: { errors: phoneErrors },
   } = useForm<PhoneFormData>({
     resolver: zodResolver(phoneSchema),
+    defaultValues: {
+      countryCode: '+242',
+      phoneNumber: '',
+    },
   });
 
   const {
@@ -58,13 +65,15 @@ export const PhoneSignup = () => {
   const onPhoneSubmit = async (data: PhoneFormData) => {
     setLoading(true);
     try {
+      const fullPhone = `${data.countryCode}${data.phoneNumber}`;
+      
       const { error } = await supabase.auth.signInWithOtp({
-        phone: data.phone,
+        phone: fullPhone,
       });
 
       if (error) throw error;
 
-      setPhoneNumber(data.phone);
+      setPhoneNumber(fullPhone);
       setStep('otp');
       toast({
         title: 'Code envoyé !',
@@ -74,7 +83,7 @@ export const PhoneSignup = () => {
       toast({
         variant: 'destructive',
         title: 'Erreur',
-        description: error?.message || 'Impossible d\'envoyer le code',
+        description: error?.message || "Impossible d'envoyer le code",
       });
     } finally {
       setLoading(false);
@@ -156,18 +165,32 @@ export const PhoneSignup = () => {
       <form onSubmit={handleSubmitPhone(onPhoneSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="phone">Numéro de téléphone</Label>
-          <div className="relative">
-            <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+242 XX XXX XXXX"
-              className="pl-10"
-              {...registerPhone('phone')}
-            />
+          <div className="flex gap-2">
+            <Select value={countryCode} onValueChange={setCountryCode}>
+              <SelectTrigger className="w-[110px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="+242">🇨🇬 +242</SelectItem>
+                <SelectItem value="+33">🇫🇷 +33</SelectItem>
+                <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                <SelectItem value="+44">🇬🇧 +44</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="relative flex-1">
+              <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="XX XXX XXXX"
+                className="pl-10"
+                {...registerPhone('phoneNumber')}
+              />
+              <input type="hidden" {...registerPhone('countryCode')} value={countryCode} />
+            </div>
           </div>
-          {phoneErrors.phone && (
-            <p className="text-xs text-destructive">{phoneErrors.phone.message}</p>
+          {phoneErrors.phoneNumber && (
+            <p className="text-xs text-destructive">{phoneErrors.phoneNumber.message}</p>
           )}
         </div>
 
