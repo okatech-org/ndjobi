@@ -1,22 +1,8 @@
-import heroImage from "@/assets/hero-ndjobi.jpg";
 import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={heroImage}
-          alt="NDJOBI - Protection citoyenne au Gabon"
-          className="w-full h-full object-cover object-center"
-          loading="eager"
-          decoding="async"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/98 via-background/90 to-background/70 md:from-background/95 md:via-background/85 md:to-background/60" />
-      </div>
-
+    <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden bg-background">
       {/* Content */}
       <div className="container relative z-10 py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6">
         <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fade-in">
