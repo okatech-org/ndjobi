@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getDashboardUrl } from '@/lib/roleUtils';
 
 const phoneSchema = z.object({
   countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
@@ -144,11 +145,28 @@ export const PhoneSignup = () => {
 
       if (error) throw error;
 
+      // Fetch user role for redirect (defaults to user role for signups)
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      let dashboardUrl = '/dashboard/user';
+      if (currentUser) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', currentUser.id)
+          .order('role', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (roleData?.role) {
+          dashboardUrl = getDashboardUrl(roleData.role);
+        }
+      }
+
       toast({
         title: 'Inscription réussie !',
         description: 'Votre compte a été créé avec succès',
       });
-      navigate('/dashboard');
+      navigate(dashboardUrl);
     } catch (error: any) {
       toast({
         variant: 'destructive',

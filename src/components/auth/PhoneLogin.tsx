@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getDashboardUrl } from '@/lib/roleUtils';
 
 const loginSchema = z.object({
   countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
@@ -68,11 +69,28 @@ export const PhoneLogin = () => {
         throw new Error('Code PIN incorrect');
       }
 
+      // Fetch user role
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      let dashboardUrl = '/dashboard';
+      if (currentUser) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', currentUser.id)
+          .order('role', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (roleData?.role) {
+          dashboardUrl = getDashboardUrl(roleData.role);
+        }
+      }
+
       toast({
         title: 'Connexion réussie !',
         description: 'Vous êtes maintenant connecté',
       });
-      navigate('/dashboard');
+      navigate(dashboardUrl);
     } catch (error: any) {
       toast({
         variant: 'destructive',

@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DemoAccount } from '@/types/auth';
 import { PhoneAuth } from '@/components/auth/PhoneAuth';
 import { Separator } from '@/components/ui/separator';
+import { getDashboardUrl } from '@/lib/roleUtils';
 
 const demoAccounts: DemoAccount[] = [
   {
@@ -122,7 +123,10 @@ const Auth = () => {
       }
 
       toast({ title: 'Connexion réussie !', description: `Bienvenue, ${account.label}` });
-      navigate('/dashboard');
+      
+      // Redirect to role-specific dashboard
+      const dashboardUrl = getDashboardUrl(account.role);
+      navigate(dashboardUrl);
     } catch (error: any) {
       console.error('Login error:', error);
       toast({

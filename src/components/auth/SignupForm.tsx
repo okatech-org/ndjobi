@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getDashboardUrl } from '@/lib/roleUtils';
 
 const signupSchema = z.object({
   fullName: z.string()
@@ -48,7 +49,7 @@ export const SignupForm = () => {
     try {
       const redirectUrl = `${window.location.origin}/dashboard`;
 
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -61,11 +62,27 @@ export const SignupForm = () => {
 
       if (error) throw error;
 
+      // Fetch user role for redirect (defaults to user role for signups)
+      let dashboardUrl = '/dashboard/user';
+      if (signUpData?.user) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', signUpData.user.id)
+          .order('role', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (roleData?.role) {
+          dashboardUrl = getDashboardUrl(roleData.role);
+        }
+      }
+
       toast({
         title: 'Compte créé !',
         description: 'Vous êtes maintenant connecté',
       });
-      navigate('/dashboard');
+      navigate(dashboardUrl);
     } catch (error: any) {
       toast({
         variant: 'destructive',
