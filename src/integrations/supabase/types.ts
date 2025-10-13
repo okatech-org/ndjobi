@@ -44,6 +44,105 @@ export type Database = {
         }
         Relationships: []
       }
+      projets: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          files: Json | null
+          id: string
+          metadata: Json | null
+          protected_at: string | null
+          protection_number: string | null
+          protection_type: string | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          files?: Json | null
+          id?: string
+          metadata?: Json | null
+          protected_at?: string | null
+          protection_number?: string | null
+          protection_type?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          files?: Json | null
+          id?: string
+          metadata?: Json | null
+          protected_at?: string | null
+          protection_number?: string | null
+          protection_type?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      signalements: {
+        Row: {
+          attachments: Json | null
+          created_at: string | null
+          description: string
+          id: string
+          location: string | null
+          metadata: Json | null
+          priority: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string | null
+          description: string
+          id?: string
+          location?: string | null
+          metadata?: Json | null
+          priority?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          location?: string | null
+          metadata?: Json | null
+          priority?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_pins: {
         Row: {
           created_at: string | null
@@ -94,6 +193,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_demo_user_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

@@ -114,11 +114,12 @@ const Auth = () => {
 
       if (signInError) throw signInError;
 
-      // 4) Attempt to assign role (best-effort; may be restricted by policies)
+      // 4) Assign role using RPC function
       if (signInData?.user) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: signInData.user.id, role: account.role });
+        const { error: roleError } = await supabase.rpc('ensure_demo_user_role', {
+          _user_id: signInData.user.id,
+          _role: account.role
+        });
         if (roleError) console.error('Error assigning role:', roleError);
       }
 
