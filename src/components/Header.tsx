@@ -1,17 +1,10 @@
-import { useState } from "react";
-import { Menu, X, Shield, LogOut } from "lucide-react";
+import { Shield, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { user, role, profile, signOut } = useAuth();
 
@@ -96,54 +89,18 @@ const Header = () => {
           </div>
         </nav>
 
-        {/* Mobile Menu */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {/* Mobile Auth Button */}
+        <div className="md:hidden">
+          {user ? (
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
             </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[280px] sm:w-[350px]">
-            <nav className="flex flex-col space-y-4 mt-8">
-              {user ? (
-                <>
-                  {role && (
-                    <div className="pb-4 border-b border-border">
-                      <p className="text-sm text-muted-foreground mb-2">Connecté en tant que</p>
-                      <Badge variant={getRoleColor(role) as any}>
-                        {getRoleLabel(role)}
-                      </Badge>
-                      {profile?.full_name && (
-                        <p className="text-sm font-medium mt-2">{profile.full_name}</p>
-                      )}
-                      {profile?.email && (
-                        <p className="text-xs text-muted-foreground">{profile.email}</p>
-                      )}
-                    </div>
-                  )}
-                  {menuItems.map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      className="text-lg font-medium hover:text-primary transition-colors"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                  <Button variant="destructive" className="mt-4" onClick={handleSignOut}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Déconnexion
-                  </Button>
-                </>
-              ) : (
-                <Button variant="default" onClick={() => { navigate('/auth'); setIsOpen(false); }}>
-                  Se connecter
-                </Button>
-              )}
-            </nav>
-          </SheetContent>
-        </Sheet>
+          ) : (
+            <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
+              Connexion
+            </Button>
+          )}
+        </div>
       </div>
     </header>
   );
