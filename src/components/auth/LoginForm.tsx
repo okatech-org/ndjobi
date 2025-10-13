@@ -47,7 +47,7 @@ export const LoginForm = () => {
       if (error) throw error;
 
       // Fetch user role
-      let dashboardUrl = '/dashboard';
+      let dashboardUrl = '/dashboard/user'; // Default to user dashboard
       if (signInData?.user) {
         const { data: roleData } = await supabase
           .from('user_roles')
@@ -55,7 +55,7 @@ export const LoginForm = () => {
           .eq('user_id', signInData.user.id)
           .order('role', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         
         if (roleData?.role) {
           dashboardUrl = getDashboardUrl(roleData.role);

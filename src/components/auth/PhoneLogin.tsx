@@ -69,9 +69,9 @@ export const PhoneLogin = () => {
         throw new Error('Code PIN incorrect');
       }
 
-      // Fetch user role
+      // Fetch user role for redirect
       const { data: { user: currentUser } } = await supabase.auth.getUser();
-      let dashboardUrl = '/dashboard';
+      let dashboardUrl = '/dashboard/user'; // Default to user dashboard
       if (currentUser) {
         const { data: roleData } = await supabase
           .from('user_roles')
@@ -79,7 +79,7 @@ export const PhoneLogin = () => {
           .eq('user_id', currentUser.id)
           .order('role', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         
         if (roleData?.role) {
           dashboardUrl = getDashboardUrl(roleData.role);

@@ -23,21 +23,23 @@ export const useAuth = () => {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      // Fetch role
+      // Fetch role - use maybeSingle() to handle users without roles
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .order('role', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (roleError) throw roleError;
-      setRole(roleData.role);
+      setRole(roleData?.role || null);
 
-      return { profile: profileData, role: roleData.role };
+      return { profile: profileData, role: roleData?.role || null };
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setProfile(null);
+      setRole(null);
       return null;
     }
   };

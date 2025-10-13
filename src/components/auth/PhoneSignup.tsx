@@ -155,7 +155,7 @@ export const PhoneSignup = () => {
           .eq('user_id', currentUser.id)
           .order('role', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         
         if (roleData?.role) {
           dashboardUrl = getDashboardUrl(roleData.role);

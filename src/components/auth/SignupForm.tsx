@@ -71,7 +71,7 @@ export const SignupForm = () => {
           .eq('user_id', signUpData.user.id)
           .order('role', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         
         if (roleData?.role) {
           dashboardUrl = getDashboardUrl(roleData.role);
