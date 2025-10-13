@@ -21,7 +21,7 @@ const Footer = () => {
           {/* Légal */}
           <div>
             <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Informations légales</h3>
-            <ul className="space-y-2 text-xs sm:text-sm">
+            <ul className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
               <li><a href="#cgu" className="text-muted-foreground hover:text-primary transition-colors">Conditions d'utilisation</a></li>
               <li><a href="#confidentialite" className="text-muted-foreground hover:text-primary transition-colors">Politique de confidentialité</a></li>
               <li><a href="#mentions" className="text-muted-foreground hover:text-primary transition-colors">Mentions légales</a></li>
