@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Shield, FileText, AlertCircle, FolderLock, Home } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Shield, FileText, AlertCircle, FolderLock, User, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -9,21 +9,53 @@ import { Button } from '@/components/ui/button';
 import { ReportForm } from '@/components/dashboard/user/ReportForm';
 import { ProjectProtectionForm } from '@/components/dashboard/user/ProjectProtectionForm';
 import { MyFiles } from '@/components/dashboard/user/MyFiles';
+import { UserProfile } from '@/components/dashboard/user/UserProfile';
+import { UserSettings } from '@/components/dashboard/user/UserSettings';
+import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav';
 
-type ViewMode = 'dashboard' | 'report' | 'project' | 'files';
+type ViewMode = 'profile' | 'report' | 'project' | 'files' | 'settings';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, role, isLoading, profile } = useAuth();
-  const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
+  const [viewMode, setViewMode] = useState<ViewMode>('profile');
+
+  // Lire la vue depuis les paramètres de l'URL
+  useEffect(() => {
+    const view = searchParams.get('view') as ViewMode;
+    if (view && ['report', 'project', 'files', 'settings'].includes(view)) {
+      setViewMode(view);
+    } else if (!view) {
+      setViewMode('profile');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
-    if (!isLoading && (!user || role !== 'user')) {
+    if (!isLoading && !user) {
       navigate('/auth');
     }
-  }, [user, role, isLoading, navigate]);
+  }, [user, isLoading, navigate]);
 
-  if (isLoading || !user) {
+  // Fonction pour changer de vue et mettre à jour l'URL
+  const handleViewChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    if (mode === 'profile') {
+      setSearchParams({});
+    } else {
+      setSearchParams({ view: mode });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return null;
   }
 
@@ -32,97 +64,27 @@ const UserDashboard = () => {
       case 'report':
         return (
           <ReportForm 
-            onSuccess={() => setViewMode('files')} 
-            onCancel={() => setViewMode('dashboard')}
+            onSuccess={() => handleViewChange('files')} 
+            onCancel={() => handleViewChange('profile')}
           />
         );
       case 'project':
         return (
           <ProjectProtectionForm 
-            onSuccess={() => setViewMode('files')} 
-            onCancel={() => setViewMode('dashboard')}
+            onSuccess={() => handleViewChange('files')} 
+            onCancel={() => handleViewChange('profile')}
           />
         );
       case 'files':
         return <MyFiles />;
+      case 'settings':
+        return <UserSettings />;
+      case 'profile':
       default:
         return (
           <>
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setViewMode('report')}>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-destructive/10">
-                      <AlertCircle className="h-6 w-6 text-destructive" />
-                    </div>
-                    <CardTitle className="text-xl">Signaler un cas</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="mb-4">
-                    Signaler un cas de corruption de manière anonyme et sécurisée
-                  </CardDescription>
-                  <Button className="w-full" variant="destructive">
-                    Nouveau signalement
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setViewMode('project')}>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-secondary/10">
-                      <FolderLock className="h-6 w-6 text-secondary" />
-                    </div>
-                    <CardTitle className="text-xl">Protéger un projet</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="mb-4">
-                    Enregistrer votre idée avec horodatage infalsifiable
-                  </CardDescription>
-                  <Button className="w-full" variant="secondary">
-                    Nouveau projet
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setViewMode('files')}>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <FileText className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl">Mes dossiers</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="mb-4">
-                    Consulter vos signalements et projets protégés
-                  </CardDescription>
-                  <Button className="w-full" variant="outline">
-                    Voir mes dossiers
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Info Section */}
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Shield className="h-6 w-6 text-primary" />
-                  <CardTitle>Vos données sont protégées</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Tous vos signalements sont chiffrés avec AES-256 et votre identité reste 100% confidentielle. 
-                  Nos serveurs sont hébergés au Gabon et respectent la souveraineté des données.
-                </p>
-              </CardContent>
-            </Card>
+            {/* Profile Component with Quick Actions */}
+            <UserProfile onNavigate={handleViewChange} />
           </>
         );
     }
@@ -131,30 +93,104 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container py-6 sm:py-8">
-        <div className="space-y-6">
-          {/* Welcome Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold">Espace Citoyen</h1>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  {profile?.full_name ? `Bienvenue ${profile.full_name}` : 'Bienvenue dans votre espace personnel sécurisé'}
-                </p>
+      <main className="flex-1 pb-24 lg:pb-0">
+        <div className="container py-6 sm:py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Sidebar Navigation - Desktop only */}
+            <div className="hidden lg:block lg:col-span-3">
+              <Card className="sticky top-6">
+                <CardHeader>
+                  <CardTitle className="text-lg">Navigation</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <nav className="space-y-1 p-2">
+                    <Button
+                      variant={viewMode === 'profile' ? 'secondary' : 'ghost'}
+                      className="w-full justify-start"
+                      onClick={() => handleViewChange('profile')}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Mon Profil
+                    </Button>
+                    <Button
+                      variant={viewMode === 'report' ? 'secondary' : 'ghost'}
+                      className="w-full justify-start"
+                      onClick={() => handleViewChange('report')}
+                    >
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Signaler
+                    </Button>
+                    <Button
+                      variant={viewMode === 'project' ? 'secondary' : 'ghost'}
+                      className="w-full justify-start"
+                      onClick={() => handleViewChange('project')}
+                    >
+                      <FolderLock className="h-4 w-4 mr-2" />
+                      Protéger
+                    </Button>
+                    <Button
+                      variant={viewMode === 'files' ? 'secondary' : 'ghost'}
+                      className="w-full justify-start"
+                      onClick={() => handleViewChange('files')}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Mes Dossiers
+                    </Button>
+                    <Button
+                      variant={viewMode === 'settings' ? 'secondary' : 'ghost'}
+                      className="w-full justify-start"
+                      onClick={() => handleViewChange('settings')}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Paramètres
+                    </Button>
+                  </nav>
+                </CardContent>
+              </Card>
+
+            </div>
+
+            {/* Main Content */}
+            <div className="lg:col-span-9">
+              <div className="space-y-6">
+                {/* Welcome Section */}
+                <div className="space-y-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold">
+                    {viewMode === 'profile' && 'Mon Profil'}
+                    {viewMode === 'files' && 'Mes Dossiers'}
+                    {viewMode === 'settings' && 'Paramètres'}
+                    {viewMode === 'report' && 'Signaler un cas'}
+                    {viewMode === 'project' && 'Protéger un projet'}
+                  </h1>
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    {profile?.full_name ? `Bienvenue ${profile.full_name}` : 'Bienvenue dans votre espace personnel sécurisé'}
+                  </p>
+                </div>
+
+                {renderContent()}
               </div>
-              {viewMode !== 'dashboard' && (
-                <Button variant="outline" onClick={() => setViewMode('dashboard')}>
-                  <Home className="h-4 w-4 mr-2" />
-                  Accueil
-                </Button>
-              )}
             </div>
           </div>
-
-          {renderContent()}
         </div>
       </main>
-      <Footer />
+
+      {/* Footer - visible sur toutes les tailles */}
+      <div className="hidden lg:block">
+        <Footer />
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav
+        items={[
+          { mode: 'profile', icon: User, label: 'Profil' },
+          { mode: 'report', icon: AlertCircle, label: 'Signaler' },
+          { mode: 'project', icon: FolderLock, label: 'Protéger' },
+          { mode: 'files', icon: FileText, label: 'Dossiers' },
+          { mode: 'settings', icon: Settings, label: 'Paramètres' },
+        ]}
+        activeMode={viewMode}
+        onModeChange={(mode) => handleViewChange(mode as ViewMode)}
+      />
     </div>
   );
 };

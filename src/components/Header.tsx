@@ -1,20 +1,21 @@
-import { Shield, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, role, profile, signOut } = useAuth();
 
-  const menuItems = [
-    { label: "Accueil", href: "#" },
-    { label: "Mon Profil", href: "#profil" },
-    { label: "Mes Dossiers", href: "#dossiers" },
-    { label: "Statistiques", href: "#statistiques" },
-    { label: "Aide & Tutoriels", href: "#aide" },
-    { label: "Paramètres", href: "#parametres" },
+  // Menu pour les utilisateurs connectés - correspond au menu mobile
+  const authenticatedMenuItems = [
+    { label: "Mon Profil", path: "/dashboard/user", icon: User },
+    { label: "Signaler", path: "/dashboard/user?view=report", icon: AlertCircle },
+    { label: "Protéger", path: "/dashboard/user?view=project", icon: FolderLock },
+    { label: "Mes Dossiers", path: "/dashboard/user?view=files", icon: FileText },
+    { label: "Paramètres", path: "/dashboard/user?view=settings", icon: Settings },
   ];
 
   const getRoleLabel = (role: string | null) => {
@@ -63,11 +64,23 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          {user && menuItems.map((item) => (
-            <Button key={item.label} variant="ghost" asChild>
-              <a href={item.href}>{item.label}</a>
-            </Button>
-          ))}
+          {user && authenticatedMenuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path || 
+                           (item.path.includes('?view=') && location.search.includes(item.path.split('?view=')[1]));
+            return (
+              <Button 
+                key={item.label} 
+                variant={isActive ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => navigate(item.path)}
+                className="gap-2"
+              >
+                <Icon className="h-4 w-4" />
+                {item.label}
+              </Button>
+            );
+          })}
           <div className="flex items-center gap-2 ml-4">
             {user ? (
               <>

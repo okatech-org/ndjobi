@@ -126,3 +126,28 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbar for mobile navigation */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Smooth scroll snapping */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-center {
+    scroll-snap-align: center;
+  }
+
+  .snap-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+}

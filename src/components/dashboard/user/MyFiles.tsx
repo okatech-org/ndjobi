@@ -1,161 +1,262 @@
-import { useState } from 'react';
-import { FileText, AlertCircle, FolderLock, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { FileText, Shield, Calendar, Eye, Download, AlertCircle, FolderLock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
-// Mock data - Replace with actual Supabase queries
-const mockReports = [
-  {
-    id: '1',
-    title: 'Demande de pot-de-vin au ministère',
-    type: 'corruption',
-    status: 'en_cours',
-    date: '2025-10-10',
-    tracking: 'RPT-2025-001',
-  },
-  {
-    id: '2',
-    title: 'Extorsion lors d\'une procédure administrative',
-    type: 'extorsion',
-    status: 'resolu',
-    date: '2025-09-15',
-    tracking: 'RPT-2025-002',
-  },
-];
+interface Report {
+  id: string;
+  type: string;
+  location: string;
+  description: string;
+  status: 'pending' | 'processing' | 'resolved' | 'closed';
+  created_at: string;
+  anonymous: boolean;
+}
 
-const mockProjects = [
-  {
-    id: '1',
-    title: 'Application mobile de gestion agricole',
-    category: 'agriculture',
-    status: 'protege',
-    date: '2025-10-05',
-    certificate: 'CERT-2025-ABC123',
-  },
-];
+interface Project {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  status: 'protected' | 'reviewed';
+  timestamp: string;
+  created_at: string;
+}
 
 export const MyFiles = () => {
-  const [selectedTab, setSelectedTab] = useState('reports');
+  const { user } = useAuth();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+
+  const fetchUserData = async () => {
+    if (!user) return;
+
+    try {
+      const [reportsResult, projectsResult] = await Promise.all([
+        supabase
+          .from('reports')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('protected_projects')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+      ]);
+
+      if (!reportsResult.error) {
+        setReports(reportsResult.data || []);
+      }
+      if (!projectsResult.error) {
+        setProjects(projectsResult.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'en_cours':
-        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />En cours</Badge>;
-      case 'resolu':
-        return <Badge><CheckCircle className="h-3 w-3 mr-1" />Résolu</Badge>;
-      case 'rejete':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Rejeté</Badge>;
-      case 'protege':
-        return <Badge variant="secondary"><CheckCircle className="h-3 w-3 mr-1" />Protégé</Badge>;
+      case 'pending':
+        return <Badge variant="secondary">En attente</Badge>;
+      case 'processing':
+        return <Badge variant="default">En cours</Badge>;
+      case 'resolved':
+        return <Badge className="bg-green-500">Résolu</Badge>;
+      case 'closed':
+        return <Badge variant="outline">Clôturé</Badge>;
+      case 'protected':
+        return <Badge className="bg-blue-500">Protégé</Badge>;
+      case 'reviewed':
+        return <Badge variant="outline">Examiné</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <FileText className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <CardTitle>Mes dossiers</CardTitle>
-            <CardDescription>
-              Consultez vos signalements et projets protégés
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="reports" className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4" />
-              Signalements
-              <Badge variant="secondary" className="ml-1">{mockReports.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="projects" className="flex items-center gap-2">
-              <FolderLock className="h-4 w-4" />
-              Projets
-              <Badge variant="secondary" className="ml-1">{mockProjects.length}</Badge>
-            </TabsTrigger>
-          </TabsList>
+  const getTypeLabel = (type: string) => {
+    const types: Record<string, string> = {
+      'extorsion': 'Extorsion',
+      'detournement': 'Détournement de fonds',
+      'pot-de-vin': 'Pot-de-vin',
+      'abus-pouvoir': 'Abus de pouvoir',
+      'nepotisme': 'Népotisme',
+      'fraude': 'Fraude',
+      'autre': 'Autre',
+    };
+    return types[type] || type;
+  };
 
-          <TabsContent value="reports" className="space-y-4 mt-6">
-            {mockReports.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <AlertCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Aucun signalement pour le moment</p>
-              </div>
-            ) : (
-              mockReports.map((report) => (
-                <Card key={report.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">{report.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          N° de suivi : <span className="font-mono">{report.tracking}</span>
-                        </p>
+  const getCategoryLabel = (category: string) => {
+    const categories: Record<string, string> = {
+      'tech': 'Technologie / IT',
+      'agriculture': 'Agriculture',
+      'sante': 'Santé',
+      'education': 'Éducation',
+      'energie': 'Énergie',
+      'transport': 'Transport',
+      'finance': 'Finance',
+      'commerce': 'Commerce',
+      'social': 'Social / ONG',
+      'autre': 'Autre',
+    };
+    return categories[category] || category;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Mes dossiers</h2>
+        <div className="flex gap-2">
+          <Badge variant="outline">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            {reports.length} signalements
+          </Badge>
+          <Badge variant="outline">
+            <FolderLock className="h-3 w-3 mr-1" />
+            {projects.length} projets
+          </Badge>
+        </div>
+      </div>
+
+      <Tabs defaultValue="reports" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="reports">Signalements</TabsTrigger>
+          <TabsTrigger value="projects">Projets protégés</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="reports" className="space-y-4">
+          {reports.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">Aucun signalement pour le moment</p>
+              </CardContent>
+            </Card>
+          ) : (
+            reports.map((report) => (
+              <Card key={report.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">{getTypeLabel(report.type)}</CardTitle>
+                        {getStatusBadge(report.status)}
                       </div>
-                      {getStatusBadge(report.status)}
+                      <CardDescription>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formatDistanceToNow(new Date(report.created_at), { 
+                            addSuffix: true, 
+                            locale: fr 
+                          })}
+                        </span>
+                      </CardDescription>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Déposé le {new Date(report.date).toLocaleDateString('fr-FR')}
-                      </span>
-                      <Button variant="outline" size="sm">
-                        Voir les détails
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Download className="h-4 w-4" />
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </TabsContent>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    <strong>Lieu :</strong> {report.location}
+                  </p>
+                  <p className="text-sm line-clamp-2">{report.description}</p>
+                  {report.anonymous && (
+                    <Badge variant="secondary" className="mt-2">
+                      <Shield className="h-3 w-3 mr-1" />
+                      Anonyme
+                    </Badge>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
 
-          <TabsContent value="projects" className="space-y-4 mt-6">
-            {mockProjects.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <FolderLock className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Aucun projet protégé pour le moment</p>
-              </div>
-            ) : (
-              mockProjects.map((project) => (
-                <Card key={project.id} className="hover:shadow-md transition-shadow border-secondary/20">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">{project.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Certificat : <span className="font-mono">{project.certificate}</span>
-                        </p>
+        <TabsContent value="projects" className="space-y-4">
+          {projects.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <FolderLock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">Aucun projet protégé pour le moment</p>
+              </CardContent>
+            </Card>
+          ) : (
+            projects.map((project) => (
+              <Card key={project.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">{project.title}</CardTitle>
+                        {getStatusBadge(project.status)}
                       </div>
-                      {getStatusBadge(project.status)}
+                      <CardDescription>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Protégé {formatDistanceToNow(new Date(project.timestamp), { 
+                            addSuffix: true, 
+                            locale: fr 
+                          })}
+                        </span>
+                      </CardDescription>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Protégé le {new Date(project.date).toLocaleDateString('fr-FR')}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          Voir le certificat
-                        </Button>
-                        <Button variant="secondary" size="sm">
-                          Détails
-                        </Button>
-                      </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <FileText className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    <strong>Catégorie :</strong> {getCategoryLabel(project.category)}
+                  </p>
+                  <p className="text-sm line-clamp-3">{project.description}</p>
+                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                    <Shield className="h-3 w-3" />
+                    Protégé par blockchain • Certificat disponible
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };

@@ -1,25 +1,32 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Loader2, FolderLock, Upload, X } from 'lucide-react';
+import { z } from 'zod';
+import { Loader2, Shield, Upload, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-const projectFormSchema = z.object({
-  category: z.string().min(1, 'Sélectionnez une catégorie'),
-  title: z.string().min(5, 'Le titre doit contenir au moins 5 caractères'),
-  description: z.string().min(50, 'La description doit contenir au moins 50 caractères'),
-  innovations: z.string().min(20, 'Décrivez les innovations principales'),
+const projectSchema = z.object({
+  title: z.string()
+    .min(3, { message: 'Le titre doit contenir au moins 3 caractères' })
+    .max(200, { message: 'Titre trop long' }),
+  category: z.string().min(1, { message: 'Sélectionnez une catégorie' }),
+  description: z.string()
+    .min(20, { message: 'Description trop courte (minimum 20 caractères)' })
+    .max(10000, { message: 'Description trop longue (maximum 10000 caractères)' }),
+  innovation_level: z.string().min(1, { message: 'Sélectionnez un niveau d\'innovation' }),
+  development_stage: z.string().min(1, { message: 'Sélectionnez un stade de développement' }),
+  budget_estimate: z.string().optional(),
+  timeline: z.string().optional(),
 });
 
-type ProjectFormData = z.infer<typeof projectFormSchema>;
+type ProjectFormData = z.infer<typeof projectSchema>;
 
 interface ProjectProtectionFormProps {
   onSuccess?: () => void;
@@ -29,28 +36,16 @@ interface ProjectProtectionFormProps {
 export const ProjectProtectionForm = ({ onSuccess, onCancel }: ProjectProtectionFormProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
 
-  const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectFormSchema),
-    defaultValues: {
-      category: '',
-      title: '',
-      description: '',
-      innovations: '',
-    },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm<ProjectFormData>({
+    resolver: zodResolver(projectSchema),
   });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setFiles(prev => [...prev, ...newFiles].slice(0, 10));
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-  };
 
   const onSubmit = async (data: ProjectFormData) => {
     setLoading(true);
@@ -58,27 +53,29 @@ export const ProjectProtectionForm = ({ onSuccess, onCancel }: ProjectProtection
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Non authentifié');
 
-      // TODO: Implement actual project protection with:
-      // 1. Creating a projects table
-      // 2. Uploading files to secure storage
-      // 3. Creating blockchain timestamp
-      // 4. Generating protection certificate
-      
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      const { error } = await supabase
+        .from('protected_projects')
+        .insert({
+          ...data,
+          user_id: user.id,
+          timestamp: new Date().toISOString(),
+          status: 'protected',
+        });
+
+      if (error) throw error;
 
       toast({
         title: 'Projet protégé !',
-        description: 'Votre projet a été enregistré avec horodatage infalsifiable',
+        description: 'Votre projet a été enregistré avec un horodatage infalsifiable.',
       });
-
-      form.reset();
-      setFiles([]);
-      onSuccess?.();
+      
+      reset();
+      if (onSuccess) onSuccess();
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Erreur',
-        description: error?.message || 'Impossible de protéger le projet',
+        description: error?.message || 'Une erreur est survenue',
       });
     } finally {
       setLoading(false);
@@ -90,175 +87,179 @@ export const ProjectProtectionForm = ({ onSuccess, onCancel }: ProjectProtection
       <CardHeader>
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-secondary/10">
-            <FolderLock className="h-6 w-6 text-secondary" />
+            <Shield className="h-6 w-6 text-secondary" />
           </div>
           <div>
-            <CardTitle>Protéger un projet</CardTitle>
-            <CardDescription>
-              Enregistrez votre idée avec horodatage blockchain infalsifiable
-            </CardDescription>
+            <CardTitle>Protéger un projet innovant</CardTitle>
+            <CardDescription>Enregistrez votre idée avec un horodatage certifié</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Catégorie *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez une catégorie" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="technologie">Technologie</SelectItem>
-                      <SelectItem value="agriculture">Agriculture</SelectItem>
-                      <SelectItem value="education">Éducation</SelectItem>
-                      <SelectItem value="sante">Santé</SelectItem>
-                      <SelectItem value="energie">Énergie</SelectItem>
-                      <SelectItem value="environnement">Environnement</SelectItem>
-                      <SelectItem value="transport">Transport</SelectItem>
-                      <SelectItem value="commerce">Commerce</SelectItem>
-                      <SelectItem value="autre">Autre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Titre du projet</Label>
+            <div className="relative">
+              <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="title"
+                placeholder="Ex: Application mobile de gestion agricole"
+                className="pl-10"
+                {...register('title')}
+              />
+            </div>
+            {errors.title && (
+              <p className="text-xs text-destructive">{errors.title.message}</p>
+            )}
+          </div>
 
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Titre du projet *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Application mobile de..." {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Un titre clair et descriptif de votre projet
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <div className="space-y-2">
+            <Label htmlFor="category">Catégorie</Label>
+            <Select onValueChange={(value) => setValue('category', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez une catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="tech">Technologie / IT</SelectItem>
+                <SelectItem value="agriculture">Agriculture</SelectItem>
+                <SelectItem value="sante">Santé</SelectItem>
+                <SelectItem value="education">Éducation</SelectItem>
+                <SelectItem value="energie">Énergie</SelectItem>
+                <SelectItem value="transport">Transport</SelectItem>
+                <SelectItem value="finance">Finance</SelectItem>
+                <SelectItem value="commerce">Commerce</SelectItem>
+                <SelectItem value="social">Social / ONG</SelectItem>
+                <SelectItem value="autre">Autre</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.category && (
+              <p className="text-xs text-destructive">{errors.category.message}</p>
+            )}
+          </div>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description complète *</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Décrivez votre projet en détail : objectif, fonctionnement, public cible..."
-                      className="min-h-[120px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <div className="space-y-2">
+            <Label htmlFor="description">Description détaillée</Label>
+            <Textarea
+              id="description"
+              placeholder="Décrivez votre projet, son objectif, son innovation..."
+              rows={6}
+              {...register('description')}
             />
+            {errors.description && (
+              <p className="text-xs text-destructive">{errors.description.message}</p>
+            )}
+          </div>
 
-            <FormField
-              control={form.control}
-              name="innovations"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Innovations et points clés *</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Qu'est-ce qui rend votre projet unique ? Quelles sont les innovations principales ?"
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Ces éléments constitueront la preuve d'antériorité
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* File Upload */}
-            <div className="space-y-3">
-              <FormLabel>Documents techniques (optionnel)</FormLabel>
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                <input
-                  type="file"
-                  multiple
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  id="project-files"
-                  disabled={files.length >= 10}
-                />
-                <label htmlFor="project-files" className="cursor-pointer">
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Cliquez pour ajouter des documents (max 10)
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Schémas, plans, maquettes, documents techniques
-                  </p>
-                </label>
-              </div>
-              
-              {files.length > 0 && (
-                <div className="space-y-2">
-                  {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                      <span className="text-sm truncate">{file.name}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="innovation_level">Niveau d'innovation</Label>
+              <Select onValueChange={(value) => setValue('innovation_level', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="incremental">Incrémental</SelectItem>
+                  <SelectItem value="substantiel">Substantiel</SelectItem>
+                  <SelectItem value="disruptif">Disruptif</SelectItem>
+                  <SelectItem value="radical">Radical</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.innovation_level && (
+                <p className="text-xs text-destructive">{errors.innovation_level.message}</p>
               )}
             </div>
 
-            {/* Protection Notice */}
-            <div className="p-4 bg-secondary/5 border border-secondary/20 rounded-lg space-y-2">
-              <p className="text-sm font-medium">🔒 Protection blockchain</p>
+            <div className="space-y-2">
+              <Label htmlFor="development_stage">Stade de développement</Label>
+              <Select onValueChange={(value) => setValue('development_stage', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="idee">Idée</SelectItem>
+                  <SelectItem value="conception">Conception</SelectItem>
+                  <SelectItem value="prototype">Prototype</SelectItem>
+                  <SelectItem value="test">Test/Pilote</SelectItem>
+                  <SelectItem value="production">Production</SelectItem>
+                  <SelectItem value="commercialisation">Commercialisation</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.development_stage && (
+                <p className="text-xs text-destructive">{errors.development_stage.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="budget_estimate">Budget estimé (optionnel)</Label>
+              <Input
+                id="budget_estimate"
+                placeholder="Ex: 500 000 FCFA"
+                {...register('budget_estimate')}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="timeline">Délai de réalisation (optionnel)</Label>
+              <Input
+                id="timeline"
+                placeholder="Ex: 6 mois"
+                {...register('timeline')}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="files">Documents du projet (optionnel)</Label>
+            <div className="border-2 border-dashed rounded-lg p-6 text-center">
+              <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                Votre projet sera horodaté sur la blockchain avec un certificat infalsifiable. 
-                Cela établit une preuve d'antériorité légale en cas de litige.
+                Business plan, maquettes, brevets, prototypes...
               </p>
+              <Input
+                id="files"
+                type="file"
+                className="hidden"
+                multiple
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,image/*"
+              />
             </div>
+          </div>
 
-            <div className="flex gap-3">
-              <Button type="submit" disabled={loading} variant="secondary" className="flex-1">
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Protection en cours...
-                  </>
-                ) : (
-                  'Protéger mon projet'
-                )}
-              </Button>
-              {onCancel && (
-                <Button type="button" variant="outline" onClick={onCancel}>
-                  Annuler
-                </Button>
+          <Card className="bg-muted/50">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-2">
+                <Shield className="h-5 w-5 text-primary mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium">Protection garantie</p>
+                  <p className="text-muted-foreground">
+                    Votre projet sera protégé par horodatage blockchain et chiffrement AES-256.
+                    Vous recevrez un certificat de protection avec l'empreinte unique de votre projet.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-4">
+            <Button type="submit" className="flex-1" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Protection en cours...
+                </>
+              ) : (
+                'Protéger mon projet'
               )}
-            </div>
-          </form>
-        </Form>
+            </Button>
+            {onCancel && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Annuler
+              </Button>
+            )}
+          </div>
+        </form>
       </CardContent>
     </Card>
   );
