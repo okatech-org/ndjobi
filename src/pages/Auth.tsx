@@ -192,7 +192,7 @@ const Auth = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-base sm:text-lg mb-1">{account.label}</CardTitle>
-                      <CardDescription className="text-xs line-clamp-2">
+                      <CardDescription className="text-[10px] sm:text-xs line-clamp-2 leading-tight">
                         {account.description}
                       </CardDescription>
                     </div>
