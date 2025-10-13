@@ -151,7 +151,7 @@ const Auth = () => {
         </div>
 
         {/* Demo Accounts Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {demoAccounts.map((account) => {
             const Icon = getIcon(account.icon);
             const isLoading = loading === account.email;
@@ -164,17 +164,17 @@ const Auth = () => {
                 {/* Gradient Background */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${account.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
 
-                <CardHeader className="relative p-4 sm:p-6 pb-3 sm:pb-4">
-                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${account.color} shadow-lg mb-3 sm:mb-4 flex items-center justify-center`}>
-                    <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+                <CardHeader className="relative p-3 sm:p-4 pb-2 sm:pb-3">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br ${account.color} shadow-lg mb-2 sm:mb-3 flex items-center justify-center`}>
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
-                  <CardTitle className="text-lg sm:text-xl">{account.label}</CardTitle>
-                  <CardDescription className="text-xs sm:text-sm line-clamp-2">
+                  <CardTitle className="text-base sm:text-lg">{account.label}</CardTitle>
+                  <CardDescription className="text-xs line-clamp-2">
                     {account.description}
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="relative p-4 sm:p-6 pt-0 sm:pt-0">
+                <CardContent className="relative p-3 sm:p-4 pt-0">
                   <Button
                     onClick={() => handleDemoLogin(account)}
                     disabled={!!loading}
@@ -191,8 +191,8 @@ const Auth = () => {
                     )}
                   </Button>
 
-                  <div className="mt-3 pt-3 border-t border-border/50">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground text-center font-mono">
+                  <div className="mt-2 pt-2 border-t border-border/50">
+                    <p className="text-[10px] text-muted-foreground text-center font-mono">
                       {account.email}
                     </p>
                   </div>
