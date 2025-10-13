@@ -75,7 +75,7 @@ const CTACards = () => {
                       <CardTitle className="text-lg sm:text-xl">{card.title}</CardTitle>
                     </div>
                     {card.badge && (
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs flex-shrink-0">
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs flex-shrink-0 whitespace-normal text-center leading-tight">
                         {card.badge}
                       </Badge>
                     )}
