@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { AnonymousModeManager } from './AnonymousModeManager';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -588,6 +589,19 @@ export const UserSettings = () => {
               <Badge variant="outline">Vérifié</Badge>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Mode Anonyme */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Mode Anonyme</CardTitle>
+          <CardDescription>
+            Gérez votre session anonyme pour protéger votre identité
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AnonymousModeManager />
         </CardContent>
       </Card>
 

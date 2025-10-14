@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileText, Shield, Calendar, Eye, Download, AlertCircle, FolderLock, MapPin, Search, Filter } from 'lucide-react';
+import { FileText, Shield, Calendar, Eye, Download, AlertCircle, FolderLock, MapPin, Search, Filter, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Pagination, PaginationInfo } from '@/components/ui/pagination';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { LocationMap } from '@/components/dashboard/LocationMap';
+import { FileDetail } from './FileDetail';
 
 interface Report {
   id: string;
@@ -50,6 +52,10 @@ export const MyFiles = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentReportsPage, setCurrentReportsPage] = useState(1);
+  const [currentProjectsPage, setCurrentProjectsPage] = useState(1);
+  const [detailView, setDetailView] = useState<{ fileId: string; fileType: 'report' | 'project' } | null>(null);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     if (user) {
@@ -215,6 +221,33 @@ export const MyFiles = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const totalReportsPages = Math.ceil(filteredReports.length / ITEMS_PER_PAGE);
+  const totalProjectsPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
+
+  const paginatedReports = filteredReports.slice(
+    (currentReportsPage - 1) * ITEMS_PER_PAGE,
+    currentReportsPage * ITEMS_PER_PAGE
+  );
+
+  const paginatedProjects = filteredProjects.slice(
+    (currentProjectsPage - 1) * ITEMS_PER_PAGE,
+    currentProjectsPage * ITEMS_PER_PAGE
+  );
+
+  const handleViewFullDetails = (fileId: string, fileType: 'report' | 'project') => {
+    setDetailView({ fileId, fileType });
+  };
+
+  if (detailView) {
+    return (
+      <FileDetail
+        fileId={detailView.fileId}
+        fileType={detailView.fileType}
+        onBack={() => setDetailView(null)}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -290,7 +323,8 @@ export const MyFiles = () => {
               </CardContent>
             </Card>
           ) : (
-            filteredReports.map((report) => (
+            <>
+              {paginatedReports.map((report) => (
               <Card key={report.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -310,14 +344,14 @@ export const MyFiles = () => {
                       </CardDescription>
                     </div>
                     <div className="flex gap-2">
+                      <Button size="sm" variant="default" onClick={() => handleViewFullDetails(report.id, 'report')} title="Voir les détails complets">
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
                       {report.gps_latitude && report.gps_longitude && (
                         <Button size="sm" variant="outline" onClick={() => handleShowMap(report)} title="Voir sur la carte">
                           <MapPin className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button size="sm" variant="outline" onClick={() => handleViewDetails(report)} title="Voir les détails">
-                        <Eye className="h-4 w-4" />
-                      </Button>
                       <Button size="sm" variant="outline" onClick={() => handleDownloadReport(report)} title="Télécharger">
                         <Download className="h-4 w-4" />
                       </Button>
@@ -346,7 +380,24 @@ export const MyFiles = () => {
                   )}
                 </CardContent>
               </Card>
-            ))
+            ))}
+
+            {filteredReports.length > ITEMS_PER_PAGE && (
+              <div className="space-y-4 pt-4">
+                <PaginationInfo
+                  currentPage={currentReportsPage}
+                  totalPages={totalReportsPages}
+                  totalItems={filteredReports.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                />
+                <Pagination
+                  currentPage={currentReportsPage}
+                  totalPages={totalReportsPages}
+                  onPageChange={setCurrentReportsPage}
+                />
+              </div>
+            )}
+            </>
           )}
         </TabsContent>
 
@@ -363,7 +414,8 @@ export const MyFiles = () => {
               </CardContent>
             </Card>
           ) : (
-            filteredProjects.map((project) => (
+            <>
+              {paginatedProjects.map((project) => (
               <Card key={project.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -383,14 +435,14 @@ export const MyFiles = () => {
                       </CardDescription>
                     </div>
                     <div className="flex gap-2">
+                      <Button size="sm" variant="default" onClick={() => handleViewFullDetails(project.id, 'project')} title="Voir les détails complets">
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
                       {project.gps_latitude && project.gps_longitude && (
                         <Button size="sm" variant="outline" onClick={() => handleShowMap(project)} title="Voir sur la carte">
                           <MapPin className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button size="sm" variant="outline" onClick={() => handleViewDetails(project)} title="Voir les détails">
-                        <Eye className="h-4 w-4" />
-                      </Button>
                       <Button size="sm" variant="outline" onClick={() => handleDownloadCertificate(project)} title="Télécharger le certificat">
                         <FileText className="h-4 w-4" />
                       </Button>
@@ -422,7 +474,24 @@ export const MyFiles = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))
+            ))}
+
+            {filteredProjects.length > ITEMS_PER_PAGE && (
+              <div className="space-y-4 pt-4">
+                <PaginationInfo
+                  currentPage={currentProjectsPage}
+                  totalPages={totalProjectsPages}
+                  totalItems={filteredProjects.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                />
+                <Pagination
+                  currentPage={currentProjectsPage}
+                  totalPages={totalProjectsPages}
+                  onPageChange={setCurrentProjectsPage}
+                />
+              </div>
+            )}
+            </>
           )}
         </TabsContent>
       </Tabs>

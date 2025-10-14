@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { SEOHead } from "@/components/SEOHead";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import CTACards from "@/components/CTACards";
@@ -35,6 +36,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead
+        title="Ndjobi - Protégez vos projets, Combattez la corruption"
+        description="Plateforme citoyenne sécurisée pour dénoncer la corruption de manière 100% anonyme et protéger vos innovations avec un horodatage blockchain infalsifiable."
+        keywords={['corruption', 'gabon', 'anti-corruption', 'blockchain', 'protection innovation', 'anonymat garanti', 'dénoncer corruption']}
+      />
       <Header />
       <main className="flex-1">
         <HeroSection />

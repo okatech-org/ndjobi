@@ -5,11 +5,13 @@ import {
   FileText, AlertCircle, Settings, BarChart3, Lock, 
   Eye, TrendingUp, Server, ChevronRight, AlertTriangle,
   Clock, Check, X, RefreshCcw, Download, Upload, MapPin, CheckCircle,
-  Search, Filter, Calendar, ExternalLink
+  Search, Filter, Calendar, ExternalLink, Trash2, Wrench
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { systemManagementService, type DatabaseStats, type ServiceStatus } from '@/services/systemManagement';
+import { userManagementService, type UserDetail, type UserStats } from '@/services/userManagement';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +23,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { SystemMaintenancePanel } from '@/components/admin/SecureModuleAccess';
 
 interface SystemStats {
@@ -85,6 +90,20 @@ const SuperAdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  
+  // États pour la gestion système
+  const [dbStats, setDbStats] = useState<DatabaseStats | null>(null);
+  const [services, setServices] = useState<ServiceStatus[]>([]);
+  const [securityScanResults, setSecurityScanResults] = useState<any>(null);
+  
+  // États pour la gestion des utilisateurs
+  const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+  const [showEditRole, setShowEditRole] = useState(false);
+  const [newRole, setNewRole] = useState('');
+  const [showSuspendDialog, setShowSuspendDialog] = useState(false);
+  const [suspendReason, setSuspendReason] = useState('');
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -107,8 +126,41 @@ const SuperAdminDashboard = () => {
       loadSystemStats();
       loadUsers();
       loadActivityLogs();
+      loadSystemData();
     }
   }, [user]);
+
+  const loadSystemData = async () => {
+    if (activeView === 'system') {
+      try {
+        const [stats, serviceStatus] = await Promise.all([
+          systemManagementService.getDatabaseStats(),
+          systemManagementService.checkServiceStatus(),
+        ]);
+        
+        setDbStats(stats);
+        setServices(serviceStatus);
+        
+        // Mettre à jour aussi les stats générales
+        setSystemStats(prev => ({
+          ...prev,
+          dbSize: stats.totalSize,
+          totalUsers: stats.userCount,
+          totalReports: stats.signalementCount,
+          totalProjects: stats.projetCount,
+        }));
+      } catch (error) {
+        console.error('Erreur chargement données système:', error);
+      }
+    }
+  };
+
+  // Charger les données système quand on change de vue
+  useEffect(() => {
+    if (activeView === 'system' && user) {
+      loadSystemData();
+    }
+  }, [activeView, user]);
 
   const loadSystemStats = async () => {
     try {
@@ -160,37 +212,32 @@ const SuperAdminDashboard = () => {
 
   const loadUsers = async () => {
     try {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          email,
-          full_name,
-          created_at
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50);
+      setIsLoading(true);
+      
+      const usersData = await userManagementService.getAllUsers(100);
+      
+      const mappedUsers: UserData[] = usersData.map(user => ({
+        id: user.id,
+        email: user.email,
+        username: user.full_name || 'Utilisateur',
+        role: user.role,
+        status: user.status,
+        lastLogin: user.last_sign_in_at 
+          ? new Date(user.last_sign_in_at).toLocaleDateString('fr-FR')
+          : 'Jamais',
+        created_at: user.created_at,
+      }));
 
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      const usersData: UserData[] = (profiles || []).map(profile => {
-        const userRole = roles?.find(r => r.user_id === profile.id);
-        return {
-          id: profile.id,
-          email: profile.email || 'N/A',
-          username: profile.full_name || 'Utilisateur',
-          role: userRole?.role || 'user',
-          status: 'active',
-          lastLogin: 'Récemment',
-          created_at: profile.created_at || ''
-        };
-      });
-
-      setUsers(usersData);
+      setUsers(mappedUsers);
     } catch (error) {
       console.error('Erreur chargement utilisateurs:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les utilisateurs",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -211,87 +258,288 @@ const SuperAdminDashboard = () => {
   };
 
   const handleBackup = async () => {
-    setIsLoading(true);
-    toast({
-      title: "Backup en cours...",
-      description: "Sauvegarde de la base de données",
-    });
+    try {
+      setIsLoading(true);
+      toast({
+        title: "Backup en cours...",
+        description: "Création de la sauvegarde de la base de données",
+      });
 
-    setTimeout(() => {
+      const filename = await systemManagementService.createBackup();
+      
       setIsLoading(false);
       toast({
         title: "Backup réussi",
-        description: "La base de données a été sauvegardée avec succès",
+        description: `Fichier sauvegardé: ${filename}`,
       });
-    }, 2000);
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        title: "Erreur backup",
+        description: "Impossible de créer la sauvegarde",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRestartServices = async () => {
-    setIsLoading(true);
-    toast({
-      title: "Redémarrage des services...",
-      description: "Cette opération peut prendre quelques secondes",
-    });
+    try {
+      setIsLoading(true);
+      toast({
+        title: "Redémarrage des services...",
+        description: "Vérification de l'état des services",
+      });
 
-    setTimeout(() => {
+      // Recharger les services pour simuler un redémarrage
+      await loadSystemData();
+      
+      setTimeout(() => {
+        setIsLoading(false);
+        toast({
+          title: "Services vérifiés",
+          description: "Tous les services sont opérationnels",
+        });
+      }, 2000);
+    } catch (error) {
       setIsLoading(false);
       toast({
-        title: "Services redémarrés",
-        description: "Tous les services sont maintenant opérationnels",
+        title: "Erreur",
+        description: "Impossible de redémarrer les services",
+        variant: "destructive",
       });
-    }, 3000);
+    }
   };
 
   const handleSecurityScan = async () => {
-    setIsLoading(true);
-    toast({
-      title: "Scan de sécurité...",
-      description: "Analyse du système en cours",
-    });
+    try {
+      setIsLoading(true);
+      toast({
+        title: "Scan de sécurité...",
+        description: "Analyse du système en cours",
+      });
 
-    setTimeout(() => {
+      const results = await systemManagementService.runSecurityScan();
+      setSecurityScanResults(results);
+      
+      setIsLoading(false);
+      
+      if (results.vulnerabilities === 0) {
+        toast({
+          title: "Scan terminé",
+          description: `${results.passed} vérifications passées. Aucune vulnérabilité détectée.`,
+        });
+      } else {
+        toast({
+          title: "Attention",
+          description: `${results.vulnerabilities} vulnérabilité(s) détectée(s)`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       setIsLoading(false);
       toast({
-        title: "Scan terminé",
-        description: "Aucune menace détectée. Système sécurisé.",
+        title: "Erreur scan",
+        description: "Impossible de scanner le système",
+        variant: "destructive",
       });
-    }, 2500);
+    }
   };
 
-  const handleExportData = async (format: 'csv' | 'json' | 'pdf') => {
-    toast({
-      title: "Export en cours...",
-      description: `Génération du fichier ${format.toUpperCase()}`,
-    });
+  const handleOptimizeDatabase = async () => {
+    try {
+      setIsLoading(true);
+      toast({
+        title: "Optimisation en cours...",
+        description: "Optimisation de la base de données",
+      });
 
-    setTimeout(() => {
+      const results = await systemManagementService.optimizeDatabase();
+      
+      setIsLoading(false);
+      toast({
+        title: "Optimisation terminée",
+        description: `${results.tablesOptimized} tables optimisées. ${results.spaceReclaimed} récupérés.`,
+      });
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'optimiser la base de données",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCleanupData = async () => {
+    try {
+      setIsLoading(true);
+      toast({
+        title: "Nettoyage en cours...",
+        description: "Suppression des anciennes données",
+      });
+
+      const count = await systemManagementService.cleanupOldData(90);
+      
+      setIsLoading(false);
+      toast({
+        title: "Nettoyage terminé",
+        description: `${count} enregistrement(s) supprimé(s)`,
+      });
+      
+      await loadSystemData();
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        title: "Erreur",
+        description: "Impossible de nettoyer les données",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportData = async (format: 'csv' | 'json') => {
+    try {
+      setIsLoading(true);
+      toast({
+        title: "Export en cours...",
+        description: `Génération du fichier ${format.toUpperCase()}`,
+      });
+
+      const blob = await systemManagementService.exportData(format);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `ndjobi-export-${timestamp}.${format}`;
+      
+      systemManagementService.downloadBlob(blob, filename);
+      
+      setIsLoading(false);
       toast({
         title: "Export réussi",
-        description: `Les données ont été exportées au format ${format.toUpperCase()}`,
+        description: `Fichier téléchargé: ${filename}`,
       });
-    }, 1500);
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        title: "Erreur export",
+        description: "Impossible d'exporter les données",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleViewUser = (userId: string) => {
-    toast({
-      title: "Détails utilisateur",
-      description: `Affichage du profil ${userId}`,
-    });
+  const handleViewUser = async (userId: string) => {
+    try {
+      setIsLoading(true);
+      const { user, stats } = await userManagementService.getUserDetails(userId);
+      setSelectedUser(user as any);
+      setUserStats(stats);
+      setShowUserDetails(true);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les détails de l'utilisateur",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleEditUser = (userId: string) => {
-    toast({
-      title: "Édition utilisateur",
-      description: `Modification du profil ${userId}`,
-    });
+  const handleEditRole = async (userId: string) => {
+    try {
+      const user = users.find(u => u.id === userId);
+      if (!user) return;
+      
+      setSelectedUser(user as any);
+      setNewRole(user.role);
+      setShowEditRole(true);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'éditer le rôle",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleConfirmRoleChange = async () => {
+    if (!selectedUser || !newRole) return;
+    
+    try {
+      setIsLoading(true);
+      await userManagementService.updateUserRole(selectedUser.id, newRole);
+      
+      toast({
+        title: "Rôle mis à jour",
+        description: `Le rôle a été changé vers ${newRole}`,
+      });
+      
+      setShowEditRole(false);
+      await loadUsers();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le rôle",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSuspendUser = async (userId: string) => {
-    toast({
-      title: "Suspension",
-      description: "L'utilisateur a été suspendu",
-    });
-    await loadUsers();
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    
+    setSelectedUser(user as any);
+    setShowSuspendDialog(true);
+  };
+
+  const handleConfirmSuspend = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      setIsLoading(true);
+      await userManagementService.suspendUser(selectedUser.id, suspendReason);
+      
+      toast({
+        title: "Utilisateur suspendu",
+        description: "L'utilisateur a été suspendu avec succès",
+      });
+      
+      setShowSuspendDialog(false);
+      setSuspendReason('');
+      await loadUsers();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de suspendre l'utilisateur",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReactivateUser = async (userId: string) => {
+    try {
+      setIsLoading(true);
+      await userManagementService.reactivateUser(userId);
+      
+      toast({
+        title: "Utilisateur réactivé",
+        description: "L'utilisateur a été réactivé avec succès",
+      });
+      
+      await loadUsers();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de réactiver l'utilisateur",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filteredUsers = users.filter(user => {
@@ -318,63 +566,63 @@ const SuperAdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-primary/20 hover:border-primary/40 transition-colors cursor-pointer"
               onClick={() => handleNavigateToView('users')}>
-          <CardHeader className="pb-3">
+              <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4 text-primary" />
               Utilisateurs
             </CardTitle>
-          </CardHeader>
-          <CardContent>
+              </CardHeader>
+              <CardContent>
             <div className="text-2xl font-bold">{systemStats.totalUsers.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground mt-1">
               +{systemStats.newUsersToday} aujourd'hui
             </p>
             <Progress value={75} className="mt-2 h-1" />
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
         <Card className="border-blue-500/20 hover:border-blue-500/40 transition-colors cursor-pointer"
               onClick={() => handleNavigateToView('reports')}>
-          <CardHeader className="pb-3">
+              <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm">
               <FileText className="h-4 w-4 text-blue-500" />
               Signalements
             </CardTitle>
-          </CardHeader>
-          <CardContent>
+              </CardHeader>
+              <CardContent>
             <div className="text-2xl font-bold">{systemStats.totalReports.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {systemStats.pendingReports} en attente
             </p>
             <Progress value={(systemStats.resolvedReports/(systemStats.totalReports || 1))*100} className="mt-2 h-1" />
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
         <Card className="border-green-500/20 hover:border-green-500/40 transition-colors cursor-pointer"
               onClick={() => handleNavigateToView('system')}>
-          <CardHeader className="pb-3">
+              <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm">
               <Server className="h-4 w-4 text-green-500" />
               Système
             </CardTitle>
-          </CardHeader>
-          <CardContent>
+              </CardHeader>
+              <CardContent>
             <div className="text-2xl font-bold">{systemStats.serverUptime}%</div>
             <p className="text-xs text-muted-foreground mt-1">
               Uptime 30 jours
             </p>
             <Progress value={systemStats.serverUptime} className="mt-2 h-1" />
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
         <Card className="border-orange-500/20 hover:border-orange-500/40 transition-colors">
-          <CardHeader className="pb-3">
+              <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm">
               <Activity className="h-4 w-4 text-orange-500" />
               Performance
             </CardTitle>
-          </CardHeader>
-          <CardContent>
+              </CardHeader>
+              <CardContent>
             <div className="flex items-baseline gap-2">
               <span className="text-sm">CPU</span>
               <span className="text-xl font-bold">{systemStats.cpuUsage}%</span>
@@ -383,12 +631,12 @@ const SuperAdminDashboard = () => {
               <span className="text-sm">RAM</span>
               <span className="text-xl font-bold">{systemStats.memoryUsage}%</span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+          </div>
 
       <Card>
-        <CardHeader>
+              <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
             Monitoring Temps Réel
@@ -494,7 +742,7 @@ const SuperAdminDashboard = () => {
                 ].map((audit, i) => (
                   <div key={i} className="p-3 rounded-lg border hover:bg-muted/30 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
                         <Badge variant={
                           audit.severity === 'critical' ? 'destructive' :
                           audit.severity === 'high' ? 'default' :
@@ -509,117 +757,290 @@ const SuperAdminDashboard = () => {
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
 
       <SystemMaintenancePanel />
     </>
   );
 
   const renderSystemView = () => (
+    <div className="space-y-6">
+      {/* Statistiques de la base de données */}
+      {dbStats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Taille Base de Données</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{dbStats.totalSize}</div>
+              <p className="text-xs text-muted-foreground">{dbStats.tableCount} tables</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Utilisateurs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{dbStats.userCount}</div>
+              <p className="text-xs text-muted-foreground">Comptes actifs</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Signalements</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{dbStats.signalementCount}</div>
+              <p className="text-xs text-muted-foreground">Total enregistrés</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Projets</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{dbStats.projetCount}</div>
+              <p className="text-xs text-muted-foreground">Protégés</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
     <Card>
-      <CardHeader>
+              <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
         <CardTitle>Gestion Système</CardTitle>
         <CardDescription>Configuration et maintenance de la plateforme NDJOBI</CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={loadSystemData}
+              disabled={isLoading}
+            >
+              <RefreshCcw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Actualiser
+            </Button>
+          </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Actions rapides */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Actions Rapides</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col gap-2"
-            onClick={handleBackup}
-            disabled={isLoading}
-          >
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2"
+                onClick={handleBackup}
+                disabled={isLoading}
+              >
             <Database className="h-6 w-6" />
-            <span>Backup Base de Données</span>
+                <span className="font-medium">Backup</span>
+                <span className="text-xs text-muted-foreground">Sauvegarder la DB</span>
           </Button>
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col gap-2"
-            onClick={handleRestartServices}
-            disabled={isLoading}
-          >
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2"
+                onClick={handleRestartServices}
+                disabled={isLoading}
+              >
             <RefreshCcw className="h-6 w-6" />
-            <span>Redémarrer Services</span>
+                <span className="font-medium">Services</span>
+                <span className="text-xs text-muted-foreground">Vérifier l'état</span>
           </Button>
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col gap-2"
-            onClick={handleSecurityScan}
-            disabled={isLoading}
-          >
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2"
+                onClick={handleSecurityScan}
+                disabled={isLoading}
+              >
             <Shield className="h-6 w-6" />
-            <span>Scan de Sécurité</span>
+                <span className="font-medium">Sécurité</span>
+                <span className="text-xs text-muted-foreground">Scanner le système</span>
           </Button>
+            </div>
         </div>
 
+          {/* Actions avancées */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Actions Avancées</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2"
+                onClick={handleOptimizeDatabase}
+                disabled={isLoading}
+              >
+                <Wrench className="h-6 w-6" />
+                <span className="font-medium">Optimiser</span>
+                <span className="text-xs text-muted-foreground">Optimiser la DB</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2"
+                onClick={handleCleanupData}
+                disabled={isLoading}
+              >
+                <Trash2 className="h-6 w-6" />
+                <span className="font-medium">Nettoyer</span>
+                <span className="text-xs text-muted-foreground">Supprimer anciennes données</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2"
+                onClick={() => handleExportData('json')}
+                disabled={isLoading}
+              >
+                <Download className="h-6 w-6" />
+                <span className="font-medium">Exporter</span>
+                <span className="text-xs text-muted-foreground">JSON / CSV</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Résultats du scan de sécurité */}
+          {securityScanResults && (
+            <Alert className={securityScanResults.vulnerabilities > 0 ? 'border-red-500/50' : 'border-green-500/50'}>
+              <Shield className="h-4 w-4" />
+              <AlertTitle>Résultats du Scan de Sécurité</AlertTitle>
+              <AlertDescription>
+                <div className="mt-2 space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>✅ Vérifications passées:</span>
+                    <Badge variant="default">{securityScanResults.passed}</Badge>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>⚠️ Avertissements:</span>
+                    <Badge variant="secondary">{securityScanResults.warnings}</Badge>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>❌ Vulnérabilités:</span>
+                    <Badge variant="destructive">{securityScanResults.vulnerabilities}</Badge>
+                  </div>
+                </div>
+                <div className="mt-3 space-y-1 text-xs">
+                  {securityScanResults.details.map((detail: string, i: number) => (
+                    <div key={i}>{detail}</div>
+                  ))}
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* État des Services */}
         <div>
           <h3 className="text-lg font-semibold mb-3">État des Services</h3>
+            {services.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Server className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <p>Chargement de l'état des services...</p>
+              </div>
+            ) : (
           <div className="space-y-2">
-            {[
-              { name: 'API Backend', status: 'running', uptime: '30d 14h 23m' },
-              { name: 'Base de données PostgreSQL', status: 'running', uptime: '30d 14h 23m' },
-              { name: 'Service de notification', status: 'running', uptime: '28d 10h 45m' },
-              { name: 'Service d\'analyse IA', status: 'running', uptime: '15d 8h 12m' },
-              { name: 'Service de sauvegarde', status: 'idle', uptime: 'N/A' },
-            ].map((service, i) => (
+                {services.map((service, i) => (
               <div key={i} className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full ${
-                    service.status === 'running' ? 'bg-green-500' :
+                        service.status === 'running' ? 'bg-green-500 animate-pulse' :
                     service.status === 'idle' ? 'bg-yellow-500' :
                     'bg-red-500'
                   }`} />
                   <span className="font-medium">{service.name}</span>
-                </div>
+                  </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">Uptime: {service.uptime}</span>
-                  <Badge variant={service.status === 'running' ? 'default' : 'secondary'}>
+                      <Badge variant={
+                        service.status === 'running' ? 'default' : 
+                        service.status === 'idle' ? 'secondary' : 
+                        'destructive'
+                      }>
                     {service.status}
                   </Badge>
                 </div>
               </div>
             ))}
           </div>
+            )}
         </div>
 
+          {/* Ressources Système */}
         <div>
           <h3 className="text-lg font-semibold mb-3">Ressources Système</h3>
           <div className="space-y-3">
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>CPU</span>
-                <span>{systemStats.cpuUsage}%</span>
+                  <span className={systemStats.cpuUsage > 80 ? 'text-red-500 font-semibold' : ''}>
+                    {systemStats.cpuUsage}%
+                  </span>
               </div>
-              <Progress value={systemStats.cpuUsage} className="h-2" />
+                <Progress 
+                  value={systemStats.cpuUsage} 
+                  className={`h-2 ${systemStats.cpuUsage > 80 ? 'bg-red-100' : ''}`}
+                />
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Mémoire</span>
-                <span>{systemStats.memoryUsage}%</span>
+                  <span className={systemStats.memoryUsage > 85 ? 'text-red-500 font-semibold' : ''}>
+                    {systemStats.memoryUsage}%
+                  </span>
               </div>
-              <Progress value={systemStats.memoryUsage} className="h-2" />
+                <Progress 
+                  value={systemStats.memoryUsage} 
+                  className={`h-2 ${systemStats.memoryUsage > 85 ? 'bg-red-100' : ''}`}
+                />
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Disque</span>
-                <span>{systemStats.diskUsage}%</span>
+                  <span className={systemStats.diskUsage > 90 ? 'text-red-500 font-semibold' : ''}>
+                    {systemStats.diskUsage}%
+                  </span>
               </div>
-              <Progress value={systemStats.diskUsage} className="h-2" />
+                <Progress 
+                  value={systemStats.diskUsage} 
+                  className={`h-2 ${systemStats.diskUsage > 90 ? 'bg-red-100' : ''}`}
+                />
             </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Base de données</span>
-                <span>{systemStats.dbSize}</span>
+              <div className="flex justify-between items-center p-3 rounded-lg border bg-muted/30">
+                <span className="text-sm font-medium">Taille base de données</span>
+                <Badge variant="outline">{systemStats.dbSize}</Badge>
               </div>
             </div>
+          </div>
+
+          {/* Export des données */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Export des Données</h3>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => handleExportData('json')}
+                disabled={isLoading}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export JSON
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => handleExportData('csv')}
+                disabled={isLoading}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
           </div>
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 
   const renderUsersView = () => (
@@ -694,8 +1115,8 @@ const SuperAdminDashboard = () => {
               Actualiser
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
+              </CardHeader>
+              <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
@@ -716,52 +1137,72 @@ const SuperAdminDashboard = () => {
               ) : (
                 filteredUsers.slice(0, 20).map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell>
-                      <div>
+                  <TableCell>
+                    <div>
                         <div className="font-medium">{user.username}</div>
-                        <div className="text-xs text-muted-foreground">{user.email}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={
+                      <div className="text-xs text-muted-foreground">{user.email}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={
                         user.role === 'super_admin' ? 'destructive' :
-                        user.role === 'admin' ? 'default' :
-                        user.role === 'agent' ? 'secondary' :
-                        'outline'
-                      }>
+                      user.role === 'admin' ? 'default' :
+                      user.role === 'agent' ? 'secondary' :
+                      'outline'
+                    }>
                         {user.role === 'super_admin' ? 'Super Admin' :
                          user.role === 'admin' ? 'Admin' :
-                         user.role === 'agent' ? 'Agent' :
+                       user.role === 'agent' ? 'Agent' :
                          'Citoyen'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
-                        {user.status === 'active' ? 'Actif' : 'Suspendu'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
+                      {user.status === 'active' ? 'Actif' : 'Suspendu'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
                       {new Date(user.created_at).toLocaleDateString('fr-FR')}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
                         <Button 
                           variant="ghost" 
                           size="sm"
                           onClick={() => handleViewUser(user.id)}
                         >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <Eye className="h-4 w-4" />
+                      </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => handleEditUser(user.id)}
+                          onClick={() => handleEditRole(user.id)}
+                          title="Changer le rôle"
                         >
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                        {user.status === 'active' ? (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleSuspendUser(user.id)}
+                            title="Suspendre l'utilisateur"
+                          >
+                            <X className="h-4 w-4 text-orange-500" />
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleReactivateUser(user.id)}
+                            title="Réactiver l'utilisateur"
+                          >
+                            <Check className="h-4 w-4 text-green-500" />
+                          </Button>
+                        )}
+                    </div>
+                  </TableCell>
+                </TableRow>
                 ))
               )}
             </TableBody>
@@ -773,6 +1214,167 @@ const SuperAdminDashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog: Détails Utilisateur */}
+      <Dialog open={showUserDetails} onOpenChange={setShowUserDetails}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Détails de l'Utilisateur</DialogTitle>
+            <DialogDescription>
+              Informations complètes et statistiques
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Email</Label>
+                  <p className="text-sm font-medium">{selectedUser.email}</p>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Nom complet</Label>
+                  <p className="text-sm font-medium">{selectedUser.username || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Rôle</Label>
+                  <div className="mt-1">
+                    <Badge variant={
+                      selectedUser.role === 'super_admin' ? 'destructive' :
+                      selectedUser.role === 'admin' ? 'default' :
+                      selectedUser.role === 'agent' ? 'secondary' :
+                      'outline'
+                    }>
+                      {selectedUser.role === 'super_admin' ? 'Super Admin' :
+                       selectedUser.role === 'admin' ? 'Admin' :
+                       selectedUser.role === 'agent' ? 'Agent' :
+                       'Citoyen'}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Statut</Label>
+                  <div className="mt-1">
+                    <Badge variant={selectedUser.status === 'active' ? 'default' : 'destructive'}>
+                      {selectedUser.status === 'active' ? 'Actif' : 'Suspendu'}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Date d'inscription</Label>
+                  <p className="text-sm">{new Date(selectedUser.created_at).toLocaleDateString('fr-FR')}</p>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Dernière mise à jour</Label>
+                  <p className="text-sm">{new Date(selectedUser.updated_at || selectedUser.created_at).toLocaleDateString('fr-FR')}</p>
+                </div>
+              </div>
+
+              {userStats && (
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold mb-3">Statistiques d'activité</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-3 rounded-lg border bg-muted/30">
+                      <div className="text-2xl font-bold text-primary">{userStats.totalSignalements}</div>
+                      <p className="text-xs text-muted-foreground">Signalements</p>
+                    </div>
+                    <div className="text-center p-3 rounded-lg border bg-muted/30">
+                      <div className="text-2xl font-bold text-blue-500">{userStats.totalProjets}</div>
+                      <p className="text-xs text-muted-foreground">Projets</p>
+                    </div>
+                    <div className="text-center p-3 rounded-lg border bg-muted/30">
+                      <div className="text-sm font-bold text-green-500">
+                        {userStats.lastActivity 
+                          ? new Date(userStats.lastActivity).toLocaleDateString('fr-FR')
+                          : 'Aucune'}
+                      </div>
+                      <p className="text-xs text-muted-foreground">Dernière activité</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Changer le Rôle */}
+      <Dialog open={showEditRole} onOpenChange={setShowEditRole}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Changer le Rôle</DialogTitle>
+            <DialogDescription>
+              Modifier le rôle de l'utilisateur {selectedUser?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Nouveau rôle</Label>
+              <Select value={newRole} onValueChange={setNewRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un rôle" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">Citoyen</SelectItem>
+                  <SelectItem value="agent">Agent DGSS</SelectItem>
+                  <SelectItem value="admin">Admin (Protocole d'État)</SelectItem>
+                  <SelectItem value="super_admin">Super Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Attention : Le changement de rôle prendra effet immédiatement et modifiera les permissions de l'utilisateur.
+              </AlertDescription>
+            </Alert>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditRole(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleConfirmRoleChange} disabled={isLoading || !newRole}>
+              {isLoading ? 'Mise à jour...' : 'Confirmer'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Suspendre Utilisateur */}
+      <Dialog open={showSuspendDialog} onOpenChange={setShowSuspendDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Suspendre l'Utilisateur</DialogTitle>
+            <DialogDescription>
+              Suspendre temporairement l'accès de {selectedUser?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Raison de la suspension (optionnel)</Label>
+              <Textarea
+                placeholder="Expliquez pourquoi cet utilisateur est suspendu..."
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                rows={4}
+              />
+            </div>
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                L'utilisateur ne pourra plus se connecter tant que son compte est suspendu.
+              </AlertDescription>
+            </Alert>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSuspendDialog(false)}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmSuspend} disabled={isLoading}>
+              {isLoading ? 'Suspension...' : 'Suspendre'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
@@ -811,7 +1413,7 @@ const SuperAdminDashboard = () => {
               <Download className="h-8 w-8" />
               <span>Export Données</span>
               <span className="text-xs text-muted-foreground">CSV / Excel</span>
-            </Button>
+                </Button>
           </div>
 
           <div>
@@ -837,8 +1439,8 @@ const SuperAdminDashboard = () => {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
     </div>
   );
 
@@ -871,7 +1473,7 @@ const SuperAdminDashboard = () => {
 
         <TabsContent value="overview" className="space-y-4 mt-4">
           <Card>
-            <CardHeader>
+              <CardHeader>
               <CardTitle>🎯 Objectif du Projet</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -926,8 +1528,8 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>👥 Système de Rôles (RBAC)</CardTitle>
-            </CardHeader>
-            <CardContent>
+              </CardHeader>
+              <CardContent>
               <div className="space-y-3">
                 {[
                   { role: 'Super Admin', color: 'destructive', features: ['Accès total système', 'Module XR-7', 'Configuration DB', 'Gestion utilisateurs'], icon: Zap },
@@ -954,13 +1556,13 @@ const SuperAdminDashboard = () => {
                   );
                 })}
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
         </TabsContent>
 
         <TabsContent value="architecture" className="space-y-4 mt-4">
           <Card>
-            <CardHeader>
+              <CardHeader>
               <CardTitle>🏗️ Stack Technologique</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1043,11 +1645,11 @@ const SuperAdminDashboard = () => {
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
           <Card>
-            <CardHeader>
+              <CardHeader>
               <CardTitle>🔄 Flux de Données</CardTitle>
             </CardHeader>
             <CardContent>
@@ -1107,7 +1709,7 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>🤖 Agent IA "Taper le Ndjobi"</CardTitle>
-            </CardHeader>
+              </CardHeader>
             <CardContent className="space-y-4">
               <Alert>
                 <Activity className="h-4 w-4" />
@@ -1159,13 +1761,13 @@ const SuperAdminDashboard = () => {
                   <p className="text-xs text-muted-foreground">Sans authentification</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
+                </TabsContent>
 
         <TabsContent value="database" className="space-y-4 mt-4">
           <Card>
-            <CardHeader>
+              <CardHeader>
               <CardTitle>🗄️ Schéma Base de Données</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1249,7 +1851,7 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>🔒 RLS Policies (Row Level Security)</CardTitle>
-            </CardHeader>
+              </CardHeader>
             <CardContent className="space-y-3">
               <Alert>
                 <Shield className="h-4 w-4" />
@@ -1279,8 +1881,8 @@ const SuperAdminDashboard = () => {
                   </code>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4 mt-4">
@@ -1369,8 +1971,8 @@ const SuperAdminDashboard = () => {
               <p className="text-xs text-muted-foreground">{new Date().toLocaleDateString('fr-FR')}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
     </div>
   );
 

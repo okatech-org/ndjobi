@@ -6,8 +6,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ReportForm } from '@/components/dashboard/user/ReportForm';
-import { ProjectProtectionForm } from '@/components/dashboard/user/ProjectProtectionForm';
+import { ReportFormStepper } from '@/components/dashboard/user/ReportFormStepper';
+import { ProjectFormStepper } from '@/components/dashboard/user/ProjectFormStepper';
 import { MyFiles } from '@/components/dashboard/user/MyFiles';
 import { UserProfile } from '@/components/dashboard/user/UserProfile';
 import { UserSettings } from '@/components/dashboard/user/UserSettings';
@@ -63,14 +63,14 @@ const UserDashboard = () => {
     switch (viewMode) {
       case 'report':
         return (
-          <ReportForm 
+          <ReportFormStepper 
             onSuccess={() => handleViewChange('files')} 
             onCancel={() => handleViewChange('profile')}
           />
         );
       case 'project':
         return (
-          <ProjectProtectionForm 
+          <ProjectFormStepper 
             onSuccess={() => handleViewChange('files')} 
             onCancel={() => handleViewChange('profile')}
           />
