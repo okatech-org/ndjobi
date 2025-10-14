@@ -9,43 +9,49 @@ import { DemoAccount } from '@/types/auth';
 import { PhoneAuth } from '@/components/auth/PhoneAuth';
 import { Separator } from '@/components/ui/separator';
 import { getDashboardUrl } from '@/lib/roleUtils';
+import logoNdjobi from '@/assets/logo_ndjobi.png';
 
+// Comptes démo avec emails mappés aux numéros de téléphone
 const demoAccounts: DemoAccount[] = [
   {
-    email: 'citoyen+v2@demo.ndjobi.ga',
-    password: 'demo123456',
+    email: '24177777001@ndjobi.ga', // Email technique pour auth
+    password: '123456',
     role: 'user',
     label: 'Citoyen',
-    description: 'Accès utilisateur standard pour signaler et protéger',
+    description: 'Accès utilisateur standard pour taper le Ndjobi et protéger',
     icon: 'User',
     color: 'from-primary/90 to-primary/70',
+    displayPhone: '+241 77 777 001', // Numéro affiché
   },
   {
-    email: 'agent+v2@demo.ndjobi.ga',
-    password: 'demo123456',
+    email: '24177777002@ndjobi.ga',
+    password: '123456',
     role: 'agent',
     label: 'Agent DGSS',
     description: 'Direction Générale des Services Spéciaux',
     icon: 'Users',
     color: 'from-secondary/90 to-secondary/70',
+    displayPhone: '+241 77 777 002',
   },
   {
-    email: 'president+v2@demo.ndjobi.ga',
-    password: 'demo123456',
+    email: '24177777003@ndjobi.ga',
+    password: '123456',
     role: 'admin',
     label: 'Protocole d\'État',
     description: 'Accès présidentiel - Administrateur',
     icon: 'Crown',
     color: 'from-accent/90 to-accent/70',
+    displayPhone: '+241 77 777 003',
   },
   {
-    email: 'superadmin+v2@demo.ndjobi.ga',
-    password: 'demo123456',
+    email: '24177777000@ndjobi.ga',
+    password: '123456',
     role: 'super_admin',
     label: 'Super Admin',
     description: 'Accès technique complet - Gestion système',
     icon: 'Zap',
     color: 'from-destructive/90 to-destructive/70',
+    displayPhone: '+241 77 777 000',
   },
 ];
 
@@ -67,35 +73,29 @@ const Auth = () => {
   const handleDemoLogin = async (account: DemoAccount) => {
     setLoading(account.email);
 
-    const makeUniqueEmail = (email: string) => {
-      const [local, domain] = email.split('@');
-      const ts = Date.now();
-      // Preserve existing +tag if present, append timestamp to ensure uniqueness
-      const [name, tag] = local.split('+');
-      const newLocal = tag ? `${name}+${tag}.${ts}` : `${name}+${ts}`;
-      return `${newLocal}@${domain}`;
-    };
-
     try {
-      // 1) Try to sign in first
-      let emailToUse = account.email;
+      // Pour les comptes démo, utiliser email (fonctionne par défaut avec Supabase)
       let { data: signInData, error: signInError }: any = await supabase.auth.signInWithPassword({
-        email: emailToUse,
+        email: account.email,
         password: account.password,
       });
 
-      // 2) If user doesn't exist, try to sign up
-      if (signInError && (signInError.status === 400 || signInError.message?.includes('Invalid login'))) {
+      // Si l'utilisateur n'existe pas, créer le compte
+      if (signInError && (signInError.status === 400 || signInError.message?.includes('Invalid'))) {
         const { error: signUpError } = await supabase.auth.signUp({
           email: account.email,
           password: account.password,
           options: {
-            data: { full_name: account.label },
+            data: { 
+              full_name: account.label,
+              role: account.role 
+            },
           },
         });
 
         if (signUpError) throw signUpError;
 
+        // Se connecter après inscription
         const res = await supabase.auth.signInWithPassword({
           email: account.email,
           password: account.password,
@@ -104,24 +104,9 @@ const Auth = () => {
         signInError = res.error;
       }
 
-      // 3) If blocked due to old unconfirmed user, create a fresh unique account and sign in
-      if (signInError && (signInError.code === 'email_not_confirmed' || /Email not confirmed/i.test(signInError.message))) {
-        const uniqueEmail = makeUniqueEmail(account.email);
-        const { error: su2 } = await supabase.auth.signUp({
-          email: uniqueEmail,
-          password: account.password,
-          options: { data: { full_name: account.label } },
-        });
-        if (su2) throw su2;
-        emailToUse = uniqueEmail;
-        const res2 = await supabase.auth.signInWithPassword({ email: emailToUse, password: account.password });
-        signInData = res2.data;
-        signInError = res2.error;
-      }
-
       if (signInError) throw signInError;
 
-      // 4) Assign role using RPC function
+      // Assigner le rôle via RPC
       if (signInData?.user) {
         const { error: roleError } = await supabase.rpc('ensure_demo_user_role', {
           _user_id: signInData.user.id,
@@ -130,11 +115,15 @@ const Auth = () => {
         if (roleError) console.error('Error assigning role:', roleError);
       }
 
-      toast({ title: 'Connexion réussie !', description: `Bienvenue, ${account.label}` });
+      toast({ 
+        title: 'Connexion réussie !', 
+        description: `Bienvenue, ${account.label}` 
+      });
       
-      // Redirect to role-specific dashboard
+      // Rediriger vers le dashboard approprié
       const dashboardUrl = getDashboardUrl(account.role);
       navigate(dashboardUrl);
+      
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -167,7 +156,11 @@ const Auth = () => {
         {/* Header */}
         <div className="text-center space-y-3 sm:space-y-4">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
+            <img 
+              src={logoNdjobi} 
+              alt="Logo Ndjobi"
+              className="h-12 w-12 sm:h-16 sm:w-16 object-contain" 
+            />
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">NDJOBI</h1>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
@@ -226,6 +219,11 @@ const Auth = () => {
                 </CardHeader>
 
                 <CardContent className="relative p-3 sm:p-4 pt-0">
+                  {account.displayPhone && (
+                    <div className="mb-2 text-xs text-muted-foreground text-center font-mono">
+                      📱 {account.displayPhone}
+                    </div>
+                  )}
                   <Button
                     onClick={() => handleDemoLogin(account)}
                     disabled={!!loading}
@@ -238,9 +236,12 @@ const Auth = () => {
                         Connexion...
                       </>
                     ) : (
-                      'Se connecter'
+                      'Connexion Directe'
                     )}
                   </Button>
+                  <div className="mt-1 text-[10px] text-muted-foreground text-center">
+                    PIN: 123456
+                  </div>
                 </CardContent>
               </Card>
             );

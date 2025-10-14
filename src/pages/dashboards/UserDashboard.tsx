@@ -118,7 +118,7 @@ const UserDashboard = () => {
                       onClick={() => handleViewChange('report')}
                     >
                       <AlertCircle className="h-4 w-4 mr-2" />
-                      Signaler
+                      Taper le Ndjobi
                     </Button>
                     <Button
                       variant={viewMode === 'project' ? 'secondary' : 'ghost'}
@@ -159,7 +159,7 @@ const UserDashboard = () => {
                     {viewMode === 'profile' && 'Mon Profil'}
                     {viewMode === 'files' && 'Mes Dossiers'}
                     {viewMode === 'settings' && 'Paramètres'}
-                    {viewMode === 'report' && 'Signaler un cas'}
+                    {viewMode === 'report' && 'Taper le Ndjobi'}
                     {viewMode === 'project' && 'Protéger un projet'}
                   </h1>
                   <p className="text-sm sm:text-base text-muted-foreground">
@@ -183,7 +183,7 @@ const UserDashboard = () => {
       <MobileBottomNav
         items={[
           { mode: 'profile', icon: User, label: 'Profil' },
-          { mode: 'report', icon: AlertCircle, label: 'Signaler' },
+          { mode: 'report', icon: AlertCircle, label: 'Taper le Ndjobi' },
           { mode: 'project', icon: FolderLock, label: 'Protéger' },
           { mode: 'files', icon: FileText, label: 'Dossiers' },
           { mode: 'settings', icon: Settings, label: 'Paramètres' },

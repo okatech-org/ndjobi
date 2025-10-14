@@ -1,0 +1,1045 @@
+openapi: 3.0.3
+info:
+  title: Ndjobi API
+  description: |
+    API de la plateforme Ndjobi pour la lutte anti-corruption et la protection de projets innovants au Gabon.
+    
+    ## Fonctionnalités principales
+    - 🚨 Signalement anonyme de corruption
+    - 🔒 Protection blockchain de projets
+    - 🤖 Assistant IA intégré
+    - 📊 Analytics et monitoring
+    - 🔐 Chiffrement AES-256 côté client
+    
+    ## Sécurité
+    - Authentification JWT via Supabase
+    - Chiffrement bout-en-bout pour signalements anonymes
+    - RLS (Row Level Security) au niveau base de données
+    - Audit trails complets
+  version: "1.0.0"
+  contact:
+    name: Équipe Ndjobi
+    email: api@ndjobi.ga
+    url: https://ndjobi.ga
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://ndjobi.ga/terms
+
+servers:
+  - url: https://api.ndjobi.ga/v1
+    description: Serveur de production
+  - url: https://staging-api.ndjobi.ga/v1
+    description: Serveur de test
+  - url: http://localhost:3000/api/v1
+    description: Développement local
+
+security:
+  - bearerAuth: []
+
+paths:
+  # === AUTHENTIFICATION ===
+  /auth/login:
+    post:
+      tags:
+        - Authentification
+      summary: Connexion utilisateur
+      description: Authentifie un utilisateur avec email/mot de passe ou téléphone/PIN
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/EmailLoginRequest'
+                - $ref: '#/components/schemas/PhoneLoginRequest'
+            examples:
+              email_login:
+                summary: Connexion par email
+                value:
+                  email: "user@example.com"
+                  password: "securepassword123"
+              phone_login:
+                summary: Connexion par téléphone
+                value:
+                  phone: "+24177123456"
+                  pin: "1234"
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthSuccess'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/register:
+    post:
+      tags:
+        - Authentification
+      summary: Inscription utilisateur
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/AuthSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # === SIGNALEMENTS ===
+  /reports:
+    get:
+      tags:
+        - Signalements
+      summary: Liste des signalements
+      description: |
+        Récupère la liste des signalements. Les utilisateurs normaux ne voient que leurs propres signalements.
+        Les agents/admins voient tous les signalements selon leurs permissions.
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReportStatus'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/CorruptionType'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Liste des signalements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Report'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - Signalements
+      summary: Créer un signalement
+      description: |
+        Crée un nouveau signalement de corruption. Peut être anonyme ou identifié.
+        Les données sensibles sont chiffrées côté client avant envoi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReportRequest'
+      responses:
+        '201':
+          description: Signalement créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /reports/{reportId}:
+    get:
+      tags:
+        - Signalements
+      summary: Détails d'un signalement
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Détails du signalement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    patch:
+      tags:
+        - Signalements
+      summary: Mettre à jour un signalement
+      description: Seuls les agents/admins peuvent mettre à jour le statut
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReportRequest'
+      responses:
+        '200':
+          description: Signalement mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # === PROJETS ===
+  /projects:
+    get:
+      tags:
+        - Projets
+      summary: Liste des projets protégés
+      parameters:
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProjectCategory'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProjectStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Liste des projets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - Projets
+      summary: Protéger un projet
+      description: |
+        Protège un projet avec horodatage blockchain. Le projet est d'abord enregistré
+        en base de données puis protégé sur la blockchain.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Projet protégé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /projects/{projectId}/blockchain-status:
+    get:
+      tags:
+        - Projets
+      summary: Statut blockchain d'un projet
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Statut blockchain du projet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainStatus'
+
+  /projects/verify:
+    post:
+      tags:
+        - Projets
+      summary: Vérifier la protection d'un projet
+      description: Vérifie si un projet est protégé sur la blockchain
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project_hash:
+                  type: string
+                  description: Hash du projet à vérifier
+                token_id:
+                  type: integer
+                  description: ID du token NFT (optionnel)
+              required:
+                - project_hash
+      responses:
+        '200':
+          description: Résultat de vérification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResult'
+
+  # === ASSISTANT IA ===
+  /ai/chat:
+    post:
+      tags:
+        - Assistant IA
+      summary: Envoyer un message à l'IA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIChatRequest'
+      responses:
+        '200':
+          description: Réponse de l'IA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIChatResponse'
+        '429':
+          description: Limite de requêtes dépassée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+
+  /ai/conversations/{conversationId}:
+    get:
+      tags:
+        - Assistant IA
+      summary: Historique d'une conversation
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Historique de la conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatMessage'
+
+  # === ANALYTICS ===
+  /analytics/events:
+    post:
+      tags:
+        - Analytics
+      summary: Envoyer des événements analytics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyticsEvents'
+      responses:
+        '202':
+          description: Événements acceptés pour traitement
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /analytics/stats:
+    get:
+      tags:
+        - Analytics
+      summary: Statistiques publiques
+      security: []
+      responses:
+        '200':
+          description: Statistiques de la plateforme
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicStats'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT fourni par Supabase Auth
+
+  schemas:
+    # === AUTH SCHEMAS ===
+    EmailLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          minLength: 8
+          example: "securepassword123"
+
+    PhoneLoginRequest:
+      type: object
+      required:
+        - phone
+        - pin
+      properties:
+        phone:
+          type: string
+          pattern: "^\\+[1-9]\\d{1,14}$"
+          example: "+24177123456"
+        pin:
+          type: string
+          pattern: "^\\d{4,6}$"
+          example: "1234"
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - full_name
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        phone:
+          type: string
+          pattern: "^\\+[1-9]\\d{1,14}$"
+        organization:
+          type: string
+          maxLength: 200
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        session:
+          type: object
+          properties:
+            access_token:
+              type: string
+            refresh_token:
+              type: string
+            expires_at:
+              type: integer
+
+    # === USER SCHEMAS ===
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        phone:
+          type: string
+        organization:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        avatar_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserRole:
+      type: string
+      enum:
+        - user
+        - agent
+        - admin
+        - super_admin
+
+    # === REPORT SCHEMAS ===
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/CorruptionType'
+        status:
+          $ref: '#/components/schemas/ReportStatus'
+        priority:
+          $ref: '#/components/schemas/ReportPriority'
+        location:
+          type: string
+        anonymous:
+          type: boolean
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        metadata:
+          type: object
+          description: Métadonnées additionnelles
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    CreateReportRequest:
+      type: object
+      required:
+        - type
+        - location
+        - description
+      properties:
+        type:
+          $ref: '#/components/schemas/CorruptionType'
+        location:
+          type: string
+          minLength: 3
+          maxLength: 500
+        description:
+          type: string
+          minLength: 10
+          maxLength: 5000
+        anonymous:
+          type: boolean
+          default: true
+        witness_name:
+          type: string
+          maxLength: 100
+        witness_contact:
+          type: string
+          maxLength: 200
+        gps_latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        gps_longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        encrypted_data:
+          $ref: '#/components/schemas/EncryptedData'
+
+    UpdateReportRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ReportStatus'
+        priority:
+          $ref: '#/components/schemas/ReportPriority'
+        resolution_notes:
+          type: string
+
+    CorruptionType:
+      type: string
+      enum:
+        - extorsion
+        - detournement
+        - pot-de-vin
+        - abus-pouvoir
+        - nepotisme
+        - fraude
+        - autre
+
+    ReportStatus:
+      type: string
+      enum:
+        - pending
+        - in_progress
+        - resolved
+        - rejected
+
+    ReportPriority:
+      type: string
+      enum:
+        - low
+        - normal
+        - high
+        - urgent
+
+    # === PROJECT SCHEMAS ===
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/ProjectCategory'
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+        innovation_level:
+          $ref: '#/components/schemas/InnovationLevel'
+        development_stage:
+          $ref: '#/components/schemas/DevelopmentStage'
+        location:
+          type: string
+        budget_estimate:
+          type: string
+        timeline:
+          type: string
+        protection_number:
+          type: string
+          description: Numéro de protection unique
+        protection_type:
+          type: string
+        blockchain_hash:
+          type: string
+          description: Hash sur la blockchain
+        token_id:
+          type: integer
+          description: ID du NFT de protection
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        created_at:
+          type: string
+          format: date-time
+        protected_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    CreateProjectRequest:
+      type: object
+      required:
+        - title
+        - category
+        - description
+        - innovation_level
+        - development_stage
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+        category:
+          $ref: '#/components/schemas/ProjectCategory'
+        description:
+          type: string
+          minLength: 20
+          maxLength: 10000
+        innovation_level:
+          $ref: '#/components/schemas/InnovationLevel'
+        development_stage:
+          $ref: '#/components/schemas/DevelopmentStage'
+        location:
+          type: string
+          maxLength: 500
+        budget_estimate:
+          type: string
+          maxLength: 100
+        timeline:
+          type: string
+          maxLength: 100
+
+    ProjectCategory:
+      type: string
+      enum:
+        - tech
+        - agriculture
+        - sante
+        - education
+        - energie
+        - transport
+        - finance
+        - commerce
+        - social
+        - autre
+
+    ProjectStatus:
+      type: string
+      enum:
+        - draft
+        - submitted
+        - protected
+        - rejected
+
+    InnovationLevel:
+      type: string
+      enum:
+        - incremental
+        - substantiel
+        - disruptif
+        - radical
+
+    DevelopmentStage:
+      type: string
+      enum:
+        - idee
+        - conception
+        - prototype
+        - test
+        - production
+        - commercialisation
+
+    # === BLOCKCHAIN SCHEMAS ===
+    BlockchainStatus:
+      type: object
+      properties:
+        is_protected:
+          type: boolean
+        token_id:
+          type: integer
+        blockchain_hash:
+          type: string
+        transaction_hash:
+          type: string
+        block_number:
+          type: integer
+        confirmation_count:
+          type: integer
+        network:
+          type: string
+        contract_address:
+          type: string
+
+    VerificationResult:
+      type: object
+      properties:
+        exists:
+          type: boolean
+        token_id:
+          type: integer
+        owner:
+          type: string
+        protected_at:
+          type: string
+          format: date-time
+        verification_url:
+          type: string
+          format: uri
+
+    # === AI SCHEMAS ===
+    AIChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        conversation_id:
+          type: string
+        context:
+          type: string
+          default: "ndjobi_assistant"
+        language:
+          type: string
+          enum: [fr, en]
+          default: "fr"
+
+    AIChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        conversation_id:
+          type: string
+        metadata:
+          type: object
+          properties:
+            model:
+              type: string
+            tokens_used:
+              type: integer
+            response_time:
+              type: number
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        is_bot:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+    # === ANALYTICS SCHEMAS ===
+    AnalyticsEvents:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalyticsEvent'
+        session_id:
+          type: string
+        user_id:
+          type: string
+
+    AnalyticsEvent:
+      type: object
+      required:
+        - name
+        - timestamp
+      properties:
+        name:
+          type: string
+        properties:
+          type: object
+        timestamp:
+          type: integer
+        user_id:
+          type: string
+        session_id:
+          type: string
+
+    PublicStats:
+      type: object
+      properties:
+        total_reports:
+          type: integer
+        total_projects:
+          type: integer
+        resolved_cases:
+          type: integer
+        users_count:
+          type: integer
+
+    # === COMMON SCHEMAS ===
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        size:
+          type: integer
+        url:
+          type: string
+          format: uri
+        encrypted:
+          type: boolean
+
+    EncryptedData:
+      type: object
+      properties:
+        encrypted_content:
+          type: string
+        key_fingerprint:
+          type: string
+        algorithm:
+          type: string
+        timestamp:
+          type: integer
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+
+    # === ERROR SCHEMAS ===
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+        request_id:
+          type: string
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "validation_error"
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    RateLimitError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "rate_limit_exceeded"
+        message:
+          type: string
+        retry_after:
+          type: integer
+          description: Secondes avant la prochaine requête autorisée
+
+  responses:
+    AuthSuccess:
+      description: Authentification réussie
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthResponse'
+
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Non authentifié
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Accès interdit
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ValidationError:
+      description: Erreur de validation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+
+tags:
+  - name: Authentification
+    description: Opérations d'authentification et gestion des comptes
+  - name: Signalements
+    description: Gestion des signalements de corruption
+  - name: Projets
+    description: Protection de projets innovants
+  - name: Assistant IA
+    description: Interactions avec l'assistant intelligent
+  - name: Analytics
+    description: Données analytiques et statistiques
+
+externalDocs:
+  description: Documentation complète Ndjobi
+  url: https://docs.ndjobi.ga

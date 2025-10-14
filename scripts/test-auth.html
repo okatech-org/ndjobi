@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Auth NDJOBI</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .account { margin: 10px; padding: 10px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 10px; cursor: pointer; }
+        .result { margin-top: 10px; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test d'Authentification NDJOBI</h1>
+    
+    <div id="status">Status: En attente...</div>
+    
+    <h2>Comptes Démo</h2>
+    <div>
+        <button onclick="testLogin('24177777000@ndjobi.ga', '123456', 'Super Admin')">
+            ⚡ Super Admin (77777000)
+        </button>
+        <button onclick="testLogin('24177777003@ndjobi.ga', '123456', 'Admin')">
+            👑 Admin (77777003)
+        </button>
+        <button onclick="testLogin('24177777002@ndjobi.ga', '123456', 'Agent')">
+            👥 Agent (77777002)
+        </button>
+        <button onclick="testLogin('24177777001@ndjobi.ga', '123456', 'Citoyen')">
+            👤 Citoyen (77777001)
+        </button>
+    </div>
+    
+    <h2>Actions</h2>
+    <div>
+        <button onclick="getCurrentUser()">📋 Utilisateur Actuel</button>
+        <button onclick="checkRole()">🔍 Vérifier Rôle</button>
+        <button onclick="signOut()">🚪 Déconnexion</button>
+    </div>
+    
+    <div id="result" class="result"></div>
+    
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'http://127.0.0.1:54321';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function setStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = isError ? 'error' : 'success';
+        }
+        
+        function setResult(data) {
+            document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+        
+        async function testLogin(email, password, name) {
+            setStatus(`Connexion ${name}...`);
+            
+            try {
+                // Essayer de se connecter
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    // Si l'utilisateur n'existe pas, le créer
+                    if (error.message.includes('Invalid login')) {
+                        setStatus(`Création du compte ${name}...`);
+                        
+                        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                            email: email,
+                            password: password,
+                            options: {
+                                data: { full_name: name }
+                            }
+                        });
+                        
+                        if (signUpError) throw signUpError;
+                        
+                        // Se reconnecter
+                        const { data: reLoginData, error: reLoginError } = await supabase.auth.signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+                        
+                        if (reLoginError) throw reLoginError;
+                        
+                        setStatus(`✅ ${name} créé et connecté !`);
+                        setResult(reLoginData);
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    setStatus(`✅ ${name} connecté !`);
+                    setResult(data);
+                }
+                
+                // Vérifier le rôle après connexion
+                setTimeout(() => checkRole(), 1000);
+                
+            } catch (error) {
+                setStatus(`❌ Erreur: ${error.message}`, true);
+                setResult(error);
+            }
+        }
+        
+        async function getCurrentUser() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            
+            if (error) {
+                setStatus('❌ Pas d\'utilisateur connecté', true);
+                setResult(error);
+            } else if (user) {
+                setStatus('✅ Utilisateur trouvé');
+                setResult(user);
+            } else {
+                setStatus('⚠️ Aucun utilisateur');
+                setResult(null);
+            }
+        }
+        
+        async function checkRole() {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (!user) {
+                setStatus('❌ Pas d\'utilisateur connecté', true);
+                return;
+            }
+            
+            const { data: roleData, error } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', user.id)
+                .single();
+            
+            if (error) {
+                setStatus('⚠️ Pas de rôle assigné', true);
+                setResult({ message: 'Exécutez le SQL fix-demo-accounts.sql dans Supabase Studio' });
+            } else {
+                setStatus(`✅ Rôle: ${roleData.role}`);
+                setResult(roleData);
+            }
+        }
+        
+        async function signOut() {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                setStatus('❌ Erreur déconnexion', true);
+            } else {
+                setStatus('✅ Déconnecté');
+                setResult({});
+            }
+        }
+        
+        // Vérifier l'état initial
+        getCurrentUser();
+    </script>
+</body>
+</html>

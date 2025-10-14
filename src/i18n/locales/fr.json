@@ -1,0 +1,362 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "refresh": "Actualiser",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "submit": "Soumettre",
+    "reset": "Réinitialiser",
+    "clear": "Effacer",
+    "select": "Sélectionner",
+    "required": "Requis",
+    "optional": "Optionnel",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  
+  "navigation": {
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "about": "À propos",
+    "contact": "Contact",
+    "help": "Aide",
+    "privacy": "Confidentialité",
+    "terms": "Conditions d'utilisation"
+  },
+  
+  "auth": {
+    "login_title": "Connexion à Ndjobi",
+    "signup_title": "Créer un compte",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "full_name": "Nom complet",
+    "phone": "Téléphone",
+    "organization": "Organisation",
+    "login_button": "Se connecter",
+    "signup_button": "S'inscrire",
+    "forgot_password": "Mot de passe oublié ?",
+    "remember_me": "Se souvenir de moi",
+    "already_have_account": "Vous avez déjà un compte ?",
+    "dont_have_account": "Vous n'avez pas de compte ?",
+    "social_login": "Se connecter avec",
+    "or": "ou",
+    "invalid_credentials": "Identifiants invalides",
+    "account_created": "Compte créé avec succès",
+    "login_success": "Connexion réussie",
+    "logout_success": "Déconnexion réussie",
+    "phone_auth": "Authentification téléphonique",
+    "enter_pin": "Entrez votre code PIN",
+    "pin_sent": "Code PIN envoyé par SMS"
+  },
+  
+  "hero": {
+    "title": "Protégez vos projets, Combattez la corruption",
+    "subtitle": "Plateforme citoyenne sécurisée pour taper le Ndjobi de manière 100% anonyme et protéger vos innovations avec un horodatage infalsifiable.",
+    "security_badge": "🛡️ Protection garantie par cryptage AES-256",
+    "report_button": "🚨 Taper le Ndjobi",
+    "protect_button": "🔒 Protéger mon projet"
+  },
+  
+  "features": {
+    "report_corruption": "Signaler la Corruption",
+    "report_corruption_desc": "Dénoncez les cas de corruption de manière totalement anonyme et sécurisée",
+    "protect_projects": "Protéger vos Projets",
+    "protect_projects_desc": "Protégez vos innovations avec un horodatage blockchain infalsifiable",
+    "secure_anonymous": "Anonymat Garanti",
+    "secure_anonymous_desc": "Chiffrement AES-256 côté client pour une protection maximale",
+    "blockchain_proof": "Preuve Blockchain",
+    "blockchain_proof_desc": "Certificats de protection vérifiables sur la blockchain"
+  },
+  
+  "report": {
+    "title": "Taper le Ndjobi",
+    "subtitle": "Votre dénonciation restera 100% confidentielle",
+    "type_label": "Type de corruption",
+    "type_placeholder": "Sélectionnez un type",
+    "location_label": "Lieu des faits",
+    "location_placeholder": "Ex: Ministère, Mairie, Service public...",
+    "description_label": "Description détaillée",
+    "description_placeholder": "Décrivez les faits de manière précise...",
+    "files_label": "Preuves (optionnel)",
+    "files_placeholder": "Glissez vos fichiers ici ou cliquez pour sélectionner",
+    "anonymous_label": "Rester anonyme (recommandé)",
+    "witness_name_label": "Nom (optionnel)",
+    "witness_name_placeholder": "Votre nom",
+    "witness_contact_label": "Contact (optionnel)",
+    "witness_contact_placeholder": "Téléphone ou email",
+    "submit_button": "Taper le Ndjobi",
+    "geolocation": "Géolocalisation",
+    "manual_entry": "Saisie manuelle",
+    "detect_position": "Détecter ma position",
+    "position_detected": "Position détectée",
+    "locating": "Localisation en cours...",
+    "corruption_types": {
+      "extorsion": "Extorsion",
+      "detournement": "Détournement de fonds",
+      "pot-de-vin": "Pot-de-vin",
+      "abus-pouvoir": "Abus de pouvoir",
+      "nepotisme": "Népotisme",
+      "fraude": "Fraude",
+      "autre": "Autre"
+    },
+    "success_title": "Ndjobi tapé !",
+    "success_message": "Votre dénonciation a été enregistrée et sera traitée sous 48h.",
+    "error_type_required": "Sélectionnez un type de signalement",
+    "error_location_required": "Veuillez indiquer le lieu",
+    "error_description_short": "Description trop courte (minimum 10 caractères)",
+    "error_description_long": "Description trop longue (maximum 5000 caractères)"
+  },
+  
+  "project_protection": {
+    "title": "Protéger un projet innovant",
+    "subtitle": "Enregistrez votre idée avec un horodatage certifié",
+    "project_title_label": "Titre du projet",
+    "project_title_placeholder": "Ex: Application mobile de gestion agricole",
+    "category_label": "Catégorie",
+    "category_placeholder": "Sélectionnez une catégorie",
+    "location_label": "Lieu du projet (optionnel)",
+    "location_placeholder": "Ex: Libreville, Port-Gentil...",
+    "description_label": "Description détaillée",
+    "description_placeholder": "Décrivez votre projet, son objectif, son innovation...",
+    "innovation_level_label": "Niveau d'innovation",
+    "development_stage_label": "Stade de développement",
+    "budget_label": "Budget estimé (optionnel)",
+    "budget_placeholder": "Ex: 500 000 FCFA",
+    "timeline_label": "Délai de réalisation (optionnel)",
+    "timeline_placeholder": "Ex: 6 mois",
+    "files_label": "Documents du projet (optionnel)",
+    "files_description": "Business plan, maquettes, brevets, prototypes...",
+    "submit_button": "Protéger mon projet",
+    "protection_guarantee": "Protection garantie",
+    "protection_description": "Votre projet sera protégé par horodatage blockchain et chiffrement AES-256. Vous recevrez un certificat de protection avec l'empreinte unique de votre projet.",
+    "categories": {
+      "tech": "Technologie / IT",
+      "agriculture": "Agriculture",
+      "sante": "Santé",
+      "education": "Éducation",
+      "energie": "Énergie",
+      "transport": "Transport",
+      "finance": "Finance",
+      "commerce": "Commerce",
+      "social": "Social / ONG",
+      "autre": "Autre"
+    },
+    "innovation_levels": {
+      "incremental": "Incrémental",
+      "substantiel": "Substantiel",
+      "disruptif": "Disruptif",
+      "radical": "Radical"
+    },
+    "development_stages": {
+      "idee": "Idée",
+      "conception": "Conception",
+      "prototype": "Prototype",
+      "test": "Test/Pilote",
+      "production": "Production",
+      "commercialisation": "Commercialisation"
+    },
+    "success_title": "Projet protégé !",
+    "success_message": "Votre projet a été enregistré avec un horodatage infalsifiable.",
+    "blockchain_connecting": "Connexion à la blockchain...",
+    "blockchain_connected": "Connecté à la blockchain",
+    "certificate_generated": "Certificat de protection généré"
+  },
+  
+  "dashboard": {
+    "welcome": "Bienvenue dans votre espace personnel sécurisé",
+    "my_profile": "Mon Profil",
+    "my_reports": "Mes Signalements",
+    "my_projects": "Mes Projets",
+    "my_files": "Mes Dossiers",
+    "user_dashboard": "Tableau de bord utilisateur",
+    "agent_dashboard": "Tableau de bord agent",
+    "admin_dashboard": "Tableau de bord administrateur",
+    "stats": {
+      "total_reports": "Signalements total",
+      "total_projects": "Projets protégés",
+      "pending_reports": "En attente",
+      "resolved_cases": "Cas résolus"
+    }
+  },
+  
+  "ai_assistant": {
+    "title": "Assistant Ndjobi",
+    "subtitle": "Votre guide intelligent pour lutter contre la corruption",
+    "placeholder": "Posez votre question...",
+    "send": "Envoyer",
+    "clear_history": "Effacer l'historique",
+    "suggested_questions": "Questions fréquentes :",
+    "questions": {
+      "how_to_report": "Comment signaler un cas de corruption ?",
+      "how_to_protect": "Comment protéger mon projet ?",
+      "anonymity": "Mon anonymat est-il garanti ?",
+      "processing_time": "Combien de temps prend le traitement ?"
+    },
+    "status": {
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "typing": "L'assistant écrit..."
+    },
+    "errors": {
+      "network_error": "Erreur de connexion à l'assistant IA",
+      "message_too_long": "Message trop long",
+      "retry": "Tentative {{count}}/{{max}}..."
+    }
+  },
+  
+  "blockchain": {
+    "title": "Protection Blockchain",
+    "wallet_required": "Wallet requis",
+    "wallet_required_desc": "Veuillez installer MetaMask pour protéger vos projets sur blockchain.",
+    "wallet_connected": "Wallet connecté",
+    "wallet_connected_desc": "Connecté au réseau {{network}}",
+    "connecting": "Connexion en cours...",
+    "protection_in_progress": "Protection en cours",
+    "transaction_sent": "Envoi de la transaction blockchain...",
+    "transaction_confirmed": "Transaction confirmée",
+    "waiting_confirmation": "Attente de la confirmation blockchain...",
+    "project_protected": "🎉 Projet protégé !",
+    "project_protected_desc": "Votre projet est maintenant protégé sur blockchain (Token #{{tokenId}})",
+    "certificate": "Certificat de protection",
+    "verify_project": "Vérifier un projet",
+    "verification_result": "Résultat de vérification",
+    "project_exists": "Le projet existe et est protégé",
+    "project_not_found": "Projet non trouvé",
+    "owner": "Propriétaire",
+    "protected_at": "Protégé le",
+    "token_id": "ID du token",
+    "errors": {
+      "wallet_not_found": "Wallet non trouvé",
+      "connection_failed": "Échec de connexion au wallet",
+      "transaction_rejected": "Transaction annulée par l'utilisateur",
+      "insufficient_funds": "Fonds insuffisants pour la transaction",
+      "already_protected": "Ce projet est déjà protégé",
+      "network_error": "Erreur réseau blockchain"
+    }
+  },
+  
+  "encryption": {
+    "title": "Chiffrement Sécurisé",
+    "security_level": "Niveau de sécurité",
+    "encryption_standard": "Standard de chiffrement",
+    "key_fingerprint": "Empreinte de clé",
+    "anonymity_guarantee": "Garantie d'anonymat",
+    "data_encrypted": "Données chiffrées avec AES-256-GCM",
+    "client_side_encryption": "Chiffrement côté client",
+    "no_server_storage": "Aucune donnée claire stockée sur serveur",
+    "security_report": "Rapport de sécurité",
+    "maximum_security": "SÉCURITÉ MAXIMALE"
+  },
+  
+  "errors": {
+    "generic": "Une erreur est survenue",
+    "network": "Erreur de connexion réseau",
+    "server": "Erreur serveur",
+    "validation": "Erreur de validation",
+    "authentication": "Erreur d'authentification",
+    "authorization": "Accès non autorisé",
+    "not_found": "Page non trouvée",
+    "timeout": "Délai d'attente dépassé",
+    "file_too_large": "Fichier trop volumineux",
+    "file_type_not_supported": "Type de fichier non supporté",
+    "geolocation_denied": "Géolocalisation refusée",
+    "geolocation_unavailable": "Géolocalisation non disponible",
+    "geolocation_timeout": "Délai de géolocalisation dépassé"
+  },
+  
+  "success": {
+    "generic": "Opération réussie",
+    "saved": "Enregistrement réussi",
+    "updated": "Mise à jour réussie",
+    "deleted": "Suppression réussie",
+    "sent": "Envoi réussi",
+    "uploaded": "Upload réussi",
+    "downloaded": "Téléchargement réussi"
+  },
+  
+  "settings": {
+    "title": "Paramètres",
+    "general": "Général",
+    "privacy": "Confidentialité",
+    "security": "Sécurité",
+    "notifications": "Notifications",
+    "language": "Langue",
+    "theme": "Thème",
+    "language_french": "Français",
+    "language_english": "Anglais",
+    "theme_light": "Clair",
+    "theme_dark": "Sombre",
+    "theme_system": "Système",
+    "email_notifications": "Notifications e-mail",
+    "sms_notifications": "Notifications SMS",
+    "push_notifications": "Notifications push",
+    "report_updates": "Mises à jour signalements",
+    "project_updates": "Mises à jour projets",
+    "security_alerts": "Alertes de sécurité",
+    "profile_visibility": "Visibilité du profil",
+    "show_email": "Afficher l'e-mail",
+    "show_phone": "Afficher le téléphone",
+    "anonymous_reports": "Signalements anonymes par défaut"
+  },
+  
+  "footer": {
+    "description": "Plateforme citoyenne pour lutter contre la corruption et protéger l'innovation au Gabon",
+    "quick_links": "Liens rapides",
+    "legal": "Légal",
+    "support": "Support",
+    "follow_us": "Suivez-nous",
+    "copyright": "© {{year}} Ndjobi. Tous droits réservés.",
+    "links": {
+      "about": "À propos",
+      "how_it_works": "Comment ça marche",
+      "security": "Sécurité",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "privacy_policy": "Politique de confidentialité",
+      "terms_of_service": "Conditions d'utilisation",
+      "help": "Aide",
+      "documentation": "Documentation"
+    }
+  },
+  
+  "trust": {
+    "title": "Pourquoi nous faire confiance ?",
+    "security_title": "Sécurité maximale",
+    "security_desc": "Chiffrement AES-256 et blockchain pour une protection infaillible",
+    "anonymity_title": "Anonymat garanti",
+    "anonymity_desc": "Zero-knowledge : même nous ne pouvons pas vous identifier",
+    "transparency_title": "Transparence totale",
+    "transparency_desc": "Code open-source et processus transparents",
+    "impact_title": "Impact réel",
+    "impact_desc": "Partenariats avec les autorités pour un changement effectif"
+  },
+  
+  "stats": {
+    "title": "Notre Impact",
+    "reports_processed": "Signalements traités",
+    "projects_protected": "Projets protégés",
+    "cases_resolved": "Cas résolus",
+    "users_trust": "Utilisateurs nous font confiance"
+  }
+}

@@ -44,6 +44,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          user_id: string
+          email_notifications: boolean
+          sms_notifications: boolean
+          push_notifications: boolean
+          report_updates: boolean
+          project_updates: boolean
+          security_alerts: boolean
+          profile_visibility: string
+          show_email: boolean
+          show_phone: boolean
+          anonymous_reports: boolean
+          language: string
+          theme: string
+          timezone: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          user_id: string
+          email_notifications?: boolean
+          sms_notifications?: boolean
+          push_notifications?: boolean
+          report_updates?: boolean
+          project_updates?: boolean
+          security_alerts?: boolean
+          profile_visibility?: string
+          show_email?: boolean
+          show_phone?: boolean
+          anonymous_reports?: boolean
+          language?: string
+          theme?: string
+          timezone?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          user_id?: string
+          email_notifications?: boolean
+          sms_notifications?: boolean
+          push_notifications?: boolean
+          report_updates?: boolean
+          project_updates?: boolean
+          security_alerts?: boolean
+          profile_visibility?: string
+          show_email?: boolean
+          show_phone?: boolean
+          anonymous_reports?: boolean
+          language?: string
+          theme?: string
+          timezone?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       projets: {
         Row: {
           category: string

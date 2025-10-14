@@ -10,7 +10,7 @@ const CTACards = () => {
   const cards = [
     {
       icon: AlertCircle,
-      title: "Signaler un cas",
+      title: "Taper le Ndjobi",
       description: "Corruption, extorsion, abus de pouvoir",
       gradient: "from-destructive/90 to-destructive/70",
       href: "#signalement",
@@ -29,7 +29,7 @@ const CTACards = () => {
     {
       icon: FileText,
       title: "Mes dossiers",
-      description: "Consultez vos signalements et projets",
+      description: "Consultez vos dénonciations et projets",
       gradient: "from-primary/90 to-primary/70",
       href: "#dossiers",
       badge: "3 actifs",

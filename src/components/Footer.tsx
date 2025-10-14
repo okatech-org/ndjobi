@@ -1,4 +1,4 @@
-import { Shield } from "lucide-react";
+import logoNdjobi from "@/assets/logo_ndjobi.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -10,7 +10,11 @@ const Footer = () => {
           {/* Logo & Description */}
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              <img 
+                src={logoNdjobi} 
+                alt="Logo Ndjobi"
+                className="h-6 w-6 sm:h-8 sm:w-8 object-contain" 
+              />
               <span className="text-base sm:text-lg font-bold">NDJOBI</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">

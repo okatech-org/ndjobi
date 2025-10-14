@@ -47,36 +47,27 @@ export const PhoneLogin = () => {
     try {
       const fullPhone = `${data.countryCode}${data.phoneNumber}`;
       
-      // First, get user by phone number
-      const { data: { user }, error: userError } = await supabase.auth.signInWithOtp({
-        phone: fullPhone,
-        options: {
-          shouldCreateUser: false,
-        },
+      // Convertir le numéro en email pour l'authentification
+      const email = `${fullPhone.replace('+', '')}@ndjobi.ga`;
+      
+      // Authentification avec email + PIN (password)
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: data.pin,
       });
 
-      if (userError) throw userError;
-
-      // Verify PIN via edge function
-      const { data: verifyResult, error: verifyError } = await supabase.functions.invoke('verify-pin', {
-        body: {
-          phone: fullPhone,
-          pin: data.pin,
-        },
-      });
-
-      if (verifyError || !verifyResult?.success) {
-        throw new Error('Code PIN incorrect');
+      if (signInError) {
+        console.error('Auth error:', signInError);
+        throw new Error('Numéro ou code PIN incorrect');
       }
 
-      // Fetch user role for redirect
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      let dashboardUrl = '/dashboard/user'; // Default to user dashboard
-      if (currentUser) {
+      // Récupérer le rôle de l'utilisateur
+      let dashboardUrl = '/dashboard/user';
+      if (signInData?.user) {
         const { data: roleData } = await supabase
           .from('user_roles')
           .select('role')
-          .eq('user_id', currentUser.id)
+          .eq('user_id', signInData.user.id)
           .order('role', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -88,14 +79,17 @@ export const PhoneLogin = () => {
 
       toast({
         title: 'Connexion réussie !',
-        description: 'Vous êtes maintenant connecté',
+        description: 'Bienvenue sur NDJOBI',
       });
+      
       navigate(dashboardUrl);
+      
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         variant: 'destructive',
         title: 'Erreur de connexion',
-        description: error?.message || 'Vérifiez vos identifiants',
+        description: error?.message || 'Numéro ou code PIN incorrect',
       });
     } finally {
       setLoading(false);

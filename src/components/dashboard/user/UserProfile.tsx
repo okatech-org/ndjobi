@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -43,6 +43,7 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
     projects: 0,
     resolved: 0,
   });
+  const [twoFAEnabled, setTwoFAEnabled] = useState<boolean>(false);
 
   const {
     register,
@@ -100,6 +101,30 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        if (!user?.id) return;
+        const [reportsResult, projectsResult, pinResult] = await Promise.all([
+          supabase.from('signalements').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+          supabase.from('projets').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+          supabase.from('user_pins').select('id').eq('user_id', user.id).maybeSingle(),
+        ]);
+
+        setStats({
+          reports: (reportsResult as any)?.count ?? 0,
+          projects: (projectsResult as any)?.count ?? 0,
+          resolved: 0,
+        });
+        const pinRow = (pinResult as any)?.data;
+        setTwoFAEnabled(!!pinRow?.id);
+      } catch (e) {
+        // Ignore silently for dashboard counters
+      }
+    };
+    load();
+  }, [user?.id]);
+
   return (
     <div className="space-y-6">
       {/* Quick Actions */}
@@ -111,15 +136,15 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
                 <div className="p-2 rounded-lg bg-destructive/10">
                   <AlertCircle className="h-6 w-6 text-destructive" />
                 </div>
-                <CardTitle className="text-lg">Signaler un cas</CardTitle>
+                <CardTitle className="text-lg">Taper le Ndjobi</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <CardDescription className="mb-3">
-                Signaler un cas de corruption de manière anonyme
+                Taper le Ndjobi de manière anonyme pour dénoncer la corruption
               </CardDescription>
               <Button className="w-full" variant="destructive" size="sm">
-                Nouveau signalement
+                Taper le Ndjobi
               </Button>
             </CardContent>
           </Card>
@@ -154,7 +179,7 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
             </CardHeader>
             <CardContent>
               <CardDescription className="mb-3">
-                Consulter vos signalements et projets
+                Consulter vos dénonciations et projets
               </CardDescription>
               <Button className="w-full" variant="outline" size="sm">
                 Voir mes dossiers
@@ -214,7 +239,7 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Signalements</CardDescription>
+            <CardDescription>Ndjobi tapés</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.reports}</div>
@@ -383,7 +408,7 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Authentification à deux facteurs</span>
-              <Badge variant="outline">Désactivée</Badge>
+              <Badge variant="outline">{twoFAEnabled ? 'Activée' : 'Désactivée'}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Dernière connexion</span>
@@ -409,7 +434,7 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Tous vos signalements sont chiffrés avec AES-256 et votre identité reste 100% confidentielle. 
+            Toutes vos dénonciations sont chiffrées avec AES-256 et votre identité reste 100% confidentielle. 
             Nos serveurs sont hébergés au Gabon et respectent la souveraineté des données.
           </p>
         </CardContent>

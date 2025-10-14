@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole, UserProfile } from '@/types/auth';
+import { deviceIdentityService } from '@/services/deviceIdentity';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -46,10 +47,19 @@ export const useAuth = () => {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const initAuth = async () => {
       try {
+        timeoutId = setTimeout(() => {
+          if (mounted) {
+            setIsLoading(false);
+          }
+        }, 5000);
+
         const { data: { session: currentSession } } = await supabase.auth.getSession();
+        
+        clearTimeout(timeoutId);
         
         if (!mounted) return;
 
@@ -64,6 +74,12 @@ export const useAuth = () => {
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
+        if (mounted) {
+          setUser(null);
+          setSession(null);
+          setProfile(null);
+          setRole(null);
+        }
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -81,7 +97,8 @@ export const useAuth = () => {
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          await fetchUserData(currentSession.user.id);
+          const isNewUser = event === 'SIGNED_IN' && currentSession.user.created_at === currentSession.user.last_sign_in_at;
+          await fetchUserData(currentSession.user.id, isNewUser);
         } else {
           setProfile(null);
           setRole(null);
@@ -91,6 +108,7 @@ export const useAuth = () => {
 
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);

@@ -1,0 +1,362 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "open": "Open",
+    "submit": "Submit",
+    "reset": "Reset",
+    "clear": "Clear",
+    "select": "Select",
+    "required": "Required",
+    "optional": "Optional",
+    "yes": "Yes",
+    "no": "No"
+  },
+  
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up",
+    "about": "About",
+    "contact": "Contact",
+    "help": "Help",
+    "privacy": "Privacy",
+    "terms": "Terms of Service"
+  },
+  
+  "auth": {
+    "login_title": "Login to Ndjobi",
+    "signup_title": "Create Account",
+    "email": "Email Address",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "full_name": "Full Name",
+    "phone": "Phone",
+    "organization": "Organization",
+    "login_button": "Sign In",
+    "signup_button": "Sign Up",
+    "forgot_password": "Forgot Password?",
+    "remember_me": "Remember Me",
+    "already_have_account": "Already have an account?",
+    "dont_have_account": "Don't have an account?",
+    "social_login": "Sign in with",
+    "or": "or",
+    "invalid_credentials": "Invalid credentials",
+    "account_created": "Account created successfully",
+    "login_success": "Login successful",
+    "logout_success": "Logout successful",
+    "phone_auth": "Phone Authentication",
+    "enter_pin": "Enter your PIN code",
+    "pin_sent": "PIN code sent via SMS"
+  },
+  
+  "hero": {
+    "title": "Protect your projects, Fight corruption",
+    "subtitle": "Secure citizen platform to report corruption 100% anonymously and protect your innovations with tamper-proof timestamping.",
+    "security_badge": "🛡️ Protection guaranteed by AES-256 encryption",
+    "report_button": "🚨 Report Corruption",
+    "protect_button": "🔒 Protect My Project"
+  },
+  
+  "features": {
+    "report_corruption": "Report Corruption",
+    "report_corruption_desc": "Expose corruption cases completely anonymously and securely",
+    "protect_projects": "Protect Your Projects",
+    "protect_projects_desc": "Protect your innovations with tamper-proof blockchain timestamping",
+    "secure_anonymous": "Guaranteed Anonymity",
+    "secure_anonymous_desc": "Client-side AES-256 encryption for maximum protection",
+    "blockchain_proof": "Blockchain Proof",
+    "blockchain_proof_desc": "Verifiable protection certificates on the blockchain"
+  },
+  
+  "report": {
+    "title": "Report Corruption",
+    "subtitle": "Your report will remain 100% confidential",
+    "type_label": "Type of corruption",
+    "type_placeholder": "Select a type",
+    "location_label": "Location of facts",
+    "location_placeholder": "Ex: Ministry, City Hall, Public Service...",
+    "description_label": "Detailed description",
+    "description_placeholder": "Describe the facts precisely...",
+    "files_label": "Evidence (optional)",
+    "files_placeholder": "Drag your files here or click to select",
+    "anonymous_label": "Stay anonymous (recommended)",
+    "witness_name_label": "Name (optional)",
+    "witness_name_placeholder": "Your name",
+    "witness_contact_label": "Contact (optional)",
+    "witness_contact_placeholder": "Phone or email",
+    "submit_button": "Submit Report",
+    "geolocation": "Geolocation",
+    "manual_entry": "Manual Entry",
+    "detect_position": "Detect My Position",
+    "position_detected": "Position Detected",
+    "locating": "Locating...",
+    "corruption_types": {
+      "extorsion": "Extortion",
+      "detournement": "Embezzlement",
+      "pot-de-vin": "Bribery",
+      "abus-pouvoir": "Abuse of Power",
+      "nepotisme": "Nepotism",
+      "fraude": "Fraud",
+      "autre": "Other"
+    },
+    "success_title": "Report Submitted!",
+    "success_message": "Your report has been recorded and will be processed within 48 hours.",
+    "error_type_required": "Select a report type",
+    "error_location_required": "Please indicate the location",
+    "error_description_short": "Description too short (minimum 10 characters)",
+    "error_description_long": "Description too long (maximum 5000 characters)"
+  },
+  
+  "project_protection": {
+    "title": "Protect an Innovative Project",
+    "subtitle": "Register your idea with certified timestamping",
+    "project_title_label": "Project Title",
+    "project_title_placeholder": "Ex: Mobile agricultural management app",
+    "category_label": "Category",
+    "category_placeholder": "Select a category",
+    "location_label": "Project Location (optional)",
+    "location_placeholder": "Ex: Libreville, Port-Gentil...",
+    "description_label": "Detailed Description",
+    "description_placeholder": "Describe your project, its objective, its innovation...",
+    "innovation_level_label": "Innovation Level",
+    "development_stage_label": "Development Stage",
+    "budget_label": "Estimated Budget (optional)",
+    "budget_placeholder": "Ex: 500,000 FCFA",
+    "timeline_label": "Timeline (optional)",
+    "timeline_placeholder": "Ex: 6 months",
+    "files_label": "Project Documents (optional)",
+    "files_description": "Business plan, mockups, patents, prototypes...",
+    "submit_button": "Protect My Project",
+    "protection_guarantee": "Protection Guaranteed",
+    "protection_description": "Your project will be protected by blockchain timestamping and AES-256 encryption. You will receive a protection certificate with your project's unique fingerprint.",
+    "categories": {
+      "tech": "Technology / IT",
+      "agriculture": "Agriculture",
+      "sante": "Healthcare",
+      "education": "Education",
+      "energie": "Energy",
+      "transport": "Transportation",
+      "finance": "Finance",
+      "commerce": "Commerce",
+      "social": "Social / NGO",
+      "autre": "Other"
+    },
+    "innovation_levels": {
+      "incremental": "Incremental",
+      "substantiel": "Substantial",
+      "disruptif": "Disruptive",
+      "radical": "Radical"
+    },
+    "development_stages": {
+      "idee": "Idea",
+      "conception": "Design",
+      "prototype": "Prototype",
+      "test": "Test/Pilot",
+      "production": "Production",
+      "commercialisation": "Commercialization"
+    },
+    "success_title": "Project Protected!",
+    "success_message": "Your project has been registered with tamper-proof timestamping.",
+    "blockchain_connecting": "Connecting to blockchain...",
+    "blockchain_connected": "Connected to blockchain",
+    "certificate_generated": "Protection certificate generated"
+  },
+  
+  "dashboard": {
+    "welcome": "Welcome to your secure personal space",
+    "my_profile": "My Profile",
+    "my_reports": "My Reports",
+    "my_projects": "My Projects",
+    "my_files": "My Files",
+    "user_dashboard": "User Dashboard",
+    "agent_dashboard": "Agent Dashboard",
+    "admin_dashboard": "Admin Dashboard",
+    "stats": {
+      "total_reports": "Total Reports",
+      "total_projects": "Protected Projects",
+      "pending_reports": "Pending",
+      "resolved_cases": "Resolved Cases"
+    }
+  },
+  
+  "ai_assistant": {
+    "title": "Ndjobi Assistant",
+    "subtitle": "Your intelligent guide to fight corruption",
+    "placeholder": "Ask your question...",
+    "send": "Send",
+    "clear_history": "Clear History",
+    "suggested_questions": "Frequently Asked Questions:",
+    "questions": {
+      "how_to_report": "How to report a corruption case?",
+      "how_to_protect": "How to protect my project?",
+      "anonymity": "Is my anonymity guaranteed?",
+      "processing_time": "How long does processing take?"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "typing": "Assistant is typing..."
+    },
+    "errors": {
+      "network_error": "Connection error to AI assistant",
+      "message_too_long": "Message too long",
+      "retry": "Attempt {{count}}/{{max}}..."
+    }
+  },
+  
+  "blockchain": {
+    "title": "Blockchain Protection",
+    "wallet_required": "Wallet Required",
+    "wallet_required_desc": "Please install MetaMask to protect your projects on blockchain.",
+    "wallet_connected": "Wallet Connected",
+    "wallet_connected_desc": "Connected to {{network}} network",
+    "connecting": "Connecting...",
+    "protection_in_progress": "Protection in Progress",
+    "transaction_sent": "Sending blockchain transaction...",
+    "transaction_confirmed": "Transaction Confirmed",
+    "waiting_confirmation": "Waiting for blockchain confirmation...",
+    "project_protected": "🎉 Project Protected!",
+    "project_protected_desc": "Your project is now protected on blockchain (Token #{{tokenId}})",
+    "certificate": "Protection Certificate",
+    "verify_project": "Verify Project",
+    "verification_result": "Verification Result",
+    "project_exists": "Project exists and is protected",
+    "project_not_found": "Project not found",
+    "owner": "Owner",
+    "protected_at": "Protected on",
+    "token_id": "Token ID",
+    "errors": {
+      "wallet_not_found": "Wallet not found",
+      "connection_failed": "Failed to connect to wallet",
+      "transaction_rejected": "Transaction cancelled by user",
+      "insufficient_funds": "Insufficient funds for transaction",
+      "already_protected": "This project is already protected",
+      "network_error": "Blockchain network error"
+    }
+  },
+  
+  "encryption": {
+    "title": "Secure Encryption",
+    "security_level": "Security Level",
+    "encryption_standard": "Encryption Standard",
+    "key_fingerprint": "Key Fingerprint",
+    "anonymity_guarantee": "Anonymity Guarantee",
+    "data_encrypted": "Data encrypted with AES-256-GCM",
+    "client_side_encryption": "Client-side encryption",
+    "no_server_storage": "No plain data stored on server",
+    "security_report": "Security Report",
+    "maximum_security": "MAXIMUM SECURITY"
+  },
+  
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Network connection error",
+    "server": "Server error",
+    "validation": "Validation error",
+    "authentication": "Authentication error",
+    "authorization": "Access denied",
+    "not_found": "Page not found",
+    "timeout": "Request timeout",
+    "file_too_large": "File too large",
+    "file_type_not_supported": "File type not supported",
+    "geolocation_denied": "Geolocation access denied",
+    "geolocation_unavailable": "Geolocation unavailable",
+    "geolocation_timeout": "Geolocation timeout"
+  },
+  
+  "success": {
+    "generic": "Operation successful",
+    "saved": "Successfully saved",
+    "updated": "Successfully updated",
+    "deleted": "Successfully deleted",
+    "sent": "Successfully sent",
+    "uploaded": "Successfully uploaded",
+    "downloaded": "Successfully downloaded"
+  },
+  
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "privacy": "Privacy",
+    "security": "Security",
+    "notifications": "Notifications",
+    "language": "Language",
+    "theme": "Theme",
+    "language_french": "French",
+    "language_english": "English",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
+    "email_notifications": "Email notifications",
+    "sms_notifications": "SMS notifications",
+    "push_notifications": "Push notifications",
+    "report_updates": "Report updates",
+    "project_updates": "Project updates",
+    "security_alerts": "Security alerts",
+    "profile_visibility": "Profile visibility",
+    "show_email": "Show email",
+    "show_phone": "Show phone",
+    "anonymous_reports": "Anonymous reports by default"
+  },
+  
+  "footer": {
+    "description": "Citizen platform to fight corruption and protect innovation in Gabon",
+    "quick_links": "Quick Links",
+    "legal": "Legal",
+    "support": "Support",
+    "follow_us": "Follow Us",
+    "copyright": "© {{year}} Ndjobi. All rights reserved.",
+    "links": {
+      "about": "About",
+      "how_it_works": "How It Works",
+      "security": "Security",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service",
+      "help": "Help",
+      "documentation": "Documentation"
+    }
+  },
+  
+  "trust": {
+    "title": "Why Trust Us?",
+    "security_title": "Maximum Security",
+    "security_desc": "AES-256 encryption and blockchain for unbreakable protection",
+    "anonymity_title": "Guaranteed Anonymity",
+    "anonymity_desc": "Zero-knowledge: even we cannot identify you",
+    "transparency_title": "Total Transparency",
+    "transparency_desc": "Open-source code and transparent processes",
+    "impact_title": "Real Impact",
+    "impact_desc": "Partnerships with authorities for effective change"
+  },
+  
+  "stats": {
+    "title": "Our Impact",
+    "reports_processed": "Reports Processed",
+    "projects_protected": "Projects Protected",
+    "cases_resolved": "Cases Resolved",
+    "users_trust": "Users Trust Us"
+  }
+}

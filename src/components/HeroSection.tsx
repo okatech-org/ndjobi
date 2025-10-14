@@ -23,12 +23,12 @@ const HeroSection = () => {
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-            Plateforme citoyenne sécurisée pour signaler la corruption de manière <strong className="text-foreground">100% anonyme</strong> et protéger vos innovations avec un <strong className="text-foreground">horodatage infalsifiable</strong>.
+            Plateforme citoyenne sécurisée pour taper le Ndjobi de manière <strong className="text-foreground">100% anonyme</strong> et protéger vos innovations avec un <strong className="text-foreground">horodatage infalsifiable</strong>.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
             <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg hover:shadow-xl transition-all text-sm sm:text-base">
-              <a href="#signaler" aria-label="Signaler un cas">🚨 Signaler un cas</a>
+              <a href="#signaler" aria-label="Taper le Ndjobi">🚨 Taper le Ndjobi</a>
             </Button>
             <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto shadow-lg hover:shadow-xl transition-all text-sm sm:text-base">
               <a href="#proteger" aria-label="Protéger mon projet">🔒 Protéger mon projet</a>

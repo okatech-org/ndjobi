@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
+import logoNdjobi from "@/assets/logo_ndjobi.png";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const Header = () => {
   // Menu pour les utilisateurs connectés - correspond au menu mobile
   const authenticatedMenuItems = [
     { label: "Mon Profil", path: "/dashboard/user", icon: User },
-    { label: "Signaler", path: "/dashboard/user?view=report", icon: AlertCircle },
+    { label: "Taper le Ndjobi", path: "/dashboard/user?view=report", icon: AlertCircle },
     { label: "Protéger", path: "/dashboard/user?view=project", icon: FolderLock },
     { label: "Mes Dossiers", path: "/dashboard/user?view=files", icon: FileText },
     { label: "Paramètres", path: "/dashboard/user?view=settings", icon: Settings },
@@ -53,7 +54,11 @@ const Header = () => {
         {/* Logo */}
         <a href="/" className="flex items-center space-x-2 group">
           <div className="relative">
-            <Shield className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
+            <img 
+              src={logoNdjobi} 
+              alt="Logo Ndjobi"
+              className="h-10 w-10 object-contain transition-transform group-hover:scale-110" 
+            />
             <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           <div className="flex flex-col">

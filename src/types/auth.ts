@@ -41,4 +41,5 @@ export interface DemoAccount {
   description: string;
   icon: string;
   color: string;
+  displayPhone?: string; // Numéro de téléphone à afficher
 }

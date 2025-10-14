@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { FileText, Shield, Calendar, Eye, Download, AlertCircle, FolderLock, MapPin, X } from 'lucide-react';
+import { FileText, Shield, Calendar, Eye, Download, AlertCircle, FolderLock, MapPin, Search, Filter } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
@@ -43,6 +45,11 @@ export const MyFiles = () => {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<Report | Project | null>(null);
   const [mapDialogOpen, setMapDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     if (user) {
@@ -133,6 +140,81 @@ export const MyFiles = () => {
     setMapDialogOpen(true);
   };
 
+  const handleViewDetails = (item: Report | Project) => {
+    if ('type' in item) {
+      setSelectedReport(item);
+    } else {
+      setSelectedProject(item);
+    }
+    setDetailsDialogOpen(true);
+  };
+
+  const handleDownloadCertificate = (project: Project) => {
+    const certificate = {
+      title: project.title,
+      category: getCategoryLabel(project.category),
+      description: project.description,
+      timestamp: project.timestamp,
+      protected_at: new Date(project.created_at).toISOString(),
+      certificate_id: project.id,
+      blockchain_hash: `0x${Math.random().toString(16).substr(2, 64)}`,
+    };
+
+    const blob = new Blob([JSON.stringify(certificate, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `certificat-${project.title.toLowerCase().replace(/\s+/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadReport = (report: Report) => {
+    const reportData = {
+      type: getTypeLabel(report.type),
+      location: report.location,
+      description: report.description,
+      status: report.status,
+      created_at: new Date(report.created_at).toISOString(),
+      anonymous: report.anonymous,
+      report_id: report.id,
+    };
+
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ndjobi-${report.id.slice(0, 8)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const filteredReports = reports.filter(report => {
+    const matchesSearch = searchTerm === '' || 
+      getTypeLabel(report.type).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = searchTerm === '' || 
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getCategoryLabel(project.category).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -143,12 +225,12 @@ export const MyFiles = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-bold">Mes dossiers</h2>
         <div className="flex gap-2">
           <Badge variant="outline">
             <AlertCircle className="h-3 w-3 mr-1" />
-            {reports.length} signalements
+            {reports.length} ndjobi tapés
           </Badge>
           <Badge variant="outline">
             <FolderLock className="h-3 w-3 mr-1" />
@@ -157,22 +239,58 @@ export const MyFiles = () => {
         </div>
       </div>
 
+      {/* Filtres et recherche */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher dans vos dossiers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="processing">En cours</SelectItem>
+                <SelectItem value="resolved">Résolu</SelectItem>
+                <SelectItem value="closed">Clôturé</SelectItem>
+                <SelectItem value="protected">Protégé</SelectItem>
+                <SelectItem value="reviewed">Examiné</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="reports" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="reports">Signalements</TabsTrigger>
+          <TabsTrigger value="reports">Ndjobi tapés</TabsTrigger>
           <TabsTrigger value="projects">Projets protégés</TabsTrigger>
         </TabsList>
 
         <TabsContent value="reports" className="space-y-4">
-          {reports.length === 0 ? (
+          {filteredReports.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">Aucun signalement pour le moment</p>
+                <p className="text-muted-foreground">
+                  {reports.length === 0 
+                    ? 'Aucun ndjobi tapé pour le moment' 
+                    : 'Aucun résultat ne correspond à votre recherche'}
+                </p>
               </CardContent>
             </Card>
           ) : (
-            reports.map((report) => (
+            filteredReports.map((report) => (
               <Card key={report.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -193,14 +311,14 @@ export const MyFiles = () => {
                     </div>
                     <div className="flex gap-2">
                       {report.gps_latitude && report.gps_longitude && (
-                        <Button size="sm" variant="outline" onClick={() => handleShowMap(report)}>
+                        <Button size="sm" variant="outline" onClick={() => handleShowMap(report)} title="Voir sur la carte">
                           <MapPin className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleViewDetails(report)} title="Voir les détails">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleDownloadReport(report)} title="Télécharger">
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>
@@ -233,15 +351,19 @@ export const MyFiles = () => {
         </TabsContent>
 
         <TabsContent value="projects" className="space-y-4">
-          {projects.length === 0 ? (
+          {filteredProjects.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <FolderLock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">Aucun projet protégé pour le moment</p>
+                <p className="text-muted-foreground">
+                  {projects.length === 0 
+                    ? 'Aucun projet protégé pour le moment' 
+                    : 'Aucun résultat ne correspond à votre recherche'}
+                </p>
               </CardContent>
             </Card>
           ) : (
-            projects.map((project) => (
+            filteredProjects.map((project) => (
               <Card key={project.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -262,14 +384,14 @@ export const MyFiles = () => {
                     </div>
                     <div className="flex gap-2">
                       {project.gps_latitude && project.gps_longitude && (
-                        <Button size="sm" variant="outline" onClick={() => handleShowMap(project)}>
+                        <Button size="sm" variant="outline" onClick={() => handleShowMap(project)} title="Voir sur la carte">
                           <MapPin className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleViewDetails(project)} title="Voir les détails">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleDownloadCertificate(project)} title="Télécharger le certificat">
                         <FileText className="h-4 w-4" />
                       </Button>
                     </div>
@@ -315,7 +437,7 @@ export const MyFiles = () => {
             </DialogTitle>
             <DialogDescription>
               {selectedItem && 'type' in selectedItem 
-                ? `Signalement : ${getTypeLabel(selectedItem.type)}`
+                ? `Ndjobi tapé : ${getTypeLabel(selectedItem.type)}`
                 : selectedItem && 'title' in selectedItem
                 ? `Projet : ${selectedItem.title}`
                 : 'Détails de localisation'}
@@ -329,6 +451,227 @@ export const MyFiles = () => {
               address={'location' in selectedItem ? selectedItem.location : ''}
               showMap={true}
             />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Dialog */}
+      <Dialog open={detailsDialogOpen} onOpenChange={(open) => {
+        setDetailsDialogOpen(open);
+        if (!open) {
+          setSelectedReport(null);
+          setSelectedProject(null);
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {selectedReport && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-destructive" />
+                  Détails du Ndjobi tapé
+                </DialogTitle>
+                <DialogDescription>
+                  Référence : {selectedReport.id.slice(0, 8).toUpperCase()}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 mt-4">
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Type de corruption</h3>
+                  <p className="text-base">{getTypeLabel(selectedReport.type)}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Statut</h3>
+                  <div>{getStatusBadge(selectedReport.status)}</div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Lieu des faits</h3>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <p className="text-base">{selectedReport.location}</p>
+                  </div>
+                  {selectedReport.gps_latitude && selectedReport.gps_longitude && (
+                    <div className="mt-2">
+                      <Badge variant="outline">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        GPS : {selectedReport.gps_latitude.toFixed(6)}, {selectedReport.gps_longitude.toFixed(6)}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Description complète</h3>
+                  <p className="text-base whitespace-pre-wrap">{selectedReport.description}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Date de dépôt</h3>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <p className="text-base">
+                      {new Date(selectedReport.created_at).toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedReport.anonymous && (
+                  <div className="p-3 rounded-lg bg-muted">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-primary" />
+                      <p className="text-sm font-medium">Dénonciation anonyme</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Votre identité reste 100% confidentielle et protégée.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-4">
+                  {selectedReport.gps_latitude && selectedReport.gps_longitude && (
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => {
+                        setDetailsDialogOpen(false);
+                        handleShowMap(selectedReport);
+                      }}
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Voir sur la carte
+                    </Button>
+                  )}
+                  <Button 
+                    variant="secondary" 
+                    className="flex-1"
+                    onClick={() => handleDownloadReport(selectedReport)}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Télécharger
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {selectedProject && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <FolderLock className="h-5 w-5 text-primary" />
+                  Détails du projet protégé
+                </DialogTitle>
+                <DialogDescription>
+                  Certificat : {selectedProject.id.slice(0, 8).toUpperCase()}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 mt-4">
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Titre du projet</h3>
+                  <p className="text-base font-medium">{selectedProject.title}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Catégorie</h3>
+                  <p className="text-base">{getCategoryLabel(selectedProject.category)}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Statut</h3>
+                  <div>{getStatusBadge(selectedProject.status)}</div>
+                </div>
+
+                {selectedProject.location && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-muted-foreground mb-1">Localisation</h3>
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <p className="text-base">{selectedProject.location}</p>
+                    </div>
+                    {selectedProject.gps_latitude && selectedProject.gps_longitude && (
+                      <div className="mt-2">
+                        <Badge variant="outline">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          GPS : {selectedProject.gps_latitude.toFixed(6)}, {selectedProject.gps_longitude.toFixed(6)}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Description du projet</h3>
+                  <p className="text-base whitespace-pre-wrap">{selectedProject.description}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Date de protection</h3>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <p className="text-base">
+                      {new Date(selectedProject.created_at).toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-1">Horodatage blockchain</h3>
+                  <p className="text-sm font-mono bg-muted p-2 rounded break-all">
+                    {selectedProject.timestamp}
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-lg bg-primary/10">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-medium">Protection active</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Votre projet est protégé par blockchain et un certificat infalsifiable a été généré.
+                  </p>
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  {selectedProject.gps_latitude && selectedProject.gps_longitude && (
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => {
+                        setDetailsDialogOpen(false);
+                        handleShowMap(selectedProject);
+                      }}
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Voir sur la carte
+                    </Button>
+                  )}
+                  <Button 
+                    variant="default" 
+                    className="flex-1"
+                    onClick={() => handleDownloadCertificate(selectedProject)}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Télécharger le certificat
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>

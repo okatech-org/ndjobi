@@ -40,7 +40,7 @@ const TrustSection = () => {
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <div className="text-sm sm:text-base space-y-2 text-muted-foreground">
               <p className="font-medium text-foreground">Réponse sous 48 heures</p>
-              <p className="leading-relaxed">Votre signalement est analysé par notre équipe et les autorités compétentes. Vous recevez des notifications à chaque étape.</p>
+              <p className="leading-relaxed">Votre dénonciation est analysée par notre équipe et les autorités compétentes. Vous recevez des notifications à chaque étape.</p>
             </div>
           </CardContent>
         </Card>

@@ -7,6 +7,8 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+// Module système (caché)
+import { SystemMaintenancePanel } from '@/components/admin/SecureModuleAccess';
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -98,6 +100,9 @@ const SuperAdminDashboard = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Module Système (caché sous maintenance) */}
+          <SystemMaintenancePanel />
 
           {/* Admin Tools */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,20 +1,22 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { getDashboardUrl } from "@/lib/roleUtils";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/dashboards/UserDashboard";
-import AgentDashboard from "./pages/dashboards/AgentDashboard";
-import AdminDashboard from "./pages/dashboards/AdminDashboard";
-import SuperAdminDashboard from "./pages/dashboards/SuperAdminDashboard";
+import DebugAuth from "./pages/DebugAuth";
+import NdjobiAIAgent from "@/components/ai-agent/NdjobiAIAgent";
+
+// Lazy loading UNIQUEMENT pour les routes rarement utilisées
+const AgentDashboard = lazy(() => import("./pages/dashboards/AgentDashboard"));
+const AdminDashboard = lazy(() => import("./pages/dashboards/AdminDashboard"));
+const SuperAdminDashboard = lazy(() => import("./pages/dashboards/SuperAdminDashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -47,7 +49,6 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Si l'utilisateur est connecté, rediriger vers Dashboard qui gère la redirection par rôle
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -100,7 +101,9 @@ const App = () => {
               path="/dashboard/agent"
               element={
                 <ProtectedRoute>
-                  <AgentDashboard />
+                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+                    <AgentDashboard />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -108,7 +111,9 @@ const App = () => {
               path="/dashboard/admin"
               element={
                 <ProtectedRoute>
-                  <AdminDashboard />
+                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+                    <AdminDashboard />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -116,12 +121,20 @@ const App = () => {
               path="/dashboard/super-admin"
               element={
                 <ProtectedRoute>
-                  <SuperAdminDashboard />
+                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+                    <SuperAdminDashboard />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/debug" element={<DebugAuth />} />
+            <Route path="*" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+                <NotFound />
+              </Suspense>
+            } />
           </Routes>
+          <NdjobiAIAgent />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

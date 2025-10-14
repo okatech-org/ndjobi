@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Bell, Shield, Eye, Moon, Globe, Smartphone, Mail, Lock, AlertTriangle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Bell, Shield, Eye, Globe, Smartphone, Mail, Lock, AlertTriangle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -10,42 +10,232 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { z } from 'zod';
 
-export const UserSettings = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [settings, setSettings] = useState({
-    // Notifications
+type SettingsState = {
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+  pushNotifications: boolean;
+  reportUpdates: boolean;
+  projectUpdates: boolean;
+  securityAlerts: boolean;
+  profileVisibility: 'private' | 'agents' | 'public';
+  showEmail: boolean;
+  showPhone: boolean;
+  anonymousReports: boolean;
+  language: 'fr' | 'en';
+  theme: 'light' | 'dark' | 'system';
+  timezone: string;
+};
+
+const defaultSettings: SettingsState = {
     emailNotifications: true,
     smsNotifications: false,
     pushNotifications: true,
     reportUpdates: true,
     projectUpdates: true,
     securityAlerts: true,
-    
-    // Confidentialité
     profileVisibility: 'private',
     showEmail: false,
     showPhone: false,
     anonymousReports: true,
-    
-    // Préférences
     language: 'fr',
     theme: 'system',
     timezone: 'Africa/Libreville',
+};
+
+const passwordSchema = z.object({
+  newPassword: z.string().min(8, 'Mot de passe trop court (min 8 caractères)'),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  path: ['confirmPassword'],
+  message: 'Les mots de passe ne correspondent pas',
+});
+
+const pinSchema = z.object({
+  pin: z.string().length(6, 'Le code PIN doit contenir 6 chiffres').regex(/^\d+$/, 'Uniquement des chiffres'),
+  confirmPin: z.string(),
+}).refine((data) => data.pin === data.confirmPin, {
+  path: ['confirmPin'],
+  message: 'Les codes PIN ne correspondent pas',
+});
+
+export const UserSettings = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<SettingsState>(defaultSettings);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [savingKey, setSavingKey] = useState<keyof SettingsState | null>(null);
+  const [is2FAEnabled, setIs2FAEnabled] = useState<boolean>(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ newPassword: '', confirmPassword: '' });
+  const [passwordErrors, setPasswordErrors] = useState<{ newPassword?: string; confirmPassword?: string }>({});
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [pinForm, setPinForm] = useState({ pin: '', confirmPin: '' });
+  const [pinErrors, setPinErrors] = useState<{ pin?: string; confirmPin?: string }>({});
+  const [pinLoading, setPinLoading] = useState(false);
+
+  const mapToRow = useMemo(() => (s: SettingsState) => ({
+    user_id: user?.id,
+    email_notifications: s.emailNotifications,
+    sms_notifications: s.smsNotifications,
+    push_notifications: s.pushNotifications,
+    report_updates: s.reportUpdates,
+    project_updates: s.projectUpdates,
+    security_alerts: s.securityAlerts,
+    profile_visibility: s.profileVisibility,
+    show_email: s.showEmail,
+    show_phone: s.showPhone,
+    anonymous_reports: s.anonymousReports,
+    language: s.language,
+    theme: s.theme,
+    timezone: s.timezone,
+  }), [user?.id]);
+
+  const mapFromRow = (row: any): SettingsState => ({
+    emailNotifications: !!row?.email_notifications,
+    smsNotifications: !!row?.sms_notifications,
+    pushNotifications: !!row?.push_notifications,
+    reportUpdates: !!row?.report_updates,
+    projectUpdates: !!row?.project_updates,
+    securityAlerts: !!row?.security_alerts,
+    profileVisibility: (row?.profile_visibility || 'private') as SettingsState['profileVisibility'],
+    showEmail: !!row?.show_email,
+    showPhone: !!row?.show_phone,
+    anonymousReports: !!row?.anonymous_reports,
+    language: (row?.language || 'fr') as SettingsState['language'],
+    theme: (row?.theme || 'system') as SettingsState['theme'],
+    timezone: row?.timezone || 'Africa/Libreville',
   });
 
-  const handleSettingChange = (key: string, value: any) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value,
-    }));
-    
-    toast({
-      title: 'Paramètre mis à jour',
-      description: 'Votre préférence a été enregistrée.',
-    });
+  useEffect(() => {
+    const load = async () => {
+      try {
+        if (!user?.id) return;
+        const { data, error } = await supabase
+          .from('user_settings')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (error) throw error;
+        if (data) setSettings(mapFromRow(data));
+
+        const { data: pinData } = await supabase
+          .from('user_pins')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setIs2FAEnabled(!!pinData?.id);
+      } catch (e: any) {
+        toast({ variant: 'destructive', title: 'Erreur de chargement', description: e?.message || 'Impossible de charger vos paramètres' });
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    load();
+  }, [user?.id]);
+
+  const handleSettingChange = async (key: keyof SettingsState, value: any) => {
+    const next = { ...settings, [key]: value } as SettingsState;
+    setSettings(next);
+    if (!user?.id) return;
+    setSavingKey(key);
+    try {
+      const row = mapToRow(next);
+      const { error } = await supabase.from('user_settings').upsert(row, { onConflict: 'user_id' });
+      if (error) throw error;
+      toast({ title: 'Paramètre mis à jour', description: 'Votre préférence a été enregistrée.' });
+    } catch (e: any) {
+      setSettings((prev) => ({ ...prev, [key]: settings[key] } as SettingsState));
+      toast({ variant: 'destructive', title: 'Échec de la mise à jour', description: e?.message || 'Réessayez plus tard' });
+    } finally {
+      setSavingKey(null);
+    }
   };
+
+  const submitPassword = async () => {
+    const parsed = passwordSchema.safeParse(passwordForm);
+    if (!parsed.success) {
+      const fieldErrors: any = {};
+      parsed.error.issues.forEach((i) => { if (i.path[0]) fieldErrors[i.path[0]] = i.message; });
+      setPasswordErrors(fieldErrors);
+      return;
+    }
+    setPasswordErrors({});
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: passwordForm.newPassword });
+      if (error) throw error;
+      toast({ title: 'Mot de passe mis à jour', description: 'Votre mot de passe a été modifié.' });
+      setPasswordDialogOpen(false);
+      setPasswordForm({ newPassword: '', confirmPassword: '' });
+    } catch (e: any) {
+      toast({ variant: 'destructive', title: 'Erreur', description: e?.message || 'Impossible de changer le mot de passe' });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const submitPin = async () => {
+    const parsed = pinSchema.safeParse(pinForm);
+    if (!parsed.success) {
+      const fieldErrors: any = {};
+      parsed.error.issues.forEach((i) => { if (i.path[0]) fieldErrors[i.path[0]] = i.message; });
+      setPinErrors(fieldErrors);
+      return;
+    }
+    setPinErrors({});
+    setPinLoading(true);
+    try {
+      if (!user?.id) throw new Error('Utilisateur introuvable');
+      const pinHash = btoa(pinForm.pin);
+      const { error } = await supabase.from('user_pins').upsert({ user_id: user.id, pin_hash: pinHash });
+      if (error) throw error;
+      setIs2FAEnabled(true);
+      toast({ title: '2FA configurée', description: 'Votre code PIN a été enregistré.' });
+      setPinDialogOpen(false);
+      setPinForm({ pin: '', confirmPin: '' });
+    } catch (e: any) {
+      toast({ variant: 'destructive', title: 'Erreur', description: e?.message || 'Impossible de configurer le PIN' });
+    } finally {
+      setPinLoading(false);
+    }
+  };
+
+  const disable2FA = async () => {
+    try {
+      if (!user?.id) throw new Error('Utilisateur introuvable');
+      const { error } = await supabase.from('user_pins').delete().eq('user_id', user.id);
+      if (error) throw error;
+      setIs2FAEnabled(false);
+      toast({ title: '2FA désactivée', description: 'Vous pouvez la reconfigurer à tout moment.' });
+    } catch (e: any) {
+      toast({ variant: 'destructive', title: 'Erreur', description: e?.message || 'Impossible de désactiver la 2FA' });
+    }
+  };
+
+  const requestAccountDeletion = async () => {
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { delete_requested_at: new Date().toISOString() } as any });
+      if (error) throw error;
+      toast({ title: 'Demande envoyée', description: 'Un administrateur traitera votre demande.' });
+    } catch (e: any) {
+      toast({ variant: 'destructive', title: 'Suppression impossible', description: e?.message || "Contactez le support" });
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-[200px] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -72,6 +262,7 @@ export const UserSettings = () => {
               <Switch
                 id="emailNotifications"
                 checked={settings.emailNotifications}
+                disabled={savingKey === 'emailNotifications'}
                 onCheckedChange={(checked) => handleSettingChange('emailNotifications', checked)}
               />
             </div>
@@ -86,6 +277,7 @@ export const UserSettings = () => {
               <Switch
                 id="smsNotifications"
                 checked={settings.smsNotifications}
+                disabled={savingKey === 'smsNotifications'}
                 onCheckedChange={(checked) => handleSettingChange('smsNotifications', checked)}
               />
             </div>
@@ -100,6 +292,7 @@ export const UserSettings = () => {
               <Switch
                 id="pushNotifications"
                 checked={settings.pushNotifications}
+                disabled={savingKey === 'pushNotifications'}
                 onCheckedChange={(checked) => handleSettingChange('pushNotifications', checked)}
               />
             </div>
@@ -195,6 +388,7 @@ export const UserSettings = () => {
               <Switch
                 id="showEmail"
                 checked={settings.showEmail}
+                disabled={savingKey === 'showEmail'}
                 onCheckedChange={(checked) => handleSettingChange('showEmail', checked)}
               />
             </div>
@@ -203,12 +397,13 @@ export const UserSettings = () => {
               <div className="space-y-0.5">
                 <Label htmlFor="anonymousReports">Signalements anonymes par défaut</Label>
                 <p className="text-sm text-muted-foreground">
-                  Toujours signaler de manière anonyme
+                  Toujours taper le Ndjobi de manière anonyme
                 </p>
               </div>
               <Switch
                 id="anonymousReports"
                 checked={settings.anonymousReports}
+                disabled={savingKey === 'anonymousReports'}
                 onCheckedChange={(checked) => handleSettingChange('anonymousReports', checked)}
               />
             </div>
@@ -305,7 +500,34 @@ export const UserSettings = () => {
                   </p>
                 </div>
               </div>
+              <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+                <DialogTrigger asChild>
               <Button variant="outline">Modifier</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Changer le mot de passe</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                      <Input id="newPassword" type="password" value={passwordForm.newPassword} onChange={(e) => setPasswordForm((f) => ({ ...f, newPassword: e.target.value }))} />
+                      {passwordErrors.newPassword && <p className="text-xs text-destructive">{passwordErrors.newPassword}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirmer</Label>
+                      <Input id="confirmPassword" type="password" value={passwordForm.confirmPassword} onChange={(e) => setPasswordForm((f) => ({ ...f, confirmPassword: e.target.value }))} />
+                      {passwordErrors.confirmPassword && <p className="text-xs text-destructive">{passwordErrors.confirmPassword}</p>}
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setPasswordDialogOpen(false)}>Annuler</Button>
+                    <Button onClick={submitPassword} disabled={passwordLoading}>
+                      {passwordLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enregistrement...</>) : 'Enregistrer'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-lg border">
@@ -314,11 +536,43 @@ export const UserSettings = () => {
                 <div>
                   <p className="font-medium">Authentification à deux facteurs</p>
                   <p className="text-sm text-muted-foreground">
-                    Ajoutez une couche de sécurité supplémentaire
+                    {is2FAEnabled ? '2FA activée' : 'Ajoutez une couche de sécurité supplémentaire'}
                   </p>
                 </div>
               </div>
+              <div className="flex gap-2">
+                {is2FAEnabled && (
+                  <Button variant="outline" onClick={disable2FA}>Désactiver</Button>
+                )}
+                <Dialog open={pinDialogOpen} onOpenChange={setPinDialogOpen}>
+                  <DialogTrigger asChild>
               <Button variant="outline">Configurer</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{is2FAEnabled ? 'Mettre à jour le PIN' : 'Configurer le PIN (2FA)'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="pin">PIN (6 chiffres)</Label>
+                        <Input id="pin" type="password" inputMode="numeric" maxLength={6} value={pinForm.pin} onChange={(e) => setPinForm((f) => ({ ...f, pin: e.target.value }))} />
+                        {pinErrors.pin && <p className="text-xs text-destructive">{pinErrors.pin}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPin">Confirmer le PIN</Label>
+                        <Input id="confirmPin" type="password" inputMode="numeric" maxLength={6} value={pinForm.confirmPin} onChange={(e) => setPinForm((f) => ({ ...f, confirmPin: e.target.value }))} />
+                        {pinErrors.confirmPin && <p className="text-xs text-destructive">{pinErrors.confirmPin}</p>}
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setPinDialogOpen(false)}>Annuler</Button>
+                      <Button onClick={submitPin} disabled={pinLoading}>
+                        {pinLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enregistrement...</>) : 'Enregistrer'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-lg border">
@@ -356,9 +610,23 @@ export const UserSettings = () => {
               signalements et projets protégés.
             </AlertDescription>
           </Alert>
-          <Button variant="destructive" className="mt-4">
-            Supprimer mon compte
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="mt-4">Supprimer mon compte</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. Votre demande sera transmise aux administrateurs.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={requestAccountDeletion}>Confirmer</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
     </div>

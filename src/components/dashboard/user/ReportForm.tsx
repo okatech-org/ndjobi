@@ -176,8 +176,8 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
       if (error) throw error;
 
       toast({
-        title: 'Signalement envoyé !',
-        description: 'Votre signalement a été enregistré et sera traité sous 48h.',
+        title: 'Ndjobi tapé !',
+        description: 'Votre dénonciation a été enregistrée et sera traitée sous 48h.',
       });
       
       reset();
@@ -204,8 +204,8 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
             <AlertCircle className="h-6 w-6 text-destructive" />
           </div>
           <div>
-            <CardTitle>Signaler un cas de corruption</CardTitle>
-            <CardDescription>Votre signalement restera 100% confidentiel</CardDescription>
+            <CardTitle>Taper le Ndjobi</CardTitle>
+            <CardDescription>Votre dénonciation restera 100% confidentielle</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -389,7 +389,7 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
                   Envoi en cours...
                 </>
               ) : (
-                'Envoyer le signalement'
+                'Taper le Ndjobi'
               )}
             </Button>
             {onCancel && (
