@@ -641,8 +641,8 @@ const SuperAdminDashboard = () => {
             <BarChart3 className="h-5 w-5" />
             Monitoring Temps Réel
           </CardTitle>
-        </CardHeader>
-        <CardContent>
+              </CardHeader>
+              <CardContent>
           <Tabs defaultValue="activity" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="activity">Activité</TabsTrigger>
@@ -775,8 +775,8 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Taille Base de Données</CardTitle>
-            </CardHeader>
-            <CardContent>
+              </CardHeader>
+              <CardContent>
               <div className="text-2xl font-bold">{dbStats.totalSize}</div>
               <p className="text-xs text-muted-foreground">{dbStats.tableCount} tables</p>
             </CardContent>
@@ -806,9 +806,9 @@ const SuperAdminDashboard = () => {
             <CardContent>
               <div className="text-2xl font-bold">{dbStats.projetCount}</div>
               <p className="text-xs text-muted-foreground">Protégés</p>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
       )}
 
     <Card>
@@ -1049,12 +1049,12 @@ const SuperAdminDashboard = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Total Utilisateurs</CardTitle>
-          </CardHeader>
-          <CardContent>
+              </CardHeader>
+              <CardContent>
             <div className="text-2xl font-bold">{systemStats.totalUsers}</div>
             <p className="text-xs text-muted-foreground">+{systemStats.newUsersToday} aujourd'hui</p>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Citoyens</CardTitle>
@@ -1085,7 +1085,7 @@ const SuperAdminDashboard = () => {
       </div>
 
       <Card>
-        <CardHeader>
+              <CardHeader>
           <CardTitle>Gestion des Utilisateurs</CardTitle>
           <CardDescription>Administration complète des comptes utilisateurs</CardDescription>
           <div className="flex gap-4 mt-4">
@@ -1097,7 +1097,7 @@ const SuperAdminDashboard = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
-            </div>
+                  </div>
             <Select value={roleFilter} onValueChange={setRoleFilter}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par rôle" />
@@ -1114,7 +1114,7 @@ const SuperAdminDashboard = () => {
               <RefreshCcw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Actualiser
             </Button>
-          </div>
+                </div>
               </CardHeader>
               <CardContent>
           <Table>
@@ -1172,7 +1172,7 @@ const SuperAdminDashboard = () => {
                           onClick={() => handleViewUser(user.id)}
                         >
                         <Eye className="h-4 w-4" />
-                      </Button>
+                </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -1212,8 +1212,8 @@ const SuperAdminDashboard = () => {
               Affichage de 20 sur {filteredUsers.length} utilisateurs
             </div>
           )}
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
 
       {/* Dialog: Détails Utilisateur */}
       <Dialog open={showUserDetails} onOpenChange={setShowUserDetails}>
@@ -1230,7 +1230,7 @@ const SuperAdminDashboard = () => {
                 <div>
                   <Label className="text-xs text-muted-foreground">Email</Label>
                   <p className="text-sm font-medium">{selectedUser.email}</p>
-                </div>
+                  </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Nom complet</Label>
                   <p className="text-sm font-medium">{selectedUser.username || 'N/A'}</p>
@@ -1384,7 +1384,7 @@ const SuperAdminDashboard = () => {
         <CardHeader>
           <CardTitle>Rapports et Analyses</CardTitle>
           <CardDescription>Tableaux de bord et statistiques détaillées</CardDescription>
-        </CardHeader>
+              </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button 
@@ -1395,7 +1395,7 @@ const SuperAdminDashboard = () => {
               <FileText className="h-8 w-8" />
               <span>Rapport Mensuel</span>
               <span className="text-xs text-muted-foreground">Générer PDF</span>
-            </Button>
+                </Button>
             <Button 
               variant="outline" 
               className="h-32 flex-col gap-3"
@@ -1447,20 +1447,20 @@ const SuperAdminDashboard = () => {
   const renderProjectView = () => (
     <div className="space-y-6">
       <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-        <CardHeader>
+              <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-2xl">Documentation Projet NDJOBI</CardTitle>
               <CardDescription className="mt-2">
                 Plateforme Anti-Corruption - République Gabonaise
               </CardDescription>
-            </div>
+                  </div>
             <Badge variant="default" className="text-lg px-4 py-2">
               Version 2.0.0
             </Badge>
-          </div>
-        </CardHeader>
-      </Card>
+                </div>
+              </CardHeader>
+            </Card>
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
@@ -1489,7 +1489,7 @@ const SuperAdminDashboard = () => {
                     Lutter contre la corruption en facilitant le signalement citoyen 
                     et en assurant un traitement transparent des cas.
                   </p>
-                </div>
+                  </div>
                 <div className="p-4 rounded-lg border bg-muted/30">
                   <h4 className="font-semibold mb-2">🛡️ Protection</h4>
                   <p className="text-sm text-muted-foreground">
@@ -1576,11 +1576,11 @@ const SuperAdminDashboard = () => {
                     <div className="flex justify-between">
                       <span>React</span>
                       <Badge variant="outline">18.3</Badge>
-                    </div>
+                  </div>
                     <div className="flex justify-between">
                       <span>TypeScript</span>
                       <Badge variant="outline">5.6</Badge>
-                    </div>
+                </div>
                     <div className="flex justify-between">
                       <span>Vite</span>
                       <Badge variant="outline">5.4</Badge>
@@ -1651,8 +1651,8 @@ const SuperAdminDashboard = () => {
           <Card>
               <CardHeader>
               <CardTitle>🔄 Flux de Données</CardTitle>
-            </CardHeader>
-            <CardContent>
+              </CardHeader>
+              <CardContent>
               <div className="space-y-4">
                 <div className="p-4 rounded-lg border bg-muted/30">
                   <h4 className="font-semibold mb-3">1. Signalement</h4>
@@ -1701,8 +1701,8 @@ const SuperAdminDashboard = () => {
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
         </TabsContent>
 
         <TabsContent value="features" className="space-y-4 mt-4">
@@ -1742,7 +1742,7 @@ const SuperAdminDashboard = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+          </div>
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="p-3 rounded-lg border text-center">
@@ -1767,7 +1767,7 @@ const SuperAdminDashboard = () => {
 
         <TabsContent value="database" className="space-y-4 mt-4">
           <Card>
-              <CardHeader>
+            <CardHeader>
               <CardTitle>🗄️ Schéma Base de Données</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1786,7 +1786,7 @@ const SuperAdminDashboard = () => {
                     <Badge variant="outline">username</Badge>
                     <Badge variant="outline">avatar_url</Badge>
                     <Badge variant="outline">created_at</Badge>
-                  </div>
+              </div>
                 </div>
 
                 <div className="p-4 rounded-lg border bg-muted/30">
@@ -1851,7 +1851,7 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>🔒 RLS Policies (Row Level Security)</CardTitle>
-              </CardHeader>
+            </CardHeader>
             <CardContent className="space-y-3">
               <Alert>
                 <Shield className="h-4 w-4" />

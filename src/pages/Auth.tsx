@@ -106,13 +106,18 @@ const Auth = () => {
 
       if (signInError) throw signInError;
 
-      // Assigner le rôle via RPC
+      // Assigner le rôle directement dans la table profiles
       if (signInData?.user) {
-        const { error: roleError } = await supabase.rpc('ensure_demo_user_role', {
-          _user_id: signInData.user.id,
-          _role: account.role
-        });
-        if (roleError) console.error('Error assigning role:', roleError);
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: signInData.user.id,
+            full_name: account.label,
+            role: account.role,
+            updated_at: new Date().toISOString()
+          });
+        
+        if (profileError) console.error('Error updating profile:', profileError);
       }
 
       toast({ 
@@ -122,7 +127,12 @@ const Auth = () => {
       
       // Rediriger vers le dashboard approprié
       const dashboardUrl = getDashboardUrl(account.role);
-      navigate(dashboardUrl);
+      console.log('Redirecting to:', dashboardUrl, 'for role:', account.role);
+      
+      // Attendre un peu pour s'assurer que l'auth est bien établie
+      setTimeout(() => {
+        navigate(dashboardUrl, { replace: true });
+      }, 100);
       
     } catch (error: any) {
       console.error('Login error:', error);

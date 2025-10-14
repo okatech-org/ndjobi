@@ -775,9 +775,9 @@ export default function NdjobiAIAgent() {
             "Parfait ! 🎉\n\nEn créant un compte, vous pourrez :\n• Suivre vos signalements\n• Recevoir des notifications\n• Télécharger vos certificats\n• Accéder à votre historique\n\n📱 Vous allez être redirigé vers la page de connexion.",
             true
           );
-          setIsTyping(false);
+      setIsTyping(false);
           setTimeout(() => {
-            window.location.href = '/auth';
+            window.location.reload();
           }, 2000);
         }, 800);
         break;
