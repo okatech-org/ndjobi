@@ -1,0 +1,70 @@
+name: Deploy NDJOBI to Production
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+      
+    - name: Run type check
+      run: npm run type-check
+      
+    - name: Run tests
+      run: npm run test
+      
+    - name: Build application
+      run: npm run build
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        VITE_APP_ENV: production
+        VITE_APP_URL: https://ndjobi.lovable.app
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        retention-days: 30
+
+  deploy-to-lovable:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Deploy to Lovable
+      run: |
+        echo "🚀 Deploying to Lovable..."
+        echo "Build artifacts ready in dist/"
+        echo "Manual deployment required via Lovable dashboard"
+        echo "Repository: https://github.com/okatech-org/ndjobi.git"
+        echo "Build Command: npm run build"
+        echo "Output Directory: dist"
+        echo "Install Command: npm install --legacy-peer-deps"
