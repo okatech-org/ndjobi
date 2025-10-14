@@ -24,12 +24,18 @@ const UserDashboard = () => {
   // Lire la vue depuis les paramètres de l'URL
   useEffect(() => {
     const view = searchParams.get('view') as ViewMode;
-    if (view && ['report', 'project', 'files', 'settings'].includes(view)) {
+    const action = searchParams.get('action');
+    
+    // Convertir l'action "protect" en vue "project"
+    if (action === 'protect') {
+      setViewMode('project');
+      setSearchParams({ view: 'project' });
+    } else if (view && ['report', 'project', 'files', 'settings'].includes(view)) {
       setViewMode(view);
-    } else if (!view) {
+    } else if (!view && !action) {
       setViewMode('profile');
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!isLoading && !user) {

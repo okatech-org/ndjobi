@@ -11,6 +11,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Report from "./pages/Report";
 import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/dashboards/UserDashboard";
 import Statistics from "./pages/Statistics";
@@ -85,6 +86,10 @@ const App = () => {
                   <Auth />
                 </PublicRoute>
               }
+            />
+            <Route
+              path="/report"
+              element={<Report />}
             />
             <Route
               path="/dashboard"

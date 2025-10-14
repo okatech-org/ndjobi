@@ -2,19 +2,22 @@ import { AlertCircle, FolderLock, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useNavigate } from "react-router-dom";
 import reportCaseImg from "@/assets/report-case.jpg";
 import protectProjectImg from "@/assets/protect-project.jpg";
 import myFilesImg from "@/assets/my-files.jpg";
 
 const CTACards = () => {
+  const navigate = useNavigate();
+
   const cards = [
     {
       icon: AlertCircle,
       title: "Taper le Ndjobi",
       description: "Corruption, extorsion, abus de pouvoir",
       gradient: "from-destructive/90 to-destructive/70",
-      href: "#signalement",
-      badge: null,
+      action: () => navigate('/report'),
+      badge: "Anonyme",
       image: reportCaseImg,
     },
     {
@@ -22,8 +25,8 @@ const CTACards = () => {
       title: "Protéger un projet",
       description: "Enregistrez votre idée avec horodatage infalsifiable",
       gradient: "from-secondary/90 to-secondary/70",
-      href: "#projet",
-      badge: "Profil requis",
+      action: () => navigate('/auth?action=protect'),
+      badge: "Connexion requise",
       image: protectProjectImg,
     },
     {
@@ -31,8 +34,8 @@ const CTACards = () => {
       title: "Mes dossiers",
       description: "Consultez vos dénonciations et projets",
       gradient: "from-primary/90 to-primary/70",
-      href: "#dossiers",
-      badge: "3 actifs",
+      action: () => navigate('/auth'),
+      badge: "Connexion requise",
       image: myFilesImg,
     },
   ];
@@ -52,7 +55,7 @@ const CTACards = () => {
         {cards.map((card, index) => {
           const Icon = card.icon;
           return (
-            <a key={index} href={card.href} className="block group">
+            <div key={index} onClick={card.action} className="block group cursor-pointer">
               <Card className="h-full transition-all duration-300 hover:scale-[1.02] sm:hover:scale-105 hover:shadow-xl border-2 hover:border-primary/50 relative overflow-hidden">
                 {/* Image illustrative */}
                 <div className="relative w-full overflow-hidden">
@@ -86,7 +89,7 @@ const CTACards = () => {
                   </CardDescription>
                 </CardContent>
               </Card>
-            </a>
+            </div>
           );
         })}
       </div>

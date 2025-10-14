@@ -1,6 +1,17 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const handleReportClick = () => {
+    navigate('/report');
+  };
+
+  const handleProtectClick = () => {
+    navigate('/auth?action=protect');
+  };
+
   return (
     <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden bg-background">
       {/* Content */}
@@ -27,11 +38,22 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
-            <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg hover:shadow-xl transition-all text-sm sm:text-base">
-              <a href="#signaler" aria-label="Taper le Ndjobi">🚨 Taper le Ndjobi</a>
+            <Button 
+              size="lg" 
+              onClick={handleReportClick}
+              className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
+              aria-label="Taper le Ndjobi"
+            >
+              🚨 Taper le Ndjobi
             </Button>
-            <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto shadow-lg hover:shadow-xl transition-all text-sm sm:text-base">
-              <a href="#proteger" aria-label="Protéger mon projet">🔒 Protéger mon projet</a>
+            <Button 
+              size="lg" 
+              onClick={handleProtectClick}
+              variant="secondary" 
+              className="w-full sm:w-auto shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
+              aria-label="Protéger mon projet"
+            >
+              🔒 Protéger mon projet
             </Button>
           </div>
         </div>

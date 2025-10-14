@@ -195,20 +195,24 @@ export const ReportFormStepper = ({ onSuccess, onCancel }: ReportFormStepperProp
       const audioUrls = await uploadAudioToSupabase(reportId || `temp-${Date.now()}`);
 
       const { data, error } = await supabase
-        .from('reports')
+        .from('signalements')
         .insert([
           {
+            title: `Signalement de ${formData.type}`,
             user_id: formData.is_anonymous ? null : user?.id,
             type: formData.type,
             description: formData.description,
             location: formData.location,
-            latitude: formData.latitude,
-            longitude: formData.longitude,
-            witness_name: formData.is_anonymous ? null : formData.witness_name,
-            witness_contact: formData.is_anonymous ? null : formData.witness_contact,
+            gps_latitude: formData.latitude,
+            gps_longitude: formData.longitude,
             is_anonymous: formData.is_anonymous,
-            evidence_files: [...fileUrls, ...audioUrls],
+            attachments: [...fileUrls, ...audioUrls],
             status: 'pending',
+            submission_method: 'form',
+            metadata: {
+              witness_name: formData.is_anonymous ? null : formData.witness_name,
+              witness_contact: formData.is_anonymous ? null : formData.witness_contact,
+            },
           },
         ])
         .select()

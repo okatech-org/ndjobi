@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,6 +28,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export const PhoneLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [countryCode, setCountryCode] = useState('+241');
 
@@ -82,7 +83,12 @@ export const PhoneLogin = () => {
         description: 'Bienvenue sur NDJOBI',
       });
       
-      navigate(dashboardUrl);
+      const action = searchParams.get('action');
+      if (action) {
+        navigate(`${dashboardUrl}?action=${action}`);
+      } else {
+        navigate(dashboardUrl);
+      }
       
     } catch (error: any) {
       console.error('Login error:', error);

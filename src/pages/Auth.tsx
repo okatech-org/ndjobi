@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Shield, User, Users, Crown, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,7 +58,16 @@ const demoAccounts: DemoAccount[] = [
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string>('');
+
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'protect') {
+      setActionMessage('🔒 Connectez-vous pour protéger votre projet');
+    }
+  }, [searchParams]);
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -125,13 +134,20 @@ const Auth = () => {
         description: `Bienvenue, ${account.label}` 
       });
       
-      // Rediriger vers le dashboard approprié
+      // Récupérer l'action demandée
+      const action = searchParams.get('action');
+      
+      // Rediriger vers le dashboard approprié avec l'action
       const dashboardUrl = getDashboardUrl(account.role);
-      console.log('Redirecting to:', dashboardUrl, 'for role:', account.role);
+      console.log('Redirecting to:', dashboardUrl, 'for role:', account.role, 'with action:', action);
       
       // Attendre un peu pour s'assurer que l'auth est bien établie
       setTimeout(() => {
-        navigate(dashboardUrl, { replace: true });
+        if (action) {
+          navigate(`${dashboardUrl}?action=${action}`, { replace: true });
+        } else {
+          navigate(dashboardUrl, { replace: true });
+        }
       }, 100);
       
     } catch (error: any) {
@@ -176,9 +192,15 @@ const Auth = () => {
           <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
             Authentification
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-            Connectez-vous ou créez un&nbsp;compte pour accéder à&nbsp;la&nbsp;plateforme
-          </p>
+          {actionMessage ? (
+            <p className="text-sm sm:text-base text-primary font-medium max-w-2xl mx-auto">
+              {actionMessage}
+            </p>
+          ) : (
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+              Connectez-vous ou créez un&nbsp;compte pour accéder à&nbsp;la&nbsp;plateforme
+            </p>
+          )}
         </div>
 
         {/* Auth Methods */}

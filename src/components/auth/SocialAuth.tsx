@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,15 +9,23 @@ import { getDashboardUrl } from '@/lib/roleUtils';
 export const SocialAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleSocialLogin = async (provider: 'google' | 'apple' | 'facebook') => {
     setLoading(provider);
     try {
+      const action = searchParams.get('action');
+      let redirectTo = `${window.location.origin}/dashboard/user`;
+      
+      if (action) {
+        redirectTo = `${window.location.origin}/dashboard/user?action=${action}`;
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin,
+          redirectTo,
         },
       });
 

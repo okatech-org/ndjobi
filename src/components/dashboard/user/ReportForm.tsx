@@ -157,10 +157,21 @@ export const ReportForm = ({ onSuccess, onCancel }: ReportFormProps) => {
   const onSubmit = async (data: ReportFormData) => {
     setLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const reportData: any = {
-        ...data,
-        anonymous: isAnonymous,
+        title: `Signalement de ${data.type}`,
+        user_id: isAnonymous ? null : user?.id,
+        type: data.type,
+        location: data.location,
+        description: data.description,
+        is_anonymous: isAnonymous,
         status: 'pending',
+        submission_method: 'form',
+        metadata: {
+          witness_name: isAnonymous ? null : data.witness_name,
+          witness_contact: isAnonymous ? null : data.witness_contact,
+        },
       };
 
       // Ajouter les coordonnées GPS si disponibles

@@ -515,6 +515,7 @@ export default function NdjobiAIAgent() {
       const deviceId = deviceIdentityService.getDeviceId();
       
       const signalementData: any = {
+        title: `Signalement de ${collectedData.type || 'corruption'}`,
         type: collectedData.type,
         location: collectedData.location,
         description: collectedData.description,
