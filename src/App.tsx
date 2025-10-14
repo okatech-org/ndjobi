@@ -39,7 +39,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
+  const { user, role, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -49,8 +49,12 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
+  if (user && role) {
+    // Redirection basée sur le rôle
+    const dashboardUrl = role === 'super_admin' ? '/dashboard/super-admin' :
+                        role === 'admin' ? '/dashboard/admin' :
+                        role === 'agent' ? '/dashboard/agent' : '/dashboard/user';
+    return <Navigate to={dashboardUrl} replace />;
   }
 
   return <>{children}</>;

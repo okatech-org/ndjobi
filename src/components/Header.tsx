@@ -3,20 +3,53 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import logoNdjobi from "@/assets/logo_ndjobi.png";
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, role, profile, signOut } = useAuth();
+  const { toast } = useToast();
 
-  // Menu pour les utilisateurs connectés - correspond au menu mobile
-  const authenticatedMenuItems = [
-    { label: "Mon Profil", path: "/dashboard/user", icon: User },
-    { label: "Taper le Ndjobi", path: "/dashboard/user?view=report", icon: AlertCircle },
-    { label: "Protéger", path: "/dashboard/user?view=project", icon: FolderLock },
-    { label: "Mes Dossiers", path: "/dashboard/user?view=files", icon: FileText },
-    { label: "Paramètres", path: "/dashboard/user?view=settings", icon: Settings },
+  // Déterminer le path du dashboard selon le rôle
+  const getDashboardPath = () => {
+    switch (role) {
+      case 'super_admin': return '/dashboard/super-admin';
+      case 'admin': return '/dashboard/admin';
+      case 'agent': return '/dashboard/agent';
+      case 'user': 
+      default: return '/dashboard/user';
+    }
+  };
+
+  const dashboardPath = getDashboardPath();
+
+  // Menu adapté selon le rôle
+  const authenticatedMenuItems = role === 'super_admin' ? [
+    { label: "Dashboard", path: dashboardPath, icon: User },
+    { label: "Gestion Système", path: `${dashboardPath}?view=system`, icon: Settings },
+    { label: "Utilisateurs", path: `${dashboardPath}?view=users`, icon: User },
+    { label: "Projet", path: `${dashboardPath}?view=project`, icon: FileText },
+    { label: "Module XR-7", path: `${dashboardPath}?view=xr7`, icon: AlertCircle },
+  ] : role === 'admin' ? [
+    { label: "Dashboard", path: dashboardPath, icon: User },
+    { label: "Gestion Agents", path: `${dashboardPath}?view=agents`, icon: User },
+    { label: "Validation Cas", path: `${dashboardPath}?view=validation`, icon: AlertCircle },
+    { label: "Rapports", path: `${dashboardPath}?view=reports`, icon: FileText },
+    { label: "Paramètres", path: `${dashboardPath}?view=settings`, icon: Settings },
+  ] : role === 'agent' ? [
+    { label: "Dashboard", path: dashboardPath, icon: User },
+    { label: "Signalements", path: `${dashboardPath}?view=cases`, icon: AlertCircle },
+    { label: "Enquêtes", path: `${dashboardPath}?view=investigations`, icon: FileText },
+    { label: "Carte", path: `${dashboardPath}?view=map`, icon: FolderLock },
+    { label: "Profil", path: `${dashboardPath}?view=profile`, icon: Settings },
+  ] : [
+    { label: "Mon Profil", path: dashboardPath, icon: User },
+    { label: "Taper le Ndjobi", path: `${dashboardPath}?view=report`, icon: AlertCircle },
+    { label: "Protéger", path: `${dashboardPath}?view=project`, icon: FolderLock },
+    { label: "Mes Dossiers", path: `${dashboardPath}?view=files`, icon: FileText },
+    { label: "Paramètres", path: `${dashboardPath}?view=settings`, icon: Settings },
   ];
 
   const getRoleLabel = (role: string | null) => {
@@ -41,10 +74,29 @@ const Header = () => {
 
   const handleSignOut = async () => {
     try {
+      toast({
+        title: "Déconnexion en cours...",
+        description: "Veuillez patienter",
+      });
+
       await signOut();
-      navigate('/auth');
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "À bientôt sur NDJOBI !",
+      });
+
+      // Petite pause pour que l'utilisateur voie le toast
+      setTimeout(() => {
+        navigate('/auth');
+      }, 500);
     } catch (error) {
       console.error('Error signing out:', error);
+      toast({
+        title: "Erreur de déconnexion",
+        description: "Une erreur s'est produite. Veuillez réessayer.",
+        variant: "destructive",
+      });
     }
   };
 

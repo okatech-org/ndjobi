@@ -114,15 +114,31 @@ export const useAuth = () => {
   }, []);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
+    try {
+      // Nettoyer les états locaux d'abord
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setRole(null);
+      
+      // Nettoyer le device identity
+      deviceIdentityService.clearDeviceData();
+      
+      // Nettoyer le localStorage
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Déconnexion Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        throw error;
+      }
+      
+      console.log('✅ Déconnexion réussie');
+    } catch (error) {
+      console.error('❌ Erreur lors de la déconnexion:', error);
       throw error;
     }
-    setUser(null);
-    setSession(null);
-    setProfile(null);
-    setRole(null);
   };
 
   return {
