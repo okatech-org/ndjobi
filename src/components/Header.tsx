@@ -217,7 +217,8 @@ const Header = () => {
               className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
             >
               <MessageCircle className="h-4 w-4 mr-2" />
-              Nous Contacter
+              <span className="hidden md:inline">Nous Contacter</span>
+              <span className="inline md:hidden">Contact</span>
             </Button>
             
             {user ? (
@@ -350,7 +351,8 @@ const Header = () => {
                 className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Nous Contacter
+                <span className="hidden md:inline">Nous Contacter</span>
+                <span className="inline md:hidden">Contact</span>
               </Button>
               <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
                 Connexion
