@@ -5,7 +5,7 @@ import {
   FileText, AlertCircle, Settings, BarChart3, Lock, 
   Eye, TrendingUp, Server, ChevronRight, AlertTriangle,
   Clock, Check, X, RefreshCcw, Download, Upload, MapPin, CheckCircle,
-  Search, Filter, Calendar, ExternalLink, Trash2, Wrench
+  Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -2135,6 +2135,337 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
+  const renderDemoView = () => {
+    const [demoAccounts, setDemoAccounts] = useState<Array<{
+      id: string;
+      email: string;
+      role: string;
+      password: string;
+      created_at: string;
+      last_used: string | null;
+    }>>([
+      {
+        id: '1',
+        email: 'demo.citoyen@ndjobi.ga',
+        role: 'user',
+        password: 'demo123',
+        created_at: new Date().toISOString(),
+        last_used: null
+      },
+      {
+        id: '2',
+        email: 'demo.agent@ndjobi.ga',
+        role: 'agent',
+        password: 'demo123',
+        created_at: new Date().toISOString(),
+        last_used: null
+      },
+      {
+        id: '3',
+        email: 'demo.admin@ndjobi.ga',
+        role: 'admin',
+        password: 'demo123',
+        created_at: new Date().toISOString(),
+        last_used: null
+      }
+    ]);
+    const [creatingAccount, setCreatingAccount] = useState(false);
+    const [newAccountRole, setNewAccountRole] = useState('user');
+
+    const handleCreateDemoAccount = async () => {
+      setCreatingAccount(true);
+      try {
+        const email = `demo.${newAccountRole}.${Date.now()}@ndjobi.ga`;
+        const password = 'demo123';
+
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: `Démo ${newAccountRole.toUpperCase()}`,
+              is_demo: true
+            }
+          }
+        });
+
+        if (authError) throw authError;
+
+        if (authData.user) {
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: authData.user.id,
+              role: newAccountRole as 'user' | 'agent' | 'admin' | 'super_admin'
+            });
+
+          if (roleError) throw roleError;
+
+          toast({
+            title: "Compte démo créé",
+            description: `Email: ${email} / Mot de passe: ${password}`,
+          });
+
+          setDemoAccounts(prev => [...prev, {
+            id: authData.user!.id,
+            email,
+            role: newAccountRole,
+            password,
+            created_at: new Date().toISOString(),
+            last_used: null
+          }]);
+        }
+      } catch (error: any) {
+        console.error('Error creating demo account:', error);
+        toast({
+          title: "Erreur",
+          description: error.message || "Impossible de créer le compte démo",
+          variant: "destructive",
+        });
+      } finally {
+        setCreatingAccount(false);
+      }
+    };
+
+    const handleDeleteDemoAccount = async (accountId: string, email: string) => {
+      try {
+        const { error } = await supabase.auth.admin.deleteUser(accountId);
+        
+        if (error) throw error;
+
+        toast({
+          title: "Compte supprimé",
+          description: `Le compte ${email} a été supprimé avec succès`,
+        });
+
+        setDemoAccounts(prev => prev.filter(acc => acc.id !== accountId));
+      } catch (error: any) {
+        console.error('Error deleting demo account:', error);
+        toast({
+          title: "Erreur",
+          description: error.message || "Impossible de supprimer le compte",
+          variant: "destructive",
+        });
+      }
+    };
+
+    const handleCopyCredentials = (email: string, password: string) => {
+      const credentials = `Email: ${email}\nMot de passe: ${password}`;
+      navigator.clipboard.writeText(credentials);
+      toast({
+        title: "Copié",
+        description: "Les identifiants ont été copiés dans le presse-papiers",
+      });
+    };
+
+    return (
+      <div className="space-y-6">
+        <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <PlayCircle className="h-6 w-6" />
+                  Gestion des Comptes Démo
+                </CardTitle>
+                <CardDescription>
+                  Créez et gérez les comptes de démonstration pour les visiteurs et partenaires
+                </CardDescription>
+              </div>
+              <Badge variant="outline" className="text-lg px-4 py-2">
+                <Users className="h-4 w-4 mr-2" />
+                {demoAccounts.length} comptes
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Alert className="border-blue-500/50 bg-blue-50/10">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Information</AlertTitle>
+              <AlertDescription>
+                Les comptes démo permettent aux visiteurs de tester la plateforme avec des données fictives.
+                Chaque compte a un rôle spécifique (Citoyen, Agent, Admin) et des données de test.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <Label htmlFor="demo-role">Rôle du nouveau compte</Label>
+                  <Select value={newAccountRole} onValueChange={setNewAccountRole}>
+                    <SelectTrigger id="demo-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">Citoyen</SelectItem>
+                      <SelectItem value="agent">Agent DGSS</SelectItem>
+                      <SelectItem value="admin">Protocole d'État</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  onClick={handleCreateDemoAccount} 
+                  disabled={creatingAccount}
+                  className="mt-6"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  {creatingAccount ? "Création..." : "Créer un compte"}
+                </Button>
+              </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Rôle</TableHead>
+                    <TableHead>Mot de passe</TableHead>
+                    <TableHead>Créé le</TableHead>
+                    <TableHead>Dernière utilisation</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {demoAccounts.map((account) => (
+                    <TableRow key={account.id}>
+                      <TableCell className="font-mono text-sm">{account.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={
+                          account.role === 'admin' ? 'default' :
+                          account.role === 'agent' ? 'secondary' :
+                          'outline'
+                        }>
+                          {account.role === 'user' ? 'Citoyen' :
+                           account.role === 'agent' ? 'Agent DGSS' :
+                           'Protocole d\'État'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">{account.password}</TableCell>
+                      <TableCell className="text-sm">
+                        {new Date(account.created_at).toLocaleDateString('fr-FR')}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {account.last_used ? new Date(account.last_used).toLocaleDateString('fr-FR') : 'Jamais'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCopyCredentials(account.email, account.password)}
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            Copier
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteDemoAccount(account.id, account.email)}
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" />
+                            Supprimer
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle className="text-lg">Comptes Démo Pré-configurés</CardTitle>
+                <CardDescription>
+                  Ces comptes sont disponibles pour les démonstrations publiques
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="border-blue-200 bg-blue-50/10">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        Compte Citoyen
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Utilisateur standard
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <div>
+                        <span className="font-semibold">Email:</span> demo.citoyen@ndjobi.ga
+                      </div>
+                      <div>
+                        <span className="font-semibold">Mot de passe:</span> demo123
+                      </div>
+                      <div className="text-muted-foreground">
+                        Accès aux fonctionnalités de base : signalements, protection de projets
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-green-200 bg-green-50/10">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Agent DGSS
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Direction Générale des Services Spéciaux
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <div>
+                        <span className="font-semibold">Email:</span> demo.agent@ndjobi.ga
+                      </div>
+                      <div>
+                        <span className="font-semibold">Mot de passe:</span> demo123
+                      </div>
+                      <div className="text-muted-foreground">
+                        Accès aux enquêtes, gestion des cas, rapports terrain
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-purple-200 bg-purple-50/10">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Lock className="h-4 w-4" />
+                        Protocole d'État
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Accès présidentiel - Administrateur
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <div>
+                        <span className="font-semibold">Email:</span> demo.admin@ndjobi.ga
+                      </div>
+                      <div>
+                        <span className="font-semibold">Mot de passe:</span> demo123
+                      </div>
+                      <div className="text-muted-foreground">
+                        Accès à la supervision, validation, rapports avancés
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Note importante</AlertTitle>
+                  <AlertDescription>
+                    Les comptes démo sont réinitialisés toutes les 24 heures. Toutes les données créées sont fictives et seront supprimées automatiquement.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -2195,6 +2526,13 @@ const SuperAdminDashboard = () => {
               <Lock className="h-4 w-4 mr-2" />
               Module XR-7
             </Button>
+            <Button
+              variant={activeView === 'demo' ? 'default' : 'outline'}
+              onClick={() => handleNavigateToView('demo')}
+            >
+              <PlayCircle className="h-4 w-4 mr-2" />
+              Démo
+            </Button>
           </div>
 
           {isLoading && (
@@ -2210,6 +2548,7 @@ const SuperAdminDashboard = () => {
           {activeView === 'reports' && renderReportsView()}
           {activeView === 'project' && renderProjectView()}
           {activeView === 'xr7' && renderXR7View()}
+          {activeView === 'demo' && renderDemoView()}
 
           {activeView === 'dashboard' && (
             <Alert className="border-destructive/30">
