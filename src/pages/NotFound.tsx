@@ -15,7 +15,7 @@ const NotFound = () => {
         <img 
           src={logoNdjobi} 
           alt="Logo Ndjobi"
-          className="h-24 w-24 mx-auto object-contain opacity-50" 
+          className="h-24 w-24 mx-auto object-contain opacity-50 rounded-full bg-white p-2 shadow-sm" 
         />
         <h1 className="text-4xl font-bold text-foreground">404</h1>
         <p className="text-xl text-muted-foreground">Page introuvable</p>

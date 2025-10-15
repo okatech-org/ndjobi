@@ -16,7 +16,7 @@ export default function MasqueLogo3D({ size = 64, animate = false }: MasqueLogo3
         alt="Logo Ndjobi"
         width={size}
         height={size}
-        className="object-contain"
+        className="object-contain rounded-full bg-white p-1 shadow-sm"
       />
     </div>
   );
