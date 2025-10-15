@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { deviceIdentityService } from "@/services/deviceIdentity";
+import logoNdjobi from "@/assets/logo_ndjobi.png";
 
 function MasqueLogo3D({ size = 64, animate = true }) {
   const defs = (
@@ -979,24 +980,107 @@ export default function NdjobiAIAgent() {
       <AnimatePresence>
         {!isOpen && (
           <motion.button
-            initial={{ scale: 0, opacity: 0, rotate: -180 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            drag
+            dragMomentum={false}
+            dragElastic={0.1}
+            initial={{ 
+              scale: 0, 
+              opacity: 0, 
+              rotate: -180
+            }}
+            animate={{ 
+              scale: 1, 
+              opacity: 1, 
+              rotate: 0
+            }}
             exit={{ scale: 0, opacity: 0, rotate: 180 }}
-            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            whileDrag={{ scale: 1.05, cursor: "grabbing" }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 w-24 h-24 rounded-full shadow-2xl flex items-center justify-center cursor-pointer z-50 group overflow-visible"
-            style={{ background: "linear-gradient(135deg, #2E8B57 0%, #1F7AB8 100%)" }}
-            aria-label="Ouvrir l'assistant IA Ndjobi"
+            className="w-24 h-24 rounded-full shadow-2xl flex items-center justify-center cursor-grab active:cursor-grabbing z-50 group overflow-visible"
+            style={{ 
+              position: "fixed",
+              top: "calc(50vh + 50px)",
+              right: "20px",
+              background: "transparent",
+              border: "none",
+              touchAction: "none"
+            }}
+            aria-label="Ouvrir l'assistant IA Ndjobi - Déplaçable"
           >
-            <div className="absolute inset-0 rounded-full opacity-20 bg-gradient-to-br from-amber-900 to-amber-700" />
-            <div className="relative w-20 h-20 z-10">
-              <MasqueLogo3D size={80} animate />
-            </div>
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg border-2 border-white">
+            {/* Ondes / Rayons animés (3 couches) */}
+            <motion.div 
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40" 
+              animate={{ 
+                scale: [1, 1.8, 1], 
+                opacity: [0.6, 0, 0.6] 
+              }} 
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                ease: "easeInOut",
+                delay: 0 
+              }} 
+            />
+            <motion.div 
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/30 to-primary/30" 
+              animate={{ 
+                scale: [1, 1.6, 1], 
+                opacity: [0.5, 0, 0.5] 
+              }} 
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                ease: "easeInOut",
+                delay: 0.5 
+              }} 
+            />
+            <motion.div 
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/50 to-accent/30" 
+              animate={{ 
+                scale: [1, 1.4, 1], 
+                opacity: [0.7, 0, 0.7] 
+              }} 
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                ease: "easeInOut",
+                delay: 1 
+              }} 
+            />
+            
+            {/* Logo Ndjobi détouré - directement collé aux ondes avec animation */}
+            <motion.div 
+              className="relative w-full h-full z-10 flex items-center justify-center"
+              animate={{ 
+                scale: [1, 1.15, 1] 
+              }} 
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+            >
+              <img 
+                src={logoNdjobi} 
+                alt="Logo Ndjobi" 
+                className="w-full h-full object-contain rounded-full"
+                style={{
+                  filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))",
+                  mixBlendMode: "normal"
+                }}
+              />
+            </motion.div>
+            
+            {/* Badge IA */}
+            <motion.div 
+              initial={{ scale: 0 }} 
+              animate={{ scale: 1 }} 
+              className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg border-2 border-white"
+            >
               IA
             </motion.div>
-            <motion.div className="absolute inset-0 rounded-full bg-emerald-400" animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} />
           </motion.button>
         )}
       </AnimatePresence>
@@ -1014,8 +1098,12 @@ export default function NdjobiAIAgent() {
             <div className="p-4 flex items-center justify-between relative overflow-hidden" style={{ background: "linear-gradient(135deg, #2E8B57 0%, #1F7AB8 100%)" }}>
               <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-amber-900 to-amber-700" />
               <div className="flex items-center gap-3 relative z-10">
-                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                  <MasqueLogo3D size={48} animate />
+                <div className="w-12 h-12 bg-white/95 rounded-full flex items-center justify-center shadow-lg p-1.5">
+                  <img 
+                    src={logoNdjobi} 
+                    alt="Logo Ndjobi" 
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-sm flex items-center gap-2">
