@@ -1474,7 +1474,7 @@ const SuperAdminDashboard = () => {
             <div>
               <CardTitle className="text-2xl">Documentation Projet NDJOBI</CardTitle>
               <CardDescription className="mt-2">
-                Plateforme Anti-Corruption - République Gabonaise
+                Plateforme de Bonne Gouvernance - République Gabonaise
               </CardDescription>
                   </div>
             <Badge variant="default" className="text-lg px-4 py-2">

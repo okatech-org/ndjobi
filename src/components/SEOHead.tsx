@@ -11,8 +11,8 @@ interface SEOHeadProps {
 }
 
 export const SEOHead = ({
-  title = 'Ndjobi - Plateforme Anti-Corruption du Gabon',
-  description = 'Plateforme citoyenne sécurisée pour lutter contre la corruption et protéger vos innovations. Anonymat garanti, protection blockchain.',
+  title = 'Ndjobi - Plateforme de Bonne Gouvernance du Gabon',
+  description = 'Plateforme citoyenne sécurisée pour promouvoir la bonne gouvernance et protéger vos innovations. Anonymat garanti, protection blockchain.',
   image = '/logo_ndjobi.png',
   url,
   type = 'website',

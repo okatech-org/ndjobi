@@ -166,13 +166,13 @@ const Header = () => {
             <img 
               src={logoNdjobi} 
               alt="Logo Ndjobi"
-              className="h-10 w-10 object-contain transition-transform group-hover:scale-110" 
+              className="h-10 w-10 object-contain transition-transform group-hover:scale-110 rounded-full bg-white p-1 shadow-sm" 
             />
             <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-bold text-foreground">NDJOBI</span>
-            <span className="text-[10px] text-muted-foreground leading-none">Plateforme Anti-Corruption</span>
+            <span className="text-[10px] text-muted-foreground leading-none">Bonne gouvernance</span>
           </div>
         </a>
 

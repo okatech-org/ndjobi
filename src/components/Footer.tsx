@@ -13,12 +13,12 @@ const Footer = () => {
               <img 
                 src={logoNdjobi} 
                 alt="Logo Ndjobi"
-                className="h-6 w-6 sm:h-8 sm:w-8 object-contain" 
+                className="h-6 w-6 sm:h-8 sm:w-8 object-contain rounded-full bg-white p-1 shadow-sm" 
               />
               <span className="text-base sm:text-lg font-bold">NDJOBI</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Plateforme citoyenne officielle de lutte contre la corruption au Gabon.
+              Plateforme citoyenne officielle pour la bonne gouvernance au Gabon.
             </p>
           </div>
 
