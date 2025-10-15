@@ -1,15 +1,44 @@
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { PhoneSignup } from './PhoneSignup';
 import { PhoneLogin } from './PhoneLogin';
 import { SocialAuth } from './SocialAuth';
+import { SuperAdminAuth } from './SuperAdminAuth';
+import { Shield } from 'lucide-react';
 
 export const PhoneAuth = () => {
+  const [showSuperAdminAuth, setShowSuperAdminAuth] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+
+  const handleShieldClick = () => {
+    setClickCount(prev => prev + 1);
+    
+    // Reset le compteur après 1 seconde
+    setTimeout(() => {
+      setClickCount(0);
+    }, 1000);
+
+    // Double-clic détecté
+    if (clickCount === 1) {
+      setShowSuperAdminAuth(true);
+      setClickCount(0);
+    }
+  };
+
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl text-center">Authentification</CardTitle>
+    <>
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center flex items-center justify-center gap-3">
+            <Shield 
+              className="h-6 w-6 text-primary cursor-pointer hover:text-primary/80 transition-colors" 
+              onClick={handleShieldClick}
+              title="Double-clic pour l'accès Super Admin"
+            />
+            Authentification
+          </CardTitle>
         <CardDescription className="text-center">
           Connectez-vous pour accéder à la plateforme
         </CardDescription>
@@ -50,5 +79,12 @@ export const PhoneAuth = () => {
         </Tabs>
       </CardContent>
     </Card>
+
+    {/* Super Admin Authentication Modal */}
+    <SuperAdminAuth 
+      isOpen={showSuperAdminAuth}
+      onClose={() => setShowSuperAdminAuth(false)}
+    />
+    </>
   );
 };

@@ -151,7 +151,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-4 py-12">
-      <div className="w-full max-w-6xl space-y-8 sm:space-y-12">
+      <div className="w-full max-w-7xl space-y-8">
         {/* Back Button */}
         <div className="flex justify-start">
           <Button
@@ -176,9 +176,6 @@ const Auth = () => {
             />
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">NDJOBI</h1>
           </div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
-            Authentification
-          </h2>
           {actionMessage ? (
             <p className="text-sm sm:text-base text-primary font-medium max-w-2xl mx-auto">
               {actionMessage}
@@ -190,43 +187,49 @@ const Auth = () => {
           )}
         </div>
 
-        {/* Auth Methods */}
-        {hasStoredUser && (
-          <div className="mb-6">
-            <Button
-              onClick={() => navigate('/auth/pwa')}
-              className="w-full max-w-md mx-auto h-12 text-lg font-semibold"
-              variant="default"
-            >
-              <Zap className="mr-2 h-5 w-5" />
-              Connexion rapide PWA
-            </Button>
-            <p className="text-center text-sm text-muted-foreground mt-2">
-              Utilisez votre code PIN ou authentification biométrique
-            </p>
+        {/* Two Column Layout: Authentication & Demo */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
+          
+          {/* Authentication Section */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground text-center mb-6 flex items-center justify-center gap-3">
+                <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                Authentification
+              </h2>
+              
+              {hasStoredUser && (
+                <div className="mb-6">
+                  <Button
+                    onClick={() => navigate('/auth/pwa')}
+                    className="w-full h-12 text-lg font-semibold"
+                    variant="default"
+                  >
+                    <Zap className="mr-2 h-5 w-5" />
+                    Connexion rapide PWA
+                  </Button>
+                  <p className="text-center text-sm text-muted-foreground mt-2">
+                    Utilisez votre code PIN ou authentification biométrique
+                  </p>
+                </div>
+              )}
+              
+              <PhoneAuth />
+            </div>
           </div>
-        )}
-        
-        <PhoneAuth />
 
-        {/* Separator */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator className="w-full" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Ou essayez avec un compte démo
-            </span>
-          </div>
-        </div>
-
-        {/* Demo Accounts */}
-        <div>
-          <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 sm:mb-6">
-            Comptes de Démonstration
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Demo Accounts Section */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground text-center mb-6 flex items-center justify-center gap-3">
+                <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                Comptes Démo
+              </h2>
+              <p className="text-sm text-center text-muted-foreground mb-6">
+                Essayez la plateforme avec un compte de démonstration
+              </p>
+              
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
           {demoAccounts.map((account) => {
             const Icon = getIcon(account.icon);
             const isLoading = loading === account.email;
@@ -281,25 +284,26 @@ const Auth = () => {
               </Card>
             );
           })}
-          </div>
-        </div>
-
-        {/* Info Footer */}
-        <div className="mt-8 sm:mt-12 text-center">
-          <Card className="bg-muted/30 border-border/50 max-w-2xl mx-auto">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-start gap-3 text-left">
-                <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
-                  <p className="font-medium text-foreground">Comptes de démonstration</p>
-                  <p>
-                    Ces comptes sont pré-configurés pour découvrir les différents niveaux d'accès
-                    de la plateforme NDJOBI. Les données sont partagées entre tous les utilisateurs démo.
-                  </p>
-                </div>
               </div>
-            </CardContent>
-          </Card>
+              
+              {/* Information Card */}
+              <Card className="bg-muted/30 border-border/50 mt-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-start gap-3 text-left">
+                    <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+                      <p className="font-medium text-foreground">Comptes de démonstration</p>
+                      <p>
+                        Ces comptes sont pré-configurés pour découvrir les différents niveaux d'accès
+                        de la plateforme NDJOBI. Les données sont partagées entre tous les utilisateurs démo.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          
         </div>
       </div>
     </div>
