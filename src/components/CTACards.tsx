@@ -41,12 +41,12 @@ const CTACards = () => {
   ];
 
   return (
-    <section id="signaler" className="container py-6 sm:py-16 md:py-20">
-      <div className="text-center mb-6 sm:mb-12 space-y-3 sm:space-y-4 px-4">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
+    <section id="signaler" className="container py-8 sm:py-12 md:py-16">
+      <div className="text-center mb-8 sm:mb-10 space-y-2 sm:space-y-3 px-4">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
           Comment pouvons-nous vous aider ?
         </h2>
-        <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto">
+        <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
           Choisissez l'action adaptée à votre situation
         </p>
       </div>
@@ -55,8 +55,8 @@ const CTACards = () => {
         {cards.map((card, index) => {
           const Icon = card.icon;
           return (
-            <div key={index} onClick={card.action} className="block group cursor-pointer">
-              <Card className="h-full transition-all duration-300 hover:scale-[1.02] sm:hover:scale-105 hover:shadow-xl border-2 hover:border-primary/50 relative overflow-hidden">
+            <div key={index} onClick={card.action} className="block group cursor-pointer transform transition-all duration-300">
+              <Card className="h-full transition-all duration-300 hover:scale-[1.02] sm:hover:scale-[1.03] hover:shadow-2xl border-2 hover:border-primary/60 relative overflow-hidden bg-card/50 backdrop-blur-sm">
                 {/* Image illustrative */}
                 <div className="relative w-full overflow-hidden">
                   <AspectRatio ratio={4 / 3}>

@@ -15,6 +15,7 @@ import logoNdjobi from '@/assets/logo_ndjobi.png';
 // Comptes démo avec emails mappés aux numéros de téléphone
 // Seul le compte Citoyen est accessible publiquement
 // Les comptes Agent DGSS et Protocole d'État sont réservés au Super Admin
+// Le compte Super Admin est accessible uniquement via double-clic sur l'icône Shield
 const demoAccounts: DemoAccount[] = [
   {
     email: '24177777001@ndjobi.ga', // Email technique pour auth
@@ -25,16 +26,6 @@ const demoAccounts: DemoAccount[] = [
     icon: 'User',
     color: 'from-primary/90 to-primary/70',
     displayPhone: '+241 77 777 001', // Numéro affiché
-  },
-  {
-    email: '24177777000@ndjobi.ga',
-    password: '123456',
-    role: 'super_admin',
-    label: 'Super Admin',
-    description: 'Accès technique complet - Gestion système',
-    icon: 'Zap',
-    color: 'from-destructive/90 to-destructive/70',
-    displayPhone: '+241 77 777 000',
   },
 ];
 

@@ -16,7 +16,17 @@ Le système NDJOBI utilise des comptes démo pour permettre aux utilisateurs de 
 - **Accès**: Public - Visible sur la page de connexion
 - **Description**: Accès utilisateur standard pour taper le Ndjobi et protéger des projets
 
-### 2. Comptes Réservés (Super Admin uniquement)
+### 2. Compte Super Admin (Accès caché)
+
+#### Super Admin
+- **Téléphone**: +241 77 777 000
+- **Email technique**: 24177777000@ndjobi.ga
+- **PIN**: 123456
+- **Rôle**: `super_admin`
+- **Accès**: Caché - Double-clic sur l'icône Shield (🛡️)
+- **Description**: Accès technique complet - Gestion système
+
+### 3. Comptes Réservés (Super Admin uniquement)
 
 Ces comptes sont **uniquement accessibles** via le dashboard Super Admin (onglet "Démo").
 
@@ -36,13 +46,6 @@ Ces comptes sont **uniquement accessibles** via le dashboard Super Admin (onglet
 - **Accès**: Réservé - Via Super Admin uniquement
 - **Description**: Accès présidentiel - Administrateur
 
-#### Super Admin
-- **Téléphone**: +241 77 777 000
-- **Email technique**: 24177777000@ndjobi.temp
-- **PIN**: 123456
-- **Rôle**: `super_admin`
-- **Accès**: Page de connexion uniquement (pas d'accès direct)
-- **Description**: Accès technique complet - Gestion système
 
 ## 🎯 Fonctionnement
 
@@ -50,6 +53,12 @@ Ces comptes sont **uniquement accessibles** via le dashboard Super Admin (onglet
 - Seul le compte **Citoyen** est affiché
 - Les utilisateurs peuvent tester les fonctionnalités de base
 - Connexion directe via le bouton dédié
+
+### Accès Super Admin (Double-clic sur Shield)
+- Double-clic sur l'icône Shield (🛡️) dans le titre "Authentification"
+- Saisie du code spécial : `011282*`
+- Accès direct au dashboard Super Admin
+- Authentification biométrique disponible sur mobile
 
 ### Accès Super Admin (Dashboard Super Admin > Démo)
 - Tous les comptes démo sont listés

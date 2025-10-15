@@ -1,4 +1,4 @@
-import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X, ArrowLeft } from "lucide-react";
+import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X, ArrowLeft, MessageCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -143,6 +143,20 @@ const Header = () => {
     }
   };
 
+  const handleContactUs = () => {
+    const phoneNumber = '+33661002616';
+    const message = encodeURIComponent('Bonjour, je souhaite obtenir des informations sur NDJOBI.');
+    const whatsappUrl = `https://wa.me/${phoneNumber.replace('+', '')}?text=${message}`;
+    
+    // Ouvrir WhatsApp dans un nouvel onglet
+    window.open(whatsappUrl, '_blank');
+    
+    toast({
+      title: "Ouverture de WhatsApp",
+      description: "Redirection vers WhatsApp en cours...",
+    });
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -195,6 +209,17 @@ const Header = () => {
             );
           })}
           <div className="flex items-center gap-2 ml-4">
+            {/* Bouton Nous Contacter - toujours visible */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleContactUs}
+              className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Nous Contacter
+            </Button>
+            
             {user ? (
               <>
                 {role && (
@@ -275,6 +300,19 @@ const Header = () => {
                   })}
                   
                   <div className="pt-4 mt-4 border-t">
+                    {/* Bouton Nous Contacter dans le menu mobile */}
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-3 mb-2 bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+                      onClick={() => {
+                        handleContactUs();
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      Nous Contacter
+                    </Button>
+                    
                     {accountSwitchingService.isInSwitchedAccount() && (
                       <Button
                         variant="secondary"
@@ -304,9 +342,20 @@ const Header = () => {
               </SheetContent>
             </Sheet>
           ) : (
-            <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
-              Connexion
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleContactUs}
+                className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Nous Contacter
+              </Button>
+              <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
+                Connexion
+              </Button>
+            </div>
           )}
         </div>
       </div>

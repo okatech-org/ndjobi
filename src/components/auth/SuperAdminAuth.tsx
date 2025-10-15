@@ -58,7 +58,29 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
         return;
       }
 
-      // Code correct - accès direct au Super Admin
+      // Code correct - se connecter avec le compte Super Admin
+      console.log('Tentative de connexion Super Admin avec:', '24177777000@ndjobi.ga');
+      
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: '24177777000@ndjobi.ga',
+        password: '123456',
+      });
+
+      if (signInError) {
+        console.error('Erreur de connexion Super Admin:', signInError);
+        setError(`Erreur de connexion: ${signInError.message}`);
+        return;
+      }
+
+      if (!signInData?.user) {
+        console.error('Aucun utilisateur retourné par Supabase');
+        setError('Compte Super Admin non trouvé');
+        return;
+      }
+
+      console.log('Connexion Super Admin réussie:', signInData.user);
+
+      // Créer la session Super Admin
       superAdminAuthService.createSuperAdminSession();
 
       toast({
@@ -141,6 +163,22 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
       const result = await biometricAuth.authenticateBiometric();
       
       if (result.success) {
+        // Se connecter avec le compte Super Admin
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: '24177777000@ndjobi.ga',
+          password: '123456',
+        });
+
+        if (signInError) {
+          setError('Erreur de connexion au compte Super Admin');
+          return;
+        }
+
+        if (!signInData?.user) {
+          setError('Compte Super Admin non trouvé');
+          return;
+        }
+
         // Créer la session Super Admin
         superAdminAuthService.createSuperAdminSession();
         

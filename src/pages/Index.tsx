@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/SEOHead";
 import Header from "@/components/Header";
-import HeroSection from "@/components/HeroSection";
+import HeroWithVideo from "@/components/HeroWithVideo";
 import CTACards from "@/components/CTACards";
 import TrustSection from "@/components/TrustSection";
 import StatsSection from "@/components/StatsSection";
@@ -43,7 +43,7 @@ const Index = () => {
       />
       <Header />
       <main className="flex-1">
-        <HeroSection />
+        <HeroWithVideo />
         <CTACards />
         <TrustSection />
         <StatsSection />
