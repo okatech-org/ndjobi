@@ -159,7 +159,8 @@ CREATE POLICY "System can manage device projets" ON public.device_projets
     FOR ALL USING (true);
 
 -- 9. Créer les fonctions utilitaires
-CREATE OR REPLACE FUNCTION public.get_device_history(device_id_param text)
+DROP FUNCTION IF EXISTS public.get_device_history(text);
+CREATE FUNCTION public.get_device_history(device_id_param text)
 RETURNS TABLE (
     signalements_count bigint,
     projets_count bigint,
@@ -178,7 +179,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 10. Créer la fonction de migration des appareils vers utilisateurs
-CREATE OR REPLACE FUNCTION public.migrate_device_to_user(device_id_param text, user_id_param uuid)
+DROP FUNCTION IF EXISTS public.migrate_device_to_user(text, uuid);
+CREATE FUNCTION public.migrate_device_to_user(device_id_param text, user_id_param uuid)
 RETURNS TABLE (
     signalements_linked integer,
     projets_linked integer
@@ -229,7 +231,9 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 11. Créer le trigger pour la migration automatique lors de l'inscription
-CREATE OR REPLACE FUNCTION public.auto_migrate_device_on_signup()
+DROP TRIGGER IF EXISTS trigger_auto_migrate_device ON auth.users;
+DROP FUNCTION IF EXISTS public.auto_migrate_device_on_signup() CASCADE;
+CREATE FUNCTION public.auto_migrate_device_on_signup()
 RETURNS trigger AS $$
 DECLARE
     device_id_param text;
@@ -288,8 +292,9 @@ CREATE POLICY "Users can view their own projets" ON public.projets
     );
 
 -- 15. Nettoyage et optimisation
-VACUUM ANALYZE public.device_sessions;
-VACUUM ANALYZE public.device_signalements;
-VACUUM ANALYZE public.device_projets;
-VACUUM ANALYZE public.signalements;
-VACUUM ANALYZE public.projets;
+-- Note: VACUUM doit être exécuté manuellement en dehors d'une transaction
+-- VACUUM ANALYZE public.device_sessions;
+-- VACUUM ANALYZE public.device_signalements;
+-- VACUUM ANALYZE public.device_projets;
+-- VACUUM ANALYZE public.signalements;
+-- VACUUM ANALYZE public.projets;

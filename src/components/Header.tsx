@@ -1,9 +1,18 @@
-import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock } from "lucide-react";
+import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import logoNdjobi from "@/assets/logo_ndjobi.png";
 
 const Header = () => {
@@ -11,6 +20,7 @@ const Header = () => {
   const location = useLocation();
   const { user, role, profile, signOut } = useAuth();
   const { toast } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Déterminer le path du dashboard selon le rôle
   const getDashboardPath = () => {
@@ -39,11 +49,11 @@ const Header = () => {
     { label: "Rapports", path: `${dashboardPath}?view=reports`, icon: FileText },
     { label: "Paramètres", path: `${dashboardPath}?view=settings`, icon: Settings },
   ] : role === 'agent' ? [
-    { label: "Dashboard", path: dashboardPath, icon: User },
+    { label: "Dashboard", path: dashboardPath, icon: LayoutDashboard },
     { label: "Signalements", path: `${dashboardPath}?view=cases`, icon: AlertCircle },
-    { label: "Enquêtes", path: `${dashboardPath}?view=investigations`, icon: FileText },
-    { label: "Carte", path: `${dashboardPath}?view=map`, icon: FolderLock },
-    { label: "Profil", path: `${dashboardPath}?view=profile`, icon: Settings },
+    { label: "Enquêtes", path: `${dashboardPath}?view=investigations`, icon: Search },
+    { label: "Carte", path: `${dashboardPath}?view=map`, icon: MapIcon },
+    { label: "Profil", path: `${dashboardPath}?view=profile`, icon: User },
   ] : [
     { label: "Mon Profil", path: dashboardPath, icon: User },
     { label: "Taper le Ndjobi", path: `${dashboardPath}?view=report`, icon: AlertCircle },
@@ -172,12 +182,70 @@ const Header = () => {
           </div>
         </nav>
 
-        {/* Mobile Auth Button */}
+        {/* Mobile Menu */}
         <div className="md:hidden">
           {user ? (
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <SheetHeader className="text-left">
+                  <SheetTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    {role === 'agent' ? 'Menu Agent DGSS' : 
+                     role === 'admin' ? 'Menu Protocole d\'État' :
+                     role === 'super_admin' ? 'Menu Super Admin' :
+                     'Menu Navigation'}
+                  </SheetTitle>
+                  <SheetDescription>
+                    {role && (
+                      <Badge variant={getRoleColor(role) as any} className="text-xs mt-2">
+                        {getRoleLabel(role)}
+                      </Badge>
+                    )}
+                  </SheetDescription>
+                </SheetHeader>
+                
+                <div className="mt-8 space-y-2">
+                  {authenticatedMenuItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path || 
+                                   (item.path.includes('?view=') && location.search.includes(item.path.split('?view=')[1]));
+                    return (
+                      <Button
+                        key={item.label}
+                        variant={isActive ? "secondary" : "ghost"}
+                        className="w-full justify-start gap-3"
+                        onClick={() => {
+                          navigate(item.path);
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <Icon className="h-5 w-5" />
+                        {item.label}
+                      </Button>
+                    );
+                  })}
+                  
+                  <div className="pt-4 mt-4 border-t">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-3"
+                      onClick={() => {
+                        handleSignOut();
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-5 w-5" />
+                      Déconnexion
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           ) : (
             <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
               Connexion

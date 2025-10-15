@@ -34,9 +34,13 @@ export const useAuth = () => {
         .maybeSingle();
 
       if (roleError) throw roleError;
-      setRole(roleData?.role || null);
+      
+      // TEMPORAIRE: Forcer le rôle 'agent' pour les tests du menu agent
+      // À supprimer une fois le menu agent testé
+      const testRole = roleData?.role || 'agent';
+      setRole(testRole);
 
-      return { profile: profileData, role: roleData?.role || null };
+      return { profile: profileData, role: testRole };
     } catch (error) {
       console.error('Error fetching user data:', error);
       setProfile(null);
