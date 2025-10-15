@@ -66,7 +66,7 @@ export const LocationMap = ({ latitude, longitude, address, showMap = true }: Lo
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground font-medium">Ouvrir dans une application de navigation :</p>
+          <p className="text-xs text-muted-foreground font-medium">Navigation :</p>
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"

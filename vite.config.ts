@@ -21,30 +21,8 @@ export default defineConfig(({ mode }) => ({
     // PWA Plugin pour offline support
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'logo_ndjobi.png', 'robots.txt'],
-      manifest: {
-        name: 'Ndjobi - Plateforme Anti-Corruption',
-        short_name: 'Ndjobi',
-        description: 'Plateforme citoyenne sécurisée pour lutter contre la corruption et protéger vos innovations',
-        theme_color: '#10b981',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
-        icons: [
-          {
-            src: 'logo_ndjobi.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'logo_ndjobi.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      },
+      includeAssets: ['favicon.ico', 'logo_ndjobi.png', 'robots.txt', 'manifest.json'],
+      manifest: './public/manifest.json',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}'],
         runtimeCaching: [
