@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { systemManagementService, type DatabaseStats, type ServiceStatus } from '@/services/systemManagement';
 import { userManagementService, type UserDetail, type UserStats } from '@/services/userManagement';
+import { accountSwitchingService, type DemoAccount } from '@/services/accountSwitching';
+import { getDashboardUrl } from '@/lib/roleUtils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -104,6 +106,26 @@ const SuperAdminDashboard = () => {
   const [newRole, setNewRole] = useState('');
   const [showSuspendDialog, setShowSuspendDialog] = useState(false);
   const [suspendReason, setSuspendReason] = useState('');
+  
+  // États pour la vue démo
+  const [demoAccounts, setDemoAccounts] = useState<Array<{
+    id: string;
+    email: string;
+    role: string;
+    password: string;
+    phoneNumber?: string;
+    countryCode?: string;
+    fullName?: string;
+    created_at: string;
+    last_used: string | null;
+  }>>([]);
+  const [showCreateDemo, setShowCreateDemo] = useState(false);
+  const [newDemoEmail, setNewDemoEmail] = useState('');
+  const [newDemoRole, setNewDemoRole] = useState('user');
+  const [newDemoPassword, setNewDemoPassword] = useState('');
+  const [creatingAccount, setCreatingAccount] = useState(false);
+  const [newAccountRole, setNewAccountRole] = useState('user');
+  const [switchingAccount, setSwitchingAccount] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -2136,47 +2158,79 @@ const SuperAdminDashboard = () => {
   );
 
   const renderDemoView = () => {
-    const [demoAccounts, setDemoAccounts] = useState<Array<{
-      id: string;
-      email: string;
-      role: string;
-      password: string;
-      created_at: string;
-      last_used: string | null;
-    }>>([
-      {
-        id: '1',
-        email: 'demo.citoyen@ndjobi.ga',
-        role: 'user',
-        password: 'demo123',
-        created_at: new Date().toISOString(),
-        last_used: null
-      },
-      {
-        id: '2',
-        email: 'demo.agent@ndjobi.ga',
-        role: 'agent',
-        password: 'demo123',
-        created_at: new Date().toISOString(),
-        last_used: null
-      },
-      {
-        id: '3',
-        email: 'demo.admin@ndjobi.ga',
-        role: 'admin',
-        password: 'demo123',
-        created_at: new Date().toISOString(),
-        last_used: null
+    // Initialiser les comptes démo prédéfinis
+    if (demoAccounts.length === 0) {
+      setDemoAccounts([
+        {
+          id: 'demo-user',
+          email: '24177777001@ndjobi.temp',
+          role: 'user',
+          password: '123456',
+          phoneNumber: '77777001',
+          countryCode: '+241',
+          fullName: 'Citoyen Démo',
+          created_at: new Date().toISOString(),
+          last_used: null
+        },
+        {
+          id: 'demo-agent',
+          email: '24177777002@ndjobi.temp',
+          role: 'agent',
+          password: '123456',
+          phoneNumber: '77777002',
+          countryCode: '+241',
+          fullName: 'Agent DGSS Démo',
+          created_at: new Date().toISOString(),
+          last_used: null
+        },
+        {
+          id: 'demo-admin',
+          email: '24177777003@ndjobi.temp',
+          role: 'admin',
+          password: '123456',
+          phoneNumber: '77777003',
+          countryCode: '+241',
+          fullName: 'Protocole d\'État Démo',
+          created_at: new Date().toISOString(),
+          last_used: null
+        }
+      ]);
+    }
+
+    const handleSwitchToDemo = async (demoAccount: DemoAccount) => {
+      setSwitchingAccount(true);
+      try {
+        const result = await accountSwitchingService.switchToDemoAccount(demoAccount);
+        
+        if (result.success) {
+          toast({
+            title: 'Basculement réussi',
+            description: `Vous êtes maintenant connecté en tant que ${demoAccount.fullName}`,
+          });
+          
+          // Rediriger vers le dashboard approprié
+          const dashboardUrl = getDashboardUrl(demoAccount.role as any);
+          navigate(dashboardUrl, { replace: true });
+        } else {
+          throw new Error(result.error || 'Erreur de basculement');
+        }
+      } catch (error: any) {
+        console.error('Erreur de basculement:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erreur de basculement',
+          description: error.message || 'Impossible de basculer vers ce compte',
+        });
+      } finally {
+        setSwitchingAccount(false);
       }
-    ]);
-    const [creatingAccount, setCreatingAccount] = useState(false);
-    const [newAccountRole, setNewAccountRole] = useState('user');
+    };
 
     const handleCreateDemoAccount = async () => {
       setCreatingAccount(true);
       try {
         const email = `demo.${newAccountRole}.${Date.now()}@ndjobi.ga`;
-        const password = 'demo123';
+        const password = 'Demo123!';
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
@@ -2348,6 +2402,23 @@ const SuperAdminDashboard = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleSwitchToDemo({
+                              id: account.id,
+                              email: account.email,
+                              role: account.role,
+                              password: account.password,
+                              fullName: account.fullName || `Démo ${account.role === 'user' ? 'Citoyen' : account.role === 'agent' ? 'Agent DGSS' : 'Protocole d\'État'}`,
+                              phoneNumber: account.phoneNumber || '77777001',
+                              countryCode: account.countryCode || '+241'
+                            })}
+                            disabled={switchingAccount}
+                          >
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            {switchingAccount ? 'Basculement...' : 'Accès direct'}
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"

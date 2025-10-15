@@ -17,6 +17,7 @@ import UserDashboard from "./pages/dashboards/UserDashboard";
 import Statistics from "./pages/Statistics";
 import DebugAuth from "./pages/DebugAuth";
 import NdjobiAIAgent from "@/components/ai-agent/NdjobiAIAgent";
+import { PWAAuth } from "@/components/auth/PWAAuth";
 
 // Lazy loading UNIQUEMENT pour les routes rarement utilisées
 const AgentDashboard = lazy(() => import("./pages/dashboards/AgentDashboard"));
@@ -84,6 +85,14 @@ const App = () => {
               element={
                 <PublicRoute>
                   <Auth />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/auth/pwa"
+              element={
+                <PublicRoute>
+                  <PWAAuth />
                 </PublicRoute>
               }
             />

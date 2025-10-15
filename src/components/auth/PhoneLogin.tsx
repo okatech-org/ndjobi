@@ -11,19 +11,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getDashboardUrl } from '@/lib/roleUtils';
+import { phoneFormats, getPhoneErrorMessage } from '@/lib/phoneValidation';
+import { userPersistence } from '@/services/userPersistence';
 
-const loginSchema = z.object({
-  countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
-  phoneNumber: z.string()
-    .trim()
-    .regex(/^\d{9,}$/, { message: 'Numéro de téléphone invalide (9 chiffres minimum)' })
-    .max(15, { message: 'Numéro trop long' }),
-  pin: z.string()
-    .length(6, { message: 'Le code PIN doit contenir 6 chiffres' })
-    .regex(/^\d+$/, { message: 'Le code PIN ne doit contenir que des chiffres' }),
-});
+// Fonction pour créer un schéma dynamique basé sur le pays
+const createLoginSchema = (countryCode: string) => {
+  const format = phoneFormats[countryCode];
+  const minDigits = format?.minDigits || 8;
+  const maxDigits = format?.maxDigits || 15;
+  const pattern = format?.pattern || /^\d{8,15}$/;
+  
+  return z.object({
+    countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
+    phoneNumber: z.string()
+      .trim()
+      .regex(pattern, { message: getPhoneErrorMessage(countryCode) }),
+    pin: z.string()
+      .length(6, { message: 'Le code PIN doit contenir 6 chiffres' })
+      .regex(/^\d+$/, { message: 'Le code PIN ne doit contenir que des chiffres' }),
+  });
+};
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type LoginFormData = {
+  countryCode: string;
+  phoneNumber: string;
+  pin: string;
+};
 
 export const PhoneLogin = () => {
   const navigate = useNavigate();
@@ -36,12 +49,19 @@ export const PhoneLogin = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(createLoginSchema(countryCode)),
     defaultValues: {
       countryCode: '+241',
     },
   });
+
+  // Mettre à jour le schéma quand le pays change
+  const handleCountryChange = (newCountryCode: string) => {
+    setCountryCode(newCountryCode);
+    setValue('countryCode', newCountryCode);
+  };
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
@@ -64,6 +84,7 @@ export const PhoneLogin = () => {
 
       // Récupérer le rôle de l'utilisateur
       let dashboardUrl = '/dashboard/user';
+      let userRole = 'user';
       if (signInData?.user) {
         const { data: roleData } = await supabase
           .from('user_roles')
@@ -74,8 +95,18 @@ export const PhoneLogin = () => {
           .maybeSingle();
         
         if (roleData?.role) {
+          userRole = roleData.role;
           dashboardUrl = getDashboardUrl(roleData.role);
         }
+
+        // Enregistrer les données utilisateur pour l'authentification PWA
+        await userPersistence.storeUser({
+          id: signInData.user.id,
+          phoneNumber: data.phoneNumber,
+          countryCode: data.countryCode,
+          fullName: signInData.user.user_metadata?.full_name || `User ${data.phoneNumber}`,
+          role: userRole
+        });
       }
 
       toast({
@@ -107,27 +138,16 @@ export const PhoneLogin = () => {
       <div className="space-y-2">
         <Label htmlFor="login-phone">Numéro de téléphone</Label>
         <div className="flex gap-2">
-          <Select value={countryCode} onValueChange={setCountryCode}>
+          <Select value={countryCode} onValueChange={handleCountryChange}>
             <SelectTrigger className="w-[110px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background z-50">
-              <SelectItem value="+241">🇬🇦 +241</SelectItem>
-              <SelectItem value="+242">🇨🇬 +242</SelectItem>
-              <SelectItem value="+237">🇨🇲 +237</SelectItem>
-              <SelectItem value="+225">🇨🇮 +225</SelectItem>
-              <SelectItem value="+33">🇫🇷 +33</SelectItem>
-              <SelectItem value="+32">🇧🇪 +32</SelectItem>
-              <SelectItem value="+49">🇩🇪 +49</SelectItem>
-              <SelectItem value="+44">🇬🇧 +44</SelectItem>
-              <SelectItem value="+34">🇪🇸 +34</SelectItem>
-              <SelectItem value="+221">🇸🇳 +221</SelectItem>
-              <SelectItem value="+212">🇲🇦 +212</SelectItem>
-              <SelectItem value="+27">🇿🇦 +27</SelectItem>
-              <SelectItem value="+233">🇬🇭 +233</SelectItem>
-              <SelectItem value="+240">🇬🇶 +240</SelectItem>
-              <SelectItem value="+1">🇺🇸🇨🇦 +1</SelectItem>
-              <SelectItem value="+86">🇨🇳 +86</SelectItem>
+              {Object.values(phoneFormats).map((format) => (
+                <SelectItem key={format.countryCode} value={format.countryCode}>
+                  {format.flag} {format.countryCode}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <div className="relative flex-1">
@@ -135,7 +155,7 @@ export const PhoneLogin = () => {
             <Input
               id="login-phone"
               type="tel"
-              placeholder="XX XXX XXXX"
+              placeholder={phoneFormats[countryCode]?.example || "XX XXX XXXX"}
               className="pl-10"
               {...register('phoneNumber')}
             />

@@ -11,23 +11,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getDashboardUrl } from '@/lib/roleUtils';
+import { phoneFormats, getPhoneErrorMessage } from '@/lib/phoneValidation';
+import { userPersistence } from '@/services/userPersistence';
+import { biometricAuth } from '@/services/biometricAuth';
 
-const signupSchema = z.object({
-  countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
-  phoneNumber: z.string()
-    .trim()
-    .regex(/^\d{9,}$/, { message: 'Numéro de téléphone invalide (9 chiffres minimum)' })
-    .max(15, { message: 'Numéro trop long' }),
-  pin: z.string()
-    .length(6, { message: 'Le code PIN doit contenir 6 chiffres' })
-    .regex(/^\d+$/, { message: 'Le code PIN ne doit contenir que des chiffres' }),
-  confirmPin: z.string(),
-}).refine((data) => data.pin === data.confirmPin, {
-  message: 'Les codes PIN ne correspondent pas',
-  path: ['confirmPin'],
-});
+// Fonction pour créer un schéma dynamique basé sur le pays
+const createSignupSchema = (countryCode: string) => {
+  const format = phoneFormats[countryCode];
+  const pattern = format?.pattern || /^\d{8,15}$/;
+  
+  return z.object({
+    countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
+    phoneNumber: z.string()
+      .trim()
+      .regex(pattern, { message: getPhoneErrorMessage(countryCode) }),
+    pin: z.string()
+      .length(6, { message: 'Le code PIN doit contenir 6 chiffres' })
+      .regex(/^\d+$/, { message: 'Le code PIN ne doit contenir que des chiffres' }),
+    confirmPin: z.string(),
+  }).refine((data) => data.pin === data.confirmPin, {
+    message: 'Les codes PIN ne correspondent pas',
+    path: ['confirmPin'],
+  });
+};
 
-type SignupFormData = z.infer<typeof signupSchema>;
+type SignupFormData = {
+  countryCode: string;
+  phoneNumber: string;
+  pin: string;
+  confirmPin: string;
+};
 
 export const PhoneSignup = () => {
   const navigate = useNavigate();
@@ -40,12 +53,19 @@ export const PhoneSignup = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+    resolver: zodResolver(createSignupSchema(countryCode)),
     defaultValues: {
       countryCode: '+241',
     },
   });
+
+  // Mettre à jour le schéma quand le pays change
+  const handleCountryChange = (newCountryCode: string) => {
+    setCountryCode(newCountryCode);
+    setValue('countryCode', newCountryCode);
+  };
 
   const onSubmit = async (data: SignupFormData) => {
     setLoading(true);
@@ -89,12 +109,54 @@ export const PhoneSignup = () => {
           _role: 'user'
         });
         if (roleError) console.error('Error assigning role:', roleError);
-      }
 
-      toast({
-        title: 'Compte créé !',
-        description: 'Bienvenue sur NDJOBI',
-      });
+        // Enregistrer les données utilisateur pour l'authentification PWA
+        await userPersistence.storeUser({
+          id: signInData.user.id,
+          phoneNumber: data.phoneNumber,
+          countryCode: data.countryCode,
+          fullName: `User ${data.phoneNumber}`,
+          role: 'user'
+        });
+
+        // Proposer l'enregistrement biométrique si disponible
+        const biometricCapabilities = biometricAuth.getCapabilities();
+        if (biometricCapabilities.isSupported) {
+          try {
+            const biometricResult = await biometricAuth.registerBiometric(
+              signInData.user.id,
+              {
+                name: `user_${data.phoneNumber}`,
+                displayName: `User ${data.phoneNumber}`
+              }
+            );
+            
+            if (biometricResult.success) {
+              userPersistence.setBiometricEnabled(true);
+              toast({
+                title: 'Compte créé !',
+                description: 'Authentification biométrique activée. Bienvenue sur NDJOBI !',
+              });
+            } else {
+              toast({
+                title: 'Compte créé !',
+                description: 'Bienvenue sur NDJOBI !',
+              });
+            }
+          } catch (error) {
+            console.warn('Erreur lors de l\'enregistrement biométrique:', error);
+            toast({
+              title: 'Compte créé !',
+              description: 'Bienvenue sur NDJOBI !',
+            });
+          }
+        } else {
+          toast({
+            title: 'Compte créé !',
+            description: 'Bienvenue sur NDJOBI !',
+          });
+        }
+      }
 
       const action = searchParams.get('action');
       const dashboardUrl = getDashboardUrl('user');
@@ -121,27 +183,16 @@ export const PhoneSignup = () => {
       <div className="space-y-2">
         <Label htmlFor="signup-phone">Numéro de téléphone</Label>
         <div className="flex gap-2">
-          <Select value={countryCode} onValueChange={setCountryCode}>
+          <Select value={countryCode} onValueChange={handleCountryChange}>
             <SelectTrigger className="w-[110px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background z-50">
-              <SelectItem value="+241">🇬🇦 +241</SelectItem>
-              <SelectItem value="+242">🇨🇬 +242</SelectItem>
-              <SelectItem value="+237">🇨🇲 +237</SelectItem>
-              <SelectItem value="+225">🇨🇮 +225</SelectItem>
-              <SelectItem value="+33">🇫🇷 +33</SelectItem>
-              <SelectItem value="+32">🇧🇪 +32</SelectItem>
-              <SelectItem value="+49">🇩🇪 +49</SelectItem>
-              <SelectItem value="+44">🇬🇧 +44</SelectItem>
-              <SelectItem value="+34">🇪🇸 +34</SelectItem>
-              <SelectItem value="+221">🇸🇳 +221</SelectItem>
-              <SelectItem value="+212">🇲🇦 +212</SelectItem>
-              <SelectItem value="+27">🇿🇦 +27</SelectItem>
-              <SelectItem value="+233">🇬🇭 +233</SelectItem>
-              <SelectItem value="+240">🇬🇶 +240</SelectItem>
-              <SelectItem value="+1">🇺🇸🇨🇦 +1</SelectItem>
-              <SelectItem value="+86">🇨🇳 +86</SelectItem>
+              {Object.values(phoneFormats).map((format) => (
+                <SelectItem key={format.countryCode} value={format.countryCode}>
+                  {format.flag} {format.countryCode}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <div className="relative flex-1">
@@ -149,7 +200,7 @@ export const PhoneSignup = () => {
             <Input
               id="signup-phone"
               type="tel"
-              placeholder="XX XXX XXXX"
+              placeholder={phoneFormats[countryCode]?.example || "XX XXX XXXX"}
               className="pl-10"
               {...register('phoneNumber')}
             />

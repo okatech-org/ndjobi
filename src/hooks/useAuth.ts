@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole, UserProfile } from '@/types/auth';
 import { deviceIdentityService } from '@/services/deviceIdentity';
+import { userPersistence } from '@/services/userPersistence';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -127,6 +128,9 @@ export const useAuth = () => {
       
       // Nettoyer le device identity
       deviceIdentityService.clearDeviceData();
+      
+      // Nettoyer les données PWA
+      userPersistence.clearStoredUser();
       
       // Nettoyer le localStorage
       localStorage.removeItem('supabase.auth.token');

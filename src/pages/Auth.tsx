@@ -9,9 +9,12 @@ import { DemoAccount } from '@/types/auth';
 import { PhoneAuth } from '@/components/auth/PhoneAuth';
 import { Separator } from '@/components/ui/separator';
 import { getDashboardUrl } from '@/lib/roleUtils';
+import { userPersistence } from '@/services/userPersistence';
 import logoNdjobi from '@/assets/logo_ndjobi.png';
 
 // Comptes démo avec emails mappés aux numéros de téléphone
+// Seul le compte Citoyen est accessible publiquement
+// Les comptes Agent DGSS et Protocole d'État sont réservés au Super Admin
 const demoAccounts: DemoAccount[] = [
   {
     email: '24177777001@ndjobi.ga', // Email technique pour auth
@@ -22,26 +25,6 @@ const demoAccounts: DemoAccount[] = [
     icon: 'User',
     color: 'from-primary/90 to-primary/70',
     displayPhone: '+241 77 777 001', // Numéro affiché
-  },
-  {
-    email: '24177777002@ndjobi.ga',
-    password: '123456',
-    role: 'agent',
-    label: 'Agent DGSS',
-    description: 'Direction Générale des Services Spéciaux',
-    icon: 'Users',
-    color: 'from-secondary/90 to-secondary/70',
-    displayPhone: '+241 77 777 002',
-  },
-  {
-    email: '24177777003@ndjobi.ga',
-    password: '123456',
-    role: 'admin',
-    label: 'Protocole d\'État',
-    description: 'Accès présidentiel - Administrateur',
-    icon: 'Crown',
-    color: 'from-accent/90 to-accent/70',
-    displayPhone: '+241 77 777 003',
   },
   {
     email: '24177777000@ndjobi.ga',
@@ -61,12 +44,16 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string>('');
+  const [hasStoredUser, setHasStoredUser] = useState(false);
 
   useEffect(() => {
     const action = searchParams.get('action');
     if (action === 'protect') {
       setActionMessage('🔒 Connectez-vous pour protéger votre projet');
     }
+    
+    // Vérifier si l'utilisateur a des données stockées
+    setHasStoredUser(userPersistence.hasStoredUser());
   }, [searchParams]);
 
   const getIcon = (iconName: string) => {
@@ -204,6 +191,22 @@ const Auth = () => {
         </div>
 
         {/* Auth Methods */}
+        {hasStoredUser && (
+          <div className="mb-6">
+            <Button
+              onClick={() => navigate('/auth/pwa')}
+              className="w-full max-w-md mx-auto h-12 text-lg font-semibold"
+              variant="default"
+            >
+              <Zap className="mr-2 h-5 w-5" />
+              Connexion rapide PWA
+            </Button>
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              Utilisez votre code PIN ou authentification biométrique
+            </p>
+          </div>
+        )}
+        
         <PhoneAuth />
 
         {/* Separator */}

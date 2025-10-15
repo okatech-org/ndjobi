@@ -1,10 +1,11 @@
-import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X } from "lucide-react";
+import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X, ArrowLeft } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { accountSwitchingService } from "@/services/accountSwitching";
 import {
   Sheet,
   SheetContent,
@@ -96,15 +97,47 @@ const Header = () => {
         description: "À bientôt sur NDJOBI !",
       });
 
-      // Petite pause pour que l'utilisateur voie le toast
+      // Redirection vers la page d'accueil
       setTimeout(() => {
-        navigate('/auth');
+        navigate('/', { replace: true });
       }, 500);
     } catch (error) {
       console.error('Error signing out:', error);
       toast({
         title: "Erreur de déconnexion",
         description: "Une erreur s'est produite. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReturnToSuperAdmin = async () => {
+    try {
+      toast({
+        title: "Retour au Super Admin...",
+        description: "Veuillez patienter",
+      });
+
+      const result = await accountSwitchingService.switchBackToOriginal();
+      
+      if (result.success) {
+        toast({
+          title: "Retour réussi",
+          description: "Vous êtes maintenant déconnecté. Veuillez vous reconnecter en tant que Super Admin.",
+        });
+
+        // Rediriger vers la page d'authentification
+        setTimeout(() => {
+          navigate('/auth', { replace: true });
+        }, 1000);
+      } else {
+        throw new Error(result.error || 'Erreur de retour');
+      }
+    } catch (error: any) {
+      console.error('Error returning to Super Admin:', error);
+      toast({
+        title: "Erreur de retour",
+        description: error.message || "Impossible de retourner au compte Super Admin",
         variant: "destructive",
       });
     }
@@ -169,6 +202,17 @@ const Header = () => {
                     {getRoleLabel(role)}
                   </Badge>
                 )}
+                {accountSwitchingService.isInSwitchedAccount() && (
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    onClick={handleReturnToSuperAdmin}
+                    className="mr-2"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Retour Super Admin
+                  </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Déconnexion
@@ -231,6 +275,19 @@ const Header = () => {
                   })}
                   
                   <div className="pt-4 mt-4 border-t">
+                    {accountSwitchingService.isInSwitchedAccount() && (
+                      <Button
+                        variant="secondary"
+                        className="w-full justify-start gap-3 mb-2"
+                        onClick={() => {
+                          handleReturnToSuperAdmin();
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                        Retour Super Admin
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       className="w-full justify-start gap-3"
