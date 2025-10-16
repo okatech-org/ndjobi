@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/SEOHead";
@@ -12,10 +12,12 @@ import Footer from "@/components/Footer";
 const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && user) {
-      // Laisser la logique de routes décider de la destination
+    if (isLoading) return;
+    if (user && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
       navigate('/dashboard', { replace: true });
     }
   }, [user, isLoading, navigate]);
@@ -29,9 +31,13 @@ const Index = () => {
     );
   }
 
-  // N'afficher la page d'accueil que si l'utilisateur n'est PAS connecté
+  // Si l'utilisateur est connecté, afficher un petit loader pendant la redirection
   if (user) {
-    return null; // Pendant la redirection
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
