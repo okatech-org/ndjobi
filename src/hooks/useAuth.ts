@@ -65,9 +65,29 @@ export const useAuth = () => {
         // Fallback dev: session Super Admin locale (sans Supabase)
         const hasLocalSuperAdmin = superAdminAuthService.isSuperAdminSessionActive();
         if (hasLocalSuperAdmin) {
-          setUser(null);
+          // Créer un utilisateur fictif pour la session locale Super Admin
+          const mockSuperAdminUser = {
+            id: 'local-super-admin',
+            email: '24177777000@ndjobi.com',
+            user_metadata: {
+              full_name: 'Super Administrateur (Local)',
+              is_super_admin: true
+            },
+            created_at: new Date().toISOString(),
+            aud: 'authenticated',
+            role: 'authenticated',
+            app_metadata: {},
+            confirmed_at: new Date().toISOString()
+          } as User;
+          
+          setUser(mockSuperAdminUser);
           setSession(null);
-          setProfile(null);
+          setProfile({
+            id: 'local-super-admin',
+            email: '24177777000@ndjobi.com',
+            full_name: 'Super Administrateur (Local)',
+            created_at: new Date().toISOString()
+          } as UserProfile);
           setRole('super_admin' as UserRole);
           clearTimeout(timeoutId);
           setIsLoading(false);
