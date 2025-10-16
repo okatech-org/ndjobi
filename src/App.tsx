@@ -28,7 +28,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
+  const { user, role, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -40,6 +40,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       return <Navigate to="/auth" replace />;
     }
     return <></>;
+  }
+
+  // Redirection automatique vers le dashboard approprié si on est sur une page générique
+  if (user && role && location.pathname === '/') {
+    const dashboardUrl = role === 'super_admin' ? '/dashboard/super-admin' :
+                        role === 'admin' ? '/dashboard/admin' :
+                        role === 'agent' ? '/dashboard/agent' : '/dashboard/user';
+    return <Navigate to={dashboardUrl} replace />;
   }
 
   return <>{children}</>;

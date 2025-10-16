@@ -100,6 +100,15 @@ export const useAuth = () => {
           updateGlobalState(localDemoSession.user, null, localDemoSession.profile, localDemoSession.role, false);
           clearTimeout(timeoutId);
           console.log('✅ Session locale chargée, isLoading=false');
+          
+          // Redirection automatique vers le dashboard approprié
+          if (localDemoSession.role === 'super_admin' && window.location.pathname === '/') {
+            console.log('🔄 Redirection automatique vers dashboard super-admin');
+            setTimeout(() => {
+              window.location.href = '/dashboard/super-admin';
+            }, 100);
+          }
+          
           return;
         }
 
