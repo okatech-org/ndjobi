@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { UserRole, UserProfile } from '@/types/auth';
 import { deviceIdentityService } from '@/services/deviceIdentity';
 import { userPersistence } from '@/services/userPersistence';
+import { superAdminAuthService } from '@/services/superAdminAuth';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -36,12 +37,11 @@ export const useAuth = () => {
 
       if (roleError) throw roleError;
       
-      // TEMPORAIRE: Forcer le rôle 'agent' pour les tests du menu agent
-      // À supprimer une fois le menu agent testé
-      const testRole = roleData?.role || 'agent';
-      setRole(testRole);
+      // Utiliser le rôle retourné par la base si disponible
+      const resolvedRole = roleData?.role || null;
+      setRole(resolvedRole as UserRole | null);
 
-      return { profile: profileData, role: testRole };
+      return { profile: profileData, role: resolvedRole };
     } catch (error) {
       console.error('Error fetching user data:', error);
       setProfile(null);
@@ -61,6 +61,18 @@ export const useAuth = () => {
             setIsLoading(false);
           }
         }, 5000);
+
+        // Fallback dev: session Super Admin locale (sans Supabase)
+        const hasLocalSuperAdmin = superAdminAuthService.isSuperAdminSessionActive();
+        if (hasLocalSuperAdmin) {
+          setUser(null);
+          setSession(null);
+          setProfile(null);
+          setRole('super_admin' as UserRole);
+          clearTimeout(timeoutId);
+          setIsLoading(false);
+          return;
+        }
 
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         

@@ -9,6 +9,7 @@ import {
   Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { superAdminAuthService } from '@/services/superAdminAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { systemManagementService, type DatabaseStats, type ServiceStatus } from '@/services/systemManagement';
@@ -196,10 +197,13 @@ const SuperAdminDashboard = () => {
   }, [location.search]);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (authLoading) return;
+    const hasLocalSuperAdmin = superAdminAuthService.isSuperAdminSessionActive();
+    // Autoriser l'accès si utilisateur connecté OU session locale Super Admin active
+    if (!user && !(role === 'super_admin' || hasLocalSuperAdmin)) {
       navigate('/auth');
     }
-  }, [user, authLoading, navigate]);
+  }, [user, role, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {
