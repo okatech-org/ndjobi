@@ -83,9 +83,17 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
         description: 'Accès autorisé au système',
       });
 
-      // Rediriger directement vers le dashboard Super Admin
-      navigate('/dashboard/super-admin', { replace: true });
+      // Fermer le modal d'abord
       onClose();
+      
+      // Attendre un peu pour que la session locale soit bien enregistrée
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Rediriger vers le dashboard Super Admin
+      navigate('/dashboard/super-admin', { replace: true });
+      
+      // Forcer le rechargement de la page pour que useAuth détecte la session locale
+      window.location.href = '/dashboard/super-admin';
     } catch (error: any) {
       setError(error.message || 'Erreur lors de l\'authentification');
     } finally {

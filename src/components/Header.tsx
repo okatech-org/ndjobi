@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { accountSwitchingService } from "@/services/accountSwitching";
+import { UserRole } from "@/types/auth";
 import {
   Sheet,
   SheetContent,
@@ -23,9 +24,17 @@ const Header = () => {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Dériver un rôle à partir de l'URL courante pour fiabiliser le menu mobile
+  const pathRole: UserRole | null = location.pathname.startsWith('/dashboard/super-admin') ? 'super_admin'
+    : location.pathname.startsWith('/dashboard/admin') ? 'admin'
+    : location.pathname.startsWith('/dashboard/agent') ? 'agent'
+    : location.pathname.startsWith('/dashboard/user') ? 'user'
+    : null;
+  const currentRole = (pathRole || role) as UserRole | null;
+
   // Déterminer le path du dashboard selon le rôle
   const getDashboardPath = () => {
-    switch (role) {
+    switch (currentRole) {
       case 'super_admin': return '/dashboard/super-admin';
       case 'admin': return '/dashboard/admin';
       case 'agent': return '/dashboard/agent';
@@ -37,20 +46,20 @@ const Header = () => {
   const dashboardPath = getDashboardPath();
 
   // Menu adapté selon le rôle
-  const authenticatedMenuItems = role === 'super_admin' ? [
+  const authenticatedMenuItems = currentRole === 'super_admin' ? [
     { label: "Dashboard", path: dashboardPath, icon: User },
     { label: "Gestion Système", path: `${dashboardPath}?view=system`, icon: Settings },
     { label: "Utilisateurs", path: `${dashboardPath}?view=users`, icon: User },
     { label: "Projet", path: `${dashboardPath}?view=project`, icon: FileText },
     { label: "Module XR-7", path: `${dashboardPath}?view=xr7`, icon: AlertCircle },
     { label: "Configuration", path: `${dashboardPath}?view=config`, icon: Key },
-  ] : role === 'admin' ? [
+  ] : currentRole === 'admin' ? [
     { label: "Dashboard", path: dashboardPath, icon: User },
     { label: "Gestion Agents", path: `${dashboardPath}?view=agents`, icon: User },
     { label: "Validation Cas", path: `${dashboardPath}?view=validation`, icon: AlertCircle },
     { label: "Rapports", path: `${dashboardPath}?view=reports`, icon: FileText },
     { label: "Paramètres", path: `${dashboardPath}?view=settings`, icon: Settings },
-  ] : role === 'agent' ? [
+  ] : currentRole === 'agent' ? [
     { label: "Dashboard", path: dashboardPath, icon: LayoutDashboard },
     { label: "Signalements", path: `${dashboardPath}?view=cases`, icon: AlertCircle },
     { label: "Enquêtes", path: `${dashboardPath}?view=investigations`, icon: Search },
@@ -224,9 +233,9 @@ const Header = () => {
             
             {user ? (
               <>
-                {role && (
-                  <Badge variant={getRoleColor(role) as any} className="text-xs">
-                    {getRoleLabel(role)}
+                {currentRole && (
+                  <Badge variant={getRoleColor(currentRole) as any} className="text-xs">
+                    {getRoleLabel(currentRole)}
                   </Badge>
                 )}
                 {accountSwitchingService.isInSwitchedAccount() && (
@@ -266,15 +275,15 @@ const Header = () => {
                 <SheetHeader className="text-left">
                   <SheetTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-primary" />
-                    {role === 'agent' ? 'Menu Agent DGSS' : 
-                     role === 'admin' ? 'Menu Protocole d\'État' :
-                     role === 'super_admin' ? 'Menu Super Admin' :
+                    {currentRole === 'agent' ? 'Menu Agent DGSS' : 
+                     currentRole === 'admin' ? 'Menu Protocole d\'État' :
+                     currentRole === 'super_admin' ? 'Menu Super Admin' :
                      'Menu Navigation'}
                   </SheetTitle>
                   <SheetDescription>
-                    {role && (
-                      <Badge variant={getRoleColor(role) as any} className="text-xs mt-2">
-                        {getRoleLabel(role)}
+                    {currentRole && (
+                      <Badge variant={getRoleColor(currentRole) as any} className="text-xs mt-2">
+                        {getRoleLabel(currentRole)}
                       </Badge>
                     )}
                   </SheetDescription>
