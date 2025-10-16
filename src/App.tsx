@@ -28,15 +28,18 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, role, isLoading } = useAuth();
+  const { user, role, session, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     return <LoadingFallback fullScreen message="Vérification de votre session..." />;
   }
 
-  // Vérifier aussi le rôle pour les sessions locales (super_admin)
-  if (!user && role !== 'super_admin') {
+  // Pour les sessions locales (super_admin, demo), on vérifie le rôle
+  // Si on a un rôle mais pas d'user Supabase, c'est une session locale
+  const hasLocalSession = role && !session;
+  
+  if (!user && !hasLocalSession) {
     if (location.pathname !== "/auth") {
       console.log('🚫 Pas d\'utilisateur détecté, redirection vers /auth');
       return <Navigate to="/auth" replace />;
@@ -44,9 +47,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <></>;
   }
 
-  // Si on a un rôle super_admin mais pas encore d'user (session locale), on autorise l'accès
-  if (role === 'super_admin' && !user) {
-    console.log('✅ Session super_admin locale détectée, accès autorisé');
+  // Si on a une session locale, on autorise l'accès
+  if (hasLocalSession) {
+    console.log('✅ Session locale détectée, rôle:', role, ', accès autorisé');
   }
 
   // Redirection automatique vers le dashboard approprié si on est sur une page générique
