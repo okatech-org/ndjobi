@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/SEOHead";
@@ -12,27 +12,12 @@ import Footer from "@/components/Footer";
 const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const hasRedirectedRef = useRef(false);
 
-  useEffect(() => {
-    if (isLoading) return;
-    if (user && !hasRedirectedRef.current) {
-      hasRedirectedRef.current = true;
-      navigate('/dashboard', { replace: true });
-    }
-  }, [user, isLoading, navigate]);
-
-  // Afficher un loader pendant la vérification de l'authentification
+  // NE PAS rediriger automatiquement pour éviter les boucles
+  // L'utilisateur peut cliquer sur "Mon Profil" dans le Header pour aller au dashboard
+  
+  // Afficher un loader uniquement pendant le chargement initial
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Si l'utilisateur est connecté, afficher un petit loader pendant la redirection
-  if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
