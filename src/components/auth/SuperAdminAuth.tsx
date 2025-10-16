@@ -78,21 +78,16 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
         superAdminAuthService.createSuperAdminSession();
       }
 
+      // Afficher le message de succès
       toast({
         title: 'Authentification Super Admin réussie',
-        description: 'Accès autorisé au système',
+        description: 'Redirection en cours...',
       });
 
-      // Fermer le modal d'abord
-      onClose();
+      // Attendre un instant pour que le toast soit visible
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Attendre un peu pour que la session locale soit bien enregistrée
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Rediriger vers le dashboard Super Admin
-      navigate('/dashboard/super-admin', { replace: true });
-      
-      // Forcer le rechargement de la page pour que useAuth détecte la session locale
+      // Redirection directe avec rechargement complet
       window.location.href = '/dashboard/super-admin';
     } catch (error: any) {
       setError(error.message || 'Erreur lors de l\'authentification');
