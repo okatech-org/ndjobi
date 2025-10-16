@@ -7,13 +7,20 @@ import { userPersistence } from '@/services/userPersistence';
 import { superAdminAuthService } from '@/services/superAdminAuth';
 import { demoAccountService } from '@/services/demoAccountService';
 
+// État global partagé entre toutes les instances de useAuth
+let globalUser: User | null = null;
+let globalSession: Session | null = null;
+let globalProfile: UserProfile | null = null;
+let globalRole: UserRole | null = null;
+let globalInitialized = false;
+let globalIsLoading = true;
+
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [role, setRole] = useState<UserRole | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const hasInitializedRef = useRef(false);
+  const [user, setUser] = useState<User | null>(globalUser);
+  const [session, setSession] = useState<Session | null>(globalSession);
+  const [profile, setProfile] = useState<UserProfile | null>(globalProfile);
+  const [role, setRole] = useState<UserRole | null>(globalRole);
+  const [isLoading, setIsLoading] = useState(globalIsLoading);
 
   // Fetch user profile and role
   const fetchUserData = async (userId: string, isNewUser: boolean = false) => {
@@ -56,33 +63,41 @@ export const useAuth = () => {
     let mounted = true;
     let timeoutId: NodeJS.Timeout;
 
+    const updateGlobalState = (u: User | null, s: Session | null, p: UserProfile | null, r: UserRole | null, loading: boolean) => {
+      globalUser = u;
+      globalSession = s;
+      globalProfile = p;
+      globalRole = r;
+      globalIsLoading = loading;
+      if (mounted) {
+        setUser(u);
+        setSession(s);
+        setProfile(p);
+        setRole(r);
+        setIsLoading(loading);
+      }
+    };
+
     const initAuth = async () => {
-      if (hasInitializedRef.current) {
-        console.log('⚠️ useAuth déjà initialisé, skip');
+      if (globalInitialized) {
+        console.log('⚠️ useAuth déjà initialisé globalement, utilisation de l\'état global');
+        updateGlobalState(globalUser, globalSession, globalProfile, globalRole, false);
         return;
       }
-      hasInitializedRef.current = true;
+      globalInitialized = true;
       console.log('🔄 Initialisation useAuth...');
 
       try {
         timeoutId = setTimeout(() => {
           console.warn('⏰ Timeout 5s atteint, forcer isLoading=false');
-          if (mounted) {
-            setIsLoading(false);
-          }
+          updateGlobalState(globalUser, globalSession, globalProfile, globalRole, false);
         }, 5000);
 
         // Vérifier s'il y a une session locale (démo ou super admin)
         const localDemoSession = demoAccountService.getLocalSession();
         if (localDemoSession) {
           console.log('📱 Session locale démo détectée:', localDemoSession.role);
-          if (mounted) {
-            setUser(localDemoSession.user);
-            setSession(null);
-            setProfile(localDemoSession.profile);
-            setRole(localDemoSession.role);
-            setIsLoading(false);
-          }
+          updateGlobalState(localDemoSession.user, null, localDemoSession.profile, localDemoSession.role, false);
           clearTimeout(timeoutId);
           console.log('✅ Session locale chargée, isLoading=false');
           return;
@@ -106,19 +121,16 @@ export const useAuth = () => {
             confirmed_at: new Date().toISOString()
           } as User;
           
-          if (mounted) {
-            setUser(mockSuperAdminUser);
-            setSession(null);
-            setProfile({
-              id: 'local-super-admin',
-              email: '24177777000@ndjobi.com',
-              full_name: 'Super Administrateur (Local)',
-              created_at: new Date().toISOString()
-            } as UserProfile);
-            setRole('super_admin' as UserRole);
-            setIsLoading(false);
-          }
+          const superAdminProfile = {
+            id: 'local-super-admin',
+            email: '24177777000@ndjobi.com',
+            full_name: 'Super Administrateur (Local)',
+            created_at: new Date().toISOString()
+          } as UserProfile;
+          
+          updateGlobalState(mockSuperAdminUser, null, superAdminProfile, 'super_admin' as UserRole, false);
           clearTimeout(timeoutId);
+          console.log('✅ Session Super Admin locale chargée');
           return;
         }
 
@@ -133,28 +145,28 @@ export const useAuth = () => {
         }
 
         console.log('📊 Session Supabase:', currentSession ? 'Active' : 'Aucune');
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+        globalSession = currentSession;
+        globalUser = currentSession?.user ?? null;
+        
+        if (mounted) {
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+        }
 
         if (currentSession?.user) {
           console.log('👤 Chargement données utilisateur:', currentSession.user.id);
           await fetchUserData(currentSession.user.id);
         } else {
           console.log('❌ Aucun utilisateur connecté');
-          setProfile(null);
-          setRole(null);
+          updateGlobalState(null, null, null, null, false);
         }
       } catch (error) {
         console.error('❌ Error initializing auth:', error);
-        if (mounted) {
-          setUser(null);
-          setSession(null);
-          setProfile(null);
-          setRole(null);
-        }
+        updateGlobalState(null, null, null, null, false);
       } finally {
         if (mounted) {
           console.log('✅ useAuth initialisé, isLoading=false');
+          globalIsLoading = false;
           setIsLoading(false);
         }
       }
@@ -193,8 +205,8 @@ export const useAuth = () => {
       setProfile(null);
       setRole(null);
       
-      // Réinitialiser le flag d'initialisation
-      hasInitializedRef.current = false;
+      // Réinitialiser le flag d'initialisation global
+      globalInitialized = false;
       
       // Nettoyer le device identity
       deviceIdentityService.clearDeviceData();
