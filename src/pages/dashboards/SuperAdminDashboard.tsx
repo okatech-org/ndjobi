@@ -198,10 +198,9 @@ const SuperAdminDashboard = () => {
 
   useEffect(() => {
     if (authLoading) return;
-    const hasLocalSuperAdmin = superAdminAuthService.isSuperAdminSessionActive();
-    // Autoriser l'accès si utilisateur connecté OU session locale Super Admin active
-    if (!user && !(role === 'super_admin' || hasLocalSuperAdmin)) {
-      navigate('/auth');
+    
+    if (!user && role !== 'super_admin') {
+      navigate('/auth', { replace: true });
     }
   }, [user, role, authLoading, navigate]);
 

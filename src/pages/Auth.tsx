@@ -10,6 +10,7 @@ import { PhoneAuth } from '@/components/auth/PhoneAuth';
 import { Separator } from '@/components/ui/separator';
 import { getDashboardUrl } from '@/lib/roleUtils';
 import { userPersistence } from '@/services/userPersistence';
+import { demoAccountService } from '@/services/demoAccountService';
 import logoNdjobi from '@/assets/logo_ndjobi.png';
 
 // Comptes démo avec emails mappés aux numéros de téléphone
@@ -91,30 +92,45 @@ const Auth = () => {
         signInError = res.error;
       }
 
-      if (signInError) throw signInError;
-
-      // Assigner le rôle directement dans la table profiles
-      if (signInData?.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert({
-            id: signInData.user.id,
-            full_name: account.label,
-            role: account.role,
-            updated_at: new Date().toISOString()
-          });
-        
-        if (profileError) console.error('Error updating profile:', profileError);
+      // Si Supabase échoue complètement, utiliser session locale
+      if (signInError) {
+        console.warn(`Connexion Supabase échouée pour ${account.email}, activation du mode local`);
+        throw new Error('FALLBACK_LOCAL');
       }
 
+      // Connexion Supabase réussie
       toast({ 
         title: 'Connexion réussie !', 
         description: `Bienvenue, ${account.label}` 
       });
-      
-      // Laisser PublicRoute gérer la redirection une fois le rôle résolu
+
+      const dashboardUrl = getDashboardUrl(account.role);
+      navigate(dashboardUrl);
       
     } catch (error: any) {
+      // Mode fallback: créer une session locale
+      if (error.message === 'FALLBACK_LOCAL') {
+        console.log(`🔄 Création session locale pour ${account.label}...`);
+        
+        const sessionCreated = demoAccountService.createLocalSession(account.email);
+        
+        if (sessionCreated) {
+          toast({ 
+            title: 'Connexion réussie (Mode Local)', 
+            description: `Bienvenue, ${account.label}` 
+          });
+
+          // Attendre un peu pour que la session soit bien enregistrée
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          // Redirection avec rechargement
+          const dashboardUrl = getDashboardUrl(account.role);
+          window.location.href = dashboardUrl;
+          return;
+        }
+      }
+      
+      // Erreur réelle
       console.error('Login error:', error);
       toast({
         variant: 'destructive',

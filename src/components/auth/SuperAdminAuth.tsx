@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { biometricAuth } from '@/services/biometricAuth';
 import { superAdminAuthService } from '@/services/superAdminAuth';
+import { demoAccountService } from '@/services/demoAccountService';
 
 interface SuperAdminAuthProps {
   isOpen: boolean;
@@ -75,7 +76,10 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
       console.warn('Supabase indisponible ou identifiants invalides, activation du mode local Super Admin. Détails:', supabaseError?.message);
     }
     
-    // Créer la session Super Admin locale
+    // Créer la session locale unifiée via demoAccountService
+    demoAccountService.createLocalSession('24177777000@ndjobi.com');
+    
+    // Créer aussi l'ancienne session pour compatibilité
     superAdminAuthService.createSuperAdminSession();
 
     // Afficher le message de succès

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Shield, FileText, AlertCircle, FolderLock, User, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/Header';
@@ -17,6 +17,7 @@ type ViewMode = 'profile' | 'report' | 'project' | 'files' | 'settings';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, role, isLoading, profile } = useAuth();
   const [viewMode, setViewMode] = useState<ViewMode>('profile');
@@ -30,7 +31,7 @@ const UserDashboard = () => {
     if (action === 'protect') {
       if (viewMode !== 'project') {
         setViewMode('project');
-        setSearchParams({ view: 'project' });
+        setSearchParams({ view: 'project' }, { replace: true });
       }
     } else if (view && ['report', 'project', 'files', 'settings'].includes(view)) {
       if (viewMode !== view) {
@@ -41,7 +42,7 @@ const UserDashboard = () => {
         setViewMode('profile');
       }
     }
-  }, [searchParams, setSearchParams, viewMode]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!isLoading && !user) {

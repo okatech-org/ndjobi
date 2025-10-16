@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole, UserProfile } from '@/types/auth';
 import { deviceIdentityService } from '@/services/deviceIdentity';
 import { userPersistence } from '@/services/userPersistence';
 import { superAdminAuthService } from '@/services/superAdminAuth';
+import { demoAccountService } from '@/services/demoAccountService';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,9 +13,10 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasInitializedRef = useRef(false);
 
   // Fetch user profile and role
-  const fetchUserData = async (userId: string) => {
+  const fetchUserData = async (userId: string, isNewUser: boolean = false) => {
     try {
       // Fetch profile
       const { data: profileData, error: profileError } = await supabase
@@ -55,6 +57,9 @@ export const useAuth = () => {
     let timeoutId: NodeJS.Timeout;
 
     const initAuth = async () => {
+      if (hasInitializedRef.current) return;
+      hasInitializedRef.current = true;
+
       try {
         timeoutId = setTimeout(() => {
           if (mounted) {
@@ -62,10 +67,24 @@ export const useAuth = () => {
           }
         }, 5000);
 
-        // Fallback dev: session Super Admin locale (sans Supabase)
+        // Vérifier s'il y a une session locale (démo ou super admin)
+        const localDemoSession = demoAccountService.getLocalSession();
+        if (localDemoSession) {
+          console.log('📱 Session locale démo détectée:', localDemoSession.role);
+          if (mounted) {
+            setUser(localDemoSession.user);
+            setSession(null);
+            setProfile(localDemoSession.profile);
+            setRole(localDemoSession.role);
+            setIsLoading(false);
+          }
+          clearTimeout(timeoutId);
+          return;
+        }
+
+        // Fallback dev: session Super Admin locale (ancienne méthode, pour compatibilité)
         const hasLocalSuperAdmin = superAdminAuthService.isSuperAdminSessionActive();
         if (hasLocalSuperAdmin) {
-          // Créer un utilisateur fictif pour la session locale Super Admin
           const mockSuperAdminUser = {
             id: 'local-super-admin',
             email: '24177777000@ndjobi.com',
@@ -80,17 +99,19 @@ export const useAuth = () => {
             confirmed_at: new Date().toISOString()
           } as User;
           
-          setUser(mockSuperAdminUser);
-          setSession(null);
-          setProfile({
-            id: 'local-super-admin',
-            email: '24177777000@ndjobi.com',
-            full_name: 'Super Administrateur (Local)',
-            created_at: new Date().toISOString()
-          } as UserProfile);
-          setRole('super_admin' as UserRole);
+          if (mounted) {
+            setUser(mockSuperAdminUser);
+            setSession(null);
+            setProfile({
+              id: 'local-super-admin',
+              email: '24177777000@ndjobi.com',
+              full_name: 'Super Administrateur (Local)',
+              created_at: new Date().toISOString()
+            } as UserProfile);
+            setRole('super_admin' as UserRole);
+            setIsLoading(false);
+          }
           clearTimeout(timeoutId);
-          setIsLoading(false);
           return;
         }
 
@@ -134,8 +155,7 @@ export const useAuth = () => {
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          const isNewUser = event === 'SIGNED_IN' && currentSession.user.created_at === currentSession.user.last_sign_in_at;
-          await fetchUserData(currentSession.user.id, isNewUser);
+          await fetchUserData(currentSession.user.id);
         } else {
           setProfile(null);
           setRole(null);
@@ -158,11 +178,18 @@ export const useAuth = () => {
       setProfile(null);
       setRole(null);
       
+      // Réinitialiser le flag d'initialisation
+      hasInitializedRef.current = false;
+      
       // Nettoyer le device identity
       deviceIdentityService.clearDeviceData();
       
       // Nettoyer les données PWA
       userPersistence.clearStoredUser();
+      
+      // Nettoyer les sessions locales
+      demoAccountService.clearLocalSession();
+      superAdminAuthService.clearSuperAdminSession();
       
       // Nettoyer le localStorage
       localStorage.removeItem('supabase.auth.token');

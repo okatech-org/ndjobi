@@ -7,7 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingFallback } from "@/components/LoadingFallback";
 import { CookieConsent } from "@/components/CookieConsent";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -29,13 +29,17 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
     return <LoadingFallback fullScreen message="Vérification de votre session..." />;
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    if (location.pathname !== "/auth") {
+      return <Navigate to="/auth" replace />;
+    }
+    return <></>;
   }
 
   return <>{children}</>;
@@ -43,17 +47,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, role, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
     return <LoadingFallback fullScreen message="Chargement..." />;
   }
 
   if (user && role) {
-    // Redirection basée sur le rôle
-    const dashboardUrl = role === 'super_admin' ? '/dashboard/super-admin' :
-                        role === 'admin' ? '/dashboard/admin' :
-                        role === 'agent' ? '/dashboard/agent' : '/dashboard/user';
-    return <Navigate to={dashboardUrl} replace />;
+    // Redirection basée sur le rôle seulement si on est sur /auth
+    if (location.pathname === '/auth' || location.pathname === '/auth/pwa') {
+      const dashboardUrl = role === 'super_admin' ? '/dashboard/super-admin' :
+                          role === 'admin' ? '/dashboard/admin' :
+                          role === 'agent' ? '/dashboard/agent' : '/dashboard/user';
+      return <Navigate to={dashboardUrl} replace />;
+    }
   }
 
   return <>{children}</>;
