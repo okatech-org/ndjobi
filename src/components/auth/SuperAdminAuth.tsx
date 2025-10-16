@@ -49,51 +49,46 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     setIsLoading(true);
     setError('');
 
+    // Valider le code d'authentification
+    const validation = superAdminAuthService.validateSuperAdminCode(code);
+    
+    if (!validation.success) {
+      setError(validation.error || 'Code d\'authentification incorrect');
+      setIsLoading(false);
+      return;
+    }
+
+    // Tentative Supabase (si présent)
     try {
-      // Valider le code d'authentification
-      const validation = superAdminAuthService.validateSuperAdminCode(code);
-      
-      if (!validation.success) {
-        setError(validation.error || 'Code d\'authentification incorrect');
-        return;
-      }
-
-      // Tentative Supabase (si présent)
-      try {
-        console.log('Tentative de connexion Super Admin avec:', '24177777000@ndjobi.com');
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: '24177777000@ndjobi.com',
-          password: '123456',
-        });
-
-        if (signInError) throw signInError;
-        if (!signInData?.user) throw new Error('Compte Super Admin non trouvé');
-
-        console.log('Connexion Super Admin réussie:', signInData.user);
-      } catch (supabaseError: any) {
-        // Fallback DEV: créer session locale Super Admin
-        console.warn('Supabase indisponible ou identifiants invalides, activation du mode local Super Admin. Détails:', supabaseError?.message);
-      } finally {
-        // Toujours créer la session Super Admin locale après validation du code
-        superAdminAuthService.createSuperAdminSession();
-      }
-
-      // Afficher le message de succès
-      toast({
-        title: 'Authentification Super Admin réussie',
-        description: 'Redirection en cours...',
+      console.log('Tentative de connexion Super Admin avec:', '24177777000@ndjobi.com');
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: '24177777000@ndjobi.com',
+        password: '123456',
       });
 
-      // Attendre un instant pour que le toast soit visible
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Redirection directe avec rechargement complet
-      window.location.href = '/dashboard/super-admin';
-    } catch (error: any) {
-      setError(error.message || 'Erreur lors de l\'authentification');
-    } finally {
-      setIsLoading(false);
+      if (signInError) throw signInError;
+      if (!signInData?.user) throw new Error('Compte Super Admin non trouvé');
+
+      console.log('Connexion Super Admin réussie:', signInData.user);
+    } catch (supabaseError: any) {
+      // Fallback DEV: créer session locale Super Admin
+      console.warn('Supabase indisponible ou identifiants invalides, activation du mode local Super Admin. Détails:', supabaseError?.message);
     }
+    
+    // Créer la session Super Admin locale
+    superAdminAuthService.createSuperAdminSession();
+
+    // Afficher le message de succès
+    toast({
+      title: 'Authentification Super Admin réussie',
+      description: 'Redirection en cours...',
+    });
+
+    // Attendre un instant pour que le toast soit visible et la session enregistrée
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // NE PAS mettre dans try/catch - redirection directe
+    window.location.href = '/dashboard/super-admin';
   };
 
   const handleSendRecoveryCode = async (method: 'email' | 'phone') => {
