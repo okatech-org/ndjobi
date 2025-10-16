@@ -18,7 +18,7 @@ import logoNdjobi from '@/assets/logo_ndjobi.png';
 // Le compte Super Admin est accessible uniquement via double-clic sur l'icône Shield
 const demoAccounts: DemoAccount[] = [
   {
-    email: '24177777001@ndjobi.ga', // Email technique pour auth
+    email: '24177777001@ndjobi.com', // Email technique pour auth
     password: '123456',
     role: 'user',
     label: 'Citoyen',

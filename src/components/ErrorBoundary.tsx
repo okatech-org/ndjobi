@@ -129,7 +129,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
               <div className="text-center">
                 <a
-                  href="mailto:support@ndjobi.ga"
+                  href="mailto:support@ndjobi.com"
                   className="text-sm text-muted-foreground hover:text-primary underline"
                 >
                   Signaler ce problème au support

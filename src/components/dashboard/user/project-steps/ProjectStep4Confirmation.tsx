@@ -90,7 +90,7 @@ L'empreinte cryptographique unique garantit l'authenticité et
 l'antériorité de votre projet.
 
 Pour vérifier ce certificat :
-https://ndjobi.ga/verify/${blockchainHash}
+https://ndjobi.com/verify/${blockchainHash}
 
 ────────────────────────────────────────────────────────────────
 
@@ -264,7 +264,7 @@ Ndjobi - Protégez vos innovations, Combattez la corruption
             type="button"
             variant="outline"
             className="w-full"
-            onClick={() => window.open(`https://ndjobi.ga/verify/${blockchainHash}`, '_blank')}
+            onClick={() => window.open(`https://ndjobi.com/verify/${blockchainHash}`, '_blank')}
           >
             <ExternalLink className="w-4 h-4 mr-2" />
             Vérifier sur la blockchain

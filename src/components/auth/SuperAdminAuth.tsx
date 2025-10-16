@@ -59,10 +59,10 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
       }
 
       // Code correct - se connecter avec le compte Super Admin
-      console.log('Tentative de connexion Super Admin avec:', '24177777000@ndjobi.ga');
+      console.log('Tentative de connexion Super Admin avec:', '24177777000@ndjobi.com');
       
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: '24177777000@ndjobi.ga',
+        email: '24177777000@ndjobi.com',
         password: '123456',
       });
 
@@ -165,7 +165,7 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
       if (result.success) {
         // Se connecter avec le compte Super Admin
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: '24177777000@ndjobi.ga',
+          email: '24177777000@ndjobi.com',
           password: '123456',
         });
 

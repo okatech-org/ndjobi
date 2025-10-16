@@ -25,7 +25,7 @@ VITE_OPENAI_API_KEY=sk-votre-cle-openai
 
 # Application
 VITE_APP_NAME=Ndjobi
-VITE_APP_URL=https://ndjobi.ga
+VITE_APP_URL=https://ndjobi.com
 VITE_APP_ENV=production
 
 # Feature Flags
@@ -177,7 +177,7 @@ Configuration Nginx :
 ```nginx
 server {
     listen 80;
-    server_name ndjobi.ga www.ndjobi.ga;
+    server_name ndjobi.com www.ndjobi.com;
     root /var/www/ndjobi;
     index index.html;
 
@@ -333,9 +333,9 @@ bun run build
 
 ## 📞 Support
 
-- Documentation : https://docs.ndjobi.ga
+- Documentation : https://docs.ndjobi.com
 - Issues : https://github.com/votre-repo/ndjobi/issues
-- Email : support@ndjobi.ga
+- Email : support@ndjobi.com
 
 ---
 

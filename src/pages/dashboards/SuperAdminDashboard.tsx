@@ -2229,7 +2229,7 @@ const SuperAdminDashboard = () => {
     const handleCreateDemoAccount = async () => {
       setCreatingAccount(true);
       try {
-        const email = `demo.${newAccountRole}.${Date.now()}@ndjobi.ga`;
+        const email = `demo.${newAccountRole}.${Date.now()}@ndjobi.com`;
         const password = 'Demo123!';
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -2464,7 +2464,7 @@ const SuperAdminDashboard = () => {
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
                       <div>
-                        <span className="font-semibold">Email:</span> demo.citoyen@ndjobi.ga
+                        <span className="font-semibold">Email:</span> demo.citoyen@ndjobi.com
                       </div>
                       <div>
                         <span className="font-semibold">Mot de passe:</span> demo123
@@ -2487,7 +2487,7 @@ const SuperAdminDashboard = () => {
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
                       <div>
-                        <span className="font-semibold">Email:</span> demo.agent@ndjobi.ga
+                        <span className="font-semibold">Email:</span> demo.agent@ndjobi.com
                       </div>
                       <div>
                         <span className="font-semibold">Mot de passe:</span> demo123
@@ -2510,7 +2510,7 @@ const SuperAdminDashboard = () => {
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
                       <div>
-                        <span className="font-semibold">Email:</span> demo.admin@ndjobi.ga
+                        <span className="font-semibold">Email:</span> demo.admin@ndjobi.com
                       </div>
                       <div>
                         <span className="font-semibold">Mot de passe:</span> demo123

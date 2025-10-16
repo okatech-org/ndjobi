@@ -19,17 +19,17 @@ info:
   version: "1.0.0"
   contact:
     name: Équipe Ndjobi
-    email: api@ndjobi.ga
-    url: https://ndjobi.ga
+    email: api@ndjobi.com
+    url: https://ndjobi.com
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  termsOfService: https://ndjobi.ga/terms
+  termsOfService: https://ndjobi.com/terms
 
 servers:
-  - url: https://api.ndjobi.ga/v1
+  - url: https://api.ndjobi.com/v1
     description: Serveur de production
-  - url: https://staging-api.ndjobi.ga/v1
+  - url: https://staging-api.ndjobi.com/v1
     description: Serveur de test
   - url: http://localhost:3000/api/v1
     description: Développement local
@@ -1042,4 +1042,4 @@ tags:
 
 externalDocs:
   description: Documentation complète Ndjobi
-  url: https://docs.ndjobi.ga
+  url: https://docs.ndjobi.com

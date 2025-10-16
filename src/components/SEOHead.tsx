@@ -19,7 +19,7 @@ export const SEOHead = ({
   keywords = ['corruption', 'gabon', 'anti-corruption', 'blockchain', 'protection', 'innovation', 'anonymat'],
 }: SEOHeadProps) => {
   const location = useLocation();
-  const currentUrl = url || `https://ndjobi.ga${location.pathname}`;
+  const currentUrl = url || `https://ndjobi.com${location.pathname}`;
   const fullTitle = title.includes('Ndjobi') ? title : `${title} | Ndjobi`;
 
   useEffect(() => {

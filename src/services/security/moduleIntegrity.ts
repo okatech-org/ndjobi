@@ -131,7 +131,7 @@ export class ModuleIntegrityGuard {
 ║  • Signalées aux administrateurs                             ║
 ║  • Passibles de sanctions                                    ║
 ║                                                                ║
-║  Contact support: xr7-support@ndjobi.ga                      ║
+║  Contact support: xr7-support@ndjobi.com                      ║
 ╚══════════════════════════════════════════════════════════════╝
     `);
   }

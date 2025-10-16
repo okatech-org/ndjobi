@@ -57,7 +57,7 @@ export const PWAAuth = () => {
 
     try {
       // Construire l'email à partir des données stockées
-      const email = `${storedUser.countryCode.replace('+', '')}${storedUser.phoneNumber}@ndjobi.ga`;
+      const email = `${storedUser.countryCode.replace('+', '')}${storedUser.phoneNumber}@ndjobi.com`;
       
       console.log('Tentative de connexion PWA:', { 
         email, 

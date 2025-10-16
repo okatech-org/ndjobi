@@ -69,7 +69,7 @@ export const PhoneLogin = () => {
       const fullPhone = `${data.countryCode}${data.phoneNumber}`;
       
       // Convertir le numéro en email pour l'authentification
-      const email = `${fullPhone.replace('+', '')}@ndjobi.ga`;
+      const email = `${fullPhone.replace('+', '')}@ndjobi.com`;
       
       // Authentification avec email + PIN (password)
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
