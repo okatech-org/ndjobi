@@ -10,19 +10,8 @@ const Dashboard = () => {
   const { user, role, isLoading } = useAuth();
   const hasNavigated = useRef(false);
 
-  useEffect(() => {
-    if (isLoading || hasNavigated.current) return;
-    if (!user) return; // ProtectedRoute gère la redirection vers /auth
-
-    if (role) {
-      hasNavigated.current = true;
-      const target = role === 'super_admin' ? '/dashboard/super-admin'
-        : role === 'admin' ? '/dashboard/admin'
-        : role === 'agent' ? '/dashboard/agent'
-        : '/dashboard/user';
-      navigate(target, { replace: true });
-    }
-  }, [user, role, isLoading, navigate]);
+  // Supprimé pour éviter les boucles de navigation
+  // ProtectedRoute dans App.tsx gère déjà la redirection appropriée
 
   if (isLoading) {
     return (
