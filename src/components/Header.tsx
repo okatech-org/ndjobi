@@ -1,4 +1,4 @@
-import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X, ArrowLeft, MessageCircle } from "lucide-react";
+import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X, ArrowLeft, MessageCircle, Key, Bot, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ const Header = () => {
     { label: "Utilisateurs", path: `${dashboardPath}?view=users`, icon: User },
     { label: "Projet", path: `${dashboardPath}?view=project`, icon: FileText },
     { label: "Module XR-7", path: `${dashboardPath}?view=xr7`, icon: AlertCircle },
+    { label: "Configuration", path: `${dashboardPath}?view=config`, icon: Key },
   ] : role === 'admin' ? [
     { label: "Dashboard", path: dashboardPath, icon: User },
     { label: "Gestion Agents", path: `${dashboardPath}?view=agents`, icon: User },

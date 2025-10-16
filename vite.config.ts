@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
     // PWA Plugin pour offline support
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'logo_ndjobi.png', 'robots.txt', 'manifest.json'],
+      includeAssets: ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'logo_ndjobi.png', 'robots.txt', 'manifest.json'],
       manifest: './public/manifest.json',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}'],

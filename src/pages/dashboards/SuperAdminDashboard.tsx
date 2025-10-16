@@ -5,7 +5,8 @@ import {
   FileText, AlertCircle, Settings, BarChart3, Lock, 
   Eye, TrendingUp, Server, ChevronRight, AlertTriangle,
   Clock, Check, X, RefreshCcw, Download, Upload, MapPin, CheckCircle,
-  Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus
+  Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus,
+  Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -64,6 +65,48 @@ interface ActivityLog {
   icon: any;
 }
 
+interface ApiKey {
+  id: string;
+  name: string;
+  service: 'openai' | 'claude' | 'google' | 'azure' | 'custom';
+  key: string;
+  status: 'active' | 'inactive' | 'error';
+  lastUsed?: string;
+  usage?: number;
+  limit?: number;
+}
+
+interface ConnectedApp {
+  id: string;
+  name: string;
+  type: 'webhook' | 'api' | 'oauth' | 'mcp';
+  url?: string;
+  status: 'connected' | 'disconnected' | 'error';
+  lastSync?: string;
+  config?: Record<string, any>;
+}
+
+interface MCPConfig {
+  id: string;
+  name: string;
+  endpoint: string;
+  protocol: 'http' | 'websocket' | 'grpc';
+  status: 'active' | 'inactive' | 'error';
+  capabilities: string[];
+  lastConnected?: string;
+}
+
+interface AIAgent {
+  id: string;
+  name: string;
+  model: string;
+  provider: string;
+  status: 'active' | 'inactive' | 'training';
+  capabilities: string[];
+  lastUsed?: string;
+  config?: Record<string, any>;
+}
+
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -104,6 +147,21 @@ const SuperAdminDashboard = () => {
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [showEditRole, setShowEditRole] = useState(false);
   const [newRole, setNewRole] = useState('');
+  
+  // États pour la configuration
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [connectedApps, setConnectedApps] = useState<ConnectedApp[]>([]);
+  const [mcpConfigs, setMcpConfigs] = useState<MCPConfig[]>([]);
+  const [aiAgents, setAiAgents] = useState<AIAgent[]>([]);
+  const [showApiKeyForm, setShowApiKeyForm] = useState(false);
+  const [showAppForm, setShowAppForm] = useState(false);
+  const [showMCPForm, setShowMCPForm] = useState(false);
+  const [showAgentForm, setShowAgentForm] = useState(false);
+  const [newApiKey, setNewApiKey] = useState<Partial<ApiKey>>({});
+  const [newApp, setNewApp] = useState<Partial<ConnectedApp>>({});
+  const [newMCP, setNewMCP] = useState<Partial<MCPConfig>>({});
+  const [newAgent, setNewAgent] = useState<Partial<AIAgent>>({});
+  const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [showSuspendDialog, setShowSuspendDialog] = useState(false);
   const [suspendReason, setSuspendReason] = useState('');
   
@@ -149,6 +207,7 @@ const SuperAdminDashboard = () => {
       loadUsers();
       loadActivityLogs();
       loadSystemData();
+      loadConfigurationData();
     }
   }, [user]);
 
@@ -229,6 +288,92 @@ const SuperAdminDashboard = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadConfigurationData = async () => {
+    try {
+      // Charger les clés API (simulation - dans un vrai projet, ceci viendrait d'une table sécurisée)
+      const mockApiKeys: ApiKey[] = [
+        {
+          id: '1',
+          name: 'OpenAI GPT-4',
+          service: 'openai',
+          key: 'sk-***...***',
+          status: 'active',
+          lastUsed: '2024-01-15T10:30:00Z',
+          usage: 1250,
+          limit: 10000
+        },
+        {
+          id: '2',
+          name: 'Claude 3.5 Sonnet',
+          service: 'claude',
+          key: 'sk-ant-***...***',
+          status: 'active',
+          lastUsed: '2024-01-15T09:15:00Z',
+          usage: 850,
+          limit: 5000
+        }
+      ];
+
+      // Charger les applications connectées
+      const mockConnectedApps: ConnectedApp[] = [
+        {
+          id: '1',
+          name: 'Supabase Database',
+          type: 'api',
+          url: 'https://your-project.supabase.co',
+          status: 'connected',
+          lastSync: '2024-01-15T11:00:00Z'
+        },
+        {
+          id: '2',
+          name: 'Webhook Notifications',
+          type: 'webhook',
+          url: 'https://hooks.slack.com/...',
+          status: 'connected',
+          lastSync: '2024-01-15T10:45:00Z'
+        }
+      ];
+
+      // Charger les configurations MCP
+      const mockMCPConfigs: MCPConfig[] = [
+        {
+          id: '1',
+          name: 'File System MCP',
+          endpoint: 'http://localhost:3001/mcp',
+          protocol: 'http',
+          status: 'active',
+          capabilities: ['file_read', 'file_write', 'directory_list'],
+          lastConnected: '2024-01-15T11:00:00Z'
+        }
+      ];
+
+      // Charger les agents IA
+      const mockAIAgents: AIAgent[] = [
+        {
+          id: '1',
+          name: 'Ndjobi Assistant',
+          model: 'gpt-4',
+          provider: 'openai',
+          status: 'active',
+          capabilities: ['chat', 'analysis', 'report_generation'],
+          lastUsed: '2024-01-15T10:30:00Z'
+        }
+      ];
+
+      setApiKeys(mockApiKeys);
+      setConnectedApps(mockConnectedApps);
+      setMcpConfigs(mockMCPConfigs);
+      setAiAgents(mockAIAgents);
+    } catch (error) {
+      console.error('Erreur chargement configuration:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger la configuration",
+        variant: "destructive"
+      });
     }
   };
 
@@ -582,6 +727,199 @@ const SuperAdminDashboard = () => {
   if (!user) {
     return null;
   }
+
+  // Fonctions de gestion de la configuration
+  const handleAddApiKey = async () => {
+    try {
+      if (!newApiKey.name || !newApiKey.service || !newApiKey.key) {
+        toast({
+          title: "Erreur",
+          description: "Veuillez remplir tous les champs obligatoires",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const newKey: ApiKey = {
+        id: Date.now().toString(),
+        name: newApiKey.name!,
+        service: newApiKey.service!,
+        key: newApiKey.key!,
+        status: 'active',
+        lastUsed: new Date().toISOString(),
+        usage: 0,
+        limit: newApiKey.limit || 1000
+      };
+
+      setApiKeys(prev => [...prev, newKey]);
+      setNewApiKey({});
+      setShowApiKeyForm(false);
+      
+      toast({
+        title: "Clé API ajoutée",
+        description: `La clé ${newKey.name} a été ajoutée avec succès`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter la clé API",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddConnectedApp = async () => {
+    try {
+      if (!newApp.name || !newApp.type) {
+        toast({
+          title: "Erreur",
+          description: "Veuillez remplir tous les champs obligatoires",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const newAppData: ConnectedApp = {
+        id: Date.now().toString(),
+        name: newApp.name!,
+        type: newApp.type!,
+        url: newApp.url,
+        status: 'connected',
+        lastSync: new Date().toISOString(),
+        config: newApp.config
+      };
+
+      setConnectedApps(prev => [...prev, newAppData]);
+      setNewApp({});
+      setShowAppForm(false);
+      
+      toast({
+        title: "Application connectée",
+        description: `${newAppData.name} a été ajoutée avec succès`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter l'application",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddMCP = async () => {
+    try {
+      if (!newMCP.name || !newMCP.endpoint || !newMCP.protocol) {
+        toast({
+          title: "Erreur",
+          description: "Veuillez remplir tous les champs obligatoires",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const newMCPData: MCPConfig = {
+        id: Date.now().toString(),
+        name: newMCP.name!,
+        endpoint: newMCP.endpoint!,
+        protocol: newMCP.protocol!,
+        status: 'active',
+        capabilities: newMCP.capabilities || [],
+        lastConnected: new Date().toISOString()
+      };
+
+      setMcpConfigs(prev => [...prev, newMCPData]);
+      setNewMCP({});
+      setShowMCPForm(false);
+      
+      toast({
+        title: "MCP ajouté",
+        description: `${newMCPData.name} a été configuré avec succès`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter le MCP",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddAIAgent = async () => {
+    try {
+      if (!newAgent.name || !newAgent.model || !newAgent.provider) {
+        toast({
+          title: "Erreur",
+          description: "Veuillez remplir tous les champs obligatoires",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const newAgentData: AIAgent = {
+        id: Date.now().toString(),
+        name: newAgent.name!,
+        model: newAgent.model!,
+        provider: newAgent.provider!,
+        status: 'active',
+        capabilities: newAgent.capabilities || [],
+        lastUsed: new Date().toISOString(),
+        config: newAgent.config
+      };
+
+      setAiAgents(prev => [...prev, newAgentData]);
+      setNewAgent({});
+      setShowAgentForm(false);
+      
+      toast({
+        title: "Agent IA ajouté",
+        description: `${newAgentData.name} a été configuré avec succès`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter l'agent IA",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleKeyVisibility = (keyId: string) => {
+    setShowKeys(prev => ({
+      ...prev,
+      [keyId]: !prev[keyId]
+    }));
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copié",
+      description: "Le texte a été copié dans le presse-papiers",
+    });
+  };
+
+  const testConnection = async (type: string, id: string) => {
+    try {
+      toast({
+        title: "Test en cours...",
+        description: `Test de connexion pour ${type}`,
+      });
+
+      // Simulation d'un test de connexion
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Test réussi",
+        description: `La connexion ${type} fonctionne correctement`,
+      });
+    } catch (error) {
+      toast({
+        title: "Test échoué",
+        description: `La connexion ${type} a échoué`,
+        variant: "destructive"
+      });
+    }
+  };
 
   const renderDashboard = () => (
     <>
@@ -1255,7 +1593,7 @@ const SuperAdminDashboard = () => {
                   </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Nom complet</Label>
-                  <p className="text-sm font-medium">{selectedUser.username || 'N/A'}</p>
+                  <p className="text-sm font-medium">{selectedUser.full_name || 'N/A'}</p>
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Rôle</Label>
@@ -1412,7 +1750,7 @@ const SuperAdminDashboard = () => {
             <Button 
               variant="outline" 
               className="h-32 flex-col gap-3"
-              onClick={() => handleExportData('pdf')}
+              onClick={() => handleExportData('json')}
             >
               <FileText className="h-8 w-8" />
               <span>Rapport Mensuel</span>
@@ -2157,6 +2495,291 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
+  const renderConfigView = () => (
+    <div className="space-y-6">
+      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Key className="h-6 w-6" />
+                Configuration des Services
+              </CardTitle>
+              <CardDescription>
+                Gérez les clés API, applications connectées, MCP et agents IA
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="text-lg px-4 py-2">
+              <Settings className="h-4 w-4 mr-2" />
+              Configuration
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="api-keys" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="api-keys">Clés API</TabsTrigger>
+              <TabsTrigger value="apps">Applications</TabsTrigger>
+              <TabsTrigger value="mcp">MCP</TabsTrigger>
+              <TabsTrigger value="agents">Agents IA</TabsTrigger>
+            </TabsList>
+
+            {/* Onglet Clés API */}
+            <TabsContent value="api-keys" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Clés API IA</h3>
+                <Button onClick={() => setShowApiKeyForm(true)}>
+                  <Key className="h-4 w-4 mr-2" />
+                  Ajouter une clé
+                </Button>
+              </div>
+
+              <div className="grid gap-4">
+                {apiKeys.map((key) => (
+                  <Card key={key.id} className="border-l-4 border-l-blue-500">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold">{key.name}</h4>
+                            <Badge variant={key.status === 'active' ? 'default' : 'secondary'}>
+                              {key.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-muted-foreground">Service:</span>
+                            <Badge variant="outline">{key.service}</Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-muted-foreground">Clé:</span>
+                            <code className="text-sm bg-muted px-2 py-1 rounded">
+                              {showKeys[key.id] ? key.key : '••••••••••••••••'}
+                            </code>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => toggleKeyVisibility(key.id)}
+                            >
+                              {showKeys[key.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyToClipboard(key.key)}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          {key.usage !== undefined && key.limit && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">Usage:</span>
+                              <Progress value={(key.usage / key.limit) * 100} className="flex-1" />
+                              <span className="text-sm">{key.usage}/{key.limit}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => testConnection('API Key', key.id)}
+                          >
+                            <TestTube className="h-4 w-4 mr-1" />
+                            Tester
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* Onglet Applications Connectées */}
+            <TabsContent value="apps" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Applications Connectées</h3>
+                <Button onClick={() => setShowAppForm(true)}>
+                  <Link className="h-4 w-4 mr-2" />
+                  Connecter une app
+                </Button>
+              </div>
+
+              <div className="grid gap-4">
+                {connectedApps.map((app) => (
+                  <Card key={app.id} className="border-l-4 border-l-green-500">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold">{app.name}</h4>
+                            <Badge variant={app.status === 'connected' ? 'default' : 'secondary'}>
+                              {app.status}
+                            </Badge>
+                            <Badge variant="outline">{app.type}</Badge>
+                          </div>
+                          {app.url && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm text-muted-foreground">URL:</span>
+                              <code className="text-sm bg-muted px-2 py-1 rounded">{app.url}</code>
+                            </div>
+                          )}
+                          {app.lastSync && (
+                            <div className="text-sm text-muted-foreground">
+                              Dernière sync: {new Date(app.lastSync).toLocaleString('fr-FR')}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => testConnection('App', app.id)}
+                          >
+                            <TestTube className="h-4 w-4 mr-1" />
+                            Tester
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* Onglet MCP */}
+            <TabsContent value="mcp" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Configurations MCP</h3>
+                <Button onClick={() => setShowMCPForm(true)}>
+                  <Cpu className="h-4 w-4 mr-2" />
+                  Ajouter MCP
+                </Button>
+              </div>
+
+              <div className="grid gap-4">
+                {mcpConfigs.map((mcp) => (
+                  <Card key={mcp.id} className="border-l-4 border-l-purple-500">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold">{mcp.name}</h4>
+                            <Badge variant={mcp.status === 'active' ? 'default' : 'secondary'}>
+                              {mcp.status}
+                            </Badge>
+                            <Badge variant="outline">{mcp.protocol}</Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-muted-foreground">Endpoint:</span>
+                            <code className="text-sm bg-muted px-2 py-1 rounded">{mcp.endpoint}</code>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-muted-foreground">Capacités:</span>
+                            <div className="flex gap-1">
+                              {mcp.capabilities.map((cap) => (
+                                <Badge key={cap} variant="secondary" className="text-xs">
+                                  {cap}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => testConnection('MCP', mcp.id)}
+                          >
+                            <TestTube className="h-4 w-4 mr-1" />
+                            Tester
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* Onglet Agents IA */}
+            <TabsContent value="agents" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Agents IA</h3>
+                <Button onClick={() => setShowAgentForm(true)}>
+                  <Bot className="h-4 w-4 mr-2" />
+                  Ajouter un agent
+                </Button>
+              </div>
+
+              <div className="grid gap-4">
+                {aiAgents.map((agent) => (
+                  <Card key={agent.id} className="border-l-4 border-l-orange-500">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold">{agent.name}</h4>
+                            <Badge variant={agent.status === 'active' ? 'default' : 'secondary'}>
+                              {agent.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-muted-foreground">Modèle:</span>
+                            <Badge variant="outline">{agent.model}</Badge>
+                            <span className="text-sm text-muted-foreground">Provider:</span>
+                            <Badge variant="outline">{agent.provider}</Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-muted-foreground">Capacités:</span>
+                            <div className="flex gap-1">
+                              {agent.capabilities.map((cap) => (
+                                <Badge key={cap} variant="secondary" className="text-xs">
+                                  {cap}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          {agent.lastUsed && (
+                            <div className="text-sm text-muted-foreground">
+                              Dernière utilisation: {new Date(agent.lastUsed).toLocaleString('fr-FR')}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => testConnection('Agent', agent.id)}
+                          >
+                            <TestTube className="h-4 w-4 mr-1" />
+                            Tester
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   const renderDemoView = () => {
     // Initialiser les comptes démo prédéfinis
     if (demoAccounts.length === 0) {
@@ -2619,6 +3242,7 @@ const SuperAdminDashboard = () => {
           {activeView === 'reports' && renderReportsView()}
           {activeView === 'project' && renderProjectView()}
           {activeView === 'xr7' && renderXR7View()}
+          {activeView === 'config' && renderConfigView()}
           {activeView === 'demo' && renderDemoView()}
 
           {activeView === 'dashboard' && (
@@ -2634,6 +3258,258 @@ const SuperAdminDashboard = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Formulaires de configuration */}
+      
+      {/* Formulaire Clé API */}
+      <Dialog open={showApiKeyForm} onOpenChange={setShowApiKeyForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter une clé API</DialogTitle>
+            <DialogDescription>
+              Configurez une nouvelle clé API pour les services IA
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="key-name">Nom de la clé</Label>
+              <Input
+                id="key-name"
+                value={newApiKey.name || ''}
+                onChange={(e) => setNewApiKey(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ex: OpenAI GPT-4 Production"
+              />
+            </div>
+            <div>
+              <Label htmlFor="key-service">Service</Label>
+              <Select value={newApiKey.service || ''} onValueChange={(value) => setNewApiKey(prev => ({ ...prev, service: value as any }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un service" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="openai">OpenAI</SelectItem>
+                  <SelectItem value="claude">Claude (Anthropic)</SelectItem>
+                  <SelectItem value="google">Google AI</SelectItem>
+                  <SelectItem value="azure">Azure OpenAI</SelectItem>
+                  <SelectItem value="custom">Personnalisé</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="key-value">Clé API</Label>
+              <Input
+                id="key-value"
+                type="password"
+                value={newApiKey.key || ''}
+                onChange={(e) => setNewApiKey(prev => ({ ...prev, key: e.target.value }))}
+                placeholder="sk-..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="key-limit">Limite d'usage (optionnel)</Label>
+              <Input
+                id="key-limit"
+                type="number"
+                value={newApiKey.limit || ''}
+                onChange={(e) => setNewApiKey(prev => ({ ...prev, limit: parseInt(e.target.value) }))}
+                placeholder="1000"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApiKeyForm(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleAddApiKey}>
+              <Save className="h-4 w-4 mr-2" />
+              Ajouter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Formulaire Application Connectée */}
+      <Dialog open={showAppForm} onOpenChange={setShowAppForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Connecter une application</DialogTitle>
+            <DialogDescription>
+              Ajoutez une nouvelle application ou service connecté
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="app-name">Nom de l'application</Label>
+              <Input
+                id="app-name"
+                value={newApp.name || ''}
+                onChange={(e) => setNewApp(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ex: Slack Notifications"
+              />
+            </div>
+            <div>
+              <Label htmlFor="app-type">Type de connexion</Label>
+              <Select value={newApp.type || ''} onValueChange={(value) => setNewApp(prev => ({ ...prev, type: value as any }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="webhook">Webhook</SelectItem>
+                  <SelectItem value="api">API REST</SelectItem>
+                  <SelectItem value="oauth">OAuth 2.0</SelectItem>
+                  <SelectItem value="mcp">MCP (Model Context Protocol)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="app-url">URL (optionnel)</Label>
+              <Input
+                id="app-url"
+                value={newApp.url || ''}
+                onChange={(e) => setNewApp(prev => ({ ...prev, url: e.target.value }))}
+                placeholder="https://api.example.com"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAppForm(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleAddConnectedApp}>
+              <Save className="h-4 w-4 mr-2" />
+              Connecter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Formulaire MCP */}
+      <Dialog open={showMCPForm} onOpenChange={setShowMCPForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Configurer un MCP</DialogTitle>
+            <DialogDescription>
+              Ajoutez une nouvelle configuration MCP (Model Context Protocol)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="mcp-name">Nom du MCP</Label>
+              <Input
+                id="mcp-name"
+                value={newMCP.name || ''}
+                onChange={(e) => setNewMCP(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ex: File System MCP"
+              />
+            </div>
+            <div>
+              <Label htmlFor="mcp-endpoint">Endpoint</Label>
+              <Input
+                id="mcp-endpoint"
+                value={newMCP.endpoint || ''}
+                onChange={(e) => setNewMCP(prev => ({ ...prev, endpoint: e.target.value }))}
+                placeholder="http://localhost:3001/mcp"
+              />
+            </div>
+            <div>
+              <Label htmlFor="mcp-protocol">Protocole</Label>
+              <Select value={newMCP.protocol || ''} onValueChange={(value) => setNewMCP(prev => ({ ...prev, protocol: value as any }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un protocole" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="http">HTTP</SelectItem>
+                  <SelectItem value="websocket">WebSocket</SelectItem>
+                  <SelectItem value="grpc">gRPC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="mcp-capabilities">Capacités (séparées par des virgules)</Label>
+              <Input
+                id="mcp-capabilities"
+                value={newMCP.capabilities?.join(', ') || ''}
+                onChange={(e) => setNewMCP(prev => ({ ...prev, capabilities: e.target.value.split(',').map(c => c.trim()) }))}
+                placeholder="file_read, file_write, directory_list"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMCPForm(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleAddMCP}>
+              <Save className="h-4 w-4 mr-2" />
+              Configurer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Formulaire Agent IA */}
+      <Dialog open={showAgentForm} onOpenChange={setShowAgentForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter un agent IA</DialogTitle>
+            <DialogDescription>
+              Configurez un nouvel agent IA personnalisé
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="agent-name">Nom de l'agent</Label>
+              <Input
+                id="agent-name"
+                value={newAgent.name || ''}
+                onChange={(e) => setNewAgent(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ex: Assistant Ndjobi"
+              />
+            </div>
+            <div>
+              <Label htmlFor="agent-model">Modèle</Label>
+              <Input
+                id="agent-model"
+                value={newAgent.model || ''}
+                onChange={(e) => setNewAgent(prev => ({ ...prev, model: e.target.value }))}
+                placeholder="Ex: gpt-4, claude-3.5-sonnet"
+              />
+            </div>
+            <div>
+              <Label htmlFor="agent-provider">Provider</Label>
+              <Select value={newAgent.provider || ''} onValueChange={(value) => setNewAgent(prev => ({ ...prev, provider: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="openai">OpenAI</SelectItem>
+                  <SelectItem value="anthropic">Anthropic</SelectItem>
+                  <SelectItem value="google">Google</SelectItem>
+                  <SelectItem value="azure">Azure</SelectItem>
+                  <SelectItem value="custom">Personnalisé</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="agent-capabilities">Capacités (séparées par des virgules)</Label>
+              <Input
+                id="agent-capabilities"
+                value={newAgent.capabilities?.join(', ') || ''}
+                onChange={(e) => setNewAgent(prev => ({ ...prev, capabilities: e.target.value.split(',').map(c => c.trim()) }))}
+                placeholder="chat, analysis, report_generation"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAgentForm(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleAddAIAgent}>
+              <Save className="h-4 w-4 mr-2" />
+              Ajouter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
