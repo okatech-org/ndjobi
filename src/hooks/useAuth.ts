@@ -81,6 +81,17 @@ export const useAuth = () => {
     const initAuth = async () => {
       if (globalInitialized) {
         console.log('⚠️ useAuth déjà initialisé globalement, utilisation de l\'état global');
+        
+        // Si l'état global n'a pas d'user mais qu'une session locale existe, recharger
+        if (!globalUser) {
+          const localDemoSession = demoAccountService.getLocalSession();
+          if (localDemoSession) {
+            console.log('🔄 Rechargement session locale dans état global');
+            updateGlobalState(localDemoSession.user, null, localDemoSession.profile, localDemoSession.role, false);
+            return;
+          }
+        }
+        
         updateGlobalState(globalUser, globalSession, globalProfile, globalRole, false);
         return;
       }

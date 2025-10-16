@@ -35,15 +35,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <LoadingFallback fullScreen message="Vérification de votre session..." />;
   }
 
-  if (!user) {
+  // Vérifier aussi le rôle pour les sessions locales (super_admin)
+  if (!user && role !== 'super_admin') {
     if (location.pathname !== "/auth") {
+      console.log('🚫 Pas d\'utilisateur détecté, redirection vers /auth');
       return <Navigate to="/auth" replace />;
     }
     return <></>;
   }
 
+  // Si on a un rôle super_admin mais pas encore d'user (session locale), on autorise l'accès
+  if (role === 'super_admin' && !user) {
+    console.log('✅ Session super_admin locale détectée, accès autorisé');
+  }
+
   // Redirection automatique vers le dashboard approprié si on est sur une page générique
-  if (user && role && location.pathname === '/') {
+  if (role && location.pathname === '/') {
     const dashboardUrl = role === 'super_admin' ? '/dashboard/super-admin' :
                         role === 'admin' ? '/dashboard/admin' :
                         role === 'agent' ? '/dashboard/agent' : '/dashboard/user';
