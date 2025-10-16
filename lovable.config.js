@@ -8,15 +8,15 @@ export default {
   
   // Configuration des domaines
   domains: [
-    'https://ndjobi.lovable.app',
-    'https://ndjobi.com'
+    'https://ndjobi.com',
+    'https://ndjobi.lovable.app'
   ],
   
   // Variables d'environnement pour la production
   environment: {
     NODE_ENV: 'production',
     VITE_APP_ENV: 'production',
-    VITE_APP_URL: 'https://ndjobi.lovable.app'
+    VITE_APP_URL: 'https://ndjobi.com'
   },
   
   // Configuration des redirections
