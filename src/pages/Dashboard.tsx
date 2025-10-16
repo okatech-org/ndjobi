@@ -11,34 +11,16 @@ const Dashboard = () => {
   const hasNavigated = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && !hasNavigated.current) {
-      if (!user) {
-        hasNavigated.current = true;
-        navigate('/auth');
-      } else if (role) {
-        hasNavigated.current = true;
-        // Redirect based on role
-        switch (role) {
-          case 'super_admin':
-            navigate('/dashboard/super-admin', { replace: true });
-            break;
-          case 'admin':
-            navigate('/dashboard/admin', { replace: true });
-            break;
-          case 'agent':
-            navigate('/dashboard/agent', { replace: true });
-            break;
-          case 'user':
-            navigate('/dashboard/user', { replace: true });
-            break;
-          default:
-            navigate('/dashboard/user', { replace: true });
-        }
-      } else if (!role && user) {
-        // Si l'utilisateur est connecté mais n'a pas de rôle, rediriger vers user par défaut
-        hasNavigated.current = true;
-        navigate('/dashboard/user', { replace: true });
-      }
+    if (isLoading || hasNavigated.current) return;
+    if (!user) return; // ProtectedRoute gère la redirection vers /auth
+
+    if (role) {
+      hasNavigated.current = true;
+      const target = role === 'super_admin' ? '/dashboard/super-admin'
+        : role === 'admin' ? '/dashboard/admin'
+        : role === 'agent' ? '/dashboard/agent'
+        : '/dashboard/user';
+      navigate(target, { replace: true });
     }
   }, [user, role, isLoading, navigate]);
 

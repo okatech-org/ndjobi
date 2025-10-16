@@ -44,11 +44,11 @@ const UserDashboard = () => {
     }
   }, [searchParams]);
 
+  // Ne pas rediriger ici: ProtectedRoute gère déjà l'accès
   useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
+    // Lorsque l'utilisateur est présent mais que le rôle n'est pas encore résolu,
+    // on attend simplement sans naviguer pour éviter les boucles
+  }, [user, isLoading]);
 
   // Fonction pour changer de vue et mettre à jour l'URL
   const handleViewChange = (mode: ViewMode) => {

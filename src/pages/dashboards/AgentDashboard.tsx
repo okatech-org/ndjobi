@@ -64,10 +64,8 @@ const AgentDashboard = () => {
   }, [location.search]);
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
+    // L'accès est validé via ProtectedRoute; éviter les redirections ici
+  }, [user, isLoading]);
 
   // Charger les données
   useEffect(() => {

@@ -153,13 +153,13 @@ const AdminDashboard = () => {
   }, [location.search]);
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    } else if (user && role !== 'admin' && role !== 'super_admin') {
+    if (isLoading) return;
+    if (!user) return; // ProtectedRoute gère déjà la redirection
+    if (role && role !== 'admin' && role !== 'super_admin') {
       navigate(getDashboardUrl(role));
-    } else if (user) {
-      fetchData();
+      return;
     }
+    if (user) fetchData();
   }, [user, isLoading, role, navigate]);
 
   const fetchData = async () => {
