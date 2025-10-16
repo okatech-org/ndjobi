@@ -57,11 +57,16 @@ export const useAuth = () => {
     let timeoutId: NodeJS.Timeout;
 
     const initAuth = async () => {
-      if (hasInitializedRef.current) return;
+      if (hasInitializedRef.current) {
+        console.log('⚠️ useAuth déjà initialisé, skip');
+        return;
+      }
       hasInitializedRef.current = true;
+      console.log('🔄 Initialisation useAuth...');
 
       try {
         timeoutId = setTimeout(() => {
+          console.warn('⏰ Timeout 5s atteint, forcer isLoading=false');
           if (mounted) {
             setIsLoading(false);
           }
@@ -79,12 +84,14 @@ export const useAuth = () => {
             setIsLoading(false);
           }
           clearTimeout(timeoutId);
+          console.log('✅ Session locale chargée, isLoading=false');
           return;
         }
 
         // Fallback dev: session Super Admin locale (ancienne méthode, pour compatibilité)
         const hasLocalSuperAdmin = superAdminAuthService.isSuperAdminSessionActive();
         if (hasLocalSuperAdmin) {
+          console.log('🔐 Session Super Admin locale détectée');
           const mockSuperAdminUser = {
             id: 'local-super-admin',
             email: '24177777000@ndjobi.com',
@@ -115,23 +122,30 @@ export const useAuth = () => {
           return;
         }
 
+        console.log('🔍 Vérification session Supabase...');
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         clearTimeout(timeoutId);
         
-        if (!mounted) return;
+        if (!mounted) {
+          console.log('⚠️ Composant démonté, abandon');
+          return;
+        }
 
+        console.log('📊 Session Supabase:', currentSession ? 'Active' : 'Aucune');
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
+          console.log('👤 Chargement données utilisateur:', currentSession.user.id);
           await fetchUserData(currentSession.user.id);
         } else {
+          console.log('❌ Aucun utilisateur connecté');
           setProfile(null);
           setRole(null);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error('❌ Error initializing auth:', error);
         if (mounted) {
           setUser(null);
           setSession(null);
@@ -140,6 +154,7 @@ export const useAuth = () => {
         }
       } finally {
         if (mounted) {
+          console.log('✅ useAuth initialisé, isLoading=false');
           setIsLoading(false);
         }
       }
