@@ -46,23 +46,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, role, isLoading } = useAuth();
-  const location = useLocation();
-
-  if (isLoading) {
-    return <LoadingFallback fullScreen message="Chargement..." />;
-  }
-
-  if (user && role) {
-    // Redirection basée sur le rôle seulement si on est sur /auth
-    if (location.pathname === '/auth' || location.pathname === '/auth/pwa') {
-      const dashboardUrl = role === 'super_admin' ? '/dashboard/super-admin' :
-                          role === 'admin' ? '/dashboard/admin' :
-                          role === 'agent' ? '/dashboard/agent' : '/dashboard/user';
-      return <Navigate to={dashboardUrl} replace />;
-    }
-  }
-
+  // Supprimé useAuth() pour éviter les boucles de re-render
+  // Les composants enfants gèrent leur propre logique d'authentification
   return <>{children}</>;
 };
 
