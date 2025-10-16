@@ -2980,9 +2980,7 @@ const SuperAdminDashboard = () => {
             description: `Vous êtes maintenant connecté en tant que ${demoAccount.fullName}`,
           });
           
-          // Rediriger vers le dashboard approprié
-          const dashboardUrl = getDashboardUrl(demoAccount.role as any);
-          navigate(dashboardUrl, { replace: true });
+          // Laisser la logique globale de routing gérer la redirection
         } else {
           throw new Error(result.error || 'Erreur de basculement');
         }

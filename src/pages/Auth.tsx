@@ -112,21 +112,7 @@ const Auth = () => {
         description: `Bienvenue, ${account.label}` 
       });
       
-      // Récupérer l'action demandée
-      const action = searchParams.get('action');
-      
-      // Rediriger vers le dashboard approprié avec l'action
-      const dashboardUrl = getDashboardUrl(account.role);
-      console.log('Redirecting to:', dashboardUrl, 'for role:', account.role, 'with action:', action);
-      
-      // Attendre un peu pour s'assurer que l'auth est bien établie
-      setTimeout(() => {
-        if (action) {
-          navigate(`${dashboardUrl}?action=${action}`, { replace: true });
-        } else {
-          navigate(dashboardUrl, { replace: true });
-        }
-      }, 100);
+      // Laisser PublicRoute gérer la redirection une fois le rôle résolu
       
     } catch (error: any) {
       console.error('Login error:', error);

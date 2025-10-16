@@ -28,14 +28,20 @@ const UserDashboard = () => {
     
     // Convertir l'action "protect" en vue "project"
     if (action === 'protect') {
-      setViewMode('project');
-      setSearchParams({ view: 'project' });
+      if (viewMode !== 'project') {
+        setViewMode('project');
+        setSearchParams({ view: 'project' });
+      }
     } else if (view && ['report', 'project', 'files', 'settings'].includes(view)) {
-      setViewMode(view);
+      if (viewMode !== view) {
+        setViewMode(view);
+      }
     } else if (!view && !action) {
-      setViewMode('profile');
+      if (viewMode !== 'profile') {
+        setViewMode('profile');
+      }
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, viewMode]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -45,6 +51,7 @@ const UserDashboard = () => {
 
   // Fonction pour changer de vue et mettre à jour l'URL
   const handleViewChange = (mode: ViewMode) => {
+    if (viewMode === mode) return;
     setViewMode(mode);
     if (mode === 'profile') {
       setSearchParams({});

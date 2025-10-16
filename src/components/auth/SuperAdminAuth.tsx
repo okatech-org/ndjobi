@@ -180,7 +180,9 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
           description: 'Accès Super Admin autorisé',
         });
         
-        navigate('/dashboard/super-admin', { replace: true });
+        if (window.location.pathname !== '/dashboard/super-admin') {
+          navigate('/dashboard/super-admin', { replace: true });
+        }
         onClose();
       } else {
         setError('Authentification biométrique échouée');

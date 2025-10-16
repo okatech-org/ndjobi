@@ -106,17 +106,7 @@ export const PWAAuth = () => {
         description: `Bienvenue, ${storedUser.fullName}`,
       });
 
-      // Rediriger vers le dashboard approprié
-      const action = searchParams.get('action');
-      const dashboardUrl = getDashboardUrl(storedUser.role);
-      
-      console.log('Redirection vers:', dashboardUrl);
-      
-      if (action) {
-        navigate(`${dashboardUrl}?action=${action}`, { replace: true });
-      } else {
-        navigate(dashboardUrl, { replace: true });
-      }
+      // Laisser la logique de route publique gérer la redirection
 
     } catch (error: any) {
       console.error('Erreur de connexion:', error);
@@ -148,15 +138,7 @@ export const PWAAuth = () => {
           description: `Bienvenue, ${storedUser.fullName}`,
         });
 
-        // Rediriger vers le dashboard approprié
-        const action = searchParams.get('action');
-        const dashboardUrl = getDashboardUrl(storedUser.role);
-        
-        if (action) {
-          navigate(`${dashboardUrl}?action=${action}`);
-        } else {
-          navigate(dashboardUrl);
-        }
+        // Laisser la logique de route publique gérer la redirection
       } else {
         // Ne pas afficher d'erreur pour les annulations utilisateur
         if (result.error?.includes('annulée') || result.error?.includes('refusée')) {

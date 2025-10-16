@@ -210,7 +210,11 @@ const Header = () => {
                 key={item.label} 
                 variant={isActive ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => navigate(item.path)}
+                onClick={() => {
+                  if (!isActive) {
+                    navigate(item.path);
+                  }
+                }}
                 className="gap-2"
               >
                 <Icon className="h-4 w-4" />
@@ -300,7 +304,9 @@ const Header = () => {
                         variant={isActive ? "secondary" : "ghost"}
                         className="w-full justify-start gap-3"
                         onClick={() => {
-                          navigate(item.path);
+                          if (!isActive) {
+                            navigate(item.path);
+                          }
                           setMobileMenuOpen(false);
                         }}
                       >

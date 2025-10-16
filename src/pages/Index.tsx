@@ -14,8 +14,8 @@ const Index = () => {
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    // Rediriger les utilisateurs connectés vers leur dashboard
     if (!isLoading && user) {
+      // Laisser la logique de routes décider de la destination
       navigate('/dashboard', { replace: true });
     }
   }, [user, isLoading, navigate]);
