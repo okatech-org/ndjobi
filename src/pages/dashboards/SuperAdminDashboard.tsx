@@ -196,13 +196,8 @@ const SuperAdminDashboard = () => {
     }
   }, [location.search]);
 
-  useEffect(() => {
-    if (authLoading) return;
-    
-    if (!user && role !== 'super_admin') {
-      navigate('/auth', { replace: true });
-    }
-  }, [user, role, authLoading, navigate]);
+  // ProtectedRoute gère déjà l'accès, pas besoin de navigate ici
+  // Supprimé pour éviter les boucles de redirection
 
   useEffect(() => {
     if (user) {
