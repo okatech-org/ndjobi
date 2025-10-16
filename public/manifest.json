@@ -8,12 +8,33 @@
   "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
+  "id": "/",
+  "categories": ["government", "utilities", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "logo_ndjobi.png",
-      "sizes": "16x16 32x32 48x48 72x72 96x96 144x144 192x192 512x512",
+      "src": "/logo_ndjobi.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/logo_ndjobi.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo_ndjobi.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/logo_ndjobi.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

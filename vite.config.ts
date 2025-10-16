@@ -22,7 +22,46 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['logo_ndjobi.png', 'robots.txt', 'manifest.json'],
-      manifest: './public/manifest.json',
+      manifest: {
+        name: 'Ndjobi - Bonne gouvernance',
+        short_name: 'Ndjobi',
+        description: 'Plateforme citoyenne sécurisée pour la bonne gouvernance et protéger vos innovations',
+        theme_color: '#10b981',
+        background_color: '#ffffff',
+        display: 'standalone',
+        orientation: 'portrait',
+        scope: '/',
+        start_url: '/',
+        id: '/',
+        categories: ['government', 'utilities', 'productivity'],
+        prefer_related_applications: false,
+        icons: [
+          {
+            src: '/logo_ndjobi.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/logo_ndjobi.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/logo_ndjobi.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: '/logo_ndjobi.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ]
+      },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}'],
         runtimeCaching: [
