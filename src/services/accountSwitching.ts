@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { userPersistence } from './userPersistence';
 import { demoAccountService } from './demoAccountService';
+import { resetGlobalAuthState } from '@/hooks/useAuth';
 
 export interface DemoAccount {
   id: string;
@@ -78,88 +79,45 @@ class AccountSwitchingService {
     console.log('🔵 [AccountSwitching] saveOriginalAccount END');
   }
 
-  // Basculer vers un compte démo
+  // Basculer vers un compte démo (MODE LOCAL OPTIMISÉ)
   public async switchToDemoAccount(demoAccount: DemoAccount): Promise<{ success: boolean; error?: string }> {
-    console.log('🔵 [AccountSwitching] switchToDemoAccount START avec:', demoAccount);
+    console.log('🚀 [Quick Fix] Basculement démo simplifié vers:', demoAccount.role);
     try {
-      // Sauvegarder le compte original si pas déjà fait
-      if (!this.originalAccount) {
-        console.log('🔵 [AccountSwitching] Sauvegarde du compte original...');
-        await this.saveOriginalAccount();
-      }
-
-      console.log('🔵 [AccountSwitching] Basculement vers le compte démo:', demoAccount);
-
-      // Déterminer l'email du compte démo (priorité à demoAccount.email)
-      const phoneNumber = demoAccount.phoneNumber || '77777001';
-      const countryCode = demoAccount.countryCode || '+241';
-      const fallbackEmail = `${countryCode.replace('+', '')}${phoneNumber}@ndjobi.com`;
-      const rawEmail = demoAccount.email || fallbackEmail;
+      // Normaliser l'email (remplacer .temp par .com)
+      const rawEmail = demoAccount.email || '24177777001@ndjobi.com';
       const email = rawEmail.replace('@ndjobi.temp', '@ndjobi.com');
-      const pin = demoAccount.password || '123456';
+      
+      console.log('📧 Email normalisé:', email);
 
-      console.log('🔵 [AccountSwitching] Tentative de connexion avec (normalisé):', { email, pin });
-
-      // Se connecter avec le compte démo (email construit + PIN)
-      console.log('🔵 [AccountSwitching] Appel supabase.auth.signInWithPassword...');
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: pin,
-      });
-      console.log('🔵 [AccountSwitching] Réponse Supabase:', { signInData, signInError });
-
-      // Si la connexion Supabase échoue, activer un fallback local
-      if (signInError || !signInData?.user) {
-        console.warn('⚠️ [AccountSwitching] Connexion Supabase pour compte démo échouée, activation du mode local. Détails:', signInError?.message);
-
-        // Marquer que nous avons basculé (pour afficher l'option de retour)
-        if (!localStorage.getItem(this.STORAGE_KEY)) {
-          const placeholderOriginal: OriginalAccount = {
-            userId: 'local-super-admin',
-            email: '24177777000@ndjobi.com',
-            role: 'super_admin',
-          };
-          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(placeholderOriginal));
-        }
-
-        // Créer une session locale démo
-        console.log('🔵 [AccountSwitching] Création session locale démo avec email:', email);
-        const created = demoAccountService.createLocalSession(email);
-        console.log('🔵 [AccountSwitching] Session locale créée:', created);
-        if (!created) {
-          console.error('❌ [AccountSwitching] Impossible de créer session locale');
-          return { success: false, error: 'Impossible de créer une session locale démo' };
-        }
-
-        // Mettre à jour les données PWA
-        console.log('🔵 [AccountSwitching] Mise à jour données PWA...');
-        await userPersistence.storeUser({
-          id: `local-${demoAccount.role}`,
-          phoneNumber: phoneNumber,
-          countryCode: countryCode,
-          fullName: demoAccount.fullName,
-          role: demoAccount.role
-        });
-
-        console.log('✅ [AccountSwitching] Basculement local réussi vers:', demoAccount.role);
-        return { success: true };
+      // SKIP Supabase complètement - Créer session locale directement
+      console.log('🔄 Création session locale démo...');
+      const created = demoAccountService.createLocalSession(email);
+      
+      if (!created) {
+        console.error('❌ Échec création session locale pour:', email);
+        return { success: false, error: `Compte démo ${email} non trouvé` };
       }
 
-      // Mettre à jour les données PWA avec le compte démo
-      console.log('🔵 [AccountSwitching] Supabase OK, mise à jour données PWA...');
-      await userPersistence.storeUser({
-        id: signInData.user.id,
-        phoneNumber: phoneNumber,
-        countryCode: countryCode,
-        fullName: demoAccount.fullName,
-        role: demoAccount.role
-      });
+      // Marquer qu'on a basculé (pour afficher "Retour au Super Admin")
+      if (!localStorage.getItem(this.STORAGE_KEY)) {
+        const placeholderOriginal: OriginalAccount = {
+          userId: 'local-super-admin',
+          email: '24177777000@ndjobi.com',
+          role: 'super_admin',
+        };
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(placeholderOriginal));
+        console.log('💾 Compte original marqué pour retour');
+      }
 
-      console.log('✅ [AccountSwitching] Basculement Supabase réussi vers:', demoAccount.role);
+      // Réinitialiser l'état global de useAuth pour forcer le rechargement
+      console.log('🔄 Réinitialisation état global useAuth...');
+      resetGlobalAuthState();
+
+      console.log('✅ Basculement local réussi vers:', demoAccount.role);
       return { success: true };
 
     } catch (error: any) {
-      console.error('💥 [AccountSwitching] Erreur lors du basculement:', error);
+      console.error('💥 Erreur basculement:', error);
       return { success: false, error: error.message || 'Erreur de basculement' };
     }
   }

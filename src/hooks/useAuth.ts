@@ -15,6 +15,17 @@ let globalRole: UserRole | null = null;
 let globalInitialized = false;
 let globalIsLoading = true;
 
+// Fonction pour réinitialiser l'état global (utilisée lors du basculement de compte)
+export const resetGlobalAuthState = () => {
+  globalUser = null;
+  globalSession = null;
+  globalProfile = null;
+  globalRole = null;
+  globalInitialized = false;
+  globalIsLoading = true;
+  console.log('🔄 État global useAuth réinitialisé');
+};
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(globalUser);
   const [session, setSession] = useState<Session | null>(globalSession);
