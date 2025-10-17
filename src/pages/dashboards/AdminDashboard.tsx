@@ -1,1880 +1,812 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { 
-  Crown, FileText, Shield, BarChart3, Settings, Users, 
-  TrendingUp, Activity, AlertCircle, CheckCircle, Clock,
-  Eye, Filter, Search, ChevronRight, Calendar, MapPin,
-  UserPlus, UserCheck, UserX, Briefcase, Scale, Download,
-  XCircle, Loader2, Zap, Brain, AlertTriangle, Package,
-  Radio, FileCheck, RefreshCw, ChevronDown
+  Crown, BarChart3, CheckCircle, Users, Package, 
+  FileText, TrendingUp, Shield, AlertTriangle, Eye, Filter,
+  Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
+  Building2, Flag, Target, DollarSign, Clock, ChevronRight,
+  AlertCircle, XCircle, RefreshCw, Search, UserPlus
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  analyzeSignalement, 
-  scoreAndUpdateSignalement, 
-  getTopPrioritySignalements,
-  type SignalementScoring 
-} from '@/services/signalementScoring';
+  LineChart, Line, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+} from 'recharts';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useProtocolEtat } from '@/hooks/useProtocolEtat';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
-interface Signalement {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  status: string;
-  priority: string | null;
-  location: string | null;
-  created_at: string;
-  user_id: string | null;
-  is_anonymous: boolean | null;
-  attachments: any;
-  resolved_at: string | null;
-  resolved_by: string | null;
-  metadata?: any;
-  ai_priority_score?: number;
-  ai_credibility_score?: number;
-  corruption_category?: string;
-  ai_analysis?: any;
-}
-
-interface Agent {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  role: string | null;
-  organization: string | null;
-  created_at: string;
-}
-
-interface Projet {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  status: string;
-  protection_type: string | null;
-  protection_number: string | null;
-  protected_at: string | null;
-  created_at: string;
-  user_id: string | null;
-  is_anonymous: boolean | null;
-}
-
-interface EmergencyActivation {
-  id: string;
-  reason: string;
-  status: string;
-  start_date: string;
-  end_date: string;
-  activated_by: string;
-  duration_hours: number;
-  judicial_authorization: string;
-  created_at: string;
-}
-
-const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user, role, isLoading } = useAuth();
+export default function AdminDashboard() {
+  const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState('dashboard');
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
-  const [signalements, setSignalements] = useState<Signalement[]>([]);
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [projets, setProjets] = useState<Projet[]>([]);
-  const [emergencyActivations, setEmergencyActivations] = useState<EmergencyActivation[]>([]);
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('pending');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  
-  const [selectedCase, setSelectedCase] = useState<Signalement | null>(null);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [scoringDialogOpen, setScoringDialogOpen] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  const [selectedAgent, setSelectedAgent] = useState<string>('');
-  const [currentScoring, setCurrentScoring] = useState<SignalementScoring | null>(null);
-  
-  const [stats, setStats] = useState({
-    totalCases: 0,
-    pendingCases: 0,
-    inProgressCases: 0,
-    resolvedCases: 0,
-    rejectedCases: 0,
-    totalAgents: 0,
-    activeAgents: 0,
-    totalProjects: 0,
-    protectedProjects: 0,
-    activeEmergencies: 0,
-    monthlyResolution: 0,
-    averageTime: '0',
-    satisfaction: 0,
-    avgPriorityScore: 0,
-    avgCredibilityScore: 0,
-    highPriorityCases: 0
-  });
+  const {
+    kpis,
+    casSensibles,
+    distributionRegionale,
+    performanceMinisteres,
+    sousAdmins,
+    evolutionMensuelle,
+    visionData,
+    isLoading,
+    enregistrerDecision,
+    genererRapport,
+    reloadData
+  } = useProtocolEtat();
+
+  const [activeView, setActiveView] = useState<string>('dashboard');
+  const [timeRange, setTimeRange] = useState<string>('30days');
+  const [selectedRegion, setSelectedRegion] = useState<string>('all');
+
+  const COLORS = ['#2D5F1E', '#4A8B3A', '#6BB757', '#8FD977', '#B4F199'];
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const view = params.get('view');
-    if (view) {
-      setActiveView(view);
-    } else {
-      setActiveView('dashboard');
+    if (user && role === 'admin') {
+      reloadData();
     }
-  }, [location.search]);
+  }, [user, role]);
 
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) return; // ProtectedRoute gère déjà la redirection
-    if (role && role !== 'admin' && role !== 'super_admin') {
-      navigate(getDashboardUrl(role));
-      return;
-    }
-    if (user) fetchData();
-  }, [user, isLoading, role, navigate]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      await Promise.all([
-        fetchSignalements(),
-        fetchAgents(),
-        fetchProjets(),
-        fetchEmergencyActivations(),
-        calculateStats()
-      ]);
-    } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
+  const handleValiderCas = async (casId: string, decision: 'approuver' | 'rejeter' | 'enquete') => {
+    const result = await enregistrerDecision(casId, decision);
+    if (result.success) {
       toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les données',
-        variant: 'destructive'
+        title: '✅ Décision enregistrée',
+        description: `La décision présidentielle "${decision}" a été enregistrée avec succès.`,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const fetchSignalements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('signalements')
-        .select('*')
-        .order('ai_priority_score', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSignalements(data || []);
-    } catch (error) {
-      console.error('Erreur fetch signalements:', error);
-      throw error;
-    }
+  const handleGenererRapport = async (type: 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel') => {
+    await genererRapport(type);
   };
 
-  const fetchAgents = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, role, organization, created_at')
-        .eq('role', 'agent');
-
-      if (error) throw error;
-      setAgents(data || []);
-    } catch (error) {
-      console.error('Erreur fetch agents:', error);
-      throw error;
-    }
-  };
-
-  const fetchProjets = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('projets')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProjets(data || []);
-    } catch (error) {
-      console.error('Erreur fetch projets:', error);
-      throw error;
-    }
-  };
-
-  const fetchEmergencyActivations = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('emergency_activations')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      setEmergencyActivations(data || []);
-    } catch (error) {
-      console.error('Erreur fetch emergencies:', error);
-      throw error;
-    }
-  };
-
-  const calculateStats = async () => {
-    try {
-      const { data: allCases, error } = await supabase
-        .from('signalements')
-        .select('status, created_at, resolved_at, ai_priority_score, ai_credibility_score');
-
-      if (error) throw error;
-
-      const total = allCases?.length || 0;
-      const pending = allCases?.filter(c => c.status === 'pending').length || 0;
-      const inProgress = allCases?.filter(c => c.status === 'in_progress').length || 0;
-      const resolved = allCases?.filter(c => c.status === 'resolved').length || 0;
-      const rejected = allCases?.filter(c => c.status === 'rejected').length || 0;
-
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const monthCases = allCases?.filter(c => {
-        const date = new Date(c.created_at);
-        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-      }) || [];
-      
-      const monthResolved = monthCases.filter(c => c.status === 'resolved').length;
-      const resolutionRate = monthCases.length > 0 ? Math.round((monthResolved / monthCases.length) * 100) : 0;
-
-      const resolvedWithTime = allCases?.filter(c => c.resolved_at && c.created_at) || [];
-      let avgDays = 0;
-      if (resolvedWithTime.length > 0) {
-        const totalDays = resolvedWithTime.reduce((sum, c) => {
-          const start = new Date(c.created_at).getTime();
-          const end = new Date(c.resolved_at!).getTime();
-          return sum + (end - start) / (1000 * 60 * 60 * 24);
-        }, 0);
-        avgDays = totalDays / resolvedWithTime.length;
-      }
-
-      const scoredCases = signalements.filter(c => c.ai_priority_score !== null && c.ai_priority_score !== undefined) || [];
-      const avgPriority = scoredCases.length > 0
-        ? Math.round(scoredCases.reduce((sum, c) => sum + (c.ai_priority_score || 0), 0) / scoredCases.length)
-        : 0;
-      
-      const avgCredibility = scoredCases.length > 0
-        ? Math.round(scoredCases.reduce((sum, c) => sum + (c.ai_credibility_score || 0), 0) / scoredCases.length)
-        : 0;
-
-      const highPriority = signalements.filter(c => (c.ai_priority_score || 0) >= 75).length || 0;
-
-      setStats({
-        totalCases: total,
-        pendingCases: pending,
-        inProgressCases: inProgress,
-        resolvedCases: resolved,
-        rejectedCases: rejected,
-        totalAgents: agents.length,
-        activeAgents: agents.length,
-        totalProjects: projets.length,
-        protectedProjects: projets.filter(p => p.status === 'protected').length,
-        activeEmergencies: emergencyActivations.filter(e => e.status === 'active').length,
-        monthlyResolution: resolutionRate,
-        averageTime: avgDays.toFixed(1),
-        satisfaction: 4.7,
-        avgPriorityScore: avgPriority,
-        avgCredibilityScore: avgCredibility,
-        highPriorityCases: highPriority
-      });
-    } catch (error) {
-      console.error('Erreur calcul stats:', error);
-      throw error;
-    }
-  };
-
-  const handleAnalyzeWithAI = async (cas: Signalement) => {
-    setActionLoading(cas.id);
-    try {
-      const scoring = await scoreAndUpdateSignalement({
-        id: cas.id,
-        title: cas.title,
-        description: cas.description,
-        type: cas.type,
-        location: cas.location || undefined,
-        attachments: cas.attachments,
-        created_at: cas.created_at
-      });
-
-      setCurrentScoring(scoring);
-      setSelectedCase(cas);
-      setScoringDialogOpen(true);
-
-      toast({
-        title: 'Analyse IA terminée',
-        description: `Score de priorité: ${scoring.priorityScore}/100, Crédibilité: ${scoring.credibilityScore}/100`
-      });
-
-      await fetchData();
-    } catch (error) {
-      console.error('Erreur analyse IA:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible d\'analyser le signalement',
-        variant: 'destructive'
-      });
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleValidateCase = async (caseId: string) => {
-    setActionLoading(caseId);
-    try {
-      const { error } = await supabase
-        .from('signalements')
-        .update({ 
-          status: 'in_progress',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', caseId);
-
-      if (error) throw error;
-
-
-      toast({
-        title: 'Cas validé',
-        description: 'Le cas a été validé et est maintenant en cours de traitement'
-      });
-
-      await fetchData();
-    } catch (error) {
-      console.error('Erreur validation:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de valider le cas',
-        variant: 'destructive'
-      });
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleRejectCase = async () => {
-    if (!selectedCase || !rejectReason.trim()) {
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez fournir une raison pour le rejet',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    setActionLoading(selectedCase.id);
-    try {
-      const { error } = await supabase
-        .from('signalements')
-        .update({ 
-          status: 'rejected',
-          metadata: {
-            ...selectedCase.metadata,
-            rejection_reason: rejectReason,
-            rejected_at: new Date().toISOString(),
-            rejected_by: user?.id
-          },
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', selectedCase.id);
-
-      if (error) throw error;
-
-
-      toast({
-        title: 'Cas rejeté',
-        description: 'Le cas a été rejeté avec succès'
-      });
-
-      setRejectDialogOpen(false);
-      setRejectReason('');
-      setSelectedCase(null);
-      await fetchData();
-    } catch (error) {
-      console.error('Erreur rejet:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de rejeter le cas',
-        variant: 'destructive'
-      });
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleAssignCase = async () => {
-    if (!selectedCase || !selectedAgent) {
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez sélectionner un agent',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    setActionLoading(selectedCase.id);
-    try {
-      const { error } = await supabase
-        .from('signalements')
-        .update({ 
-          metadata: {
-            ...selectedCase.metadata,
-            assigned_to: selectedAgent,
-            assigned_at: new Date().toISOString(),
-            assigned_by: user?.id
-          },
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', selectedCase.id);
-
-      if (error) throw error;
-
-
-      toast({
-        title: 'Agent assigné',
-        description: 'L\'agent a été assigné au cas avec succès'
-      });
-
-      setAssignDialogOpen(false);
-      setSelectedAgent('');
-      setSelectedCase(null);
-      await fetchData();
-    } catch (error) {
-      console.error('Erreur assignation:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible d\'assigner l\'agent',
-        variant: 'destructive'
-      });
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleViewDetails = (cas: Signalement) => {
-    setSelectedCase(cas);
-    setDetailsDialogOpen(true);
-  };
-
-  const handleOpenAssignDialog = (cas: Signalement) => {
-    setSelectedCase(cas);
-    setAssignDialogOpen(true);
-  };
-
-  const handleOpenRejectDialog = (cas: Signalement) => {
-    setSelectedCase(cas);
-    setRejectDialogOpen(true);
-  };
-
-  const getFilteredCases = () => {
-    return signalements.filter(cas => {
-      const matchesSearch = searchTerm === '' || 
-        cas.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cas.description.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesType = typeFilter === 'all' || cas.type === typeFilter;
-      const matchesStatus = statusFilter === 'all' || cas.status === statusFilter;
-      const matchesCategory = categoryFilter === 'all' || cas.corruption_category === categoryFilter;
-      const matchesPriority = priorityFilter === 'all' || 
-        (priorityFilter === 'critique' && (cas.ai_priority_score || 0) >= 80) ||
-        (priorityFilter === 'haute' && (cas.ai_priority_score || 0) >= 65 && (cas.ai_priority_score || 0) < 80) ||
-        (priorityFilter === 'moyenne' && (cas.ai_priority_score || 0) >= 45 && (cas.ai_priority_score || 0) < 65) ||
-        (priorityFilter === 'basse' && (cas.ai_priority_score || 0) < 45);
-
-      return matchesSearch && matchesType && matchesStatus && matchesCategory && matchesPriority;
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    
-    if (diffHours < 1) return 'Il y a moins d\'1h';
-    if (diffHours < 24) return `Il y a ${diffHours}h`;
-    if (diffHours < 48) return 'Hier';
-    return date.toLocaleDateString('fr-FR');
-  };
-
-  const getPriorityBadge = (score: number | null | undefined) => {
-    if (!score) return null;
-    if (score >= 80) return <Badge variant="destructive">Critique ({score})</Badge>;
-    if (score >= 65) return <Badge variant="default" className="bg-orange-500">Haute ({score})</Badge>;
-    if (score >= 45) return <Badge variant="default">Moyenne ({score})</Badge>;
-    return <Badge variant="secondary">Basse ({score})</Badge>;
-  };
-
-  const getCredibilityBadge = (score: number | null | undefined) => {
-    if (!score) return null;
-    if (score >= 70) return <Badge variant="default" className="bg-green-600">Crédible ({score})</Badge>;
-    if (score >= 50) return <Badge variant="outline">Modéré ({score})</Badge>;
-    return <Badge variant="secondary">Faible ({score})</Badge>;
-  };
-
-  if (isLoading || loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Chargement des données du Protocole d'État...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  if (!user) return null;
+  if (!user || role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">Accès refusé - Réservé au Protocole d'État</p>
+      </div>
+    );
+  }
 
-  const renderDashboard = () => (
-    <>
+  const renderDashboardGlobal = () => (
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border-2 border-primary">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <FileText className="h-4 w-4 text-primary" />
-              Signalements
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Signalements Nationaux
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCases.toLocaleString()}</div>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant="outline" className="text-xs">
-                <Clock className="h-3 w-3 mr-1" />
-                {stats.pendingCases} en attente
-              </Badge>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-3xl font-bold">{kpis?.total_signalements?.toLocaleString() || 0}</div>
+                <Badge variant="default" className="mt-2">{kpis?.tendance || '+0%'}</Badge>
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="destructive" className="text-xs">
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                {stats.highPriorityCases} prioritaires
-              </Badge>
+              <AlertTriangle className="h-10 w-10 text-orange-500 opacity-70" />
+            </div>
+            <div className="mt-3 text-sm text-muted-foreground">
+              {kpis?.signalements_critiques || 0} cas critiques nécessitent votre attention
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-2 border-green-500">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Brain className="h-4 w-4 text-purple-500" />
-              Scoring IA
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Impact Économique
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Priorité moyenne</span>
-                  <span className="font-bold">{stats.avgPriorityScore}/100</span>
+                <div className="text-3xl font-bold">
+                  {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
                 </div>
-                <Progress value={stats.avgPriorityScore} className="h-1" />
+                <div className="text-sm text-green-600 mt-2">FCFA récupérés</div>
               </div>
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Crédibilité moyenne</span>
-                  <span className="font-bold">{stats.avgCredibilityScore}/100</span>
+              <DollarSign className="h-10 w-10 text-green-500 opacity-70" />
                 </div>
-                <Progress value={stats.avgCredibilityScore} className="h-1" />
-              </div>
+            <div className="mt-3 text-sm text-muted-foreground">
+              Fonds détournés restitués à l'État
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-2 border-blue-500">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Taux de Résolution
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.monthlyResolution}%</div>
-            <Progress value={stats.monthlyResolution} className="mt-2 h-1" />
-            <p className="text-xs text-muted-foreground mt-1">
-              {stats.resolvedCases} cas résolus
-            </p>
+            <div className="flex items-center justify-between">
+              <div className="w-full">
+                <div className="text-3xl font-bold mb-2">{kpis?.taux_resolution || 0}%</div>
+                <Progress value={kpis?.taux_resolution || 0} className="h-2" />
+              </div>
+              <Target className="h-10 w-10 text-blue-500 opacity-70 ml-3" />
+            </div>
+            <div className="mt-3 text-sm text-muted-foreground">
+              Objectif Vision 2025: 85% de résolution
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-2 border-purple-500">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Users className="h-4 w-4 text-blue-500" />
-              Agents DGSS
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Score Transparence
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalAgents}</div>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant="default" className="text-xs">
-                {stats.activeAgents} actifs
-              </Badge>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-3xl font-bold">{kpis?.score_transparence || 0}/100</div>
+                <Badge variant="outline" className="mt-2">Deuxième République</Badge>
+              </div>
+              <Shield className="h-10 w-10 text-purple-500 opacity-70" />
+            </div>
+            <div className="mt-3 text-sm text-muted-foreground">
+              Indice de gouvernance nationale
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Package className="h-4 w-4 text-indigo-500" />
-              Projets Protégés
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Évolution de la Lutte Anticorruption
             </CardTitle>
+            <CardDescription>
+              Tendances nationales - Signalements vs Résolutions
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.protectedProjects}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Sur {stats.totalProjects} total
-            </p>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={evolutionMensuelle}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mois" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="signalements" 
+                  stroke="#2D5F1E" 
+                  name="Signalements"
+                  strokeWidth={2}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="resolutions" 
+                  stroke="#4A8B3A" 
+                  name="Cas résolus"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Radio className="h-4 w-4 text-red-500" />
-              Urgences XR-7
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Flag className="h-5 w-5" />
+              Vision Gabon 2025 - Piliers Stratégiques
             </CardTitle>
+            <CardDescription>
+              Performance par pilier de développement
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeEmergencies}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Activations actives
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Activity className="h-4 w-4 text-orange-500" />
-              Temps Moyen
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageTime}j</div>
-            <p className="text-xs text-muted-foreground mt-1">Par dossier</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
+            <div className="space-y-4">
+              {visionData.map((pilier, idx) => (
+                <div key={idx} className="space-y-2">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Cas Prioritaires (IA)</CardTitle>
-              <CardDescription>Signalements à forte priorité nécessitant votre attention</CardDescription>
+                    <span className="font-medium">{pilier.pilier}</span>
+                    <Badge variant={
+                      pilier.priorite === 'Critique' ? 'destructive' :
+                      pilier.priorite === 'Haute' ? 'default' :
+                      'secondary'
+                    }>
+                      {pilier.priorite}
+                    </Badge>
             </div>
-            <Badge variant="destructive">{stats.highPriorityCases} critiques</Badge>
+                  <div className="flex items-center gap-3">
+                    <Progress 
+                      value={(pilier.score / pilier.objectif) * 100} 
+                      className="h-2 flex-1"
+                    />
+                    <span className="text-sm font-medium min-w-[50px] text-right">
+                      {pilier.score}/{pilier.objectif}
+                    </span>
           </div>
-        </CardHeader>
-        <CardContent>
-          {signalements.filter(s => (s.ai_priority_score || 0) >= 75 && s.status === 'pending').length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <CheckCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Aucun cas prioritaire en attente</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {signalements
-                .filter(s => (s.ai_priority_score || 0) >= 75 && s.status === 'pending')
-                .slice(0, 5)
-                .map((cas) => (
-                  <div key={cas.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/30 transition-colors border-l-4 border-l-red-500">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="flex-1">
-                        <div className="font-medium">{cas.title}</div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap mt-1">
-                          <span>{cas.corruption_category || cas.type}</span>
-                          {cas.location && (
-                            <>
-                              <span>•</span>
-                              <MapPin className="h-3 w-3" />
-                              <span>{cas.location}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {getPriorityBadge(cas.ai_priority_score)}
-                        {getCredibilityBadge(cas.ai_credibility_score)}
-                        {cas.is_anonymous && (
-                          <Badge variant="outline">Anonyme</Badge>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(cas.created_at)}</span>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleViewDetails(cas)}
-                        disabled={actionLoading === cas.id}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Voir
-                      </Button>
-                      <Button 
-                        variant="default" 
-                        size="sm"
-                        onClick={() => handleValidateCase(cas.id)}
-                        disabled={actionLoading === cas.id}
-                      >
-                        {actionLoading === cas.id ? (
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                        ) : (
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                        )}
-                        Valider
-                      </Button>
+                  <div className="text-xs text-muted-foreground">
+                    Budget alloué: {pilier.budget}
                     </div>
                   </div>
                 ))}
             </div>
-          )}
         </CardContent>
       </Card>
+      </div>
 
-      <Alert>
-        <Shield className="h-4 w-4" />
-        <AlertTitle>Responsabilité Présidentielle</AlertTitle>
-        <AlertDescription>
-          En tant qu'administrateur du Protocole d'État, vous supervisez la lutte nationale contre la corruption.
-          Toutes vos actions sont enregistrées conformément aux protocoles de sécurité nationale.
+      <Alert className="border-orange-500 bg-orange-50/50 dark:bg-orange-950/20">
+        <AlertTriangle className="h-4 w-4 text-orange-600" />
+        <AlertTitle className="text-orange-900 dark:text-orange-100">
+          Attention Requise
+        </AlertTitle>
+        <AlertDescription className="text-orange-800 dark:text-orange-200">
+          {kpis?.signalements_critiques || 0} cas critiques nécessitent une validation 
+          présidentielle immédiate. Consulter l'onglet "Validation" pour prendre les décisions.
         </AlertDescription>
       </Alert>
-    </>
-  );
 
-  const renderValidationView = () => {
-    const filteredCases = getFilteredCases();
-
-    return (
-      <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Validation des Signalements</CardTitle>
-            <CardDescription>Examinez et approuvez les signalements avec assistance IA</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Distribution Régionale - Vue d'Ensemble
+          </CardTitle>
+          <CardDescription>
+            Performance de la lutte anticorruption par région
+          </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-              <Input 
-                placeholder="Rechercher..." 
-                className="w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Catégorie" />
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4 font-medium text-sm">Région</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Cas Signalés</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Cas Résolus</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Taux Résolution</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Priorité</th>
+                </tr>
+              </thead>
+              <tbody>
+                {distributionRegionale.map((region, idx) => (
+                  <tr key={idx} className="border-b hover:bg-muted/50 transition-colors">
+                    <td className="py-3 px-4 font-medium">{region.region}</td>
+                    <td className="py-3 px-4 text-center">{region.cas}</td>
+                    <td className="py-3 px-4 text-center">{region.resolus}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2 justify-center">
+                        <Progress value={region.taux} className="w-20 h-2" />
+                        <span className="text-sm min-w-[35px]">{region.taux}%</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Badge variant={
+                        region.priorite === 'Haute' ? 'destructive' :
+                        region.priorite === 'Moyenne' ? 'default' :
+                        'secondary'
+                      }>
+                        {region.priorite}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderValidation = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 className="text-2xl font-bold">Cas Sensibles - Validation Présidentielle</h3>
+          <p className="text-muted-foreground mt-1">
+            Dossiers critiques nécessitant votre décision stratégique
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Toutes régions" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toutes catégories</SelectItem>
-                  <SelectItem value="corruption_administrative">Corruption Administrative</SelectItem>
-                  <SelectItem value="corruption_economique">Corruption Économique</SelectItem>
-                  <SelectItem value="detournement_fonds">Détournement de Fonds</SelectItem>
-                  <SelectItem value="fraude">Fraude</SelectItem>
-                  <SelectItem value="abus_pouvoir">Abus de Pouvoir</SelectItem>
-                  <SelectItem value="nepotisme">Népotisme</SelectItem>
+              <SelectItem value="all">Toutes régions</SelectItem>
+              <SelectItem value="estuaire">Estuaire</SelectItem>
+              <SelectItem value="haut-ogooue">Haut-Ogooué</SelectItem>
+              <SelectItem value="ogooue-maritime">Ogooué-Maritime</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Priorité" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes priorités</SelectItem>
-                  <SelectItem value="critique">Critique (≥80)</SelectItem>
-                  <SelectItem value="haute">Haute (65-79)</SelectItem>
-                  <SelectItem value="moyenne">Moyenne (45-64)</SelectItem>
-                  <SelectItem value="basse">Basse (&lt;45)</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="in_progress">En cours</SelectItem>
-                  <SelectItem value="resolved">Résolus</SelectItem>
-                  <SelectItem value="rejected">Rejetés</SelectItem>
-                  <SelectItem value="all">Tous</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSearchTerm('');
-                  setCategoryFilter('all');
-                  setPriorityFilter('all');
-                  setStatusFilter('pending');
-                }}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Réinitialiser
-              </Button>
+        </div>
             </div>
 
-            {filteredCases.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Search className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Aucun cas trouvé</p>
+      {casSensibles.map((cas, idx) => (
+        <Card key={idx} className="border-2 border-orange-200 bg-orange-50/10 dark:bg-orange-950/10">
+          <CardHeader>
+            <div className="flex items-start justify-between flex-wrap gap-3">
+              <div className="space-y-1 flex-1 min-w-[200px]">
+                <CardTitle className="text-lg">{cas.title || cas.titre}</CardTitle>
+                <CardDescription>Référence: {cas.id} • {new Date(cas.created_at).toLocaleDateString('fr-FR')}</CardDescription>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredCases.map((cas) => (
-                  <Card key={cas.id} className={`border-l-4 ${
-                    (cas.ai_priority_score || 0) >= 80 ? 'border-l-red-500' :
-                    (cas.ai_priority_score || 0) >= 65 ? 'border-l-orange-500' :
-                    'border-l-primary'
-                  }`}>
-                    <CardContent className="pt-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="space-y-2 flex-1">
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <h3 className="font-semibold text-lg">{cas.title}</h3>
-                            {getPriorityBadge(cas.ai_priority_score)}
-                            {getCredibilityBadge(cas.ai_credibility_score)}
-                            <Badge variant="outline">{cas.corruption_category || cas.type}</Badge>
-                            {cas.is_anonymous && (
-                              <Badge variant="outline">Anonyme</Badge>
-                            )}
-                            {cas.attachments && Object.keys(cas.attachments).length > 0 && (
-                              <Badge variant="outline" className="bg-green-50">
-                                <FileText className="h-3 w-3 mr-1" />
-                                Preuves
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm line-clamp-2">{cas.description}</p>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                            {cas.location && (
-                              <span className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {cas.location}
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {formatDate(cas.created_at)}
-                            </span>
                             <Badge variant={
-                              cas.status === 'pending' ? 'secondary' :
-                              cas.status === 'in_progress' ? 'default' :
-                              cas.status === 'resolved' ? 'outline' :
-                              'destructive'
-                            }>
-                              {cas.status === 'pending' ? 'En attente' :
-                               cas.status === 'in_progress' ? 'En cours' :
-                               cas.status === 'resolved' ? 'Résolu' :
-                               'Rejeté'}
+                cas.priority === 'critique' || cas.urgence === 'Critique' ? 'destructive' :
+                cas.priority === 'haute' || cas.urgence === 'Haute' ? 'default' :
+                'secondary'
+              } className="text-sm">
+                {cas.urgence || cas.priority || 'Moyenne'}
                             </Badge>
                           </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+              <div>
+                <div className="text-muted-foreground mb-1">Montant impliqué</div>
+                <div className="font-bold text-red-600">{cas.montant || 'N/A'}</div>
                         </div>
-                        <div className="flex gap-2 ml-4 flex-wrap">
-                          {!cas.ai_priority_score && (
+              <div>
+                <div className="text-muted-foreground mb-1">Type</div>
+                <div className="font-semibold">{cas.type}</div>
+              </div>
+              <div>
+                <div className="text-muted-foreground mb-1">Statut</div>
+                <Badge variant="outline">{cas.status}</Badge>
+              </div>
+              <div>
+                <div className="text-muted-foreground mb-1">Localisation</div>
+                <div className="font-semibold text-xs">{cas.location}</div>
+              </div>
+            </div>
+
+            <Alert className="border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20">
+              <Brain className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-900 dark:text-blue-100">
+                <strong>Analyse IA:</strong> Score de priorité {cas.ai_priority_score || 0}%. 
+                {cas.ai_analysis_summary || 'Analyse en cours...'}
+              </AlertDescription>
+            </Alert>
+
+            <div className="flex gap-2 flex-wrap">
                             <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleAnalyzeWithAI(cas)}
-                              disabled={actionLoading === cas.id}
-                            >
-                              <Brain className="h-4 w-4 mr-1" />
-                              Analyser IA
+                variant="default"
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => handleValiderCas(cas.id, 'approuver')}
+                disabled={isLoading}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Approuver l'Action
                             </Button>
-                          )}
                           <Button 
                             variant="outline" 
-                            size="sm"
-                            onClick={() => handleViewDetails(cas)}
-                            disabled={actionLoading === cas.id}
+                onClick={() => handleValiderCas(cas.id, 'enquete')}
+                disabled={isLoading}
                           >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Détails
+                <Eye className="h-4 w-4 mr-2" />
+                Enquête Approfondie
                           </Button>
-                          {cas.status === 'pending' && (
-                            <>
                               <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleOpenAssignDialog(cas)}
-                                disabled={actionLoading === cas.id}
-                              >
-                                <UserCheck className="h-4 w-4 mr-1" />
-                                Assigner
+                variant="destructive"
+                onClick={() => handleValiderCas(cas.id, 'rejeter')}
+                disabled={isLoading}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Rejeter le Dossier
                               </Button>
                               <Button 
-                                variant="default" 
-                                size="sm"
-                                onClick={() => handleValidateCase(cas.id)}
-                                disabled={actionLoading === cas.id}
-                              >
-                                {actionLoading === cas.id ? (
-                                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                ) : (
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                )}
-                                Valider
+                variant="ghost"
+                onClick={() => handleGenererRapport('executif')}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Rapport Détaillé
                               </Button>
-                              <Button 
-                                variant="destructive" 
-                                size="sm"
-                                onClick={() => handleOpenRejectDialog(cas)}
-                                disabled={actionLoading === cas.id}
-                              >
-                                <UserX className="h-4 w-4 mr-1" />
-                                Rejeter
-                              </Button>
-                            </>
-                          )}
-                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-            )}
+
+      {casSensibles.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-12">
+            <CheckCircle className="h-16 w-16 mx-auto mb-4 text-green-500 opacity-50" />
+            <h3 className="text-lg font-semibold mb-2">Aucun cas sensible en attente</h3>
+            <p className="text-muted-foreground">
+              Tous les dossiers critiques ont été traités. Continuez la supervision via le dashboard.
+            </p>
           </CardContent>
         </Card>
+      )}
       </div>
     );
-  };
 
-  const renderAgentsView = () => {
-    const getAgentCaseCount = (agentId: string) => {
-      return signalements.filter(s => 
-        s.metadata && typeof s.metadata === 'object' && 
-        'assigned_to' in s.metadata && s.metadata.assigned_to === agentId
-      ).length;
-    };
-
-    return (
+  const renderSuiviEnquetes = () => (
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Gestion des Agents DGSS</h2>
-          <Button onClick={() => {
-            toast({
-              title: 'Fonctionnalité en développement',
-              description: 'L\'ajout d\'agents sera disponible prochainement'
-            });
-          }}>
-            <UserPlus className="h-4 w-4 mr-2" />
-            Nouvel Agent
-          </Button>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 className="text-2xl font-bold">Suivi des Enquêtes Nationales</h3>
+          <p className="text-muted-foreground mt-1">
+            État d'avancement des investigations en cours
+          </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Total Agents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{agents.length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Actifs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-500">{agents.length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Cas Assignés</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-500">
-                {signalements.filter(s => s.metadata && 'assigned_to' in s.metadata).length}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Disponibles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-500">{agents.length}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Liste des Agents</CardTitle>
-            <CardDescription>Tous les agents sous votre supervision</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {agents.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Aucun agent enregistré</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Agent</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Organisation</TableHead>
-                    <TableHead>Cas Assignés</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {agents.map((agent) => (
-                    <TableRow key={agent.id}>
-                      <TableCell>
-                        <div className="font-medium">{agent.full_name || 'Agent'}</div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">{agent.email}</span>
-                      </TableCell>
-                      <TableCell>{agent.organization || 'DGSS'}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{getAgentCaseCount(agent.id)}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="default">Actif</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => {
-                              toast({
-                                title: 'Détails de l\'agent',
-                                description: `Agent: ${agent.full_name || 'Agent'}`
-                              });
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => {
-                              toast({
-                                title: 'Fonctionnalité en développement',
-                                description: 'La configuration sera disponible prochainement'
-                              });
-                            }}
-                          >
-                            <Settings className="h-4 w-4" />
+        <Button variant="outline" onClick={reloadData} disabled={isLoading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          Actualiser
                           </Button>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
 
-  const renderProjetsView = () => {
-    return (
       <Card>
         <CardHeader>
-          <CardTitle>Projets Protégés</CardTitle>
-          <CardDescription>Supervision des projets protégés par blockchain</CardDescription>
+          <CardTitle>Performance par Ministère</CardTitle>
+          <CardDescription>
+            Répartition des signalements et efficacité du traitement
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {projets.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Aucun projet protégé</p>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4 font-medium text-sm">Ministère/Secteur</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Signalements</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Cas Critiques</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Taux Résolution</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Responsable</th>
+                  <th className="text-center py-3 px-4 font-medium text-sm">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {performanceMinisteres.map((item, idx) => (
+                  <tr key={idx} className="border-b hover:bg-muted/50 transition-colors">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2 font-medium">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        {item.ministere}
             </div>
-          ) : (
-            <div className="space-y-4">
-              {projets.map((projet) => (
-                <Card key={projet.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-semibold">{projet.title}</h3>
-                          <Badge>{projet.category}</Badge>
-                          <Badge variant={projet.status === 'protected' ? 'default' : 'secondary'}>
-                            {projet.status === 'protected' ? 'Protégé' : 'En attente'}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Badge variant="outline">{item.signalements}</Badge>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Badge variant={item.critiques > 20 ? 'destructive' : 'default'}>
+                        {item.critiques}
                           </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2 justify-center">
+                        <Progress value={item.taux} className="w-20 h-2" />
+                        <span className="text-sm font-medium min-w-[35px]">{item.taux}%</span>
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{projet.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          {projet.protection_number && (
-                            <span>N° {projet.protection_number}</span>
-                          )}
-                          <span>{formatDate(projet.created_at)}</span>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" />
-                        Voir
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Badge variant="secondary">{item.responsable}</Badge>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Button variant="ghost" size="sm">
+                        <Eye className="h-4 w-4" />
                       </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </td>
+                  </tr>
               ))}
+              </tbody>
+            </table>
             </div>
-          )}
         </CardContent>
       </Card>
-    );
-  };
 
-  const renderEmergencyView = () => {
-    return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-red-500" />
-            Module d'Urgence XR-7
+            <DollarSign className="h-5 w-5" />
+            Impact Économique de la Lutte Anticorruption
           </CardTitle>
-          <CardDescription>Activations d'urgence et protocoles judiciaires</CardDescription>
+          <CardDescription>
+            Fonds détournés récupérés et réaffectés au budget de l'État
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert className="mb-6">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Accès Restreint</AlertTitle>
-            <AlertDescription>
-              Le module XR-7 nécessite une autorisation judiciaire préalable. 
-              Toutes les activations sont enregistrées et auditées.
-            </AlertDescription>
-          </Alert>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Activations Actives</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-red-500">{stats.activeEmergencies}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Total Activations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{emergencyActivations.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Taux de Succès</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">95%</div>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={evolutionMensuelle}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="mois" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar 
+                dataKey="budget" 
+                fill="#2D5F1E" 
+                name="Fonds récupérés (M FCFA)"
+              />
+            </BarChart>
+          </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
+  );
 
-          {emergencyActivations.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Radio className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Aucune activation d'urgence</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {emergencyActivations.map((activation) => (
-                <Card key={activation.id} className={`border-l-4 ${
-                  activation.status === 'active' ? 'border-l-red-500' : 'border-l-gray-400'
-                }`}>
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-semibold">{activation.reason}</h3>
-                          <Badge variant={activation.status === 'active' ? 'destructive' : 'secondary'}>
-                            {activation.status === 'active' ? 'Active' : 'Terminée'}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>Durée: {activation.duration_hours}h</span>
-                          <span>Autorisation: {activation.judicial_authorization}</span>
-                          <span>{formatDate(activation.created_at)}</span>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" />
-                        Détails
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const renderReportsView = () => {
-    const handleGenerateReport = (type: string) => {
-      toast({
-        title: 'Génération du rapport',
-        description: `Le rapport ${type} sera disponible dans quelques instants`
-      });
-    };
-
-    const regionStats = signalements.reduce((acc, sig) => {
-      const region = sig.location || 'Non spécifié';
-      if (!acc[region]) {
-        acc[region] = { total: 0, resolved: 0, avgPriority: 0, prioritySum: 0, count: 0 };
-      }
-      acc[region].total++;
-      if (sig.status === 'resolved') {
-        acc[region].resolved++;
-      }
-      if (sig.ai_priority_score) {
-        acc[region].prioritySum += sig.ai_priority_score;
-        acc[region].count++;
-      }
-      return acc;
-    }, {} as Record<string, { total: number; resolved: number; avgPriority: number; prioritySum: number; count: number }>);
-
-    const regionData = Object.entries(regionStats).map(([region, data]) => ({
-      region,
-      signaled: data.total,
-      resolved: data.resolved,
-      rate: data.total > 0 ? ((data.resolved / data.total) * 100).toFixed(1) : 0,
-      avgPriority: data.count > 0 ? Math.round(data.prioritySum / data.count) : 0
-    }));
-
-    return (
+  const renderGestionSousAdmins = () => (
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Rapports Stratégiques</CardTitle>
-            <CardDescription>Analyses pour la vision politique 2025</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Efficacité Globale</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-green-500">{stats.monthlyResolution}%</div>
-                  <Progress value={stats.monthlyResolution} className="mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Objectif: assainissement budgétaire
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Impact Économique</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">{stats.resolvedCases}</div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Cas résolus contribuant à la souveraineté économique
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Innovation Protégée</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-blue-500">{stats.protectedProjects}</div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Projets soutenant la diversification
-                  </p>
-                </CardContent>
-              </Card>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 className="text-2xl font-bold">Gestion des Sous-Administrateurs</h3>
+          <p className="text-muted-foreground mt-1">
+            Supervision des directeurs sectoriels et performance
+          </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Button 
-                variant="outline" 
-                className="h-24 flex-col gap-2"
-                onClick={() => handleGenerateReport('mensuel')}
-              >
-                <FileText className="h-6 w-6" />
-                <span>Rapport Mensuel</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-24 flex-col gap-2"
-                onClick={() => handleGenerateReport('tendances')}
-              >
-                <TrendingUp className="h-6 w-6" />
-                <span>Analyse Tendances</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-24 flex-col gap-2"
-                onClick={() => handleGenerateReport('statistiques')}
-              >
-                <BarChart3 className="h-6 w-6" />
-                <span>Statistiques</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-24 flex-col gap-2"
-                onClick={() => handleGenerateReport('juridique')}
-              >
-                <Scale className="h-6 w-6" />
-                <span>Rapport Juridique</span>
+        <Button variant="default">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Nommer Sous-Admin
               </Button>
             </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {sousAdmins.map((admin, idx) => (
+          <Card key={idx} className={
+            admin.statut === 'Attention' ? 'border-orange-200 bg-orange-50/10 dark:bg-orange-950/10' : ''
+          }>
+            <CardHeader>
+              <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold mb-3">Performance par Région</h3>
-              {regionData.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MapPin className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>Aucune donnée régionale disponible</p>
+                  <CardTitle className="text-lg">{admin.nom}</CardTitle>
+                  <CardDescription>{admin.secteur}</CardDescription>
                 </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Région</TableHead>
-                      <TableHead>Cas Signalés</TableHead>
-                      <TableHead>Cas Résolus</TableHead>
-                      <TableHead>Taux de Résolution</TableHead>
-                      <TableHead>Priorité Moyenne</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {regionData.map((data, i) => (
-                      <TableRow key={i}>
-                        <TableCell className="font-medium">{data.region}</TableCell>
-                        <TableCell>{data.signaled}</TableCell>
-                        <TableCell>{data.resolved}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={Number(data.rate)} className="w-20 h-2" />
-                            <span>{data.rate}%</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {data.avgPriority > 0 ? (
-                            <Badge variant={data.avgPriority >= 75 ? 'destructive' : 'default'}>
-                              {data.avgPriority}
+                <Badge variant={
+                  admin.statut === 'Actif' ? 'default' : 'destructive'
+                }>
+                  {admin.statut}
                             </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">N/A</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
-
-  const renderSettingsView = () => {
-    const handleSettingClick = (setting: string) => {
-      toast({
-        title: 'Paramètre',
-        description: `Configuration de ${setting} disponible prochainement`
-      });
-    };
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Paramètres Présidentiels</CardTitle>
-          <CardDescription>Configuration et préférences du système</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/30 transition-colors">
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <h3 className="font-medium">Notifications</h3>
-                <p className="text-sm text-muted-foreground">Recevoir les alertes pour les cas critiques</p>
+                  <div className="text-muted-foreground mb-1">Cas traités</div>
+                  <div className="text-2xl font-bold">{admin.casTraites}</div>
               </div>
+                <div>
+                  <div className="text-muted-foreground mb-1">Taux succès</div>
+                  <div className="text-2xl font-bold text-green-600">{admin.taux}%</div>
+            </div>
+              <div>
+                  <div className="text-muted-foreground mb-1">Délai moyen</div>
+                  <div className="text-2xl font-bold text-blue-600">{admin.delai}</div>
+              </div>
+              </div>
+
+              <Progress value={admin.taux} className="h-2" />
+
+              {admin.statut === 'Attention' && (
+                <Alert className="border-orange-500/50 bg-orange-50/50 dark:bg-orange-950/20">
+                  <AlertTriangle className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-orange-900 dark:text-orange-100">
+                    Performance en baisse. Délai de traitement supérieur à la norme nationale.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Voir Détails
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Rapport
+              </Button>
+            </div>
+            </CardContent>
+          </Card>
+        ))}
+              </div>
+
+      <Alert className="border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20">
+        <Users className="h-4 w-4 text-blue-600" />
+        <AlertTitle className="text-blue-900 dark:text-blue-100">
+          Coordination Nationale
+        </AlertTitle>
+        <AlertDescription className="text-blue-800 dark:text-blue-200">
+          {sousAdmins.length} Sous-Administrateurs actifs coordonnent les agents 
+          opérationnels sur l'ensemble du territoire national. 
+          Performance globale: {Math.round(sousAdmins.reduce((acc, a) => acc + a.taux, 0) / sousAdmins.length)}%
+        </AlertDescription>
+      </Alert>
+            </div>
+  );
+
+  const renderRapportsStrategiques = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+          <h3 className="text-2xl font-bold">Rapports Stratégiques</h3>
+          <p className="text-muted-foreground mt-1">
+            Analytics avancés et indicateurs Vision Gabon 2025
+          </p>
+              </div>
+        <div className="flex gap-2">
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7days">7 derniers jours</SelectItem>
+              <SelectItem value="30days">30 derniers jours</SelectItem>
+              <SelectItem value="3months">3 derniers mois</SelectItem>
+              <SelectItem value="1year">Dernière année</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Exporter
+              </Button>
+            </div>
+              </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { type: 'executif', titre: 'Rapport Exécutif', icon: Crown, desc: 'Synthèse présidentielle', color: 'border-purple-200 hover:border-purple-400' },
+          { type: 'hebdomadaire', titre: 'Rapport Hebdo', icon: Calendar, desc: 'Évolution 7 jours', color: 'border-blue-200 hover:border-blue-400' },
+          { type: 'mensuel', titre: 'Rapport Mensuel', icon: BarChart3, desc: 'Performance mensuelle', color: 'border-green-200 hover:border-green-400' },
+          { type: 'annuel', titre: 'Rapport Annuel', icon: TrendingUp, desc: 'Vision 2025', color: 'border-orange-200 hover:border-orange-400' }
+        ].map((rapport, idx) => (
+          <Card key={idx} className={`${rapport.color} cursor-pointer transition-all`}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <rapport.icon className="h-5 w-5" />
+                {rapport.titre}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">{rapport.desc}</p>
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => handleSettingClick('notifications')}
+                className="w-full"
+                onClick={() => handleGenererRapport(rapport.type as any)}
               >
-                Configurer
+                <Download className="h-4 w-4 mr-2" />
+                Générer PDF
               </Button>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/30 transition-colors">
-              <div>
-                <h3 className="font-medium">Seuils d'Alerte IA</h3>
-                <p className="text-sm text-muted-foreground">Définir les scores de priorité automatiques</p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleSettingClick('seuils IA')}
-              >
-                Modifier
-              </Button>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/30 transition-colors">
-              <div>
-                <h3 className="font-medium">Délégation</h3>
-                <p className="text-sm text-muted-foreground">Gérer les permissions des agents</p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleSettingClick('délégation')}
-              >
-                Gérer
-              </Button>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/30 transition-colors">
-              <div>
-                <h3 className="font-medium">Templates de Rapports</h3>
-                <p className="text-sm text-muted-foreground">Modèles personnalisés pour le Président</p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleSettingClick('templates')}
-              >
-                Voir
-              </Button>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/30 transition-colors">
-              <div>
-                <h3 className="font-medium">Actualiser les données</h3>
-                <p className="text-sm text-muted-foreground">Rafraîchir toutes les statistiques et analyses IA</p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  fetchData();
-                  toast({
-                    title: 'Actualisation',
-                    description: 'Les données sont en cours d\'actualisation'
-                  });
-                }}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Actualisation...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Actualiser
-                  </>
-                )}
-              </Button>
-            </div>
+            </CardContent>
+          </Card>
+        ))}
           </div>
 
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertTitle>Sécurité Nationale</AlertTitle>
-            <AlertDescription>
-              Toutes les modifications des paramètres présidentiels sont journalisées, auditées 
-              et tracées conformément aux protocoles de sécurité de la République du Gabon.
+      <Alert className="border-green-500 bg-green-50/50 dark:bg-green-950/20">
+        <Target className="h-4 w-4 text-green-600" />
+        <AlertTitle className="text-green-900 dark:text-green-100">
+          Vision Gabon Émergent 2025
+        </AlertTitle>
+        <AlertDescription className="text-green-800 dark:text-green-200">
+          La lutte anticorruption contribue directement aux objectifs de la Deuxième République. 
+          Impact mesuré: réduction de 34% des cas de corruption vs 2023, récupération de {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)} milliards FCFA, 
+          amélioration de 18 points du score de transparence nationale.
             </AlertDescription>
           </Alert>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const getDashboardUrl = (userRole: string | null) => {
-    switch (userRole) {
-      case 'super_admin': return '/dashboard/super-admin';
-      case 'admin': return '/dashboard/admin';
-      case 'agent': return '/dashboard/agent';
-      default: return '/dashboard';
-    }
-  };
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container py-8">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
+      
+      <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10">
+        <div className="container py-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                <Crown className="h-7 w-7 text-primary" />
+              </div>
             <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <Crown className="h-8 w-8 text-yellow-500" />
+                <h1 className="text-2xl font-bold flex items-center gap-2 flex-wrap">
                 Protocole d'État
+                  <Badge variant="default" className="ml-2">
+                    <Shield className="h-3 w-3 mr-1" />
+                    Admin
+                  </Badge>
               </h1>
-              <p className="text-muted-foreground mt-2">
-                Tableau de bord présidentiel - Supervision nationale et intelligence artificielle
+                <p className="text-muted-foreground text-sm">
+                  Interface de Commandement - Supervision Stratégique Nationale
               </p>
             </div>
-            <Badge variant="default" className="text-lg px-4 py-2">
-              <Crown className="h-5 w-5 mr-2" />
-              Administrateur
-            </Badge>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Gabon - Deuxième République</div>
+                <div className="text-xs font-medium">Vision 2025 • Restauration des Institutions</div>
+              </div>
+            </div>
+          </div>
+        </div>
           </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <Tabs value={activeView} onValueChange={setActiveView}>
-                <TabsList className="grid w-full grid-cols-7">
-                  <TabsTrigger value="dashboard" className="flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Dashboard</span>
+      <div className="border-b">
+        <div className="container">
+          <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
+            <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-0 flex-wrap">
+              <TabsTrigger 
+                value="dashboard" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Dashboard Global</span>
+                <span className="sm:hidden">Dashboard</span>
                   </TabsTrigger>
-                  <TabsTrigger value="validation" className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4" />
-                    <span className="hidden sm:inline">Validation</span>
+              <TabsTrigger 
+                value="validation"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Validation
                   </TabsTrigger>
-                  <TabsTrigger value="agents" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Agents</span>
+              <TabsTrigger 
+                value="enquetes"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Suivi Enquêtes</span>
+                <span className="sm:hidden">Enquêtes</span>
                   </TabsTrigger>
-                  <TabsTrigger value="projets" className="flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    <span className="hidden sm:inline">Projets</span>
+              <TabsTrigger 
+                value="sousadmins"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Sous-Admins</span>
+                <span className="sm:hidden">Admins</span>
                   </TabsTrigger>
-                  <TabsTrigger value="emergency" className="flex items-center gap-2">
-                    <Radio className="h-4 w-4" />
-                    <span className="hidden sm:inline">XR-7</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="reports" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    <span className="hidden sm:inline">Rapports</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="settings" className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
-                    <span className="hidden sm:inline">Paramètres</span>
+              <TabsTrigger 
+                value="rapports"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Rapports
                   </TabsTrigger>
                 </TabsList>
-
-                <TabsContent value="dashboard" className="mt-6">
-                  <div className="space-y-6">
-                    {renderDashboard()}
-                  </div>
-                </TabsContent>
-                <TabsContent value="validation" className="mt-6">
-                  {renderValidationView()}
-                </TabsContent>
-                <TabsContent value="agents" className="mt-6">
-                  {renderAgentsView()}
-                </TabsContent>
-                <TabsContent value="projets" className="mt-6">
-                  {renderProjetsView()}
-                </TabsContent>
-                <TabsContent value="emergency" className="mt-6">
-                  {renderEmergencyView()}
-                </TabsContent>
-                <TabsContent value="reports" className="mt-6">
-                  {renderReportsView()}
-                </TabsContent>
-                <TabsContent value="settings" className="mt-6">
-                  {renderSettingsView()}
-                </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
         </div>
+      </div>
+
+      <main className="container py-8 flex-1">
+        {activeView === 'dashboard' && renderDashboardGlobal()}
+        {activeView === 'validation' && renderValidation()}
+        {activeView === 'enquetes' && renderSuiviEnquetes()}
+        {activeView === 'sousadmins' && renderGestionSousAdmins()}
+        {activeView === 'rapports' && renderRapportsStrategiques()}
       </main>
+
+      <div className="border-t mt-12">
+        <div className="container py-6">
+          <div className="flex items-center justify-between text-sm text-muted-foreground flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              <span>Plateforme NDJOBI - Système National de Lutte Anticorruption</span>
+              </div>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-green-500" />
+                Système Opérationnel
+              </span>
+              </div>
+                </div>
+                </div>
+                </div>
+      
       <Footer />
-
-      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Détails du Signalement</DialogTitle>
-            <DialogDescription>Informations complètes avec analyse IA</DialogDescription>
-          </DialogHeader>
-          {selectedCase && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Titre</h3>
-                <p>{selectedCase.title}</p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-sm text-muted-foreground">{selectedCase.description}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Type / Catégorie</h3>
-                  <Badge>{selectedCase.corruption_category || selectedCase.type}</Badge>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Priorité IA</h3>
-                  {getPriorityBadge(selectedCase.ai_priority_score)}
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Crédibilité IA</h3>
-                  {getCredibilityBadge(selectedCase.ai_credibility_score)}
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Statut</h3>
-                  <Badge variant="outline">{selectedCase.status}</Badge>
-                </div>
-              </div>
-              {selectedCase.location && (
-                <div>
-                  <h3 className="font-semibold mb-2">Localisation</h3>
-                  <p className="text-sm flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {selectedCase.location}
-                  </p>
-                </div>
-              )}
-              {selectedCase.ai_analysis && (
-                <div>
-                  <h3 className="font-semibold mb-2">Analyse IA</h3>
-                  <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
-                    <p><strong>Résumé:</strong> {selectedCase.ai_analysis.summary}</p>
-                    {selectedCase.ai_analysis.keyFactors && selectedCase.ai_analysis.keyFactors.length > 0 && (
-                      <div>
-                        <strong>Facteurs clés:</strong>
-                        <ul className="list-disc list-inside mt-1">
-                          {selectedCase.ai_analysis.keyFactors.map((factor: string, i: number) => (
-                            <li key={i}>{factor}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {selectedCase.ai_analysis.suggestedActions && selectedCase.ai_analysis.suggestedActions.length > 0 && (
-                      <div>
-                        <strong>Actions suggérées:</strong>
-                        <ul className="list-disc list-inside mt-1">
-                          {selectedCase.ai_analysis.suggestedActions.map((action: string, i: number) => (
-                            <li key={i}>{action}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              {selectedCase.is_anonymous && (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Signalement Anonyme</AlertTitle>
-                  <AlertDescription>
-                    Ce signalement a été soumis de manière anonyme. L'identité du signalant est protégée.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDetailsDialogOpen(false)}>
-              Fermer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={scoringDialogOpen} onOpenChange={setScoringDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Résultats de l'Analyse IA</DialogTitle>
-            <DialogDescription>Scoring et recommandations pour le signalement</DialogDescription>
-          </DialogHeader>
-          {currentScoring && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Score de Priorité</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold">{currentScoring.priorityScore}/100</div>
-                    <Progress value={currentScoring.priorityScore} className="mt-2" />
-                    <Badge className="mt-2" variant={
-                      currentScoring.urgency === 'critique' ? 'destructive' : 'default'
-                    }>
-                      {currentScoring.urgency}
-                    </Badge>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Score de Crédibilité</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold">{currentScoring.credibilityScore}/100</div>
-                    <Progress value={currentScoring.credibilityScore} className="mt-2" />
-                  </CardContent>
-                </Card>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Catégorie Détectée</h3>
-                <Badge>{currentScoring.corruptionType}</Badge>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Impact Estimé</h3>
-                <p className="text-sm">{currentScoring.estimatedImpact}</p>
-              </div>
-              {currentScoring.recommendations.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-2">Recommandations</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {currentScoring.recommendations.map((rec, i) => (
-                      <li key={i} className="text-sm">{rec}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <div>
-                <h3 className="font-semibold mb-2">Analyse Détaillée</h3>
-                <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
-                  <p><strong>Résumé:</strong> {currentScoring.aiAnalysis.summary}</p>
-                  {currentScoring.aiAnalysis.keyFactors.length > 0 && (
-                    <div>
-                      <strong>Facteurs clés:</strong>
-                      <ul className="list-disc list-inside mt-1">
-                        {currentScoring.aiAnalysis.keyFactors.map((factor, i) => (
-                          <li key={i}>{factor}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setScoringDialogOpen(false)}>
-              Fermer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Assigner un Agent DGSS</DialogTitle>
-            <DialogDescription>Sélectionnez un agent pour traiter ce cas</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choisir un agent" />
-              </SelectTrigger>
-              <SelectContent>
-                {agents.map((agent) => (
-                  <SelectItem key={agent.id} value={agent.id}>
-                    {agent.full_name || agent.email} - {agent.organization || 'DGSS'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setAssignDialogOpen(false);
-              setSelectedAgent('');
-            }}>
-              Annuler
-            </Button>
-            <Button 
-              onClick={handleAssignCase}
-              disabled={!selectedAgent || actionLoading === selectedCase?.id}
-            >
-              {actionLoading === selectedCase?.id ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Assignation...
-                </>
-              ) : (
-                <>
-                  <UserCheck className="h-4 w-4 mr-2" />
-                  Assigner
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Rejeter le Signalement</DialogTitle>
-            <DialogDescription>Veuillez fournir une raison détaillée pour le rejet</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="Raison du rejet..."
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              rows={4}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setRejectDialogOpen(false);
-              setRejectReason('');
-            }}>
-              Annuler
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={handleRejectCase}
-              disabled={!rejectReason.trim() || actionLoading === selectedCase?.id}
-            >
-              {actionLoading === selectedCase?.id ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Rejet...
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Rejeter
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
-};
-
-export default AdminDashboard;
+}

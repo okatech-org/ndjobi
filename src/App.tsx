@@ -95,12 +95,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (hasLocalSession) {
-    const effRole = (role as string) || (localDemoRole as string);
+    const effRole = (localDemoRole as string) || (role as string);
     console.log('✅ Session locale détectée, rôle:', effRole, ', accès autorisé');
   }
 
   // Redirection automatique vers le dashboard approprié si on est sur une page générique
-  const effectiveRole = (role as string) || (localDemoRole as string) || null;
+  const effectiveRole = (localDemoRole as string) || (role as string) || null;
   if (effectiveRole && location.pathname === '/') {
     const dashboardUrl = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
                         effectiveRole === 'admin' ? '/dashboard/admin' :

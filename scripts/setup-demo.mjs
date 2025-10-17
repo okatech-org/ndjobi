@@ -14,10 +14,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Comptes démo
 const demoAccounts = [
-  { email: '24177777001@ndjobi.ga', password: '123456', role: 'user', name: 'Citoyen' },
-  { email: '24177777002@ndjobi.ga', password: '123456', role: 'agent', name: 'Agent DGSS' },
-  { email: '24177777003@ndjobi.ga', password: '123456', role: 'admin', name: 'Protocole État' },
-  { email: '24177777000@ndjobi.ga', password: '123456', role: 'super_admin', name: 'Super Admin' }
+  { email: '24177777003@ndjobi.ga', password: '123456', role: 'admin', name: 'Protocole État' }
 ];
 
 async function createAccount(account) {
@@ -63,10 +60,7 @@ async function main() {
 
   console.log('\n✅ Terminé !');
   console.log('\n📋 Pour se connecter :');
-  console.log('Super Admin : 77777000 + PIN: 123456');
   console.log('Admin       : 77777003 + PIN: 123456');
-  console.log('Agent       : 77777002 + PIN: 123456');
-  console.log('Citoyen     : 77777001 + PIN: 123456');
 }
 
 main().catch(console.error);

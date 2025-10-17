@@ -23,32 +23,11 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
 // Comptes démo à créer
 const demoAccounts = [
   {
-    email: '24177777001@ndjobi.ga',
-    password: '123456',
-    role: 'user',
-    name: 'Citoyen',
-    phone: '+24177777001'
-  },
-  {
-    email: '24177777002@ndjobi.ga',
-    password: '123456',
-    role: 'agent',
-    name: 'Agent DGSS',
-    phone: '+24177777002'
-  },
-  {
     email: '24177777003@ndjobi.ga',
     password: '123456',
     role: 'admin',
     name: 'Protocole État',
     phone: '+24177777003'
-  },
-  {
-    email: '24177777000@ndjobi.ga',
-    password: '123456',
-    role: 'super_admin',
-    name: 'Super Admin',
-    phone: '+24177777000'
   }
 ];
 

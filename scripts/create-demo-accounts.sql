@@ -36,10 +36,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Créer les comptes démo
-SELECT create_demo_account('24177777001@ndjobi.ga', '123456', 'user', 'Citoyen');
-SELECT create_demo_account('24177777002@ndjobi.ga', '123456', 'agent', 'Agent DGSS');
 SELECT create_demo_account('24177777003@ndjobi.ga', '123456', 'admin', 'Protocole État');
-SELECT create_demo_account('24177777000@ndjobi.ga', '123456', 'super_admin', 'Super Admin');
 
 -- Afficher les comptes créés
 SELECT 

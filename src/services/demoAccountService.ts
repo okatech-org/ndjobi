@@ -25,14 +25,6 @@ class DemoAccountService {
   // Comptes démo disponibles
   public readonly DEMO_ACCOUNTS: DemoAccountData[] = [
     {
-      email: '24177777001@ndjobi.com',
-      password: '123456',
-      role: 'user',
-      label: 'Citoyen',
-      fullName: 'Citoyen Démo',
-      phone: '+24177777001'
-    },
-    {
       email: '24177777002@ndjobi.com',
       password: '123456',
       role: 'agent',
@@ -105,6 +97,50 @@ class DemoAccountService {
       return true;
     } catch (error) {
       console.error('Erreur création session locale:', error);
+      return false;
+    }
+  }
+
+  // Créer une session locale pour un compte arbitraire avec rôle explicite
+  public createLocalSessionFor(params: { email: string; role: UserRole; fullName?: string; phone?: string }): boolean {
+    try {
+      const { email, role, fullName, phone } = params;
+
+      const mockUser = {
+        id: `local-${role}`,
+        email,
+        user_metadata: {
+          full_name: fullName || `Démo ${role}`,
+          phone: phone || '',
+          role
+        },
+        created_at: new Date().toISOString(),
+        aud: 'authenticated',
+        role: 'authenticated',
+        app_metadata: {},
+        confirmed_at: new Date().toISOString()
+      } as User;
+
+      const mockProfile: UserProfile = {
+        id: `local-${role}`,
+        email,
+        full_name: fullName || `Démo ${role}`,
+        created_at: new Date().toISOString()
+      };
+
+      const sessionData: LocalDemoSession = {
+        user: mockUser,
+        profile: mockProfile,
+        role,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + this.SESSION_DURATION
+      };
+
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(sessionData));
+      console.log(`✅ Session locale créée pour ${email} avec rôle ${role}`);
+      return true;
+    } catch (error) {
+      console.error('Erreur création session locale (générique):', error);
       return false;
     }
   }

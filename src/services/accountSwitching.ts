@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { userPersistence } from './userPersistence';
 import { demoAccountService } from './demoAccountService';
-import { resetGlobalAuthState } from '@/hooks/useAuth';
+// import supprimé: ne pas réinitialiser l'état global ici pour préserver la session démo
 
 export interface DemoAccount {
   id: string;
@@ -84,7 +84,7 @@ class AccountSwitchingService {
     console.log('🚀 [Quick Fix] Basculement démo simplifié vers:', demoAccount.role);
     try {
       // Normaliser l'email (remplacer .temp par .com)
-      const rawEmail = demoAccount.email || '24177777001@ndjobi.com';
+      const rawEmail = demoAccount.email || '';
       const email = rawEmail.replace('@ndjobi.temp', '@ndjobi.com');
       
       console.log('📧 Email normalisé:', email);
@@ -102,7 +102,7 @@ class AccountSwitchingService {
       if (!localStorage.getItem(this.STORAGE_KEY)) {
         const placeholderOriginal: OriginalAccount = {
           userId: 'local-super-admin',
-          email: '24177777000@ndjobi.com',
+          email: '',
           role: 'super_admin',
         };
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(placeholderOriginal));
@@ -113,9 +113,8 @@ class AccountSwitchingService {
       window.dispatchEvent(new Event('ndjobi:demo:session:changed'));
       console.log('📢 Événement session démo dispatché');
 
-      // Réinitialiser l'état global de useAuth pour forcer le rechargement
-      console.log('🔄 Réinitialisation état global useAuth...');
-      resetGlobalAuthState();
+      // Ne PAS réinitialiser l'état global ici: cela effaçait la session démo
+      // ProtectedRoute écoute l'événement custom ci-dessus pour revalider l'accès
 
       console.log('✅ Basculement local réussi vers:', demoAccount.role);
       return { success: true };

@@ -54,7 +54,8 @@ class UserManagementService {
           avatar_url: profile.avatar_url || undefined,
           organization: profile.organization || undefined,
           role: userRole?.role || 'user',
-          status: 'active', // Par défaut actif
+          // Statut persistant: on réutilise profiles.role = 'suspended' comme drapeau de suspension
+          status: profile.role === 'suspended' ? 'suspended' : 'active',
           created_at: profile.created_at || new Date().toISOString(),
           updated_at: profile.updated_at || new Date().toISOString(),
         };
@@ -119,7 +120,7 @@ class UserManagementService {
         avatar_url: profile.avatar_url || undefined,
         organization: profile.organization || undefined,
         role: roleData?.role || 'user',
-        status: 'active',
+        status: profile.role === 'suspended' ? 'suspended' : 'active',
         created_at: profile.created_at || new Date().toISOString(),
         updated_at: profile.updated_at || new Date().toISOString(),
       };
@@ -195,17 +196,16 @@ class UserManagementService {
    */
   async suspendUser(userId: string, reason?: string): Promise<void> {
     try {
-      // Dans une vraie application, on aurait une table user_suspensions
-      // Pour l'instant, on log l'action
+      // Persister la suspension via profiles.role = 'suspended' (rôle effectif reste géré par user_roles)
       console.log(`Suspension utilisateur ${userId}. Raison: ${reason || 'Non spécifiée'}`);
-      
-      // On pourrait aussi mettre à jour le profil avec un statut
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
+          role: 'suspended' as any,
           updated_at: new Date().toISOString(),
         })
         .eq('id', userId);
+      if (error) throw error;
     } catch (error) {
       console.error('Erreur suspension utilisateur:', error);
       throw error;
@@ -218,13 +218,14 @@ class UserManagementService {
   async reactivateUser(userId: string): Promise<void> {
     try {
       console.log(`Réactivation utilisateur ${userId}`);
-      
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
+          role: null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', userId);
+      if (error) throw error;
     } catch (error) {
       console.error('Erreur réactivation utilisateur:', error);
       throw error;
@@ -282,7 +283,7 @@ class UserManagementService {
           avatar_url: profile.avatar_url || undefined,
           organization: profile.organization || undefined,
           role: userRole?.role || 'user',
-          status: 'active',
+          status: profile.role === 'suspended' ? 'suspended' : 'active',
           created_at: profile.created_at || new Date().toISOString(),
           updated_at: profile.updated_at || new Date().toISOString(),
         };
