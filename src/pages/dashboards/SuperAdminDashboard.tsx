@@ -2939,7 +2939,7 @@ const SuperAdminDashboard = () => {
                   <strong>Vite:</strong> React+SWC, PWA plugin, bundle optimize bien configuré
                 </div>
                 <div className="p-2 rounded border bg-orange-50/30">
-                  <strong>ESLint:</strong> Minimal (unused vars désactivés - risque)</strong>
+                  <strong>ESLint:</strong> Minimal (unused vars désactivés - risque)
                 </div>
                 <div className="p-2 rounded border bg-orange-50/30">
                   <strong>TailwindCSS:</strong> Config correcte mais pas de purge explicite
