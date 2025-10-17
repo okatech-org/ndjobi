@@ -75,7 +75,7 @@ export function ModuleXR7() {
 
       const { error } = await supabase
         .from('emergency_activations')
-        .insert(activationData);
+        .insert([activationData]);
 
       if (error) throw error;
 

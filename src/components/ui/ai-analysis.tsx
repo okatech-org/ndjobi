@@ -165,7 +165,7 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
             <h3 className="font-semibold text-sm text-muted-foreground mb-2">
               Résumé
             </h3>
-            <p className="text-sm">{analysis.summary}</p>
+            <p className="text-sm">{String(analysis.summary || '')}</p>
           </div>
 
           {/* Severity (for reports only) */}
@@ -174,24 +174,24 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
                 Niveau de gravité
               </h3>
-              <Badge className={getSeverityColor(analysis.severity)}>
-                {getSeverityLabel(analysis.severity)}
+              <Badge className={getSeverityColor(String(analysis.severity || ''))}>
+                {getSeverityLabel(String(analysis.severity || ''))}
               </Badge>
             </div>
           )}
 
           {/* Key Points */}
-          {analysis.keyPoints && analysis.keyPoints.length > 0 && (
+          {Array.isArray(analysis.keyPoints) && analysis.keyPoints.length > 0 && (
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
                 Points clés
               </h3>
               <ul className="space-y-2">
-                {analysis.keyPoints.map((point: string, index: number) => (
+                {(analysis.keyPoints as string[]).map((point: string, index: number) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>{point}</span>
+                    <span>{String(point)}</span>
                   </li>
                 ))}
               </ul>

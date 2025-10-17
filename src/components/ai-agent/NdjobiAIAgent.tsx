@@ -693,7 +693,7 @@ export default function NdjobiAIAgent() {
         break;
       case 'witness_yes':
       case 'witness_no':
-        handleSend(action);
+        handleSend();
         break;
       case 'edit_report':
       case 'edit_project':
@@ -787,7 +787,7 @@ export default function NdjobiAIAgent() {
         break;
       default:
         if (action.startsWith('cat_') || action.startsWith('innov_') || action.startsWith('stage_')) {
-          handleSend(action);
+          handleSend();
         }
     }
   };
