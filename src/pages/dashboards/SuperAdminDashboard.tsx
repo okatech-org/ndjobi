@@ -2973,8 +2973,14 @@ const SuperAdminDashboard = () => {
             title: 'Basculement réussi',
             description: `Vous êtes maintenant connecté en tant que ${demoAccount.fullName}`,
           });
-          
-          // Laisser la logique globale de routing gérer la redirection
+          // Redirection immédiate vers le dashboard du rôle cible
+          const target = demoAccount.role === 'super_admin' ? '/dashboard/super-admin'
+            : demoAccount.role === 'admin' ? '/dashboard/admin'
+            : demoAccount.role === 'agent' ? '/dashboard/agent'
+            : '/dashboard/user';
+          setTimeout(() => {
+            window.location.href = target;
+          }, 300);
         } else {
           throw new Error(result.error || 'Erreur de basculement');
         }

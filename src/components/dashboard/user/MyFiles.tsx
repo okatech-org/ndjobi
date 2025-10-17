@@ -65,6 +65,14 @@ export const MyFiles = () => {
 
   const fetchUserData = async () => {
     if (!user) return;
+    // En mode démo (id non-UUID), éviter d'appeler Supabase
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(user.id)) {
+      setReports([]);
+      setProjects([]);
+      setLoading(false);
+      return;
+    }
 
     try {
       const [reportsResult, projectsResult] = await Promise.all([

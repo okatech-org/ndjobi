@@ -105,6 +105,9 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
     const load = async () => {
       try {
         if (!user?.id) return;
+        // Éviter les appels en mode démo avec identifiant non-UUID (ex: local-super_admin)
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(user.id)) return;
         const [reportsResult, projectsResult, pinResult] = await Promise.all([
           supabase.from('signalements').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
           supabase.from('projets').select('id', { count: 'exact', head: true }).eq('user_id', user.id),

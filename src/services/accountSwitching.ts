@@ -1,6 +1,7 @@
 // Service pour basculer entre les comptes (Super Admin vers comptes démo)
 import { supabase } from '@/integrations/supabase/client';
 import { userPersistence } from './userPersistence';
+import { demoAccountService } from './demoAccountService';
 
 export interface DemoAccount {
   id: string;
@@ -56,10 +57,11 @@ class AccountSwitchingService {
 
       console.log('Basculement vers le compte démo:', demoAccount);
 
-      // Construire l'email à partir du numéro de téléphone
+      // Déterminer l'email du compte démo (priorité à demoAccount.email)
       const phoneNumber = demoAccount.phoneNumber || '77777001';
       const countryCode = demoAccount.countryCode || '+241';
-      const email = `${countryCode.replace('+', '')}${phoneNumber}@ndjobi.temp`;
+      const fallbackEmail = `${countryCode.replace('+', '')}${phoneNumber}@ndjobi.com`;
+      const email = demoAccount.email || fallbackEmail;
       const pin = demoAccount.password || '123456';
 
       console.log('Tentative de connexion avec:', { email, pin });
@@ -70,13 +72,36 @@ class AccountSwitchingService {
         password: pin,
       });
 
-      if (signInError) {
-        console.error('Erreur de connexion au compte démo:', signInError);
-        return { success: false, error: signInError.message };
-      }
+      // Si la connexion Supabase échoue, activer un fallback local
+      if (signInError || !signInData?.user) {
+        console.warn('Connexion Supabase pour compte démo échouée, activation du mode local. Détails:', signInError?.message);
 
-      if (!signInData?.user) {
-        return { success: false, error: 'Utilisateur démo non trouvé' };
+        // Marquer que nous avons basculé (pour afficher l'option de retour)
+        if (!localStorage.getItem(this.STORAGE_KEY)) {
+          const placeholderOriginal: OriginalAccount = {
+            userId: 'local-super-admin',
+            email: '24177777000@ndjobi.com',
+            role: 'super_admin',
+          };
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(placeholderOriginal));
+        }
+
+        // Créer une session locale démo
+        const created = demoAccountService.createLocalSession(email);
+        if (!created) {
+          return { success: false, error: 'Impossible de créer une session locale démo' };
+        }
+
+        // Mettre à jour les données PWA
+        await userPersistence.storeUser({
+          id: `local-${demoAccount.role}`,
+          phoneNumber: phoneNumber,
+          countryCode: countryCode,
+          fullName: demoAccount.fullName,
+          role: demoAccount.role
+        });
+
+        return { success: true };
       }
 
       // Mettre à jour les données PWA avec le compte démo
