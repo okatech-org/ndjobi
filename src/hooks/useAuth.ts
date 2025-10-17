@@ -215,6 +215,16 @@ export const useAuth = () => {
       async (event, currentSession) => {
         if (!mounted) return;
 
+        // Ne pas écraser une session locale démo par les événements Supabase
+        const localDemo = demoAccountService.getLocalSession();
+        if (localDemo) {
+          setSession(null);
+          setUser(localDemo.user);
+          setProfile(localDemo.profile);
+          setRole(localDemo.role);
+          return;
+        }
+
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 

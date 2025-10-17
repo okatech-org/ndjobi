@@ -20,6 +20,7 @@ const UserDashboard = () => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, role, isLoading, profile } = useAuth();
+  console.log('👤 UserDashboard state:', { hasUser: !!user, role, isLoading });
   const [viewMode, setViewMode] = useState<ViewMode>('profile');
 
   // Lire la vue depuis les paramètres de l'URL
