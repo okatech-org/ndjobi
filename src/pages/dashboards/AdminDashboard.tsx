@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useProtocolEtat } from '@/hooks/useProtocolEtat';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
+import { IAstedChat } from '@/components/admin/IAstedChat';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -804,6 +805,14 @@ export default function AdminDashboard() {
                 <span className="hidden sm:inline">Module XR-7</span>
                 <span className="sm:hidden">XR-7</span>
                   </TabsTrigger>
+              <TabsTrigger 
+                value="iasted"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none px-4 sm:px-6 py-4 text-sm"
+              >
+                <Brain className="h-4 w-4 mr-2 text-purple-600" />
+                <span className="hidden sm:inline">iAsted IA</span>
+                <span className="sm:hidden">iAsted</span>
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
         </div>
@@ -816,6 +825,7 @@ export default function AdminDashboard() {
         {activeView === 'sousadmins' && renderGestionSousAdmins()}
         {activeView === 'rapports' && renderRapportsStrategiques()}
         {activeView === 'xr7' && <ModuleXR7 />}
+        {activeView === 'iasted' && <IAstedChat />}
       </main>
 
       <div className="border-t mt-12">

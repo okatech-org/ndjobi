@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:ipv4": "vite --host 127.0.0.1 --port 5174 --clearScreen=false",
+    "dev:prod-mode": "vite --mode production --host 127.0.0.1 --port 5174 --clearScreen=false",
+    "dev:debug": "DEBUG=vite:* vite --host 127.0.0.1 --port 5174 --force --clearScreen=false",
     "dev:clean": "rm -rf node_modules/.vite .vite && vite",
     "build": "vite build",
     "images:optimize": "node scripts/optimize-images.mjs",
