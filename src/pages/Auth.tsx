@@ -104,8 +104,11 @@ const Auth = () => {
         description: `Bienvenue, ${account.label}` 
       });
 
+      // Attendre que la session soit enregistrée
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       const dashboardUrl = getDashboardUrl(account.role);
-      navigate(dashboardUrl);
+      window.location.href = dashboardUrl;
       
     } catch (error: any) {
       // Mode fallback: créer une session locale

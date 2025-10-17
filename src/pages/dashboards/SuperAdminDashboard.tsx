@@ -109,10 +109,13 @@ interface AIAgent {
 }
 
 const SuperAdminDashboard = () => {
+  console.log('🏛️ SuperAdminDashboard RENDER START');
   const navigate = useNavigate();
   const location = useLocation();
   const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  
+  console.log('🏛️ SuperAdminDashboard state:', { user: !!user, role, authLoading });
   
   const [activeView, setActiveView] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(false);
