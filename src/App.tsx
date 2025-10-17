@@ -35,10 +35,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <LoadingFallback fullScreen message="Vérification de votre session..." />;
   }
 
-  // Pour les sessions locales (super_admin, demo), on vérifie le rôle
-  // Si on a un rôle mais pas d'user Supabase, c'est une session locale
-  const hasLocalSession = role && !session;
-  
+  // Détection immédiate d'une session locale depuis localStorage
+  let localDemoRole: string | null = null;
+  try {
+    const raw = localStorage.getItem('ndjobi_demo_session');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.role) {
+        localDemoRole = parsed.role;
+      }
+    }
+  } catch (_) {}
+
+  // Pour les sessions locales (super_admin, demo), considérer l'accès comme autorisé
+  const hasLocalSession = (!!role && !session) || !!localDemoRole;
+
   if (!user && !hasLocalSession) {
     if (location.pathname !== "/auth") {
       console.log('🚫 Pas d\'utilisateur détecté, redirection vers /auth');
@@ -47,16 +58,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <></>;
   }
 
-  // Si on a une session locale, on autorise l'accès
   if (hasLocalSession) {
-    console.log('✅ Session locale détectée, rôle:', role, ', accès autorisé');
+    const effRole = (role as string) || (localDemoRole as string);
+    console.log('✅ Session locale détectée, rôle:', effRole, ', accès autorisé');
   }
 
   // Redirection automatique vers le dashboard approprié si on est sur une page générique
-  if (role && location.pathname === '/') {
-    const dashboardUrl = role === 'super_admin' ? '/dashboard/super-admin' :
-                        role === 'admin' ? '/dashboard/admin' :
-                        role === 'agent' ? '/dashboard/agent' : '/dashboard/user';
+  const effectiveRole = (role as string) || (localDemoRole as string) || null;
+  if (effectiveRole && location.pathname === '/') {
+    const dashboardUrl = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
+                        effectiveRole === 'admin' ? '/dashboard/admin' :
+                        effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
     return <Navigate to={dashboardUrl} replace />;
   }
 
