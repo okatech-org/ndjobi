@@ -108,6 +108,24 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
         // Éviter les appels en mode démo avec identifiant non-UUID (ex: local-super_admin)
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(user.id)) return;
+
+        // Charger le profil
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (profileData) {
+          setProfile(profileData);
+          reset({
+            full_name: profileData.full_name || user?.user_metadata?.full_name || '',
+            email: user?.email || '',
+            phone: '',
+            address: '',
+            bio: '',
+          });
+        }
         const [reportsResult, projectsResult, pinResult] = await Promise.all([
           supabase.from('signalements').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
           supabase.from('projets').select('id', { count: 'exact', head: true }).eq('user_id', user.id),

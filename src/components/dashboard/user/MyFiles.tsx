@@ -89,10 +89,20 @@ export const MyFiles = () => {
       ]);
 
       if (!reportsResult.error) {
-        setReports(reportsResult.data || []);
+        // Map is_anonymous to anonymous
+        const mappedReports = (reportsResult.data || []).map((r: any) => ({
+          ...r,
+          anonymous: r.is_anonymous ?? false
+        }));
+        setReports(mappedReports);
       }
       if (!projectsResult.error) {
-        setProjects(projectsResult.data || []);
+        // Add timestamp field
+        const mappedProjects = (projectsResult.data || []).map((p: any) => ({
+          ...p,
+          timestamp: p.created_at
+        }));
+        setProjects(mappedProjects);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);

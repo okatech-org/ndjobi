@@ -84,8 +84,13 @@ export const FileDetail = ({ fileId, fileType, onBack }: FileDetailProps) => {
           .single();
 
         if (!error && data) {
-          setReport(data);
-          generateReportEvents(data);
+          // Map is_anonymous to anonymous
+          const mappedReport = {
+            ...data,
+            anonymous: data.is_anonymous ?? false
+          };
+          setReport(mappedReport);
+          generateReportEvents(mappedReport);
         }
       } else {
         const { data, error } = await supabase
@@ -95,8 +100,13 @@ export const FileDetail = ({ fileId, fileType, onBack }: FileDetailProps) => {
           .single();
 
         if (!error && data) {
-          setProject(data);
-          generateProjectEvents(data);
+          // Ensure proper types
+          const mappedProject = {
+            ...data,
+            status: (data.status === 'protected' || data.status === 'reviewed') ? data.status : 'protected' as const
+          };
+          setProject(mappedProject as any);
+          generateProjectEvents(mappedProject);
         }
       }
     } catch (error) {
