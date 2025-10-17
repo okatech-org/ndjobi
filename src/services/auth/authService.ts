@@ -88,6 +88,24 @@ export class AuthService {
   }
 
   /**
+   * Restaure une session existante depuis sessionStorage
+   * Utilisé lors du rechargement de la page
+   */
+  async authenticateWithSession(userId: string, sessionRole: UserRole): Promise<void> {
+    try {
+      await this.loadUserProfile(userId);
+      // Le rôle est déjà chargé dans loadUserProfile, mais on peut forcer si nécessaire
+      if (this.currentRole !== sessionRole) {
+        console.warn('Rôle de session différent du rôle en base, utilisation du rôle en base');
+      }
+    } catch (error) {
+      console.error('Erreur restauration session:', error);
+      this.clearSession();
+      throw error;
+    }
+  }
+
+  /**
    * Authentification Super Admin sécurisée
    * Utilise des variables d'environnement pour les credentials
    */
