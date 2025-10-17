@@ -26,8 +26,15 @@ class AccountSwitchingService {
 
   // Sauvegarder le compte original avant de basculer
   public async saveOriginalAccount(): Promise<void> {
+    console.log('🔵 [AccountSwitching] saveOriginalAccount START');
     try {
-      const { data: { user }, data: { session } } = await supabase.auth.getUser();
+      console.log('🔵 [AccountSwitching] Appel supabase.auth.getUser()...');
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('🔵 [AccountSwitching] getUser résultat:', { user, userError });
+      
+      console.log('🔵 [AccountSwitching] Appel supabase.auth.getSession()...');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('🔵 [AccountSwitching] getSession résultat:', { session, sessionError });
       
       if (user && session) {
         this.originalAccount = {
@@ -40,11 +47,14 @@ class AccountSwitchingService {
         // Stocker dans localStorage pour persistance
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.originalAccount));
         
-        console.log('Compte original sauvegardé:', this.originalAccount);
+        console.log('✅ [AccountSwitching] Compte original sauvegardé:', this.originalAccount);
+      } else {
+        console.log('⚠️ [AccountSwitching] Pas de user/session Supabase, compte original non sauvegardé');
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde du compte original:', error);
+      console.error('💥 [AccountSwitching] Erreur lors de la sauvegarde du compte original:', error);
     }
+    console.log('🔵 [AccountSwitching] saveOriginalAccount END');
   }
 
   // Basculer vers un compte démo
