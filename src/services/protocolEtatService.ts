@@ -279,16 +279,56 @@ export class ProtocolEtatService {
   }
 
   static async genererRapportStrategique(
-    type: 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel'
+    type: 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel',
+    data?: {
+      kpis: any;
+      distributionRegionale: any[];
+      performanceMinisteres: any[];
+      casSensibles: any[];
+      visionData: any[];
+    }
   ): Promise<{ success: boolean; reportUrl?: string; error?: string }> {
     try {
       console.log(`Génération rapport ${type} en cours...`);
       
+      if (!data) {
+        return { 
+          success: true, 
+          reportUrl: `/reports/rapport-${type}-${new Date().getFullYear()}.pdf` 
+        };
+      }
+
+      const { PDFReportService } = await import('./pdfReportService');
+      
+      let blob: Blob;
+      const timestamp = new Date().toISOString().split('T')[0];
+      let filename = `rapport-${type}-${timestamp}.pdf`;
+
+      switch (type) {
+        case 'executif':
+          blob = await PDFReportService.genererRapportExecutif(data);
+          break;
+        case 'hebdomadaire':
+          blob = await PDFReportService.genererRapportHebdomadaire(data);
+          break;
+        case 'mensuel':
+          blob = await PDFReportService.genererRapportMensuel(data);
+          break;
+        case 'annuel':
+          blob = await PDFReportService.genererRapportAnnuel(data);
+          break;
+        default:
+          throw new Error(`Type de rapport inconnu: ${type}`);
+      }
+
+      PDFReportService.downloadPDF(blob, filename);
+      
       return { 
         success: true, 
-        reportUrl: `/reports/rapport-${type}-${new Date().getFullYear()}.pdf` 
+        reportUrl: URL.createObjectURL(blob)
       };
     } catch (error: any) {
+      console.error('Erreur génération rapport:', error);
       return { success: false, error: error.message };
     }
   }

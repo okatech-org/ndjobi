@@ -3407,18 +3407,10 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
-  const renderXR7View = () => (
-    <div className="space-y-6">
-      <Alert className="border-red-500/50 bg-red-50/10">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Module XR-7 - Accès Restreint</AlertTitle>
-        <AlertDescription>
-          Ce module est soumis à des restrictions légales strictes. Utilisation sous autorisation judiciaire uniquement.
-        </AlertDescription>
-      </Alert>
-      <SystemMaintenancePanel />
-    </div>
-  );
+  const renderXR7View = () => {
+    const { ModuleXR7 } = require('@/components/admin/ModuleXR7');
+    return <ModuleXR7 />;
+  };
 
   const renderConfigView = () => (
     <div className="space-y-6">

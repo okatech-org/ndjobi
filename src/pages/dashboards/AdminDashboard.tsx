@@ -21,6 +21,8 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useProtocolEtat } from '@/hooks/useProtocolEtat';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -44,13 +46,25 @@ export default function AdminDashboard() {
   const [activeView, setActiveView] = useState<string>('dashboard');
   const [timeRange, setTimeRange] = useState<string>('30days');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
+  
+  const {
+    notifications: realtimeNotifications,
+    isSubscribed,
+    subscribe: subscribeNotifications,
+    unsubscribe: unsubscribeNotifications
+  } = useRealtimeNotifications();
 
   const COLORS = ['#2D5F1E', '#4A8B3A', '#6BB757', '#8FD977', '#B4F199'];
 
   useEffect(() => {
     if (user && role === 'admin') {
       reloadData();
+      subscribeNotifications();
     }
+    
+    return () => {
+      unsubscribeNotifications();
+    };
   }, [user, role]);
 
   const handleValiderCas = async (casId: string, decision: 'approuver' | 'rejeter' | 'enquete') => {
@@ -258,6 +272,12 @@ export default function AdminDashboard() {
         <AlertDescription className="text-orange-800 dark:text-orange-200">
           {kpis?.signalements_critiques || 0} cas critiques nécessitent une validation 
           présidentielle immédiate. Consulter l'onglet "Validation" pour prendre les décisions.
+          {isSubscribed && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-sm">Notifications temps réel actives</span>
+            </div>
+          )}
         </AlertDescription>
       </Alert>
 
@@ -776,6 +796,14 @@ export default function AdminDashboard() {
                 <FileText className="h-4 w-4 mr-2" />
                 Rapports
                   </TabsTrigger>
+              <TabsTrigger 
+                value="xr7"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-red-500 rounded-none px-4 sm:px-6 py-4 text-sm"
+              >
+                <Shield className="h-4 w-4 mr-2 text-red-600" />
+                <span className="hidden sm:inline">Module XR-7</span>
+                <span className="sm:hidden">XR-7</span>
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
         </div>
@@ -787,6 +815,7 @@ export default function AdminDashboard() {
         {activeView === 'enquetes' && renderSuiviEnquetes()}
         {activeView === 'sousadmins' && renderGestionSousAdmins()}
         {activeView === 'rapports' && renderRapportsStrategiques()}
+        {activeView === 'xr7' && <ModuleXR7 />}
       </main>
 
       <div className="border-t mt-12">

@@ -93,15 +93,22 @@ export function useProtocolEtat() {
       description: `Préparation du rapport ${type}...`,
     });
 
-    const result = await ProtocolEtatService.genererRapportStrategique(type);
+    const reportData = {
+      kpis: kpis!,
+      distributionRegionale,
+      performanceMinisteres,
+      casSensibles,
+      visionData
+    };
 
-    if (result.success && result.reportUrl) {
+    const result = await ProtocolEtatService.genererRapportStrategique(type, reportData);
+
+    if (result.success) {
       toast({
         title: '✅ Rapport généré',
-        description: 'Le rapport est prêt au téléchargement.',
+        description: 'Le téléchargement a commencé automatiquement.',
         variant: 'default'
       });
-      window.open(result.reportUrl, '_blank');
     } else {
       toast({
         title: 'Erreur',
