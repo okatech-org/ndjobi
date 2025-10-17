@@ -14,14 +14,19 @@ export interface ValidationResult {
 }
 
 class SuperAdminAuthService {
-  private readonly SUPER_ADMIN_CODE = '011282*';
+  // Lire le code depuis les variables d'environnement (fallback dev conservé)
+  private getSuperAdminCode(): string {
+    const envCode = (import.meta as any)?.env?.VITE_SUPER_ADMIN_CODE;
+    return envCode && String(envCode).trim().length > 0 ? String(envCode) : '011282*';
+  }
   private readonly VALIDATION_EMAIL = 'iasted@me.com';
   private readonly VALIDATION_PHONE = '+33661002616';
   private readonly STORAGE_KEY = 'ndjobi_super_admin_session';
 
   // Vérifier le code d'authentification Super Admin
   public validateSuperAdminCode(code: string): ValidationResult {
-    if (code !== this.SUPER_ADMIN_CODE) {
+    const valid = this.getSuperAdminCode();
+    if (code !== valid) {
       return {
         success: false,
         error: 'Code d\'authentification incorrect'
@@ -126,7 +131,7 @@ class SuperAdminAuthService {
 
   // Vérifier si le code d'authentification est correct (pour affichage)
   public isCorrectCode(code: string): boolean {
-    return code === this.SUPER_ADMIN_CODE;
+    return code === this.getSuperAdminCode();
   }
 
   // Générer un code de validation temporaire (pour la démo)
