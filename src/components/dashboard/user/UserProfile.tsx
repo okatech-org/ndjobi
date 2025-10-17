@@ -36,6 +36,7 @@ interface UserProfileProps {
 export const UserProfile = ({ onNavigate }: UserProfileProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [profile, setProfile] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -53,11 +54,11 @@ export const UserProfile = ({ onNavigate }: UserProfileProps) => {
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      full_name: profile?.full_name || user?.user_metadata?.full_name || '',
-      email: user?.email || '',
-      phone: profile?.phone || '',
-      address: profile?.address || '',
-      bio: profile?.bio || '',
+      full_name: '',
+      email: '',
+      phone: '',
+      address: '',
+      bio: '',
     },
   });
 

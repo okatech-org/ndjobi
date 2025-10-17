@@ -12,7 +12,7 @@ interface OCROptions {
 }
 
 class OCRService {
-  private worker: Worker | null = null;
+  private worker: any = null;
   private isInitialized = false;
 
   async initialize(options: OCROptions = {}): Promise<void> {
@@ -22,8 +22,8 @@ class OCRService {
 
     try {
       this.worker = await createWorker();
-      await this.worker.loadLanguage(options.language || 'fra');
-      await this.worker.initialize(options.language || 'fra');
+      await (this.worker as any).loadLanguage(options.language || 'fra');
+      await (this.worker as any).initialize(options.language || 'fra');
       this.isInitialized = true;
       console.log('OCR Service initialized successfully');
     } catch (error) {

@@ -19,7 +19,7 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, role, isLoading, profile } = useAuth();
+  const { user, role, isLoading } = useAuth();
   console.log('👤 UserDashboard state:', { hasUser: !!user, role, isLoading });
   const [viewMode, setViewMode] = useState<ViewMode>('profile');
 
@@ -200,7 +200,7 @@ const UserDashboard = () => {
                     {viewMode === 'project' && 'Protéger un projet'}
                   </h1>
                   <p className="text-sm sm:text-base text-muted-foreground">
-                    {profile?.full_name ? `Bienvenue ${profile.full_name}` : 'Bienvenue dans votre espace personnel sécurisé'}
+                    Bienvenue dans votre espace personnel sécurisé
                   </p>
                 </div>
 

@@ -84,11 +84,12 @@ export const FileDetail = ({ fileId, fileType, onBack }: FileDetailProps) => {
           .single();
 
         if (!error && data) {
-          // Map is_anonymous to anonymous
+          // Map is_anonymous to anonymous and ensure status type
           const mappedReport = {
             ...data,
-            anonymous: data.is_anonymous ?? false
-          };
+            anonymous: data.is_anonymous ?? false,
+            status: data.status || 'pending'
+          } as Report;
           setReport(mappedReport);
           generateReportEvents(mappedReport);
         }
@@ -103,9 +104,9 @@ export const FileDetail = ({ fileId, fileType, onBack }: FileDetailProps) => {
           // Ensure proper types
           const mappedProject = {
             ...data,
-            status: (data.status === 'protected' || data.status === 'reviewed') ? data.status : 'protected' as const
-          };
-          setProject(mappedProject as any);
+            status: (data.status === 'protected' || data.status === 'reviewed') ? data.status : 'protected'
+          } as Project;
+          setProject(mappedProject);
           generateProjectEvents(mappedProject);
         }
       }

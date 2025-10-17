@@ -14,8 +14,8 @@ export const usePerformance = (enabled: boolean = true) => {
     
     console.log(`[Performance] ${name}: ${value.toFixed(2)}ms`);
     
-    if (typeof window !== 'undefined' && (window as Record<string, unknown>).gtag) {
-      ((window as Record<string, unknown>).gtag as (event: string, name: string, params: Record<string, unknown>) => void)('event', name, {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', name, {
         value: Math.round(value),
         metric_id: name,
       });

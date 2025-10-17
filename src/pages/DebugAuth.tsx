@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 
 export default function DebugAuth() {
-  const { user, role, profile, isLoading } = useAuth();
+  const { user, role, isLoading } = useAuth();
   const [supabaseStatus, setSupabaseStatus] = useState<string>('Checking...');
 
   useEffect(() => {
@@ -41,7 +41,6 @@ export default function DebugAuth() {
             <p>isLoading: <span className={isLoading ? 'text-orange-600' : 'text-green-600'}>{isLoading ? '🔄 TRUE (LOADING...)' : '✅ FALSE'}</span></p>
             <p>user: {user ? `✅ ${user.email}` : '❌ null'}</p>
             <p>role: {role ? `✅ ${role}` : '❌ null'}</p>
-            <p>profile: {profile?.full_name ? `✅ ${profile.full_name}` : '❌ null'}</p>
           </div>
         </div>
 

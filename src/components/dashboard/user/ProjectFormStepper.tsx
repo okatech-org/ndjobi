@@ -199,7 +199,7 @@ export const ProjectFormStepper = ({ onSuccess, onCancel }: ProjectFormStepperPr
       setBlockchainHash(hash);
 
       const { data, error } = await supabase
-        .from('projects')
+        .from('projets')
         .insert([
           {
             ...projectData,
