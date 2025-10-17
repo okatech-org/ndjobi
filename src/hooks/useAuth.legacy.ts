@@ -146,7 +146,7 @@ export const useAuth = () => {
           console.log('🔐 Session Super Admin locale détectée');
           const mockSuperAdminUser = {
             id: 'local-super-admin',
-            email: '24177777000@ndjobi.com',
+            email: '',
             user_metadata: {
               full_name: 'Super Administrateur (Local)',
               is_super_admin: true
@@ -160,7 +160,7 @@ export const useAuth = () => {
           
           const superAdminProfile = {
             id: 'local-super-admin',
-            email: '24177777000@ndjobi.com',
+            email: '',
             full_name: 'Super Administrateur (Local)',
             created_at: new Date().toISOString()
           } as UserProfile;

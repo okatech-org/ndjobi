@@ -29,22 +29,6 @@ interface DemoAccount {
 
 const DEMO_ACCOUNTS: DemoAccount[] = [
   {
-    email: '24177777001@ndjobi.com',
-    password: '123456',
-    role: 'user',
-    fullName: 'Citoyen Démo',
-    phone: '+24177777001',
-    description: 'Compte démo pour un citoyen standard'
-  },
-  {
-    email: '24177777002@ndjobi.com',
-    password: '123456',
-    role: 'agent',
-    fullName: 'Agent DGSS Démo',
-    phone: '+24177777002',
-    description: 'Compte démo pour un agent de la DGSS'
-  },
-  {
     email: '24177777003@ndjobi.com',
     password: '123456',
     role: 'admin',
@@ -148,7 +132,7 @@ async function createTestData(): Promise<void> {
     const { data: citoyenData } = await supabase
       .from('profiles')
       .select('id')
-      .eq('email', '24177777001@ndjobi.com')
+      .eq('email', 'nonexistent@ndjobi.invalid')
       .single();
 
     if (citoyenData) {

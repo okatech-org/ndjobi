@@ -307,25 +307,7 @@ export class AuthService {
    * Si pas en mémoire, tente de restaurer depuis sessionStorage
    */
   getCurrentUser() {
-    if (this.currentUser) {
-      return this.currentUser;
-    }
-
-    // Tenter de récupérer depuis sessionStorage
-    try {
-      const sessionData = sessionStorage.getItem('ndjobi_session');
-      if (sessionData) {
-        const parsed = JSON.parse(sessionData);
-        if (parsed && parsed.userId) {
-          // Retourner un objet utilisateur minimal
-          return { id: parsed.userId, role: parsed.role };
-        }
-      }
-    } catch (error) {
-      console.error('Erreur récupération user:', error);
-    }
-
-    // Tenter de récupérer depuis la session démo
+    // Priorité à la session démo locale si présente
     try {
       const demoSessionData = localStorage.getItem('ndjobi_demo_session');
       if (demoSessionData) {
@@ -338,6 +320,23 @@ export class AuthService {
       console.error('Erreur récupération user démo:', error);
     }
 
+    if (this.currentUser) {
+      return this.currentUser;
+    }
+
+    // Récupération depuis sessionStorage
+    try {
+      const sessionData = sessionStorage.getItem('ndjobi_session');
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        if (parsed && parsed.userId) {
+          return { id: parsed.userId, role: parsed.role };
+        }
+      }
+    } catch (error) {
+      console.error('Erreur récupération user:', error);
+    }
+
     return null;
   }
 
@@ -346,24 +345,7 @@ export class AuthService {
    * Si pas en mémoire, tente de restaurer depuis sessionStorage
    */
   getCurrentRole(): UserRole | null {
-    if (this.currentRole) {
-      return this.currentRole;
-    }
-
-    // Tenter de récupérer depuis sessionStorage
-    try {
-      const sessionData = sessionStorage.getItem('ndjobi_session');
-      if (sessionData) {
-        const parsed = JSON.parse(sessionData);
-        if (parsed && parsed.role) {
-          return parsed.role as UserRole;
-        }
-      }
-    } catch (error) {
-      console.error('Erreur récupération role:', error);
-    }
-
-    // Tenter de récupérer depuis la session démo
+    // Priorité au rôle de la session démo locale si présent
     try {
       const demoSessionData = localStorage.getItem('ndjobi_demo_session');
       if (demoSessionData) {
@@ -376,6 +358,23 @@ export class AuthService {
       console.error('Erreur récupération role démo:', error);
     }
 
+    if (this.currentRole) {
+      return this.currentRole;
+    }
+
+    // Récupération depuis sessionStorage
+    try {
+      const sessionData = sessionStorage.getItem('ndjobi_session');
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        if (parsed && parsed.role) {
+          return parsed.role as UserRole;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur récupération role:', error);
+    }
+
     return null;
   }
 
@@ -383,7 +382,8 @@ export class AuthService {
    * Récupère le dashboard approprié selon le rôle
    */
   getDashboardPath(): string {
-    switch (this.currentRole) {
+    const role = this.getCurrentRole();
+    switch (role) {
       case 'super_admin':
         return '/dashboard/super-admin';
       case 'admin':
@@ -401,6 +401,7 @@ export class AuthService {
    * Vérifie si l'utilisateur a les permissions pour accéder à une ressource
    */
   hasPermission(requiredRole: UserRole): boolean {
+    const effectiveRole = this.getCurrentRole();
     const roleHierarchy: Record<UserRole, number> = {
       'super_admin': 4,
       'admin': 3,
@@ -408,9 +409,9 @@ export class AuthService {
       'user': 1,
     };
 
-    if (!this.currentRole) return false;
-    
-    return roleHierarchy[this.currentRole] >= roleHierarchy[requiredRole];
+    if (!effectiveRole) return false;
+
+    return roleHierarchy[effectiveRole] >= roleHierarchy[requiredRole];
   }
 }
 

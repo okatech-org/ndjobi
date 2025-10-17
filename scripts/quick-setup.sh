@@ -34,11 +34,8 @@ create_account() {
   echo "   ✅ Compte configuré"
 }
 
-# Créer les comptes démo
-create_account "24177777001@ndjobi.ga" "123456" "Citoyen" "user"
-create_account "24177777002@ndjobi.ga" "123456" "Agent DGSS" "agent"
+# Créer les comptes démo (réduit)
 create_account "24177777003@ndjobi.ga" "123456" "Admin" "admin"
-create_account "24177777000@ndjobi.ga" "123456" "Super Admin" "super_admin"
 
 echo ""
 echo "================================================"
@@ -49,10 +46,7 @@ echo "📋 NUMÉROS À ENTRER (sans +241) :"
 echo ""
 echo "| Compte      | Numéro    | PIN    |"
 echo "|-------------|-----------|--------|"
-echo "| Super Admin | 77777000  | 123456 |"
 echo "| Admin       | 77777003  | 123456 |"
-echo "| Agent       | 77777002  | 123456 |"
-echo "| Citoyen     | 77777001  | 123456 |"
 echo ""
 echo "🚀 Allez sur : http://localhost:5173/auth"
 echo "🎯 Cliquez sur le bouton du compte souhaité"
