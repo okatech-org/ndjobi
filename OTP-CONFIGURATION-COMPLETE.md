@@ -6,7 +6,7 @@
 - ✅ Account SID: `YOUR_TWILIO_ACCOUNT_SID`
 - ✅ Auth Token: `YOUR_TWILIO_AUTH_TOKEN` (Live/Production)
 - ✅ Verify Service: `YOUR_VERIFY_SERVICE_SID` (My New Verify Service)
-- ✅ Test SMS réussi: code envoyé à `+33661002616`
+- ✅ Test SMS réussi
 
 ### 2. Edge Functions Supabase
 Les fichiers `.env` ont été créés pour toutes les functions:
@@ -43,7 +43,7 @@ Si l'envoi SMS/WhatsApp échoue → basculement automatique sur Email (si rensei
 ```bash
 curl 'https://verify.twilio.com/v2/Services/YOUR_VERIFY_SERVICE_SID/Verifications' \
   -X POST \
-  --data-urlencode 'To=+33661002616' \
+  --data-urlencode 'To=YOUR_PHONE_NUMBER' \
   --data-urlencode 'Channel=sms' \
   -u YOUR_TWILIO_ACCOUNT_SID:YOUR_TWILIO_AUTH_TOKEN
 ```
@@ -63,7 +63,7 @@ Ce script:
 2. Allez sur la page d'authentification
 3. **PhoneLogin:**
    - Sélectionnez "SMS" / "WhatsApp" / "Email"
-   - Entrez `+33661002616` (ou votre email)
+   - Entrez `YOUR_PHONE_NUMBER` (ou votre email)
    - Cliquez "Recevoir le code"
    - Entrez le code à 6 chiffres
    - Cliquez "Vérifier"
@@ -135,7 +135,7 @@ supabase secrets set TWILIO_AUTH_TOKEN=YOUR_TWILIO_AUTH_TOKEN
 supabase secrets set TWILIO_VERIFY_SERVICE_SID=YOUR_VERIFY_SERVICE_SID
 
 # Si vous utilisez Resend pour email
-supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxx
+supabase secrets set RESEND_API_KEY=YOUR_RESEND_API_KEY
 supabase secrets set RESEND_FROM_EMAIL=no-reply@ndjobi.com
 ```
 
@@ -208,7 +208,7 @@ const rateLimitKey = `otp:${to}:${Date.now() / 3600000 | 0}`;
 ### WhatsApp ne fonctionne pas
 - En Trial: Vérifier que le numéro a rejoint le sandbox
 - En Prod: Vérifier que le numéro WhatsApp Business est approuvé
-- Le format du numéro doit être: `whatsapp:+33661002616`
+- Le format du numéro doit être: `whatsapp:YOUR_PHONE_NUMBER`
 
 ### Email ne fonctionne pas
 - Verify Service: Email channel doit être activé dans Twilio Console
@@ -259,7 +259,7 @@ Customiser les templates SMS/Email dans Twilio Console:
 
 **Tout est prêt!** Vous pouvez maintenant:
 1. ✅ Tester l'UI React (PhoneLogin + Super Admin)
-2. ✅ Recevoir des codes OTP par SMS sur `+33661002616`
+2. ✅ Recevoir des codes OTP par SMS sur `YOUR_PHONE_NUMBER`
 3. ✅ Vérifier les codes et authentifier les utilisateurs
 4. ⏳ Configurer WhatsApp (optionnel)
 5. ⏳ Configurer Email (optionnel, via Resend ou Twilio)

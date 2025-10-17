@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script de test du flux OTP complet
 
-PHONE="+33661002616"
+PHONE="YOUR_PHONE_NUMBER"
 EMAIL="iasted@me.com"
 
 echo "🧪 Test du flux OTP Twilio Verify - NDJOBI"

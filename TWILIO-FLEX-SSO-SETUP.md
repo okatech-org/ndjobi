@@ -343,7 +343,7 @@ Une fois que vous m'aurez fourni le certificat et l'URL SSO:
 - Tolérance de skew: ± 2-5 minutes
 
 ### WhatsApp pour notifications Flex
-- Si vous voulez recevoir les notifications Flex par WhatsApp, le numéro +33661002616 doit être:
+- Si vous voulez recevoir les notifications Flex par WhatsApp, le numéro YOUR_PHONE_NUMBER doit être:
   - Vérifié dans Twilio Console
   - Autorisé pour recevoir des messages WhatsApp Business
 
