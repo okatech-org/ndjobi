@@ -79,17 +79,24 @@ export const useAuth = () => {
     };
 
     const initAuth = async () => {
+      // Toujours vérifier le localStorage, même si globalInitialized est true
+      const localDemoSession = demoAccountService.getLocalSession();
+      
       if (globalInitialized) {
         console.log('⚠️ useAuth déjà initialisé globalement, utilisation de l\'état global');
         
-        // Si l'état global n'a pas d'user mais qu'une session locale existe, recharger
-        if (!globalUser) {
-          const localDemoSession = demoAccountService.getLocalSession();
-          if (localDemoSession) {
-            console.log('🔄 Rechargement session locale dans état global');
-            updateGlobalState(localDemoSession.user, null, localDemoSession.profile, localDemoSession.role, false);
-            return;
-          }
+        // Si une session locale existe, la charger (peut avoir changé depuis la dernière init)
+        if (localDemoSession) {
+          console.log('🔄 Session locale trouvée, rechargement dans état global');
+          updateGlobalState(localDemoSession.user, null, localDemoSession.profile, localDemoSession.role, false);
+          return;
+        }
+        
+        // Si pas de session locale mais l'état global en a une, c'est qu'on a nettoyé le storage
+        if (!localDemoSession && globalRole) {
+          console.log('🧹 localStorage nettoyé, réinitialisation état global');
+          updateGlobalState(null, null, null, null, false);
+          return;
         }
         
         updateGlobalState(globalUser, globalSession, globalProfile, globalRole, false);
@@ -104,8 +111,7 @@ export const useAuth = () => {
           updateGlobalState(globalUser, globalSession, globalProfile, globalRole, false);
         }, 5000);
 
-        // Vérifier s'il y a une session locale (démo ou super admin)
-        const localDemoSession = demoAccountService.getLocalSession();
+        // Note: localDemoSession déjà vérifié au début de initAuth
         if (localDemoSession) {
           console.log('📱 Session locale démo détectée:', localDemoSession.role);
           updateGlobalState(localDemoSession.user, null, localDemoSession.profile, localDemoSession.role, false);
