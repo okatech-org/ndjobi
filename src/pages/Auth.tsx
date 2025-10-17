@@ -62,6 +62,19 @@ const Auth = () => {
     setLoading(account.email);
 
     try {
+      // Mode local prioritaire: créer la session immédiatement pour éviter toute latence Supabase
+      const created = demoAccountService.createLocalSession(account.email);
+      if (created) {
+        toast({ 
+          title: 'Connexion réussie (Mode Local)', 
+          description: `Bienvenue, ${account.label}` 
+        });
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const dashboardUrl = getDashboardUrl(account.role);
+        window.location.href = dashboardUrl;
+        return;
+      }
+
       // Pour les comptes démo, utiliser email (fonctionne par défaut avec Supabase)
       let { data: signInData, error: signInError }: any = await supabase.auth.signInWithPassword({
         email: account.email,
