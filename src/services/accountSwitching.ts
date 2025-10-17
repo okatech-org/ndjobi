@@ -109,6 +109,10 @@ class AccountSwitchingService {
         console.log('💾 Compte original marqué pour retour');
       }
 
+      // Dispatcher l'événement de changement de session démo
+      window.dispatchEvent(new Event('ndjobi:demo:session:changed'));
+      console.log('📢 Événement session démo dispatché');
+
       // Réinitialiser l'état global de useAuth pour forcer le rechargement
       console.log('🔄 Réinitialisation état global useAuth...');
       resetGlobalAuthState();

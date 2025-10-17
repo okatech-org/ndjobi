@@ -21,27 +21,59 @@ export function useAuth() {
   useEffect(() => {
     const initAuth = async () => {
       setIsLoading(true);
+      
+      // Timeout de sécurité pour éviter les boucles infinies
+      const timeoutId = setTimeout(() => {
+        console.warn('⏱️ Timeout auth init - force loading=false');
+        setIsLoading(false);
+      }, 3000);
+
       try {
         // Vérifier si l'utilisateur est déjà authentifié
-        if (authService.isAuthenticated()) {
-          setUser(authService.getCurrentUser());
-          setRole(authService.getCurrentRole());
+        const isAuth = authService.isAuthenticated();
+        console.log('🔐 useAuth init - isAuthenticated:', isAuth);
+        
+        if (isAuth) {
+          const user = authService.getCurrentUser();
+          const role = authService.getCurrentRole();
+          console.log('✅ Session restaurée - user:', user?.id, 'role:', role);
+          setUser(user);
+          setRole(role);
         } else {
           // Vérifier la session dans sessionStorage
           const sessionData = sessionStorage.getItem('ndjobi_session');
           if (sessionData) {
             const { userId, role: sessionRole } = JSON.parse(sessionData);
+            console.log('🔄 Restauration session depuis storage - userId:', userId, 'role:', sessionRole);
             // Recharger les données utilisateur depuis Supabase
             await authService.authenticateWithSession(userId, sessionRole);
             setUser(authService.getCurrentUser());
             setRole(authService.getCurrentRole());
+          } else {
+            // Vérifier la session démo dans localStorage
+            const demoSessionData = localStorage.getItem('ndjobi_demo_session');
+            if (demoSessionData) {
+              try {
+                const demoSession = JSON.parse(demoSessionData);
+                console.log('🎭 Session démo détectée - role:', demoSession.role);
+                setUser(demoSession.user);
+                setRole(demoSession.role);
+              } catch (err) {
+                console.error('❌ Erreur parsing session démo:', err);
+                console.log('❌ Aucune session trouvée');
+              }
+            } else {
+              console.log('❌ Aucune session trouvée');
+            }
           }
         }
       } catch (err) {
-        console.error('Erreur initialisation auth:', err);
+        console.error('❌ Erreur initialisation auth:', err);
         setError('Erreur lors de l\'initialisation de l\'authentification');
       } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
+        console.log('✅ useAuth init terminé - loading=false');
       }
     };
 

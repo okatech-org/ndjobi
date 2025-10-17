@@ -181,10 +181,39 @@ const SuperAdminDashboard = () => {
     created_at: string;
     last_used: string | null;
   }>>([]);
-  // Démo désactivée (migration v2)
+  const [newAccountRole, setNewAccountRole] = useState<string>('user');
+  const [creatingAccount, setCreatingAccount] = useState(false);
+  const [switchingAccount, setSwitchingAccount] = useState(false);
 
-  // IMPORTANT: Les hooks ci-dessus doivent être déclarés avant tout return
-  // pour respecter l'ordre des hooks entre les rendus
+  // IMPORTANT: TOUS les hooks doivent être déclarés avant tout return conditionnel
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const view = params.get('view');
+    if (view) {
+      setActiveView(view);
+    } else {
+      setActiveView('dashboard');
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (user) {
+      loadSystemStats();
+      loadUsers();
+      loadActivityLogs();
+      loadSystemData();
+      loadConfigurationData();
+    }
+  }, [user]);
+
+  // Charger les données système quand on change de vue
+  useEffect(() => {
+    if (activeView === 'system' && user) {
+      loadSystemData();
+    }
+  }, [activeView, user]);
+
+  // Returns conditionnels APRÈS tous les hooks
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -200,29 +229,7 @@ const SuperAdminDashboard = () => {
     );
   }
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const view = params.get('view');
-    if (view) {
-      setActiveView(view);
-    } else {
-      setActiveView('dashboard');
-    }
-  }, [location.search]);
-
-  // ProtectedRoute gère déjà l'accès, pas besoin de navigate ici
-  // Supprimé pour éviter les boucles de redirection
-
-  useEffect(() => {
-    if (user) {
-      loadSystemStats();
-      loadUsers();
-      loadActivityLogs();
-      loadSystemData();
-      loadConfigurationData();
-    }
-  }, [user]);
-
+  // Fonctions de chargement (peuvent être après les hooks)
   const loadSystemData = async () => {
     if (activeView === 'system') {
       try {
@@ -247,13 +254,6 @@ const SuperAdminDashboard = () => {
       }
     }
   };
-
-  // Charger les données système quand on change de vue
-  useEffect(() => {
-    if (activeView === 'system' && user) {
-      loadSystemData();
-    }
-  }, [activeView, user]);
 
   const loadSystemStats = async () => {
     try {
@@ -3427,10 +3427,12 @@ const SuperAdminDashboard = () => {
             : demoAccount.role === 'agent' ? '/dashboard/agent'
             : '/dashboard/user';
           console.log('🎯 Redirection vers:', target);
+          
+          // Attendre que l'événement soit traité, puis recharger la page
           setTimeout(() => {
-            console.log('🚀 Redirection window.location.href =', target);
+            console.log('🚀 Rechargement complet de la page vers:', target);
             window.location.href = target;
-          }, 300);
+          }, 100);
         } else {
           console.error('❌ Basculement échoué:', result.error);
           throw new Error(result.error || 'Erreur de basculement');

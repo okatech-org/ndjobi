@@ -30,8 +30,44 @@ const queryClient = new QueryClient();
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, role, session, isLoading } = useAuth();
   const location = useLocation();
+  const [hasChecked, setHasChecked] = useState(false);
+  const [demoSessionVersion, setDemoSessionVersion] = useState(0);
 
-  if (isLoading) {
+  useEffect(() => {
+    // Marquer qu'on a vérifié après le premier render
+    if (!isLoading && !hasChecked) {
+      setHasChecked(true);
+    }
+  }, [isLoading, hasChecked]);
+
+  // Écouter les changements de session démo
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'ndjobi_demo_session') {
+        console.log('🔄 Session démo changée, revalidation...');
+        setDemoSessionVersion(prev => prev + 1);
+        setHasChecked(false); // Forcer une nouvelle vérification
+      }
+    };
+
+    // Écouter aussi les événements custom
+    const handleDemoSessionChange = () => {
+      console.log('🔄 Événement session démo détecté, revalidation...');
+      setDemoSessionVersion(prev => prev + 1);
+      setHasChecked(false);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
+    };
+  }, []);
+
+  // Afficher le loader UNIQUEMENT pendant le premier chargement
+  if (isLoading && !hasChecked) {
     return <LoadingFallback fullScreen message="Vérification de votre session..." />;
   }
 
@@ -69,15 +105,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const dashboardUrl = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
                         effectiveRole === 'admin' ? '/dashboard/admin' :
                         effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
+    console.log('📍 Redirection depuis / vers', dashboardUrl);
     return <Navigate to={dashboardUrl} replace />;
   }
 
-  // Si on est déjà dans une route dashboard qui ne correspond pas au rôle effectif, rediriger
+  // Si on est déjà dans une route dashboard qui ne correspond pas au rôle effectif, rediriger UNE SEULE FOIS
   if (effectiveRole && location.pathname.startsWith('/dashboard')) {
     const target = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
                    effectiveRole === 'admin' ? '/dashboard/admin' :
                    effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
     if (!location.pathname.startsWith(target)) {
+      console.log('📍 Correction route dashboard:', location.pathname, '->', target);
       return <Navigate to={target} replace />;
     }
   }

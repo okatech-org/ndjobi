@@ -236,6 +236,7 @@ export class AuthService {
     sessionStorage.clear();
     localStorage.removeItem('ndjobi_session');
     localStorage.removeItem('localDemoSession');
+    localStorage.removeItem('ndjobi_demo_session');
     
     // Réinitialiser l'état global si nécessaire
     if (window.globalAuthState) {
@@ -263,23 +264,119 @@ export class AuthService {
 
   /**
    * Vérifie si l'utilisateur est authentifié
+   * Vérifie d'abord la session en mémoire, puis dans sessionStorage
    */
   isAuthenticated(): boolean {
-    return this.currentUser !== null && this.currentRole !== null;
+    // Vérifier d'abord l'état en mémoire
+    if (this.currentUser !== null && this.currentRole !== null) {
+      return true;
+    }
+
+    // Si pas en mémoire, vérifier dans sessionStorage
+    try {
+      const sessionData = sessionStorage.getItem('ndjobi_session');
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        if (parsed && parsed.userId && parsed.role) {
+          // La session existe dans le storage
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification session:', error);
+    }
+
+    // Vérifier la session démo dans localStorage
+    try {
+      const demoSessionData = localStorage.getItem('ndjobi_demo_session');
+      if (demoSessionData) {
+        const parsed = JSON.parse(demoSessionData);
+        if (parsed && parsed.user && parsed.role) {
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification session démo:', error);
+    }
+
+    return false;
   }
 
   /**
    * Récupère l'utilisateur actuel
+   * Si pas en mémoire, tente de restaurer depuis sessionStorage
    */
   getCurrentUser() {
-    return this.currentUser;
+    if (this.currentUser) {
+      return this.currentUser;
+    }
+
+    // Tenter de récupérer depuis sessionStorage
+    try {
+      const sessionData = sessionStorage.getItem('ndjobi_session');
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        if (parsed && parsed.userId) {
+          // Retourner un objet utilisateur minimal
+          return { id: parsed.userId, role: parsed.role };
+        }
+      }
+    } catch (error) {
+      console.error('Erreur récupération user:', error);
+    }
+
+    // Tenter de récupérer depuis la session démo
+    try {
+      const demoSessionData = localStorage.getItem('ndjobi_demo_session');
+      if (demoSessionData) {
+        const parsed = JSON.parse(demoSessionData);
+        if (parsed && parsed.user) {
+          return parsed.user;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur récupération user démo:', error);
+    }
+
+    return null;
   }
 
   /**
    * Récupère le rôle actuel
+   * Si pas en mémoire, tente de restaurer depuis sessionStorage
    */
   getCurrentRole(): UserRole | null {
-    return this.currentRole;
+    if (this.currentRole) {
+      return this.currentRole;
+    }
+
+    // Tenter de récupérer depuis sessionStorage
+    try {
+      const sessionData = sessionStorage.getItem('ndjobi_session');
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        if (parsed && parsed.role) {
+          return parsed.role as UserRole;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur récupération role:', error);
+    }
+
+    // Tenter de récupérer depuis la session démo
+    try {
+      const demoSessionData = localStorage.getItem('ndjobi_demo_session');
+      if (demoSessionData) {
+        const parsed = JSON.parse(demoSessionData);
+        if (parsed && parsed.role) {
+          return parsed.role as UserRole;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur récupération role démo:', error);
+    }
+
+    return null;
   }
 
   /**
