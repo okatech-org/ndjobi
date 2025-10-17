@@ -202,3 +202,12 @@ export function useRequireAuth(requiredRole?: UserRole) {
 
   return { isAuthorized: requiredRole ? hasPermission(requiredRole) : isAuthenticated };
 }
+
+export function resetGlobalAuthState(): void {
+  try {
+    authService.clearSession();
+  } catch {}
+  try {
+    window.dispatchEvent(new Event('ndjobi:auth:reset'));
+  } catch {}
+}

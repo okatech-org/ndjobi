@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { phoneFormats, getPhoneErrorMessage } from '@/lib/phoneValidation';
+import { supabase } from '@/integrations/supabase/client';
+import { userPersistence } from '@/services/userPersistence';
+import { twilioVerifyService } from '@/services/twilioVerifyService';
 
 // Fonction pour créer un schéma dynamique basé sur le pays
 const createLoginSchema = (countryCode: string) => {
@@ -20,20 +23,39 @@ const createLoginSchema = (countryCode: string) => {
   const pattern = format?.pattern || /^\d{8,15}$/;
   
   return z.object({
+    channel: z.enum(['sms', 'whatsapp', 'email']).default('sms'),
     countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
     phoneNumber: z.string()
       .trim()
       .regex(pattern, { message: getPhoneErrorMessage(countryCode) }),
+    emailAddress: z.string().email({ message: 'E-mail invalide' }).optional(),
     pin: z.string()
       .length(6, { message: 'Le code PIN doit contenir 6 chiffres' })
       .regex(/^\d+$/, { message: 'Le code PIN ne doit contenir que des chiffres' }),
+    otpCode: z.string().length(6, { message: 'Code OTP à 6 chiffres' }).optional(),
   });
 };
 
 type LoginFormData = {
+  channel: 'sms' | 'whatsapp' | 'email';
   countryCode: string;
   phoneNumber: string;
+  emailAddress?: string;
   pin: string;
+  otpCode?: string;
+};
+
+const getDashboardUrl = (role: string): string => {
+  switch (role) {
+    case 'super_admin':
+      return '/dashboard/super-admin';
+    case 'admin':
+      return '/dashboard/admin';
+    case 'agent':
+      return '/dashboard/agent';
+    default:
+      return '/dashboard/user';
+  }
 };
 
 export const PhoneLogin = () => {
@@ -42,6 +64,9 @@ export const PhoneLogin = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [countryCode, setCountryCode] = useState('+241');
+  const [channel, setChannel] = useState<'sms' | 'whatsapp' | 'email'>('sms');
+  const [step, setStep] = useState<'request' | 'verify'>('request');
+  const [otpVerified, setOtpVerified] = useState(false);
 
   const {
     register,
@@ -51,6 +76,7 @@ export const PhoneLogin = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(createLoginSchema(countryCode)),
     defaultValues: {
+      channel: 'sms',
       countryCode: '+241',
     },
   });
@@ -61,11 +87,51 @@ export const PhoneLogin = () => {
     setValue('countryCode', newCountryCode);
   };
 
+  const handleChannelChange = (newChannel: 'sms' | 'whatsapp' | 'email') => {
+    setChannel(newChannel);
+    setValue('channel', newChannel);
+  };
+
+  const buildTo = (data: LoginFormData): string => {
+    if (data.channel === 'email') {
+      return (data.emailAddress || '').trim();
+    }
+    return `${data.countryCode}${data.phoneNumber}`;
+  };
+
+  const onRequestOtp = async (data: LoginFormData) => {
+    try {
+      setLoading(true);
+      const to = buildTo(data);
+      if (!to) throw new Error('Destinataire manquant');
+      const res = await twilioVerifyService.start(to, data.channel);
+      if (!res.success) throw new Error(res.error || 'Échec envoi OTP');
+      toast({ title: 'Code envoyé', description: `Vérifiez votre ${data.channel === 'email' ? 'e-mail' : data.channel}` });
+      setStep('verify');
+    } catch (e: any) {
+      toast({ variant: 'destructive', title: 'Erreur', description: e?.message || 'Échec envoi OTP' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     try {
       const fullPhone = `${data.countryCode}${data.phoneNumber}`;
       
+      if (!otpVerified) {
+        if (!data.otpCode || data.otpCode.length !== 6) {
+          throw new Error('Entrez le code OTP reçu');
+        }
+        const to = data.channel === 'email' ? (data.emailAddress || '').trim() : fullPhone;
+        const vr = await twilioVerifyService.check(to, data.otpCode);
+        if (!vr.success || vr.valid !== true) {
+          throw new Error(vr.error || 'Code OTP invalide');
+        }
+        setOtpVerified(true);
+      }
+
       // Convertir le numéro en email pour l'authentification
       const email = `${fullPhone.replace('+', '')}@ndjobi.com`;
       
@@ -134,6 +200,20 @@ export const PhoneLogin = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
+        <Label htmlFor="channel">Canal de vérification</Label>
+        <Select value={channel} onValueChange={(v) => handleChannelChange(v as any)}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            <SelectItem value="sms">SMS</SelectItem>
+            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+            <SelectItem value="email">E-mail</SelectItem>
+          </SelectContent>
+        </Select>
+        <input type="hidden" {...register('channel')} value={channel} />
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="login-phone">Numéro de téléphone</Label>
         <div className="flex gap-2">
           <Select value={countryCode} onValueChange={handleCountryChange}>
@@ -165,6 +245,16 @@ export const PhoneLogin = () => {
         )}
       </div>
 
+      {channel === 'email' && (
+        <div className="space-y-2">
+          <Label htmlFor="email">E-mail pour OTP</Label>
+          <Input id="email" type="email" placeholder="votre@email.com" {...register('emailAddress')} />
+          {errors.emailAddress && (
+            <p className="text-xs text-destructive">{String(errors.emailAddress.message)}</p>
+          )}
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="pin">Code PIN (6 chiffres)</Label>
         <div className="relative">
@@ -184,16 +274,39 @@ export const PhoneLogin = () => {
         )}
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Connexion...
-          </>
-        ) : (
-          'Se connecter'
-        )}
-      </Button>
+      {step === 'verify' && (
+        <div className="space-y-2">
+          <Label htmlFor="otp">Code OTP reçu</Label>
+          <Input id="otp" type="text" inputMode="numeric" maxLength={6} placeholder="123456" {...register('otpCode')} />
+          {errors.otpCode && (
+            <p className="text-xs text-destructive">{String(errors.otpCode.message)}</p>
+          )}
+        </div>
+      )}
+
+      <div className="flex gap-2">
+        <Button type="button" variant="secondary" onClick={handleSubmit(onRequestOtp)} disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Envoi...
+            </>
+          ) : (
+            'Envoyer le code'
+          )}
+        </Button>
+
+        <Button type="submit" className="flex-1" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Vérification...
+            </>
+          ) : (
+            'Se connecter'
+          )}
+        </Button>
+      </div>
     </form>
   );
 };
