@@ -116,20 +116,6 @@ const SuperAdminDashboard = () => {
   const { toast } = useToast();
   
   console.log('🏛️ SuperAdminDashboard state:', { user: !!user, role, authLoading });
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Chargement...</p>
-      </div>
-    );
-  }
-  if (!role || role !== 'super_admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500">Accès refusé</p>
-      </div>
-    );
-  }
   
   const [activeView, setActiveView] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(false);
@@ -196,6 +182,23 @@ const SuperAdminDashboard = () => {
     last_used: string | null;
   }>>([]);
   // Démo désactivée (migration v2)
+
+  // IMPORTANT: Les hooks ci-dessus doivent être déclarés avant tout return
+  // pour respecter l'ordre des hooks entre les rendus
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Chargement...</p>
+      </div>
+    );
+  }
+  if (!role || role !== 'super_admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">Accès refusé</p>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
