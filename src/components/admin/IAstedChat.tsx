@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   Brain, Send, Loader2, Sparkles, TrendingUp, Users,
-  Shield, AlertCircle, RefreshCw, Mic, FileText, Zap
+  Shield, AlertCircle, RefreshCw, Mic, FileText, Zap, X
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,8 +11,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { IAstedService, Message } from '@/services/iAstedService';
 import { useToast } from '@/hooks/use-toast';
+import { IAstedButton } from '@/components/ui/iAstedButton';
 
-export function IAstedChat() {
+interface IAstedChatProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function IAstedChat({ isOpen = true, onClose }: IAstedChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -88,18 +94,18 @@ export function IAstedChat() {
     { label: 'Performance Sous-Admins', prompt: 'Évalue la performance des Sous-Administrateurs', icon: Users }
   ];
 
+  if (!isOpen) return null;
+
   return (
     <Card className="h-[700px] flex flex-col">
-      <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-primary/10">
+      <CardHeader className="border-b bg-gradient-to-r from-purple-500/5 to-purple-500/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <Brain className="h-6 w-6 text-primary" />
-            </div>
+            <IAstedButton size="sm" onClick={() => {}} />
             <div>
               <CardTitle className="flex items-center gap-2">
                 iAsted
-                <Badge variant="default" className="text-xs">
+                <Badge variant="default" className="text-xs bg-purple-600">
                   <Sparkles className="h-3 w-3 mr-1" />
                   IA Présidentielle
                 </Badge>
@@ -109,17 +115,28 @@ export function IAstedChat() {
               </CardDescription>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setMessages([{
-              role: 'assistant',
-              content: 'Excellence, je suis prêt à vous assister. Que puis-je analyser pour vous ?',
-              timestamp: new Date().toISOString()
-            }])}
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMessages([{
+                role: 'assistant',
+                content: 'Excellence, je suis prêt à vous assister. Que puis-je analyser pour vous ?',
+                timestamp: new Date().toISOString()
+              }])}
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
 

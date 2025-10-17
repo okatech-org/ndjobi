@@ -24,6 +24,7 @@ import { useProtocolEtat } from '@/hooks/useProtocolEtat';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { IAstedChat } from '@/components/admin/IAstedChat';
+import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -819,14 +820,40 @@ export default function AdminDashboard() {
       </div>
 
       <main className="container py-8 flex-1">
+        {/* Boutons d'accès rapide pour mobile */}
+        <div className="md:hidden mb-6">
+          <div className="flex gap-4 justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveView('xr7')}
+              className="flex items-center gap-2 border-red-200 hover:border-red-300 hover:bg-red-50"
+            >
+              <Shield className="h-4 w-4 text-red-600" />
+              XR-7
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveView('iasted')}
+              className="flex items-center gap-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+            >
+              <Brain className="h-4 w-4 text-purple-600" />
+              iAsted
+            </Button>
+          </div>
+        </div>
+
         {activeView === 'dashboard' && renderDashboardGlobal()}
         {activeView === 'validation' && renderValidation()}
         {activeView === 'enquetes' && renderSuiviEnquetes()}
         {activeView === 'sousadmins' && renderGestionSousAdmins()}
         {activeView === 'rapports' && renderRapportsStrategiques()}
         {activeView === 'xr7' && <ModuleXR7 />}
-        {activeView === 'iasted' && <IAstedChat />}
+        {activeView === 'iasted' && <IAstedChat isOpen={true} />}
       </main>
+      
+      {activeView !== 'iasted' && <IAstedFloatingButton />}
 
       <div className="border-t mt-12">
         <div className="container py-6">
@@ -841,9 +868,9 @@ export default function AdminDashboard() {
                 Système Opérationnel
               </span>
               </div>
+              </div>
                 </div>
-                </div>
-                </div>
+                    </div>
       
       <Footer />
     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Shield, Zap, Loader2 } from 'lucide-react';
+import { Shield, Zap, Loader2, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,8 +9,6 @@ import { PhoneAuth } from '@/components/auth/PhoneAuth';
 import { Separator } from '@/components/ui/separator';
 import { userPersistence } from '@/services/userPersistence';
 import logoNdjobi from '@/assets/logo_ndjobi.png';
-
-// Section Comptes Démo supprimée (migration v2)
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -26,13 +24,35 @@ const Auth = () => {
       setActionMessage('🔒 Connectez-vous pour protéger votre projet');
     }
     
-    // Vérifier si l'utilisateur a des données stockées
     setHasStoredUser(userPersistence.hasStoredUser());
   }, [searchParams]);
 
-  // Icônes démo supprimées (migration v2)
+  const handleDemoLogin = async () => {
+    setLoading('demo');
+    try {
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
+        email: '24177777001@ndjobi.com',
+        password: '123456',
+      });
 
-  // Accès démo supprimé (migration v2)
+      if (error) throw error;
+
+      toast({
+        title: 'Connexion démo réussie !',
+        description: 'Vous êtes connecté avec le compte citoyen démo',
+      });
+      
+      navigate('/dashboard/user');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur de connexion démo',
+        description: error?.message || 'Impossible de se connecter au compte démo',
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-4 py-12">
@@ -103,7 +123,57 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* Section Démo supprimée dans la migration v2 */}
+          {/* Demo Account Section */}
+          <div className="space-y-6">
+            <Card className="border-2 border-primary/20">
+              <CardHeader>
+                <div className="flex items-center justify-center mb-2">
+                  <UserCircle className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-center text-xl sm:text-2xl">
+                  Compte Démo Citoyen
+                </CardTitle>
+                <CardDescription className="text-center">
+                  Testez la plateforme avec un compte pré-configuré
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  <p className="text-sm font-medium">Fonctionnalités disponibles :</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                    <li>✅ Créer des signalements</li>
+                    <li>✅ Protéger des projets</li>
+                    <li>✅ Consulter vos documents</li>
+                    <li>✅ Gérer votre profil</li>
+                  </ul>
+                </div>
+                
+                <Button
+                  onClick={handleDemoLogin}
+                  disabled={loading === 'demo'}
+                  className="w-full h-12 text-lg font-semibold"
+                  variant="outline"
+                >
+                  {loading === 'demo' ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Connexion...
+                    </>
+                  ) : (
+                    <>
+                      <UserCircle className="mr-2 h-5 w-5" />
+                      Accéder au compte démo
+                    </>
+                  )}
+                </Button>
+
+                <div className="text-xs text-center text-muted-foreground pt-2 border-t">
+                  <p className="font-mono">Email: 24177777001@ndjobi.com</p>
+                  <p className="font-mono">Mot de passe: 123456</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           
         </div>
       </div>

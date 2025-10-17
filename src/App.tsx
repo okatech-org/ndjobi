@@ -129,6 +129,23 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Rendre le chatbot Ndjobi UNIQUEMENT pour l'espace Citoyen (role user)
+// et l'exclure explicitement des espaces Admin / Super Admin / Agent
+const NdjobiAgentVisibility = () => {
+  const { role } = useAuth();
+  const location = useLocation();
+
+  const path = location.pathname || '';
+  const isRestrictedSpace =
+    path.startsWith('/dashboard/admin') ||
+    path.startsWith('/dashboard/super-admin') ||
+    path.startsWith('/dashboard/agent');
+
+  if (isRestrictedSpace) return null;
+  if (role && role !== 'user') return null;
+  return <NdjobiAIAgent />;
+};
+
 const App = () => {
   return (
     <ErrorBoundary>
@@ -224,7 +241,7 @@ const App = () => {
               </Suspense>
             } />
           </Routes>
-          <NdjobiAIAgent />
+          <NdjobiAgentVisibility />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

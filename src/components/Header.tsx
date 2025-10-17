@@ -20,7 +20,7 @@ import logoNdjobi from "@/assets/logo_ndjobi.png";
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, role, profile, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -67,7 +67,10 @@ const Header = () => {
     { label: "Profil", path: `${dashboardPath}?view=profile`, icon: User },
   ] : [
     { label: "Mon Profil", path: dashboardPath, icon: User },
-    { label: "Taper le Ndjobi", path: `${dashboardPath}?view=report`, icon: AlertCircle },
+    // Masquer explicitement "Taper le Ndjobi" pour les rôles non-citoyens
+    ...(currentRole === 'user' ? [
+      { label: "Taper le Ndjobi", path: `${dashboardPath}?view=report`, icon: AlertCircle },
+    ] : []),
     { label: "Protéger", path: `${dashboardPath}?view=project`, icon: FolderLock },
     { label: "Mes Dossiers", path: `${dashboardPath}?view=files`, icon: FileText },
     { label: "Paramètres", path: `${dashboardPath}?view=settings`, icon: Settings },
