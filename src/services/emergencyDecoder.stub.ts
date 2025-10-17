@@ -1,5 +1,5 @@
-// Stub temporaire - nécessite des tables BD non présentes
-const emergencyDecoderService = {
+// Stub temporaire pour emergencyDecoder - nécessite des tables BD non présentes
+export const emergencyDecoderService = {
   activateEmergencyProtocol: async () => ({ success: true, activationId: 'stub' }),
   deactivateProtocol: async () => ({ success: true }),
   decodeEmergencyData: async () => ({ success: true, data: {} }),

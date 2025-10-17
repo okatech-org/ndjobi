@@ -199,17 +199,17 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
           )}
 
           {/* Recommendations */}
-          {analysis.recommendations && analysis.recommendations.length > 0 && (
+          {Array.isArray(analysis.recommendations) && analysis.recommendations.length > 0 && (
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2 flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
                 Recommandations
               </h3>
               <ul className="space-y-2">
-                {analysis.recommendations.map((rec: string, index: number) => (
+                {(analysis.recommendations as string[]).map((rec: string, index: number) => (
                   <li key={index} className="flex items-start gap-2 text-sm bg-muted p-2 rounded">
                     <span className="font-bold text-primary">{index + 1}.</span>
-                    <span>{rec}</span>
+                    <span>{String(rec)}</span>
                   </li>
                 ))}
               </ul>
@@ -223,21 +223,21 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
                 Impact estimé
               </h3>
               <p className="text-sm bg-blue-50 dark:bg-blue-950 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                {analysis.estimatedImpact}
+                {String(analysis.estimatedImpact || '')}
               </p>
             </div>
           )}
 
           {/* Related Categories */}
-          {analysis.relatedCategories && analysis.relatedCategories.length > 0 && (
+          {Array.isArray(analysis.relatedCategories) && analysis.relatedCategories.length > 0 && (
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
                 Catégories liées
               </h3>
               <div className="flex flex-wrap gap-2">
-                {analysis.relatedCategories.map((category: string, index: number) => (
+                {(analysis.relatedCategories as string[]).map((category: string, index: number) => (
                   <Badge key={index} variant="outline">
-                    {category}
+                    {String(category)}
                   </Badge>
                 ))}
               </div>

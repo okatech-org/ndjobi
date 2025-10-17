@@ -286,9 +286,9 @@ class SystemManagementService {
       
       for (const table of tables) {
         try {
-          // Test simple - essayer de lire sans auth
+          // Test simple - vérifier l'existence de la table
           const { error } = await supabase
-            .from(table)
+            .from(table as any)
             .select('id')
             .limit(1);
           

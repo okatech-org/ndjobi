@@ -1,4 +1,4 @@
-// Stub temporaire - crypto-js mode.GCM non disponible
+// Stub temporaire pour encryptionService - nécessite crypto-js correctement configuré
 import CryptoJS from 'crypto-js';
 
 class EncryptionService {

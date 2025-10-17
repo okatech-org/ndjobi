@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 interface NotificationOptions {
   title: string;
   body: string;

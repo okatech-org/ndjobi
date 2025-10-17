@@ -1,20 +1,14 @@
-// Stub temporaire - nécessite des tables BD non présentes
-
+// Stub temporaire pour deviceIdentity - nécessite des tables BD non présentes
 export const deviceIdentityService = {
   initializeDevice: async () => ({ success: true, deviceId: 'stub-device-id' }),
   getCurrentDevice: () => ({ deviceId: 'stub-device-id', fingerprint: 'stub' }),
-  getDeviceId: () => 'stub-device-id',
-  linkDeviceToUser: async (_userId?: string) => ({ success: true }),
-  linkToUser: async (_userId: string) => ({ success: true }),
+  linkDeviceToUser: async () => ({ success: true }),
   migrateDeviceData: async () => ({ success: true }),
   getDeviceHistory: async () => [],
   getLinkedDevices: async () => [],
   unlinkDevice: async () => ({ success: true }),
   verifyDeviceOwnership: async () => true,
   getDeviceStats: async () => ({ total: 0, linked: 0, anonymous: 0 }),
-  recordAnonymousSignalement: async (_data: any) => ({ success: true }),
-  recordAnonymousProject: async (_data: any) => ({ success: true }),
-  clearDeviceData: async () => ({ success: true }),
 };
 
 export default deviceIdentityService;

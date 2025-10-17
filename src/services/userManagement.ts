@@ -152,10 +152,10 @@ class UserManagementService {
       // Ajouter le nouveau rôle
       const { error } = await supabase
         .from('user_roles')
-        .insert({
+        .insert([{
           user_id: userId,
-          role: newRole,
-        });
+          role: newRole as 'admin' | 'agent' | 'super_admin' | 'user',
+        }]);
 
       if (error) throw error;
     } catch (error) {
