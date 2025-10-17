@@ -67,6 +67,7 @@ export const PhoneLogin = () => {
   const [channel, setChannel] = useState<'sms' | 'whatsapp' | 'email'>('sms');
   const [step, setStep] = useState<'request' | 'verify'>('request');
   const [otpVerified, setOtpVerified] = useState(false);
+  const [fallbackInfo, setFallbackInfo] = useState<string | null>(null);
 
   const {
     register,
@@ -108,8 +109,25 @@ export const PhoneLogin = () => {
       if (!res.success) throw new Error(res.error || 'Échec envoi OTP');
       toast({ title: 'Code envoyé', description: `Vérifiez votre ${data.channel === 'email' ? 'e-mail' : data.channel}` });
       setStep('verify');
+      setFallbackInfo(null);
     } catch (e: any) {
-      toast({ variant: 'destructive', title: 'Erreur', description: e?.message || 'Échec envoi OTP' });
+      // Fallback automatique vers e‑mail si possible
+      try {
+        if (data.channel !== 'email' && data.emailAddress) {
+          const emailRes = await twilioVerifyService.start(data.emailAddress, 'email');
+          if (emailRes.success) {
+            setChannel('email');
+            setValue('channel', 'email');
+            setStep('verify');
+            setFallbackInfo("Nous avons détecté un blocage d'envoi. Un code vous a été envoyé par e‑mail.");
+            toast({ title: 'Code envoyé par e‑mail', description: `Nous avons basculé automatiquement sur l'e‑mail: ${data.emailAddress}` });
+            return;
+          }
+        }
+        toast({ variant: 'destructive', title: 'Erreur', description: e?.message || 'Échec envoi OTP' });
+      } catch (fb: any) {
+        toast({ variant: 'destructive', title: 'Erreur', description: fb?.message || 'Échec envoi OTP' });
+      }
     } finally {
       setLoading(false);
     }
@@ -212,8 +230,16 @@ export const PhoneLogin = () => {
           </SelectContent>
         </Select>
         <input type="hidden" {...register('channel')} value={channel} />
+        <p className="text-xs text-muted-foreground">
+          En cas d'échec d'envoi sur le canal choisi, un envoi par e‑mail pourra être tenté automatiquement si une adresse est renseignée.
+        </p>
       </div>
       <div className="space-y-2">
+        {fallbackInfo && (
+          <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
+            {fallbackInfo}
+          </div>
+        )}
         <Label htmlFor="login-phone">Numéro de téléphone</Label>
         <div className="flex gap-2">
           <Select value={countryCode} onValueChange={handleCountryChange}>

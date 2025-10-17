@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { biometricAuth } from '@/services/biometricAuth';
 import { superAdminCodeService } from '@/services/auth/superAdminCodeService';
+import { twilioVerifyService } from '@/services/twilioVerifyService';
 
 interface SuperAdminAuthProps {
   isOpen: boolean;
@@ -23,6 +24,8 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [lastMethod, setLastMethod] = useState<'sms' | 'whatsapp' | 'email' | null>(null);
+  const [fallbackInfo, setFallbackInfo] = useState<string | null>(null);
 
   const { toast } = useToast();
   const { signInSuperAdmin, isLoading, error: authError, clearError } = useAuth();
@@ -38,50 +41,54 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
 
   // Countdown timer pour le code
   useEffect(() => {
-    if (!codeSent) return;
+    if (!codeSent || timeRemaining <= 0) return;
 
     const interval = setInterval(() => {
-      const remaining = superAdminCodeService.getTimeRemaining();
-      setTimeRemaining(remaining);
-
-      if (remaining <= 0) {
-        setCodeSent(false);
-        toast({
-          variant: 'destructive',
-          title: 'Code expiré',
-          description: 'Le code a expiré. Veuillez en demander un nouveau.',
-        });
-      }
+      setTimeRemaining((prev) => {
+        const next = prev - 1;
+        if (next <= 0) {
+          setCodeSent(false);
+          toast({
+            variant: 'destructive',
+            title: 'Code expiré',
+            description: 'Le code a expiré. Veuillez en demander un nouveau.',
+          });
+        }
+        return next;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [codeSent, toast]);
+  }, [codeSent, timeRemaining, toast]);
 
   const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
     
-    // Valider le code d'abord avec le service
-    const validation = superAdminCodeService.validateCode(code);
-    
-    if (!validation.success) {
-      toast({
-        variant: 'destructive',
-        title: 'Code invalide',
-        description: validation.error,
-      });
-      return;
-    }
+    try {
+      const channel = lastMethod || 'sms';
+      const to = channel === 'email' ? contactInfo.email : contactInfo.phone;
+      if (!to) {
+        toast({ variant: 'destructive', title: 'Contact manquant', description: 'Aucun destinataire configuré' });
+        return;
+      }
 
-    // Code valide - authentifier avec le hook
-    const result = await signInSuperAdmin(code);
-    
-    if (result.success) {
-      toast({
-        title: 'Authentification réussie',
-        description: 'Bienvenue dans l\'espace Super Admin',
-      });
-      onClose();
+      // Vérifier le code OTP via Twilio Verify
+      const verifyRes = await twilioVerifyService.check(to, code);
+      if (!verifyRes.success || verifyRes.valid !== true) {
+        toast({ variant: 'destructive', title: 'Code invalide', description: verifyRes.error || 'Le code OTP est invalide' });
+        return;
+      }
+
+      // OTP validé: on utilise le code attendu par signInSuperAdmin depuis l'env
+      const envCode = import.meta.env.VITE_SUPER_ADMIN_CODE as string;
+      const result = await signInSuperAdmin(envCode);
+      if (result.success) {
+        toast({ title: 'Authentification réussie', description: 'Bienvenue dans l\'espace Super Admin' });
+        onClose();
+      }
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Erreur', description: err?.message || 'Vérification OTP impossible' });
     }
   };
 
@@ -90,35 +97,35 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     clearError();
 
     try {
-      const result = await superAdminCodeService.sendCode(method);
+      const to = method === 'email' ? contactInfo.email : contactInfo.phone;
+      const startRes = await twilioVerifyService.start(to, method);
+      if (!startRes.success) throw new Error(startRes.error || 'Échec envoi OTP');
+      setLastMethod(method);
+      setCodeSent(true);
+      setShowSendCode(false);
+      setTimeRemaining(10 * 60); // 10 minutes (Aligné avec la conf courante)
 
-      if (result.success) {
-        setCodeSent(true);
-        setShowSendCode(false);
-        setTimeRemaining(result.expiresIn! * 60);
-
-        const methodLabel = 
-          method === 'sms' ? 'SMS' :
-          method === 'whatsapp' ? 'WhatsApp' :
-          'Email';
-
-        toast({
-          title: 'Code envoyé',
-          description: `Un code d'accès a été envoyé par ${methodLabel}. Validité: ${result.expiresIn} minutes.`,
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Erreur d\'envoi',
-          description: result.error || 'Impossible d\'envoyer le code',
-        });
-      }
+      const methodLabel = method === 'sms' ? 'SMS' : method === 'whatsapp' ? 'WhatsApp' : 'Email';
+      toast({ title: 'Code envoyé', description: `Un code d'accès a été envoyé par ${methodLabel}.` });
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Erreur',
-        description: error.message || 'Une erreur est survenue',
-      });
+      // Fallback automatique vers E-mail en cas d'échec (CORS / réseau / canal bloqué)
+      try {
+        if (method !== 'email') {
+          const emailRes = await twilioVerifyService.start(contactInfo.email, 'email');
+          if (emailRes.success) {
+            setLastMethod('email');
+            setCodeSent(true);
+            setShowSendCode(false);
+            setTimeRemaining(10 * 60);
+            setFallbackInfo("Nous avons détecté un blocage d'envoi. Un code vous a été envoyé par e‑mail.");
+            toast({ title: 'Code envoyé par e‑mail', description: `Nous avons basculé automatiquement sur l'e‑mail: ${contactInfo.email}` });
+            return;
+          }
+        }
+        toast({ variant: 'destructive', title: 'Erreur', description: error?.message || 'Impossible d\'envoyer le code' });
+      } catch (fallbackErr: any) {
+        toast({ variant: 'destructive', title: 'Erreur', description: fallbackErr?.message || 'Impossible d\'envoyer le code' });
+      }
     } finally {
       setIsSendingCode(false);
     }
@@ -227,6 +234,12 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
               )}
 
               <div className="flex flex-col gap-3">
+            {fallbackInfo && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{fallbackInfo}</AlertDescription>
+              </Alert>
+            )}
                 <Button
                   type="submit"
                   className="w-full"
@@ -332,6 +345,10 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
                   </div>
                 </Button>
               </div>
+
+              <p className="text-xs text-muted-foreground text-center">
+                En cas d'échec sur SMS/WhatsApp, un envoi par e‑mail pourra être tenté automatiquement.
+              </p>
 
               <Button
                 type="button"
