@@ -100,86 +100,86 @@ export default function AdminDashboard() {
   }
 
   const renderDashboardGlobal = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-2 border-primary">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+    <div className="space-y-4 md:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <Card className="border-2 border-primary transition-all hover:shadow-lg">
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Signalements Nationaux
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold">{kpis?.total_signalements?.toLocaleString() || 0}</div>
-                <Badge variant="default" className="mt-2">{kpis?.tendance || '+0%'}</Badge>
+                <div className="text-2xl md:text-3xl font-bold">{kpis?.total_signalements?.toLocaleString() || 0}</div>
+                <Badge variant="default" className="mt-1 md:mt-2 text-xs">{kpis?.tendance || '+0%'}</Badge>
             </div>
-              <AlertTriangle className="h-10 w-10 text-orange-500 opacity-70" />
+              <AlertTriangle className="h-8 w-8 md:h-10 md:w-10 text-orange-500 opacity-70" />
             </div>
-            <div className="mt-3 text-sm text-muted-foreground">
-              {kpis?.signalements_critiques || 0} cas critiques nécessitent votre attention
+            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+              {kpis?.signalements_critiques || 0} cas critiques
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-green-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card className="border-2 border-green-500 transition-all hover:shadow-lg">
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Impact Économique
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold">
+                <div className="text-2xl md:text-3xl font-bold">
                   {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
                 </div>
-                <div className="text-sm text-green-600 mt-2">FCFA récupérés</div>
+                <div className="text-xs md:text-sm text-green-600 mt-1 md:mt-2">FCFA récupérés</div>
               </div>
-              <DollarSign className="h-10 w-10 text-green-500 opacity-70" />
+              <DollarSign className="h-8 w-8 md:h-10 md:w-10 text-green-500 opacity-70" />
                 </div>
-            <div className="mt-3 text-sm text-muted-foreground">
-              Fonds détournés restitués à l'État
+            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+              Fonds restitués
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-blue-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card className="border-2 border-blue-500 transition-all hover:shadow-lg">
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Taux de Résolution
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="w-full">
-                <div className="text-3xl font-bold mb-2">{kpis?.taux_resolution || 0}%</div>
+                <div className="text-2xl md:text-3xl font-bold mb-2">{kpis?.taux_resolution || 0}%</div>
                 <Progress value={kpis?.taux_resolution || 0} className="h-2" />
               </div>
-              <Target className="h-10 w-10 text-blue-500 opacity-70 ml-3" />
+              <Target className="h-8 w-8 md:h-10 md:w-10 text-blue-500 opacity-70 ml-3" />
             </div>
-            <div className="mt-3 text-sm text-muted-foreground">
-              Objectif Vision 2025: 85% de résolution
+            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+              Objectif: 85%
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-purple-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card className="border-2 border-purple-500 transition-all hover:shadow-lg">
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Score Transparence
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold">{kpis?.score_transparence || 0}/100</div>
-                <Badge variant="outline" className="mt-2">Deuxième République</Badge>
+                <div className="text-2xl md:text-3xl font-bold">{kpis?.score_transparence || 0}/100</div>
+                <Badge variant="outline" className="mt-1 md:mt-2 text-xs">Deuxième République</Badge>
               </div>
-              <Shield className="h-10 w-10 text-purple-500 opacity-70" />
+              <Shield className="h-8 w-8 md:h-10 md:w-10 text-purple-500 opacity-70" />
             </div>
-            <div className="mt-3 text-sm text-muted-foreground">
-              Indice de gouvernance nationale
+            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+              Indice national
             </div>
           </CardContent>
         </Card>
@@ -285,51 +285,53 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            Distribution Régionale - Vue d'Ensemble
-          </CardTitle>
-          <CardDescription>
-            Performance de la lutte anticorruption par région
-          </CardDescription>
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <MapPin className="h-4 w-4 md:h-5 md:w-5" />
+              Distribution Régionale
+            </CardTitle>
+            <CardDescription className="text-xs md:text-sm">
+              Performance par région
+            </CardDescription>
           </CardHeader>
           <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-sm">Région</th>
-                  <th className="text-center py-3 px-4 font-medium text-sm">Cas Signalés</th>
-                  <th className="text-center py-3 px-4 font-medium text-sm">Cas Résolus</th>
-                  <th className="text-center py-3 px-4 font-medium text-sm">Taux Résolution</th>
-                  <th className="text-center py-3 px-4 font-medium text-sm">Priorité</th>
-                </tr>
-              </thead>
-              <tbody>
-                {distributionRegionale.map((region, idx) => (
-                  <tr key={idx} className="border-b hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-4 font-medium">{region.region}</td>
-                    <td className="py-3 px-4 text-center">{region.cas}</td>
-                    <td className="py-3 px-4 text-center">{region.resolus}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2 justify-center">
-                        <Progress value={region.taux} className="w-20 h-2" />
-                        <span className="text-sm min-w-[35px]">{region.taux}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <Badge variant={
-                        region.priorite === 'Haute' ? 'destructive' :
-                        region.priorite === 'Moyenne' ? 'default' :
-                        'secondary'
-                      }>
-                        {region.priorite}
-                      </Badge>
-                    </td>
+          <div className="overflow-x-auto -mx-2 md:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm whitespace-nowrap">Région</th>
+                    <th className="text-center py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm whitespace-nowrap">Signalés</th>
+                    <th className="text-center py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm whitespace-nowrap">Résolus</th>
+                    <th className="text-center py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm whitespace-nowrap">Taux</th>
+                    <th className="text-center py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm whitespace-nowrap">Priorité</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {distributionRegionale.map((region, idx) => (
+                    <tr key={idx} className="border-b hover:bg-muted/50 transition-colors">
+                      <td className="py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm">{region.region}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-4 text-center text-xs md:text-sm">{region.cas}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-4 text-center text-xs md:text-sm">{region.resolus}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-4">
+                        <div className="flex items-center gap-2 justify-center">
+                          <Progress value={region.taux} className="w-12 md:w-20 h-1.5 md:h-2" />
+                          <span className="text-xs md:text-sm min-w-[30px] md:min-w-[35px]">{region.taux}%</span>
+                        </div>
+                      </td>
+                      <td className="py-2 md:py-3 px-2 md:px-4 text-center">
+                        <Badge variant={
+                          region.priorite === 'Haute' ? 'destructive' :
+                          region.priorite === 'Moyenne' ? 'default' :
+                          'secondary'
+                        } className="text-xs">
+                          {region.priorite}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -726,91 +728,91 @@ export default function AdminDashboard() {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10">
-        <div className="container py-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-                <Crown className="h-7 w-7 text-primary" />
+      <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5">
+        <div className="container py-4 md:py-6">
+          <div className="flex items-center justify-between flex-wrap gap-3 md:gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <Crown className="h-6 w-6 md:h-7 md:w-7 text-primary" />
               </div>
             <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2 flex-wrap">
                 Protocole d'État
-                  <Badge variant="default" className="ml-2">
+                  <Badge variant="default" className="text-xs">
                     <Shield className="h-3 w-3 mr-1" />
                     Admin
                   </Badge>
               </h1>
-                <p className="text-muted-foreground text-sm">
-                  Interface de Commandement - Supervision Stratégique Nationale
+                <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">
+                  Interface de Commandement National
               </p>
             </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <div className="text-right">
-                <div className="text-sm text-muted-foreground">Gabon - Deuxième République</div>
-                <div className="text-xs font-medium">Vision 2025 • Restauration des Institutions</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Gabon - Deuxième République</div>
+                <div className="text-xs font-medium">Vision 2025</div>
               </div>
             </div>
           </div>
         </div>
           </div>
 
-      <div className="border-b">
+      <div className="border-b overflow-x-auto scrollbar-hide">
         <div className="container">
           <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-            <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-0 flex-wrap">
+            <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-0 flex flex-nowrap md:flex-wrap min-w-max md:min-w-0">
               <TabsTrigger 
                 value="dashboard" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
               >
-                <BarChart3 className="h-4 w-4 mr-2" />
+                <BarChart3 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 <span className="hidden sm:inline">Dashboard Global</span>
                 <span className="sm:hidden">Dashboard</span>
                   </TabsTrigger>
               <TabsTrigger 
                 value="validation"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
               >
-                <CheckCircle className="h-4 w-4 mr-2" />
+                <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 Validation
                   </TabsTrigger>
               <TabsTrigger 
                 value="enquetes"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
               >
-                <Eye className="h-4 w-4 mr-2" />
+                <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 <span className="hidden sm:inline">Suivi Enquêtes</span>
                 <span className="sm:hidden">Enquêtes</span>
                   </TabsTrigger>
               <TabsTrigger 
                 value="sousadmins"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
               >
-                <Users className="h-4 w-4 mr-2" />
+                <Users className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 <span className="hidden sm:inline">Sous-Admins</span>
                 <span className="sm:hidden">Admins</span>
                   </TabsTrigger>
               <TabsTrigger 
                 value="rapports"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 sm:px-6 py-4 text-sm"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
               >
-                <FileText className="h-4 w-4 mr-2" />
+                <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 Rapports
                   </TabsTrigger>
               <TabsTrigger 
                 value="xr7"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-red-500 rounded-none px-4 sm:px-6 py-4 text-sm"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-red-500 rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
               >
-                <Shield className="h-4 w-4 mr-2 text-red-600" />
+                <Shield className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-red-600" />
                 <span className="hidden sm:inline">Module XR-7</span>
                 <span className="sm:hidden">XR-7</span>
                   </TabsTrigger>
               <TabsTrigger 
                 value="iasted"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none px-4 sm:px-6 py-4 text-sm"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
               >
-                <Brain className="h-4 w-4 mr-2 text-purple-600" />
+                <Brain className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-purple-600" />
                 <span className="hidden sm:inline">iAsted IA</span>
                 <span className="sm:hidden">iAsted</span>
                   </TabsTrigger>
@@ -819,26 +821,26 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <main className="container py-8 flex-1">
+      <main className="container py-4 md:py-8 flex-1">
         {/* Boutons d'accès rapide pour mobile */}
-        <div className="md:hidden mb-6">
-          <div className="flex gap-4 justify-center">
+        <div className="md:hidden mb-4">
+          <div className="flex gap-3 justify-center">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setActiveView('xr7')}
-              className="flex items-center gap-2 border-red-200 hover:border-red-300 hover:bg-red-50"
+              className="flex items-center gap-2 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950/30 text-xs h-9 px-3 touch-manipulation"
             >
-              <Shield className="h-4 w-4 text-red-600" />
+              <Shield className="h-3.5 w-3.5 text-red-600" />
               XR-7
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setActiveView('iasted')}
-              className="flex items-center gap-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+              className="flex items-center gap-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:border-purple-900 dark:hover:bg-purple-950/30 text-xs h-9 px-3 touch-manipulation"
             >
-              <Brain className="h-4 w-4 text-purple-600" />
+              <Brain className="h-3.5 w-3.5 text-purple-600" />
               iAsted
             </Button>
           </div>
@@ -855,17 +857,17 @@ export default function AdminDashboard() {
       
       {activeView !== 'iasted' && <IAstedFloatingButton />}
 
-      <div className="border-t mt-12">
-        <div className="container py-6">
-          <div className="flex items-center justify-between text-sm text-muted-foreground flex-wrap gap-3">
+      <div className="border-t mt-8 md:mt-12">
+        <div className="container py-4 md:py-6">
+          <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground flex-wrap gap-2 md:gap-3">
             <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              <span>Plateforme NDJOBI - Système National de Lutte Anticorruption</span>
+              <Shield className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <span className="text-xs md:text-sm">Plateforme NDJOBI</span>
               </div>
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-green-500" />
-                Système Opérationnel
+            <div className="flex items-center gap-2 md:gap-4">
+              <span className="flex items-center gap-1.5 md:gap-2">
+                <Activity className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-500" />
+                <span className="text-xs md:text-sm">Opérationnel</span>
               </span>
               </div>
               </div>

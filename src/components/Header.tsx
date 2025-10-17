@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { accountSwitchingService } from "@/services/accountSwitching";
 import { UserRole } from "@/types/auth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Sheet,
   SheetContent,
@@ -226,12 +227,13 @@ const Header = () => {
             );
           })}
           <div className="flex items-center gap-2 ml-4">
-            {/* Bouton Nous Contacter - toujours visible */}
+            <ThemeToggle />
+            
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleContactUs}
-              className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+              className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
             >
               <MessageCircle className="h-4 w-4 mr-2" />
               <span className="hidden md:inline">Nous Contacter</span>
@@ -319,11 +321,15 @@ const Header = () => {
                     );
                   })}
                   
-                  <div className="pt-4 mt-4 border-t">
-                    {/* Bouton Nous Contacter dans le menu mobile */}
+                  <div className="pt-4 mt-4 border-t space-y-2">
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <span className="text-sm font-medium">Thème</span>
+                      <ThemeToggle variant="ghost" />
+                    </div>
+                    
                     <Button
                       variant="outline"
-                      className="w-full justify-start gap-3 mb-2 bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+                      className="w-full justify-start gap-3 bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
                       onClick={() => {
                         handleContactUs();
                         setMobileMenuOpen(false);
@@ -363,11 +369,12 @@ const Header = () => {
             </Sheet>
           ) : (
             <div className="flex items-center gap-2">
+              <ThemeToggle size="sm" />
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleContactUs}
-                className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
+                className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 <span className="hidden md:inline">Nous Contacter</span>
