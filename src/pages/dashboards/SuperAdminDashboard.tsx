@@ -2940,7 +2940,7 @@ const SuperAdminDashboard = () => {
         },
         {
           id: 'demo-agent',
-          email: '24177777002@ndjobi.temp',
+          email: '24177777002@ndjobi.com',
           role: 'agent',
           password: '123456',
           phoneNumber: '77777002',
@@ -2951,7 +2951,7 @@ const SuperAdminDashboard = () => {
         },
         {
           id: 'demo-admin',
-          email: '24177777003@ndjobi.temp',
+          email: '24177777003@ndjobi.com',
           role: 'admin',
           password: '123456',
           phoneNumber: '77777003',

@@ -94,10 +94,11 @@ class AccountSwitchingService {
       const phoneNumber = demoAccount.phoneNumber || '77777001';
       const countryCode = demoAccount.countryCode || '+241';
       const fallbackEmail = `${countryCode.replace('+', '')}${phoneNumber}@ndjobi.com`;
-      const email = demoAccount.email || fallbackEmail;
+      const rawEmail = demoAccount.email || fallbackEmail;
+      const email = rawEmail.replace('@ndjobi.temp', '@ndjobi.com');
       const pin = demoAccount.password || '123456';
 
-      console.log('🔵 [AccountSwitching] Tentative de connexion avec:', { email, pin });
+      console.log('🔵 [AccountSwitching] Tentative de connexion avec (normalisé):', { email, pin });
 
       // Se connecter avec le compte démo (email construit + PIN)
       console.log('🔵 [AccountSwitching] Appel supabase.auth.signInWithPassword...');
