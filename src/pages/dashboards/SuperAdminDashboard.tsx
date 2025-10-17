@@ -2964,11 +2964,15 @@ const SuperAdminDashboard = () => {
     }
 
     const handleSwitchToDemo = async (demoAccount: DemoAccount) => {
+      console.log('🔄 handleSwitchToDemo appelé avec:', demoAccount);
       setSwitchingAccount(true);
       try {
+        console.log('📞 Appel accountSwitchingService.switchToDemoAccount...');
         const result = await accountSwitchingService.switchToDemoAccount(demoAccount);
+        console.log('📥 Résultat du basculement:', result);
         
         if (result.success) {
+          console.log('✅ Basculement réussi, affichage toast...');
           toast({
             title: 'Basculement réussi',
             description: `Vous êtes maintenant connecté en tant que ${demoAccount.fullName}`,
@@ -2978,20 +2982,24 @@ const SuperAdminDashboard = () => {
             : demoAccount.role === 'admin' ? '/dashboard/admin'
             : demoAccount.role === 'agent' ? '/dashboard/agent'
             : '/dashboard/user';
+          console.log('🎯 Redirection vers:', target);
           setTimeout(() => {
+            console.log('🚀 Redirection window.location.href =', target);
             window.location.href = target;
           }, 300);
         } else {
+          console.error('❌ Basculement échoué:', result.error);
           throw new Error(result.error || 'Erreur de basculement');
         }
       } catch (error: any) {
-        console.error('Erreur de basculement:', error);
+        console.error('💥 Erreur de basculement:', error);
         toast({
           variant: 'destructive',
           title: 'Erreur de basculement',
           description: error.message || 'Impossible de basculer vers ce compte',
         });
       } finally {
+        console.log('🏁 handleSwitchToDemo terminé, setSwitchingAccount(false)');
         setSwitchingAccount(false);
       }
     };
