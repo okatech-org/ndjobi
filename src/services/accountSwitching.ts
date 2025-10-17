@@ -28,23 +28,44 @@ class AccountSwitchingService {
   public async saveOriginalAccount(): Promise<void> {
     console.log('🔵 [AccountSwitching] saveOriginalAccount START');
     try {
-      console.log('🔵 [AccountSwitching] Appel supabase.auth.getUser()...');
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      console.log('🔵 [AccountSwitching] getUser résultat:', { user, userError });
+      // Créer un timeout pour éviter le blocage
+      const timeout = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout Supabase')), 2000);
+      });
+
+      console.log('🔵 [AccountSwitching] Appel supabase.auth.getUser() avec timeout 2s...');
+      const userResult = await Promise.race([
+        supabase.auth.getUser(),
+        timeout
+      ]).catch((err) => {
+        console.warn('⚠️ [AccountSwitching] Timeout/Erreur getUser:', err.message);
+        return { data: { user: null }, error: err };
+      });
       
-      console.log('🔵 [AccountSwitching] Appel supabase.auth.getSession()...');
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('🔵 [AccountSwitching] getSession résultat:', { session, sessionError });
+      console.log('🔵 [AccountSwitching] getUser résultat:', userResult);
+      
+      console.log('🔵 [AccountSwitching] Appel supabase.auth.getSession() avec timeout 2s...');
+      const sessionResult = await Promise.race([
+        supabase.auth.getSession(),
+        timeout
+      ]).catch((err) => {
+        console.warn('⚠️ [AccountSwitching] Timeout/Erreur getSession:', err.message);
+        return { data: { session: null }, error: err };
+      });
+      
+      console.log('🔵 [AccountSwitching] getSession résultat:', sessionResult);
+      
+      const user = userResult.data?.user;
+      const session = sessionResult.data?.session;
       
       if (user && session) {
         this.originalAccount = {
           userId: user.id,
           email: user.email || '',
-          role: 'super_admin', // Le Super Admin est toujours le compte original
+          role: 'super_admin',
           sessionToken: session.access_token
         };
 
-        // Stocker dans localStorage pour persistance
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.originalAccount));
         
         console.log('✅ [AccountSwitching] Compte original sauvegardé:', this.originalAccount);
