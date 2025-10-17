@@ -34,7 +34,7 @@ interface UserProfileProps {
 }
 
 export const UserProfile = ({ onNavigate }: UserProfileProps) => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);

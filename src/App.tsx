@@ -28,7 +28,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, role, session, isLoading } = useAuth();
+  const { user, role, isLoading } = useAuth();
   const location = useLocation();
   const [hasChecked, setHasChecked] = useState(false);
   const [demoSessionVersion, setDemoSessionVersion] = useState(0);
@@ -84,7 +84,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   } catch (_) {}
 
   // Pour les sessions locales (super_admin, demo), considérer l'accès comme autorisé
-  const hasLocalSession = (!!role && !session) || !!localDemoRole;
+  const hasLocalSession = !!role || !!localDemoRole;
 
   if (!user && !hasLocalSession) {
     if (location.pathname !== "/auth") {

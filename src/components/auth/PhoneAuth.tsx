@@ -35,7 +35,7 @@ export const PhoneAuth = () => {
             <Shield 
               className="h-6 w-6 text-primary cursor-pointer hover:text-primary/80 transition-colors" 
               onClick={handleShieldClick}
-              title="Double-clic pour l'accès Super Admin"
+              aria-label="Double-clic pour l'accès Super Admin"
             />
             Authentification
           </CardTitle>
