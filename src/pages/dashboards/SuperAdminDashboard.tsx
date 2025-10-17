@@ -195,13 +195,7 @@ const SuperAdminDashboard = () => {
     created_at: string;
     last_used: string | null;
   }>>([]);
-  const [showCreateDemo, setShowCreateDemo] = useState(false);
-  const [newDemoEmail, setNewDemoEmail] = useState('');
-  const [newDemoRole, setNewDemoRole] = useState('user');
-  const [newDemoPassword, setNewDemoPassword] = useState('');
-  const [creatingAccount, setCreatingAccount] = useState(false);
-  const [newAccountRole, setNewAccountRole] = useState('user');
-  const [switchingAccount, setSwitchingAccount] = useState(false);
+  // Démo désactivée (migration v2)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

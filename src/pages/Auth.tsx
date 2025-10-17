@@ -1,34 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Shield, User, Users, Crown, Zap, Loader2 } from 'lucide-react';
+import { Shield, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { DemoAccount } from '@/types/auth';
 import { PhoneAuth } from '@/components/auth/PhoneAuth';
 import { Separator } from '@/components/ui/separator';
-import { getDashboardUrl } from '@/lib/roleUtils';
 import { userPersistence } from '@/services/userPersistence';
-import { demoAccountService } from '@/services/demoAccountService';
 import logoNdjobi from '@/assets/logo_ndjobi.png';
 
-// Comptes démo avec emails mappés aux numéros de téléphone
-// Seul le compte Citoyen est accessible publiquement
-// Les comptes Agent DGSS et Protocole d'État sont réservés au Super Admin
-// Le compte Super Admin est accessible uniquement via double-clic sur l'icône Shield
-const demoAccounts: DemoAccount[] = [
-  {
-    email: '24177777001@ndjobi.com', // Email technique pour auth
-    password: '123456',
-    role: 'user',
-    label: 'Citoyen',
-    description: 'Accès utilisateur standard pour taper le Ndjobi et protéger',
-    icon: 'User',
-    color: 'from-primary/90 to-primary/70',
-    displayPhone: '+241 77 777 001', // Numéro affiché
-  },
-];
+// Section Comptes Démo supprimée (migration v2)
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -48,115 +30,9 @@ const Auth = () => {
     setHasStoredUser(userPersistence.hasStoredUser());
   }, [searchParams]);
 
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'User': return User;
-      case 'Users': return Users;
-      case 'Crown': return Crown;
-      case 'Zap': return Zap;
-      default: return Shield;
-    }
-  };
+  // Icônes démo supprimées (migration v2)
 
-  const handleDemoLogin = async (account: DemoAccount) => {
-    setLoading(account.email);
-
-    try {
-      // Mode local prioritaire: créer la session immédiatement pour éviter toute latence Supabase
-      const created = demoAccountService.createLocalSession(account.email);
-      if (created) {
-        toast({ 
-          title: 'Connexion réussie (Mode Local)', 
-          description: `Bienvenue, ${account.label}` 
-        });
-        await new Promise(resolve => setTimeout(resolve, 200));
-        const dashboardUrl = getDashboardUrl(account.role);
-        window.location.href = dashboardUrl;
-        return;
-      }
-
-      // Pour les comptes démo, utiliser email (fonctionne par défaut avec Supabase)
-      let { data: signInData, error: signInError }: any = await supabase.auth.signInWithPassword({
-        email: account.email,
-        password: account.password,
-      });
-
-      // Si l'utilisateur n'existe pas, créer le compte
-      if (signInError && (signInError.status === 400 || signInError.message?.includes('Invalid'))) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: account.email,
-          password: account.password,
-          options: {
-            data: { 
-              full_name: account.label,
-              role: account.role 
-            },
-          },
-        });
-
-        if (signUpError) throw signUpError;
-
-        // Se connecter après inscription
-        const res = await supabase.auth.signInWithPassword({
-          email: account.email,
-          password: account.password,
-        });
-        signInData = res.data;
-        signInError = res.error;
-      }
-
-      // Si Supabase échoue complètement, utiliser session locale
-      if (signInError) {
-        console.warn(`Connexion Supabase échouée pour ${account.email}, activation du mode local`);
-        throw new Error('FALLBACK_LOCAL');
-      }
-
-      // Connexion Supabase réussie
-      toast({ 
-        title: 'Connexion réussie !', 
-        description: `Bienvenue, ${account.label}` 
-      });
-
-      // Attendre que la session soit enregistrée
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const dashboardUrl = getDashboardUrl(account.role);
-      window.location.href = dashboardUrl;
-      
-    } catch (error: any) {
-      // Mode fallback: créer une session locale
-      if (error.message === 'FALLBACK_LOCAL') {
-        console.log(`🔄 Création session locale pour ${account.label}...`);
-        
-        const sessionCreated = demoAccountService.createLocalSession(account.email);
-        
-        if (sessionCreated) {
-          toast({ 
-            title: 'Connexion réussie (Mode Local)', 
-            description: `Bienvenue, ${account.label}` 
-          });
-
-          // Attendre un peu pour que la session soit bien enregistrée
-          await new Promise(resolve => setTimeout(resolve, 300));
-          
-          // Redirection avec rechargement
-          const dashboardUrl = getDashboardUrl(account.role);
-          window.location.href = dashboardUrl;
-          return;
-        }
-      }
-      
-      // Erreur réelle
-      console.error('Login error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erreur de connexion',
-        description: error?.message || 'Une erreur est survenue lors de la connexion',
-      });
-    } finally {
-      setLoading(null);
-    }
-  };
+  // Accès démo supprimé (migration v2)
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-4 py-12">
@@ -227,91 +103,7 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* Demo Accounts Section */}
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground text-center mb-6 flex items-center justify-center gap-3">
-                <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-                Comptes Démo
-              </h2>
-              <p className="text-sm text-center text-muted-foreground mb-6">
-                Essayez la plateforme avec un compte de démonstration
-              </p>
-              
-              <div className="grid grid-cols-1 gap-3 sm:gap-4">
-          {demoAccounts.map((account) => {
-            const Icon = getIcon(account.icon);
-            const isLoading = loading === account.email;
-
-            return (
-              <Card
-                key={account.email}
-                className="relative overflow-hidden border-2 hover:border-primary/50 transition-all hover:shadow-xl group"
-              >
-                {/* Gradient Background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${account.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-
-                <CardHeader className="relative p-3 sm:p-4 pb-2 sm:pb-3">
-                  <div className="flex items-start gap-3">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br ${account.color} shadow-lg flex items-center justify-center flex-shrink-0`}>
-                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base sm:text-lg mb-1">{account.label}</CardTitle>
-                      <CardDescription className="text-[10px] sm:text-xs line-clamp-2 leading-tight">
-                        {account.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="relative p-3 sm:p-4 pt-0">
-                  {account.displayPhone && (
-                    <div className="mb-2 text-xs text-muted-foreground text-center font-mono">
-                      📱 {account.displayPhone}
-                    </div>
-                  )}
-                  <Button
-                    onClick={() => handleDemoLogin(account)}
-                    disabled={!!loading}
-                    className="w-full"
-                    size="sm"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Connexion...
-                      </>
-                    ) : (
-                      'Connexion Directe'
-                    )}
-                  </Button>
-                  <div className="mt-1 text-[10px] text-muted-foreground text-center">
-                    PIN: 123456
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-              </div>
-              
-              {/* Information Card */}
-              <Card className="bg-muted/30 border-border/50 mt-6">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-start gap-3 text-left">
-                    <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
-                      <p className="font-medium text-foreground">Comptes de démonstration</p>
-                      <p>
-                        Ces comptes sont pré-configurés pour découvrir les différents niveaux d'accès
-                        de la plateforme NDJOBI. Les données sont partagées entre tous les utilisateurs démo.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          {/* Section Démo supprimée dans la migration v2 */}
           
         </div>
       </div>
