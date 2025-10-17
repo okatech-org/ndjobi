@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,11 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { getDashboardUrl } from '@/lib/roleUtils';
+import { useAuth } from '@/hooks/useAuth';
 import { phoneFormats, getPhoneErrorMessage } from '@/lib/phoneValidation';
-import { userPersistence } from '@/services/userPersistence';
 
 // Fonction pour créer un schéma dynamique basé sur le pays
 const createLoginSchema = (countryCode: string) => {

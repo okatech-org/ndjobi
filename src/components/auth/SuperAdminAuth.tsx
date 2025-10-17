@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Lock, Eye, EyeOff, Smartphone, Mail, AlertCircle } from 'lucide-react';
+import { Shield, Lock, Eye, EyeOff, Smartphone, Mail, AlertCircle, MessageSquare, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { biometricAuth } from '@/services/biometricAuth';
-import { superAdminAuthService } from '@/services/superAdminAuth';
-import { demoAccountService } from '@/services/demoAccountService';
+import { superAdminCodeService } from '@/services/auth/superAdminCodeService';
 
 interface SuperAdminAuthProps {
   isOpen: boolean;
@@ -20,23 +18,17 @@ interface SuperAdminAuthProps {
 export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
   const [code, setCode] = useState('');
   const [showCode, setShowCode] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotPasswordMethod, setForgotPasswordMethod] = useState<'email' | 'phone' | null>(null);
-  const [forgotPasswordCode, setForgotPasswordCode] = useState('');
-  const [showForgotPasswordCode, setShowForgotPasswordCode] = useState(false);
-  const [isProcessingForgotPassword, setIsProcessingForgotPassword] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [showSendCode, setShowSendCode] = useState(false);
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(0);
 
   const { toast } = useToast();
-  const navigate = useNavigate();
-
-  // Obtenir les informations de validation
-  const validationInfo = superAdminAuthService.getValidationInfo();
+  const { signInSuperAdmin, isLoading, error: authError, clearError } = useAuth();
+  const contactInfo = superAdminCodeService.getContactInfo();
 
   useEffect(() => {
-    // Vérifier la disponibilité biométrique
     const checkBiometric = async () => {
       const available = await biometricAuth.checkCapabilities();
       setBiometricAvailable(available);
@@ -44,173 +36,134 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     checkBiometric();
   }, []);
 
+  // Countdown timer pour le code
+  useEffect(() => {
+    if (!codeSent) return;
+
+    const interval = setInterval(() => {
+      const remaining = superAdminCodeService.getTimeRemaining();
+      setTimeRemaining(remaining);
+
+      if (remaining <= 0) {
+        setCodeSent(false);
+        toast({
+          variant: 'destructive',
+          title: 'Code expiré',
+          description: 'Le code a expiré. Veuillez en demander un nouveau.',
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [codeSent, toast]);
+
   const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearError();
     
-    setIsLoading(true);
-    setError('');
-
-    // Valider le code d'authentification
-    const validation = superAdminAuthService.validateSuperAdminCode(code);
+    // Valider le code d'abord avec le service
+    const validation = superAdminCodeService.validateCode(code);
     
     if (!validation.success) {
-      setError(validation.error || 'Code d\'authentification incorrect');
-      setIsLoading(false);
+      toast({
+        variant: 'destructive',
+        title: 'Code invalide',
+        description: validation.error,
+      });
       return;
     }
 
-    // Tentative Supabase (si présent)
-    try {
-      console.log('Tentative de connexion Super Admin avec:', '24177777000@ndjobi.com');
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: '24177777000@ndjobi.com',
-        password: '123456',
-      });
-
-      if (signInError) throw signInError;
-      if (!signInData?.user) throw new Error('Compte Super Admin non trouvé');
-
-      console.log('Connexion Super Admin réussie:', signInData.user);
-    } catch (supabaseError: any) {
-      // Fallback DEV: créer session locale Super Admin
-      console.warn('Supabase indisponible ou identifiants invalides, activation du mode local Super Admin. Détails:', supabaseError?.message);
-    }
+    // Code valide - authentifier avec le hook
+    const result = await signInSuperAdmin(code);
     
-    // Créer la session locale unifiée via demoAccountService
-    demoAccountService.createLocalSession('24177777000@ndjobi.com');
-    
-    // Créer aussi l'ancienne session pour compatibilité
-    superAdminAuthService.createSuperAdminSession();
-
-    // Afficher le message de succès
-    toast({
-      title: 'Authentification Super Admin réussie',
-      description: 'Redirection en cours...',
-    });
-
-    // Attendre un instant pour que le toast soit visible et la session enregistrée
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // NE PAS mettre dans try/catch - redirection directe
-    window.location.href = '/dashboard/super-admin';
-  };
-
-  const handleSendRecoveryCode = async (method: 'email' | 'phone') => {
-    setIsProcessingForgotPassword(true);
-    setError('');
-
-    try {
-      // Envoyer le code de récupération
-      const sendResult = await superAdminAuthService.sendValidationCode(method);
-      
-      if (!sendResult.success) {
-        setError(sendResult.error || 'Erreur lors de l\'envoi du code');
-        return;
-      }
-
+    if (result.success) {
       toast({
-        title: 'Code de récupération envoyé',
-        description: `Un code de récupération a été envoyé à ${method === 'email' ? validationInfo.email : validationInfo.phone}`,
+        title: 'Authentification réussie',
+        description: 'Bienvenue dans l\'espace Super Admin',
       });
-
-      setForgotPasswordCode('');
-    } catch (error: any) {
-      setError(error.message || 'Erreur lors de l\'envoi du code');
-    } finally {
-      setIsProcessingForgotPassword(false);
-    }
-  };
-
-  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    setIsProcessingForgotPassword(true);
-    setError('');
-
-    try {
-      // Valider le code de récupération
-      const validation = superAdminAuthService.validateCode(forgotPasswordCode);
-      
-      if (!validation.success) {
-        setError(validation.error || 'Code de récupération incorrect');
-        return;
-      }
-
-      // Code correct - permettre la création d'un nouveau mot de passe
-      toast({
-        title: 'Code de récupération validé',
-        description: 'Vous pouvez maintenant créer un nouveau mot de passe',
-      });
-
-      // Ici, on pourrait ouvrir un modal pour créer un nouveau mot de passe
-      // Pour la démo, on ferme le modal
       onClose();
+    }
+  };
+
+  const handleSendCode = async (method: 'sms' | 'whatsapp' | 'email') => {
+    setIsSendingCode(true);
+    clearError();
+
+    try {
+      const result = await superAdminCodeService.sendCode(method);
+
+      if (result.success) {
+        setCodeSent(true);
+        setShowSendCode(false);
+        setTimeRemaining(result.expiresIn! * 60);
+
+        const methodLabel = 
+          method === 'sms' ? 'SMS' :
+          method === 'whatsapp' ? 'WhatsApp' :
+          'Email';
+
+        toast({
+          title: 'Code envoyé',
+          description: `Un code d'accès a été envoyé par ${methodLabel}. Validité: ${result.expiresIn} minutes.`,
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Erreur d\'envoi',
+          description: result.error || 'Impossible d\'envoyer le code',
+        });
+      }
     } catch (error: any) {
-      setError(error.message || 'Erreur lors de la validation');
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: error.message || 'Une erreur est survenue',
+      });
     } finally {
-      setIsProcessingForgotPassword(false);
+      setIsSendingCode(false);
     }
   };
 
   const handleBiometricAuth = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-
-      const result = await biometricAuth.authenticateBiometric();
-      
-      if (result.success) {
-        // Se connecter avec le compte Super Admin
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: '24177777000@ndjobi.com',
-          password: '123456',
-        });
-
-        if (signInError) {
-          setError('Erreur de connexion au compte Super Admin');
-          return;
+    clearError();
+    
+    const biometricResult = await biometricAuth.authenticateBiometric();
+    
+    if (biometricResult.success) {
+      const storedCode = localStorage.getItem('ndjobi_super_admin_code_encrypted');
+      if (storedCode) {
+        const result = await signInSuperAdmin(storedCode);
+        if (result.success) {
+          onClose();
         }
-
-        if (!signInData?.user) {
-          setError('Compte Super Admin non trouvé');
-          return;
-        }
-
-        // Créer la session Super Admin
-        superAdminAuthService.createSuperAdminSession();
-        
-        toast({
-          title: 'Authentification biométrique réussie',
-          description: 'Accès Super Admin autorisé',
-        });
-        
-        if (window.location.pathname !== '/dashboard/super-admin') {
-          navigate('/dashboard/super-admin', { replace: true });
-        }
-        onClose();
       } else {
-        setError('Authentification biométrique échouée');
+        toast({
+          variant: 'destructive',
+          title: 'Code non trouvé',
+          description: 'Veuillez vous authentifier une fois avec le code',
+        });
       }
-    } catch (error: any) {
-      setError(error.message || 'Erreur d\'authentification biométrique');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const resetForm = () => {
     setCode('');
-    setForgotPasswordCode('');
-    setError('');
-    setShowForgotPassword(false);
-    setForgotPasswordMethod(null);
     setShowCode(false);
-    setShowForgotPasswordCode(false);
+    setShowSendCode(false);
+    setCodeSent(false);
+    setTimeRemaining(0);
+    clearError();
   };
 
   const handleClose = () => {
     resetForm();
     onClose();
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -221,11 +174,13 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
             <Shield className="h-6 w-6 text-primary" />
             Authentification Super Admin
           </DialogTitle>
+          <DialogDescription className="text-center">
+            Accès sécurisé à l'administration système
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          {!showForgotPassword ? (
-            // Authentification principale
+          {!showSendCode ? (
             <form onSubmit={handleCodeSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="super-admin-code">
@@ -237,9 +192,10 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
                     type={showCode ? 'text' : 'password'}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="Saisissez le code d'accès"
+                    placeholder="Saisissez le code à 6 chiffres"
                     className="pr-10"
                     autoComplete="off"
+                    maxLength={6}
                   />
                   <Button
                     type="button"
@@ -255,12 +211,18 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
                     )}
                   </Button>
                 </div>
+                {codeSent && timeRemaining > 0 && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" />
+                    Code expire dans {formatTime(timeRemaining)}
+                  </p>
+                )}
               </div>
 
-              {error && (
+              {authError && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{authError}</AlertDescription>
                 </Alert>
               )}
 
@@ -268,19 +230,30 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isLoading || !code}
+                  disabled={isLoading || !code || code.length !== 6}
                 >
                   {isLoading ? (
                     <>
                       <Lock className="mr-2 h-4 w-4 animate-spin" />
-                      Connexion...
+                      Vérification...
                     </>
                   ) : (
                     <>
                       <Shield className="mr-2 h-4 w-4" />
-                      Accéder au système
+                      Valider le code
                     </>
                   )}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowSendCode(true)}
+                  disabled={isLoading}
+                >
+                  <Send className="mr-2 h-4 w-4" />
+                  {codeSent ? 'Renvoyer un code' : 'Recevoir un code'}
                 </Button>
 
                 {biometricAvailable && (
@@ -295,155 +268,80 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
                     Face ID / Touch ID
                   </Button>
                 )}
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full text-sm text-muted-foreground"
-                  onClick={() => setShowForgotPassword(true)}
-                >
-                  Mot de passe oublié ?
-                </Button>
               </div>
             </form>
           ) : (
-            // Récupération de mot de passe
             <div className="space-y-4">
-              {!forgotPasswordMethod ? (
-                // Choix de la méthode de récupération
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground text-center">
-                    Choisissez comment recevoir le code de récupération
-                  </p>
-                  
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setForgotPasswordMethod('email');
-                        handleSendRecoveryCode('email');
-                      }}
-                      disabled={isProcessingForgotPassword}
-                    >
-                      <Mail className="mr-2 h-4 w-4" />
-                      Par email ({validationInfo.email})
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setForgotPasswordMethod('phone');
-                        handleSendRecoveryCode('phone');
-                      }}
-                      disabled={isProcessingForgotPassword}
-                    >
-                      <Smartphone className="mr-2 h-4 w-4" />
-                      Par SMS ({validationInfo.phone})
-                    </Button>
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full text-sm"
-                    onClick={() => setShowForgotPassword(false)}
-                  >
-                    Retour à l'authentification
-                  </Button>
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Choisissez comment recevoir votre code d'accès
+                </p>
+                <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
+                  <p className="font-medium mb-1">Informations de contact :</p>
+                  <p>📱 {contactInfo.phone}</p>
+                  <p>📧 {contactInfo.email}</p>
                 </div>
-              ) : (
-                // Saisie du code de récupération
-                <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
-                  <div className="text-center space-y-2">
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                      {forgotPasswordMethod === 'email' ? (
-                        <>
-                          <Mail className="h-4 w-4" />
-                          Code envoyé à {validationInfo.email}
-                        </>
-                      ) : (
-                        <>
-                          <Smartphone className="h-4 w-4" />
-                          Code envoyé au {validationInfo.phone}
-                        </>
-                      )}
+              </div>
+
+              <div className="grid gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => handleSendCode('sms')}
+                  disabled={isSendingCode}
+                >
+                  <Smartphone className="mr-2 h-5 w-5" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">SMS</div>
+                    <div className="text-xs text-muted-foreground">
+                      {contactInfo.phone}
                     </div>
                   </div>
+                </Button>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="forgot-password-code">
-                      Code de récupération
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="forgot-password-code"
-                        type={showForgotPasswordCode ? 'text' : 'password'}
-                        value={forgotPasswordCode}
-                        onChange={(e) => setForgotPasswordCode(e.target.value)}
-                        placeholder="Saisissez le code reçu"
-                        className="pr-10"
-                        autoComplete="off"
-                        maxLength={6}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowForgotPasswordCode(!showForgotPasswordCode)}
-                      >
-                        {showForgotPasswordCode ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => handleSendCode('whatsapp')}
+                  disabled={isSendingCode}
+                >
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">WhatsApp</div>
+                    <div className="text-xs text-muted-foreground">
+                      {contactInfo.phone}
                     </div>
                   </div>
+                </Button>
 
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="flex gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => {
-                        setForgotPasswordMethod(null);
-                        setForgotPasswordCode('');
-                        setError('');
-                      }}
-                    >
-                      Retour
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="flex-1"
-                      disabled={isProcessingForgotPassword || !forgotPasswordCode}
-                    >
-                      {isProcessingForgotPassword ? (
-                        <>
-                          <Lock className="mr-2 h-4 w-4 animate-spin" />
-                          Validation...
-                        </>
-                      ) : (
-                        <>
-                          <Shield className="mr-2 h-4 w-4" />
-                          Valider
-                        </>
-                      )}
-                    </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => handleSendCode('email')}
+                  disabled={isSendingCode}
+                >
+                  <Mail className="mr-2 h-5 w-5" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">Email</div>
+                    <div className="text-xs text-muted-foreground">
+                      {contactInfo.email}
+                    </div>
                   </div>
-                </form>
-              )}
+                </Button>
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-sm"
+                onClick={() => setShowSendCode(false)}
+                disabled={isSendingCode}
+              >
+                Retour
+              </Button>
             </div>
           )}
         </div>
