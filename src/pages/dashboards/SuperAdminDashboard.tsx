@@ -6,7 +6,7 @@ import {
   Eye, TrendingUp, Server, ChevronRight, AlertTriangle,
   Clock, Check, X, RefreshCcw, Download, Upload, MapPin, CheckCircle,
   Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus,
-  Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff
+  Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff, Brain, Package, Radio, Crown
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { superAdminAuthService } from '@/services/superAdminAuth';
