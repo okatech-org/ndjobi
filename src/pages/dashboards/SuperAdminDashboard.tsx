@@ -1821,12 +1821,13 @@ const SuperAdminDashboard = () => {
             </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="architecture">Architecture</TabsTrigger>
           <TabsTrigger value="features">Fonctionnalités</TabsTrigger>
           <TabsTrigger value="database">Base de Données</TabsTrigger>
           <TabsTrigger value="security">Sécurité</TabsTrigger>
+          <TabsTrigger value="audit">🔍 Audit</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 mt-4">
@@ -2601,6 +2602,435 @@ const SuperAdminDashboard = () => {
                   enregistrées de manière immutable et auditées.
                 </AlertDescription>
               </Alert>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="audit" className="space-y-4 mt-4">
+          <Card className="border-yellow-500/30 bg-yellow-50/5">
+            <CardHeader>
+              <CardTitle className="text-xl">📋 AUDIT COMPLET NDJOBI - Octobre 2025</CardTitle>
+              <CardDescription>Analyse exhaustive de l'application, sécurité, performances et recommandations</CardDescription>
+            </CardHeader>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="border-green-500/20">
+              <CardHeader>
+                <CardTitle className="text-sm">✅ Points Forts</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm space-y-2">
+                <div>• Architecture modulaire bien structurée</div>
+                <div>• TypeScript + React modernes</div>
+                <div>• Supabase RLS bien implémenté</div>
+                <div>• Support PWA et offline</div>
+                <div>• Authentification multi-rôle fonctionnelle</div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-orange-500/20">
+              <CardHeader>
+                <CardTitle className="text-sm">⚠️ Domaines Critiques</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm space-y-2">
+                <div>• Secrets exposés en localStorage</div>
+                <div>• Hardcoded credentials (super admin)</div>
+                <div>• Validation entrée insuffisante</div>
+                <div>• Gestion erreurs incohérente</div>
+                <div>• Tests unitaires manquants</div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-red-500/20">
+              <CardHeader>
+                <CardTitle className="text-sm">🔴 Risques Majeurs</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm space-y-2">
+                <div>• XSS potentiel (données JSON)</div>
+                <div>• CSRF non protégé explicitement</div>
+                <div>• Logging sensible en console dev</div>
+                <div>• Pas de rate limiting</div>
+                <div>• Dépendances outdated</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>🏗️ Architecture & Dépendances</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-semibold mb-2">Stack Technologique :</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  <div className="p-2 rounded border">React 18.3.1</div>
+                  <div className="p-2 rounded border">TypeScript 5.8.3</div>
+                  <div className="p-2 rounded border">Vite 5.4.19</div>
+                  <div className="p-2 rounded border">Supabase 2.75.0</div>
+                  <div className="p-2 rounded border">TailwindCSS 3.4.17</div>
+                  <div className="p-2 rounded border">Shadcn/UI Latest</div>
+                  <div className="p-2 rounded border">React Router 6.30.1</div>
+                  <div className="p-2 rounded border">React Query 5.83.0</div>
+                  <div className="p-2 rounded border">Zod 3.25.76</div>
+                </div>
+              </div>
+
+              <Alert className="border-blue-500/30 bg-blue-50/5">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Risque :</strong> Package.json contient 92 dépendances. Nécessite audit de sécurité régulier avec npm audit.
+                  Certaines versions pourraient être outdated.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>🔐 Sécurité Détaillée</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="p-3 rounded-lg border-l-4 border-red-500 bg-red-50/30">
+                  <h5 className="font-semibold text-sm mb-1">🔴 CRITIQUE: Credentials Hardcodés</h5>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    <strong>Fichier:</strong> src/services/superAdminAuth.ts
+                  </p>
+                  <p className="text-xs mb-2">
+                    Code d'accès Super Admin '011282*' et email 'iasted@me.com' + téléphone '+33661002616' en clair
+                  </p>
+                  <p className="text-xs text-orange-700"><strong>Correction:</strong> Utiliser variables d'environnement + chiffrement</p>
+                </div>
+
+                <div className="p-3 rounded-lg border-l-4 border-red-500 bg-red-50/30">
+                  <h5 className="font-semibold text-sm mb-1">🔴 CRITIQUE: localStorage Non Sécurisé</h5>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Stockage de sessions (ndjobi_demo_session, ndjobi_super_admin_session) en localStorage
+                  </p>
+                  <p className="text-xs mb-2">
+                    Accessible via JavaScript et XSS attacks
+                  </p>
+                  <p className="text-xs text-orange-700"><strong>Correction:</strong> Utiliser sessionStorage ou HttpOnly cookies côté backend</p>
+                </div>
+
+                <div className="p-3 rounded-lg border-l-4 border-orange-500 bg-orange-50/30">
+                  <h5 className="font-semibold text-sm mb-1">⚠️ MAJEUR: Validation Entrée Insuffisante</h5>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Zod utilisé côté frontend uniquement (ReportForm.tsx, ProjectProtectionForm.tsx)
+                  </p>
+                  <p className="text-xs mb-2">
+                    Pas de validation côté backend dans les Edge Functions Supabase
+                  </p>
+                  <p className="text-xs text-orange-700"><strong>Correction:</strong> Implémenter middleware validation sur tous les endpoints</p>
+                </div>
+
+                <div className="p-3 rounded-lg border-l-4 border-orange-500 bg-orange-50/30">
+                  <h5 className="font-semibold text-sm mb-1">⚠️ MAJEUR: RLS Policies Incomplètes</h5>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Device Sessions: policies WITH CHECK(true) pour INSERT = n'importe qui peut insérer
+                  </p>
+                  <p className="text-xs mb-2">
+                    Comportement intentionnel pour mode anonyme mais risque si exploité
+                  </p>
+                  <p className="text-xs text-orange-700"><strong>Correction:</strong> Ajouter vérification device_id + rate limiting</p>
+                </div>
+
+                <div className="p-3 rounded-lg border-l-4 border-yellow-500 bg-yellow-50/30">
+                  <h5 className="font-semibold text-sm mb-1">🟡 MOYEN: Pas d'HTTPS Enforcement</h5>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Supabase enforces HTTPS mais pas d'headers de sécurité explicites
+                  </p>
+                  <p className="text-xs text-orange-700"><strong>Correction:</strong> Ajouter CSP, HSTS, X-Frame-Options headers</p>
+                </div>
+
+                <div className="p-3 rounded-lg border-l-4 border-yellow-500 bg-yellow-50/30">
+                  <h5 className="font-semibold text-sm mb-1">🟡 MOYEN: DevTools Protection Insuffisante</h5>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    coreProtection.ts utilise obfuscation console (inefficace contre décompilation)
+                  </p>
+                  <p className="text-xs mb-2">
+                    Peut être contourné avec Developer Mode
+                  </p>
+                  <p className="text-xs text-orange-700"><strong>Correction:</strong> Pas de solution fiable côté client. Valider critique operations côté serveur</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>💾 Base de Données</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-semibold mb-2">📊 Tables & Migrations :</h4>
+                <div className="text-sm space-y-2">
+                  <div>✅ 11 migrations appliquées (2025-10-12 à 2025-10-16)</div>
+                  <div>✅ RLS activé sur tables sensibles</div>
+                  <div>✅ Indexes créés pour performances (device_id, timestamps, status)</div>
+                  <div>✅ Columns flexibles (is_anonymous, device_id, ai_scores)</div>
+                  <div>⚠️ Views administratifs créés mais sans matérialisation</div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg border bg-blue-50/30">
+                <h5 className="font-semibold text-sm mb-2">Tables Principales :</h5>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                  <div>• profiles</div>
+                  <div>• signalements</div>
+                  <div>• projets</div>
+                  <div>• user_roles</div>
+                  <div>• device_sessions</div>
+                  <div>• investigations</div>
+                  <div>• investigation_reports</div>
+                  <div>• emergency_activations</div>
+                  <div>• admin_audit_log</div>
+                </div>
+              </div>
+
+              <Alert className="border-yellow-500/30 bg-yellow-50/5">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Optimisation :</strong> Ajouter VACUUM ANALYZE après migrations majeures. 
+                  Considérer partitionnement signalements par date pour très gros volumes.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>📱 Services Clés</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="p-3 rounded-lg border">
+                  <h5 className="font-semibold mb-2">✅ userPersistence.ts</h5>
+                  <div>Gestion PWA et localStorage bien structurée</div>
+                </div>
+                <div className="p-3 rounded-lg border">
+                  <h5 className="font-semibold mb-2">✅ offlineService.ts</h5>
+                  <div>Queue synchronisation avec retry logic</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-yellow-50/30">
+                  <h5 className="font-semibold mb-2">⚠️ demoAccountService.ts</h5>
+                  <div>Sessions locales bien mais sans expiration réelle</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-red-50/30">
+                  <h5 className="font-semibold mb-2">🔴 superAdminAuth.ts</h5>
+                  <div>Credentials + codes en dur (voir sécurité)</div>
+                </div>
+                <div className="p-3 rounded-lg border">
+                  <h5 className="font-semibold mb-2">✅ deviceIdentity.ts</h5>
+                  <div>Fingerprinting solide avec FingerprintJS</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-orange-50/30">
+                  <h5 className="font-semibold mb-2">⚠️ logger.ts</h5>
+                  <div>Logging en localStorage (volume limité à 1000 entries)</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>🚀 Performance & Optimisation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="p-3 rounded-lg border bg-green-50/30">
+                  <h5 className="font-semibold text-sm mb-1">✅ Optimisations En Place</h5>
+                  <ul className="text-xs space-y-1 ml-4">
+                    <li>• Code splitting avec lazy loading (dashboards)</li>
+                    <li>• Chunking Rollup configuré (react, supabase, ui)</li>
+                    <li>• PWA Workbox avec runtime caching</li>
+                    <li>• React Query pour data caching</li>
+                    <li>• Tree-shaking TypeScript/ESLint</li>
+                  </ul>
+                </div>
+
+                <div className="p-3 rounded-lg border bg-yellow-50/30">
+                  <h5 className="font-semibold text-sm mb-1">⚠️ À Améliorer</h5>
+                  <ul className="text-xs space-y-1 ml-4">
+                    <li>• Pas d'image optimization (imageOptimization.ts incomplete)</li>
+                    <li>• Pas de compression gzip/brotli configurée (Vite default)</li>
+                    <li>• Bundle size warning à 1000KB (trop généreux)</li>
+                    <li>• Pas de metrics Web Vitals</li>
+                    <li>• Sentry configuré mais peut surcharger dev</li>
+                  </ul>
+                </div>
+              </div>
+
+              <Alert className="border-blue-500/30 bg-blue-50/5">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Recommandation :</strong> Exécuter vite-bundle-analyzer pour identifier gros packages. 
+                  Considérer lazy-loading pour Recharts (charts grandes applications).
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>🧪 Tests & QA</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-3 rounded-lg border bg-red-50/30">
+                <h5 className="font-semibold text-sm mb-2">🔴 Critique: Pas de Tests Unitaires</h5>
+                <ul className="text-xs space-y-1 ml-4">
+                  <li>• vitest + @testing-library configurés mais fichiers tests vides</li>
+                  <li>• Pas de test pour services critiques (auth, useAuth hook)</li>
+                  <li>• Pas de test pour RLS policies</li>
+                  <li>• Pas de E2E tests (playwright config exists)</li>
+                  <li>• Coverage: 0%</li>
+                </ul>
+              </div>
+
+              <div className="p-3 rounded-lg border bg-orange-50/30">
+                <h5 className="font-semibold text-sm mb-2">⚠️ À Implémenter</h5>
+                <ul className="text-xs space-y-1 ml-4">
+                  <li>• Tests useAuth hook avec mocks Supabase</li>
+                  <li>• Tests RLS policies avec pgTAP ou sql-tests</li>
+                  <li>• Tests E2E dashboards (login → actions)</li>
+                  <li>• Tests securité: XSS, CSRF, injection</li>
+                  <li>• Objectif: 70% coverage pour code critique</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>🔄 Authentification & Rôles</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-3 rounded-lg border bg-green-50/30">
+                <h5 className="font-semibold text-sm mb-2">✅ Fonctionnel</h5>
+                <ul className="text-xs space-y-1 ml-4">
+                  <li>• 4 rôles implémentés: user, agent, admin, super_admin</li>
+                  <li>• RLS policies par rôle cohérentes</li>
+                  <li>• useAuth hook avec caching global</li>
+                  <li>• ProtectedRoute middleware</li>
+                  <li>• Fallback local pour démo</li>
+                </ul>
+              </div>
+
+              <div className="p-3 rounded-lg border bg-red-50/30">
+                <h5 className="font-semibold text-sm mb-2">🔴 Risques</h5>
+                <ul className="text-xs space-y-1 ml-4">
+                  <li>• Demo accounts en clair (email 24177777001@ndjobi.com)</li>
+                  <li>• Pas de 2FA/MFA implémenté</li>
+                  <li>• Sessions sans expiration timeout (XR-7 = 24h seulement)</li>
+                  <li>• Pas de CAPTCHA sur login</li>
+                  <li>• Pas de brute-force protection côté frontend</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>📦 Configuration & Déploiement</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-sm space-y-2">
+                <div className="p-2 rounded border bg-blue-50/30">
+                  <strong>Vite:</strong> React+SWC, PWA plugin, bundle optimize bien configuré
+                </div>
+                <div className="p-2 rounded border bg-orange-50/30">
+                  <strong>ESLint:</strong> Minimal (unused vars désactivés - risque)</strong>
+                </div>
+                <div className="p-2 rounded border bg-orange-50/30">
+                  <strong>TailwindCSS:</strong> Config correcte mais pas de purge explicite
+                </div>
+                <div className="p-2 rounded border bg-blue-50/30">
+                  <strong>Supabase:</strong> migrations automatiques, RLS activé
+                </div>
+                <div className="p-2 rounded border bg-yellow-50/30">
+                  <strong>Env.template:</strong> Variables manquantes (VITE_APP_VERSION pas utilisée)
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-orange-500/30 bg-orange-50/5">
+            <CardHeader>
+              <CardTitle>🎯 Recommandations Prioritaires</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <Badge variant="destructive">P0</Badge>
+                  <div className="flex-1">
+                    <h5 className="font-semibold text-sm">Sécuriser Credentials Super Admin</h5>
+                    <p className="text-xs text-muted-foreground">Déplacer 011282* et iasted@me.com en env variables. Ajouter 2FA.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Badge variant="destructive">P0</Badge>
+                  <div className="flex-1">
+                    <h5 className="font-semibold text-sm">Validation Backend RLS</h5>
+                    <p className="text-xs text-muted-foreground">Vérifier RLS policies device_sessions ne permet pas abus. Ajouter rate limiting API.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Badge>P1</Badge>
+                  <div className="flex-1">
+                    <h5 className="font-semibold text-sm">Implémenter Tests Unitaires</h5>
+                    <p className="text-xs text-muted-foreground">Commencer par useAuth hook et services critiques. Target 50% coverage.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Badge>P1</Badge>
+                  <div className="flex-1">
+                    <h5 className="font-semibold text-sm">Ajouter Security Headers</h5>
+                    <p className="text-xs text-muted-foreground">CSP, HSTS, X-Frame-Options à niveau Netlify/Vercel.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Badge>P2</Badge>
+                  <div className="flex-1">
+                    <h5 className="font-semibold text-sm">Optimiser Image Loading</h5>
+                    <p className="text-xs text-muted-foreground">Utiliser webp avec fallbacks. Lazy-load hero images.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Badge>P2</Badge>
+                  <div className="flex-1">
+                    <h5 className="font-semibold text-sm">Audit Dépendances Mensuels</h5>
+                    <p className="text-xs text-muted-foreground">npm audit + update. Scripter en CI/CD.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-green-500/30 bg-green-50/5">
+            <CardHeader>
+              <CardTitle>✅ Résumé Exécutif</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <strong>État Général:</strong> Application fonctionnelle avec architecture solide. Les risques majeurs sont en sécurité 
+                (hardcoded credentials, localStorage) plutôt qu'en stabilité. Prêt pour production avec correctifs sécurité.
+              </div>
+              <div>
+                <strong>Compliance:</strong> Respect RGPD partiellement (anonymisation, consent). Nécessite audit légal pour données sensibles 
+                (XR-7 = données protégées).
+              </div>
+              <div>
+                <strong>Scalabilité:</strong> Architecture supporterait 10K utilisateurs sans problème. Au-delà: nécessite optimisations DB 
+                (partitionnement, read replicas).
+              </div>
+              <div>
+                <strong>Maintenance:</strong> Code typescript bien typé. Documentation projet existante. Équipe peut maintenir + évolver.
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
