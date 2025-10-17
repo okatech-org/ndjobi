@@ -72,6 +72,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to={dashboardUrl} replace />;
   }
 
+  // Si on est déjà dans une route dashboard qui ne correspond pas au rôle effectif, rediriger
+  if (effectiveRole && location.pathname.startsWith('/dashboard')) {
+    const target = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
+                   effectiveRole === 'admin' ? '/dashboard/admin' :
+                   effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
+    if (!location.pathname.startsWith(target)) {
+      return <Navigate to={target} replace />;
+    }
+  }
+
   return <>{children}</>;
 };
 
