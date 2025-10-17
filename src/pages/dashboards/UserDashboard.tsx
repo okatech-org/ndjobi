@@ -70,7 +70,11 @@ const UserDashboard = () => {
   }
 
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Préparation de votre espace…</p>
+      </div>
+    );
   }
 
   // Fallback visuel: si le rôle n'est pas encore résolu
