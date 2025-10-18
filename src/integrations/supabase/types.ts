@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      national_kpis: {
+        Row: {
+          calculated_at: string | null
+          created_at: string | null
+          id: string
+          impact_economique: number | null
+          metadata: Json | null
+          period_end: string
+          period_start: string
+          score_transparence: number | null
+          signalements_critiques: number | null
+          taux_resolution: number | null
+          total_signalements: number | null
+        }
+        Insert: {
+          calculated_at?: string | null
+          created_at?: string | null
+          id?: string
+          impact_economique?: number | null
+          metadata?: Json | null
+          period_end: string
+          period_start: string
+          score_transparence?: number | null
+          signalements_critiques?: number | null
+          taux_resolution?: number | null
+          total_signalements?: number | null
+        }
+        Update: {
+          calculated_at?: string | null
+          created_at?: string | null
+          id?: string
+          impact_economique?: number | null
+          metadata?: Json | null
+          period_end?: string
+          period_start?: string
+          score_transparence?: number | null
+          signalements_critiques?: number | null
+          taux_resolution?: number | null
+          total_signalements?: number | null
+        }
+        Relationships: []
+      }
       pin_attempts: {
         Row: {
           attempt_time: string
@@ -35,6 +77,86 @@ export type Database = {
           ip_address?: string | null
           phone?: string
           successful?: boolean
+        }
+        Relationships: []
+      }
+      presidential_decisions: {
+        Row: {
+          created_at: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision_type: string
+          id: string
+          metadata: Json | null
+          motif: string | null
+          signalement_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_type: string
+          id?: string
+          metadata?: Json | null
+          motif?: string | null
+          signalement_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_type?: string
+          id?: string
+          metadata?: Json | null
+          motif?: string | null
+          signalement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presidential_decisions_signalement_id_fkey"
+            columns: ["signalement_id"]
+            isOneToOne: false
+            referencedRelation: "signalements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presidential_directives: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          issued_at: string | null
+          issued_by: string | null
+          metadata: Json | null
+          priority: string | null
+          status: string | null
+          target_ministries: string[] | null
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          issued_at?: string | null
+          issued_by?: string | null
+          metadata?: Json | null
+          priority?: string | null
+          status?: string | null
+          target_ministries?: string[] | null
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          issued_at?: string | null
+          issued_by?: string | null
+          metadata?: Json | null
+          priority?: string | null
+          status?: string | null
+          target_ministries?: string[] | null
+          title?: string
         }
         Relationships: []
       }
@@ -170,6 +292,48 @@ export type Database = {
           type?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      subadmin_performance: {
+        Row: {
+          calculated_at: string | null
+          cas_traites: number | null
+          created_at: string | null
+          delai_moyen_jours: number | null
+          id: string
+          metadata: Json | null
+          period_end: string
+          period_start: string
+          statut: string | null
+          taux_succes: number | null
+          user_id: string | null
+        }
+        Insert: {
+          calculated_at?: string | null
+          cas_traites?: number | null
+          created_at?: string | null
+          delai_moyen_jours?: number | null
+          id?: string
+          metadata?: Json | null
+          period_end: string
+          period_start: string
+          statut?: string | null
+          taux_succes?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          calculated_at?: string | null
+          cas_traites?: number | null
+          created_at?: string | null
+          delai_moyen_jours?: number | null
+          id?: string
+          metadata?: Json | null
+          period_end?: string
+          period_start?: string
+          statut?: string | null
+          taux_succes?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }
