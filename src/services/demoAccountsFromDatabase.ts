@@ -60,13 +60,13 @@ export class DemoAccountsFromDatabaseService {
       }
 
       // Mapper les données vers notre interface
-      this.accounts = accountsData?.map(account => ({
+      this.accounts = accountsData?.map((account: any) => ({
         id: account.id,
         email: account.email || '',
         full_name: account.full_name || '',
         phone: account.phone || '',
         organization: account.organization || '',
-        role: account.user_roles?.role as 'admin' | 'sub_admin' | 'agent' | 'user',
+        role: (account.user_roles?.role || (Array.isArray(account.user_roles) ? account.user_roles?.[0]?.role : undefined) || 'user') as 'admin' | 'sub_admin' | 'agent' | 'user',
         created_at: account.created_at || new Date().toISOString(),
         pin: this.getPinForPhone(account.phone || '')
       })) || [];

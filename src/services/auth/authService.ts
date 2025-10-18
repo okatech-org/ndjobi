@@ -189,20 +189,14 @@ export class AuthService {
    */
   private async getUserRole(userId: string): Promise<UserRole> {
     try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .single();
-
+      const { data, error } = await supabase.rpc('get_user_role', { _user_id: userId });
       if (error || !data) {
-        console.warn('Rôle non trouvé, attribution du rôle par défaut');
+        console.warn('Rôle non trouvé via RPC, attribution du rôle par défaut');
         return 'user';
       }
-
-      return data.role as UserRole;
+      return data as UserRole;
     } catch (error) {
-      console.error('Erreur récupération du rôle:', error);
+      console.error('Erreur récupération du rôle via RPC:', error);
       return 'user';
     }
   }
@@ -212,20 +206,37 @@ export class AuthService {
    */
   private async loadUserProfile(userId: string) {
     try {
+      // Déterminer le rôle via RPC d'abord (évite les RLS récursives)
+      const role = await this.getUserRole(userId);
+      this.currentRole = role;
+
+      if (role === 'super_admin') {
+        // Profil Super Admin via RPC sécurisé
+        const { data: saProfile, error: saError } = await supabase.rpc('get_super_admin_profile');
+        if (!saError && saProfile) {
+          this.currentUser = saProfile;
+        } else {
+          // Fallback sur les métadonnées du user
+          this.currentUser = { id: userId, email: '33661002616@ndjobi.com', full_name: 'Super Administrateur' };
+        }
+        return;
+      }
+
+      // Autres rôles: on tente, mais sans bloquer en cas d'erreur RLS
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (profile) {
         this.currentUser = profile;
+      } else {
+        this.currentUser = { id: userId };
       }
-
-      // Charger le rôle
-      this.currentRole = await this.getUserRole(userId);
     } catch (error) {
-      console.error('Erreur chargement du profil:', error);
+      console.error('Erreur chargement du profil (tolérée):', error);
+      this.currentUser = { id: userId };
     }
   }
 
@@ -252,6 +263,9 @@ export class AuthService {
     // Pour le Super Admin : localStorage (persistance maximale)
     if (role === 'super_admin') {
       const superAdminSessionData = {
+        isSuperAdmin: true,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
         user: user,
         role: role,
       };
@@ -314,13 +328,22 @@ export class AuthService {
       if (sessionData) {
         const parsed = JSON.parse(sessionData);
         if (parsed && parsed.userId && parsed.role) {
-          // La session existe dans le storage
           return true;
         }
       }
     } catch (error) {
       console.error('Erreur vérification session:', error);
     }
+
+    // Vérifier la session Super Admin persistée
+    try {
+      const saData = localStorage.getItem('ndjobi_super_admin_session');
+      if (saData) {
+        const parsed = JSON.parse(saData);
+        const isValid = parsed?.isSuperAdmin === true && typeof parsed?.expiresAt === 'number' && Date.now() < parsed.expiresAt;
+        if (isValid) return true;
+      }
+    } catch {}
 
     // Vérifier la session démo dans localStorage
     try {
@@ -343,6 +366,18 @@ export class AuthService {
    * Si pas en mémoire, tente de restaurer depuis sessionStorage
    */
   getCurrentUser() {
+    // Priorité à la session Super Admin persistée
+    try {
+      const saData = localStorage.getItem('ndjobi_super_admin_session');
+      if (saData) {
+        const sa = JSON.parse(saData);
+        const isValid = sa?.isSuperAdmin === true && typeof sa?.expiresAt === 'number' && Date.now() < sa.expiresAt;
+        if (isValid) {
+          return sa.user || { id: 'local-super-admin', email: '33661002616@ndjobi.com' };
+        }
+      }
+    } catch {}
+
     // Priorité à la session démo locale si présente
     try {
       const demoSessionData = localStorage.getItem('ndjobi_demo_session');
@@ -381,6 +416,16 @@ export class AuthService {
    * Si pas en mémoire, tente de restaurer depuis sessionStorage
    */
   getCurrentRole(): UserRole | null {
+    // Priorité au rôle Super Admin si session persistée valide
+    try {
+      const saData = localStorage.getItem('ndjobi_super_admin_session');
+      if (saData) {
+        const sa = JSON.parse(saData);
+        const isValid = sa?.isSuperAdmin === true && typeof sa?.expiresAt === 'number' && Date.now() < sa.expiresAt;
+        if (isValid) return 'super_admin';
+      }
+    } catch {}
+
     // Priorité au rôle de la session démo locale si présent
     try {
       const demoSessionData = localStorage.getItem('ndjobi_demo_session');
