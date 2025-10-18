@@ -1,0 +1,134 @@
+═══════════════════════════════════════════════════════════════════
+  🚀 CRÉATION SUPER ADMIN - COPIER-COLLER CE SCRIPT MAINTENANT
+═══════════════════════════════════════════════════════════════════
+
+📍 PROBLÈME IDENTIFIÉ :
+   - Le compte existe dans auth.users (ID: 84401dfc-f23e-46e7-b201-868f2140ab73)
+   - MAIS le profil manque dans public.profiles
+   - ET le rôle manque dans public.user_roles
+   - Erreur RLS : "infinite recursion" empêche la création
+
+✅ SOLUTION :
+   Exécuter ce script SQL qui désactive temporairement RLS
+
+═══════════════════════════════════════════════════════════════════
+  📋 ÉTAPES À SUIVRE (2 minutes)
+═══════════════════════════════════════════════════════════════════
+
+1. Ouvrez Supabase SQL Editor :
+   👉 https://supabase.com/dashboard/project/xfxqwlbqysiezqdpeqpv/sql/new
+
+2. Copiez-collez ce script COMPLET ci-dessous :
+
+──────────────────────────────────────────────────────────────────
+
+-- SCRIPT FINAL - CRÉATION PROFIL SUPER ADMIN
+-- Résout le problème "infinite recursion"
+
+ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_roles DISABLE ROW LEVEL SECURITY;
+
+INSERT INTO public.profiles (
+    id,
+    email,
+    full_name,
+    phone,
+    organization,
+    created_at,
+    updated_at
+)
+VALUES (
+    '84401dfc-f23e-46e7-b201-868f2140ab73',
+    '33661002616@ndjobi.com',
+    'Super Administrateur',
+    '+33661002616',
+    'Administration Système',
+    NOW(),
+    NOW()
+)
+ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = EXCLUDED.full_name,
+    phone = EXCLUDED.phone,
+    organization = EXCLUDED.organization,
+    updated_at = NOW();
+
+INSERT INTO public.user_roles (
+    user_id,
+    role,
+    created_at
+)
+VALUES (
+    '84401dfc-f23e-46e7-b201-868f2140ab73',
+    'super_admin',
+    NOW()
+)
+ON CONFLICT (user_id) DO UPDATE SET 
+    role = EXCLUDED.role,
+    created_at = NOW();
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+SELECT 
+    '✅ COMPTE SUPER ADMIN CONFIGURÉ' as status,
+    u.id,
+    u.email,
+    u.phone,
+    p.full_name,
+    p.organization,
+    ur.role
+FROM auth.users u
+LEFT JOIN public.profiles p ON u.id = p.id
+LEFT JOIN public.user_roles ur ON u.id = ur.user_id
+WHERE u.id = '84401dfc-f23e-46e7-b201-868f2140ab73';
+
+──────────────────────────────────────────────────────────────────
+
+3. Cliquez sur "RUN" (ou "Exécuter")
+
+4. Vérifiez le résultat :
+   ✅ Vous DEVEZ voir une ligne avec :
+      - email: 33661002616@ndjobi.com
+      - full_name: Super Administrateur
+      - role: super_admin
+
+═══════════════════════════════════════════════════════════════════
+  🧪 TEST IMMÉDIAT
+═══════════════════════════════════════════════════════════════════
+
+Après avoir exécuté le script :
+
+1. Allez sur : /auth/super-admin
+
+2. Entrez le PIN : 999999
+
+3. Cliquez : "Se connecter"
+
+4. ✅ SUCCÈS : Vous êtes redirigé vers /dashboard/super-admin
+
+═══════════════════════════════════════════════════════════════════
+  📊 LOGS ATTENDUS (Console F12)
+═══════════════════════════════════════════════════════════════════
+
+Après le script SQL, les logs dans la console devront montrer :
+
+🔐 Démarrage authentification Super Admin...
+🔍 Vérification du PIN...
+✅ PIN correct
+🔍 Recherche du profil Super Admin...
+✅ Profil trouvé: {...}          👈 PLUS D'ERREUR ICI !
+🔍 Vérification du rôle...
+✅ Rôle super_admin confirmé     👈 RÔLE TROUVÉ !
+🔧 Création de la session locale...
+✅ Session Super Admin créée avec succès
+
+═══════════════════════════════════════════════════════════════════
+  💡 C'EST TOUT !
+═══════════════════════════════════════════════════════════════════
+
+Le problème était l'erreur "infinite recursion" dans les politiques RLS.
+Ce script la contourne en désactivant/réactivant RLS temporairement.
+
+MAINTENANT, EXÉCUTEZ LE SCRIPT ! 🚀
+
