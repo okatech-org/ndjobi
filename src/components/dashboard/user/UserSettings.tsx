@@ -118,13 +118,17 @@ export const UserSettings = () => {
     const load = async () => {
       try {
         if (!user?.id) return;
-        const { data, error } = await supabase
-          .from('user_settings')
-          .select('*')
-          .eq('user_id', user.id)
+        // Load settings from profile metadata
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('metadata')
+          .eq('id', user.id)
           .maybeSingle();
         if (error) throw error;
-        if (data) setSettings(mapFromRow(data));
+        if (profileData?.metadata) {
+          const metadata = profileData.metadata as any;
+          if (metadata.settings) setSettings(metadata.settings);
+        }
 
         const { data: pinData } = await supabase
           .from('user_pins')
@@ -147,8 +151,23 @@ export const UserSettings = () => {
     if (!user?.id) return;
     setSavingKey(key);
     try {
-      const row = mapToRow(next);
-      const { error } = await supabase.from('user_settings').upsert(row, { onConflict: 'user_id' });
+      // Save settings in profile metadata
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('metadata')
+        .eq('id', user.id)
+        .single();
+      
+      const currentMetadata = (currentProfile?.metadata as any) || {};
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          metadata: { 
+            ...currentMetadata, 
+            settings: next 
+          } 
+        })
+        .eq('id', user.id);
       if (error) throw error;
       toast({ title: 'Paramètre mis à jour', description: 'Votre préférence a été enregistrée.' });
     } catch (e: any) {

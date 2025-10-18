@@ -56,41 +56,29 @@ export function ModuleXR7() {
     try {
       const { data: userData } = await supabase.auth.getUser();
 
-      const activationData = {
-        id: crypto.randomUUID(),
-        signalement_id: activationForm.signalement_id,
-        reason: activationForm.raison,
-        judicial_authorization: activationForm.autorisation_judiciaire,
-        duration_hours: activationForm.duree_heures || 24,
-        legal_reference: activationForm.reference_legale || 'Protocole XR-7 Emergency',
-        start_date: new Date().toISOString(),
-        end_date: new Date(Date.now() + (activationForm.duree_heures || 24) * 60 * 60 * 1000).toISOString(),
-        activated_by: userData?.user?.id || '',
-        status: 'active',
-        activation_metadata: {
-          protection_temoins: activationForm.protection_temoins,
-          preservation_preuves: activationForm.preservation_preuves,
-          timestamp: new Date().toISOString()
-        }
-      };
-
+      // Store all activation data in signalement metadata
       const { error } = await supabase
-        .from('emergency_activations')
-        .insert([activationData]);
-
-      if (error) throw error;
-
-      await supabase
         .from('signalements')
         .update({
           status: 'xr7_protocol_active',
           priority: 'critique',
           metadata: {
             xr7_activated: true,
-            xr7_activation_date: new Date().toISOString()
+            xr7_activation_date: new Date().toISOString(),
+            xr7_reason: activationForm.raison,
+            xr7_judicial_authorization: activationForm.autorisation_judiciaire,
+            xr7_duration_hours: activationForm.duree_heures || 24,
+            xr7_legal_reference: activationForm.reference_legale || 'Protocole XR-7 Emergency',
+            xr7_start_date: new Date().toISOString(),
+            xr7_end_date: new Date(Date.now() + (activationForm.duree_heures || 24) * 60 * 60 * 1000).toISOString(),
+            xr7_activated_by: userData?.user?.id || '',
+            xr7_protection_temoins: activationForm.protection_temoins,
+            xr7_preservation_preuves: activationForm.preservation_preuves
           }
         })
         .eq('id', activationForm.signalement_id);
+
+      if (error) throw error;
 
       toast({
         title: '🚨 Protocole XR-7 Activé',

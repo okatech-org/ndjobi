@@ -84,10 +84,11 @@ export const FileDetail = ({ fileId, fileType, onBack }: FileDetailProps) => {
           .single();
 
         if (!error && data) {
-          // Map is_anonymous to anonymous and ensure status type
+          // Map metadata.is_anonymous to anonymous and ensure status type
+          const metadata = typeof data.metadata === 'object' ? data.metadata as any : {};
           const mappedReport = {
             ...data,
-            anonymous: data.is_anonymous ?? false,
+            anonymous: metadata.is_anonymous ?? false,
             status: data.status || 'pending'
           } as Report;
           setReport(mappedReport);

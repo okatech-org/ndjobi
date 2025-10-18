@@ -47,6 +47,7 @@ class UserManagementService {
       const users: UserDetail[] = (profiles || []).map(profile => {
         const userRole = roles?.find(r => r.user_id === profile.id);
         
+        const metadata = (profile.metadata as any) || {};
         return {
           id: profile.id,
           email: profile.email || '',
@@ -54,8 +55,8 @@ class UserManagementService {
           avatar_url: profile.avatar_url || undefined,
           organization: profile.organization || undefined,
           role: userRole?.role || 'user',
-          // Statut persistant: on réutilise profiles.role = 'suspended' comme drapeau de suspension
-          status: profile.role === 'suspended' ? 'suspended' : 'active',
+          // Use metadata.suspended instead of profile.role
+          status: metadata.suspended ? 'suspended' : 'active',
           created_at: profile.created_at || new Date().toISOString(),
           updated_at: profile.updated_at || new Date().toISOString(),
         };
@@ -113,6 +114,7 @@ class UserManagementService {
         .limit(1)
         .maybeSingle();
 
+      const metadata = (profile.metadata as any) || {};
       const user: UserDetail = {
         id: profile.id,
         email: profile.email || '',
@@ -120,7 +122,7 @@ class UserManagementService {
         avatar_url: profile.avatar_url || undefined,
         organization: profile.organization || undefined,
         role: roleData?.role || 'user',
-        status: profile.role === 'suspended' ? 'suspended' : 'active',
+        status: metadata.suspended ? 'suspended' : 'active',
         created_at: profile.created_at || new Date().toISOString(),
         updated_at: profile.updated_at || new Date().toISOString(),
       };
@@ -283,7 +285,7 @@ class UserManagementService {
           avatar_url: profile.avatar_url || undefined,
           organization: profile.organization || undefined,
           role: userRole?.role || 'user',
-          status: profile.role === 'suspended' ? 'suspended' : 'active',
+          status: (profile.metadata as any)?.suspended ? 'suspended' : 'active',
           created_at: profile.created_at || new Date().toISOString(),
           updated_at: profile.updated_at || new Date().toISOString(),
         };
