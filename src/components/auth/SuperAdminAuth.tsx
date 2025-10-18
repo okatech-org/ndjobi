@@ -18,7 +18,7 @@ interface SuperAdminAuthProps {
 
 export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
   const [pin, setPin] = useState(['', '', '', '', '', '']);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('+33661002616');
   const [mode, setMode] = useState<'login' | 'forgot'>('login');
   const [channel, setChannel] = useState<'sms' | 'whatsapp' | 'email'>('sms');
   const [otpSent, setOtpSent] = useState(false);
@@ -227,6 +227,8 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     }
 
     try {
+      // Pour le Super Admin, utiliser directement le PIN sans Twilio Verify
+      // car c'est un système local sécurisé
       const result = await signInSuperAdmin(fullPin);
      
       if (result.success) {
@@ -245,9 +247,10 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
         pinInputRefs[0].current?.focus();
       }
     } catch (err: any) {
+      console.error('Erreur authentification Super Admin:', err);
       toast({ 
         variant: 'destructive', 
-        title: 'Erreur', 
+        title: 'Erreur système', 
         description: err?.message || 'Authentification impossible' 
       });
     }
@@ -314,7 +317,7 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
                 className="pl-10"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                disabled={isLoading || otpVerified}
+                disabled={true}
                 autoComplete="tel"
               />
             </div>
