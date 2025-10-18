@@ -4012,29 +4012,99 @@ const SuperAdminDashboard = () => {
 
   // Composant pour afficher les 9 comptes démo configurés
   const DatabaseDemoAccountsCards = () => {
-    const [demoAccountsList, setDemoAccountsList] = useState<DatabaseDemoAccount[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    // Charger les comptes démo depuis la base de données
-    useEffect(() => {
-      const loadDemoAccounts = async () => {
-        try {
-          const accounts = await demoAccountsFromDatabaseService.fetchDemoAccounts();
-          setDemoAccountsList(accounts);
-        } catch (error) {
-          console.error('Erreur lors du chargement des comptes démo:', error);
-          toast({
-            variant: 'destructive',
-            title: 'Erreur',
-            description: 'Impossible de charger les comptes démo',
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      loadDemoAccounts();
-    }, []);
+    // Comptes démo hardcodés (basés sur les vrais comptes de la BDD)
+    const demoAccountsList: DatabaseDemoAccount[] = [
+      {
+        id: 'c8cb1702-fcd3-4d60-82f3-f929a77e776a',
+        email: '24177888001@ndjobi.com',
+        full_name: 'Président',
+        phone: '+24177888001',
+        organization: 'Présidence de la République',
+        role: 'admin',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '111111'
+      },
+      {
+        id: '94e4232b-e56d-4378-8fbf-8c1ae78814f5',
+        email: '24177888002@ndjobi.com',
+        full_name: 'Sous-Admin DGSS',
+        phone: '+24177888002',
+        organization: 'DGSS (Direction Générale de la Sécurité d\'État)',
+        role: 'sub_admin',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '222222'
+      },
+      {
+        id: '3dd19fcc-3b54-481b-b2ac-9b23e6af20c0',
+        email: '24177888003@ndjobi.com',
+        full_name: 'Sous-Admin DGR',
+        phone: '+24177888003',
+        organization: 'DGR (Direction Générale du Renseignement)',
+        role: 'sub_admin',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '333333'
+      },
+      {
+        id: '96a22973-1b0b-453c-8313-3cd5fa19f043',
+        email: '24177888004@ndjobi.com',
+        full_name: 'Agent Défense',
+        phone: '+24177888004',
+        organization: 'Ministère de la Défense',
+        role: 'agent',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '444444'
+      },
+      {
+        id: 'c2b5af83-8503-4c14-9746-c263833cbd6b',
+        email: '24177888005@ndjobi.com',
+        full_name: 'Agent Justice',
+        phone: '+24177888005',
+        organization: 'Ministère de la Justice',
+        role: 'agent',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '555555'
+      },
+      {
+        id: '441f3f15-a9e8-405c-9e33-34dcfdbd348e',
+        email: '24177888006@ndjobi.com',
+        full_name: 'Agent Anti-Corruption',
+        phone: '+24177888006',
+        organization: 'Commission Anti-Corruption',
+        role: 'agent',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '666666'
+      },
+      {
+        id: '89aa4bab-10f0-4d94-a008-07ae4b80ed32',
+        email: '24177888007@ndjobi.com',
+        full_name: 'Agent Intérieur',
+        phone: '+24177888007',
+        organization: 'Ministère de l\'Intérieur',
+        role: 'agent',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '777777'
+      },
+      {
+        id: '138045bf-d2aa-4066-9c62-122b184f75a1',
+        email: '24177888008@ndjobi.com',
+        full_name: 'Citoyen Démo',
+        phone: '+24177888008',
+        organization: 'Citoyen',
+        role: 'user',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '888888'
+      },
+      {
+        id: '8258f5d9-94d7-4e21-a3cf-88537bf3ed91',
+        email: '24177888009@ndjobi.com',
+        full_name: 'Citoyen Anonyme',
+        phone: '+24177888009',
+        organization: 'Anonyme',
+        role: 'user',
+        created_at: '2025-10-18T18:48:50.872856+00:00',
+        pin: '999999'
+      }
+    ];
 
     const getRoleIcon = (role: string) => {
       switch (role) {
@@ -4055,16 +4125,6 @@ const SuperAdminDashboard = () => {
         default: return 'bg-gray-100 text-gray-800 border-gray-300';
       }
     };
-
-    if (loading) {
-      return (
-        <Card className="border-primary/20">
-          <CardContent className="py-12 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </CardContent>
-        </Card>
-      );
-    }
 
     return (
       <Card className="border-primary/20">
