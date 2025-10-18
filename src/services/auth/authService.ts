@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { UserRole } from '@/types/auth';
 import { deviceIdentityService } from '@/services/deviceIdentity';
+import { defaultAnonymousAccountService } from '@/services/defaultAnonymousAccount';
 
 /**
  * Service d'authentification sécurisé pour NDJOBI
@@ -445,7 +446,66 @@ export class AuthService {
 
     return roleHierarchy[effectiveRole] >= roleHierarchy[requiredRole];
   }
-}
+
+  /**
+   * Crée une session anonyme par défaut pour les signalements sans compte
+   * Utilise le compte "Citoyen Anonyme" créé dans Supabase
+   */
+  async createDefaultAnonymousSession(): Promise<{
+    success: boolean;
+    error?: string;
+  }> {
+    try {
+      // Créer une session locale pour le compte anonyme par défaut
+      const success = defaultAnonymousAccountService.createAnonymousSession();
+      
+      if (!success) {
+        return { success: false, error: 'Erreur création session anonyme' };
+      }
+
+      // Récupérer les informations du compte anonyme
+      const anonymousAccount = defaultAnonymousAccountService.getDefaultAnonymousAccount();
+      
+      // Créer la session dans le service d'authentification
+      this.currentUser = {
+        id: defaultAnonymousAccountService.getCurrentAnonymousUser()?.email || 'anonymous',
+        email: anonymousAccount.email,
+        phone: anonymousAccount.phone,
+        user_metadata: {
+          full_name: anonymousAccount.fullName,
+          phone: anonymousAccount.phone,
+          organization: anonymousAccount.organization,
+          is_anonymous: true,
+          session_type: 'anonymous_default'
+        }
+      };
+      
+      this.currentRole = 'user';
+      this.sessionToken = `anonymous_token_${Date.now()}`;
+      
+      // Sauvegarder la session
+      this.saveSession(this.currentUser, this.currentRole, this.sessionToken);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erreur création session anonyme par défaut:', error);
+      return { success: false, error: 'Erreur système' };
+    }
+  }
+
+  /**
+   * Vérifie si la session actuelle est une session anonyme par défaut
+   */
+  isDefaultAnonymousSession(): boolean {
+    return defaultAnonymousAccountService.hasAnonymousSession();
+  }
+
+  /**
+   * Récupère les informations du compte anonyme par défaut
+   */
+  getDefaultAnonymousAccountInfo() {
+    return defaultAnonymousAccountService.getDefaultAnonymousAccount();
+  }
 
 // Export de l'instance singleton
 export const authService = AuthService.getInstance();

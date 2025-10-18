@@ -33,12 +33,12 @@ const Auth = () => {
       // Utiliser le service de session locale au lieu de Supabase
       const { demoAccountService } = await import('@/services/demoAccountService');
       
-      // Créer une session locale pour le compte démo user
+      // Créer une session locale pour le compte démo user créé dans Supabase
       const success = demoAccountService.createLocalSessionFor({
-        email: '24177777001@ndjobi.com',
+        email: '24177888008@ndjobi.com',
         role: 'user',
         fullName: 'Citoyen Démo',
-        phone: '+24177777001'
+        phone: '+24177888008'
       });
 
       if (!success) throw new Error('Erreur création session démo');
@@ -177,8 +177,8 @@ const Auth = () => {
                 </Button>
 
                 <div className="text-xs text-center text-muted-foreground pt-2 border-t">
-                  <p className="font-mono">Email: 24177777001@ndjobi.com</p>
-                  <p className="font-mono">Mot de passe: 123456</p>
+                  <p className="font-mono">Téléphone: +24177888008</p>
+                  <p className="font-mono">PIN: 888888</p>
                 </div>
               </CardContent>
             </Card>
