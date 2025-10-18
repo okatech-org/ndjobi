@@ -506,6 +506,7 @@ export class AuthService {
   getDefaultAnonymousAccountInfo() {
     return defaultAnonymousAccountService.getDefaultAnonymousAccount();
   }
+}
 
 // Export de l'instance singleton
 export const authService = AuthService.getInstance();
