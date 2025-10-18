@@ -86,12 +86,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // Pour les sessions locales (super_admin, demo), considérer l'accès comme autorisé
   const hasLocalSession = (!!role && !session) || !!localDemoRole;
 
+  // FORCER l'accès pour les sessions locales même si user est null
   if (!user && !hasLocalSession) {
     if (location.pathname !== "/auth") {
       console.log('🚫 Pas d\'utilisateur détecté, redirection vers /auth');
       return <Navigate to="/auth" replace />;
     }
     return <></>;
+  }
+
+  // Si on a une session locale, forcer l'accès même si user devient null
+  if (hasLocalSession && !user) {
+    console.log('🔧 Session locale détectée mais user null - accès forcé pour', localDemoRole || role);
   }
 
   if (hasLocalSession) {

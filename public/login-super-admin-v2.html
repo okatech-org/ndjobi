@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion Super Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #667eea;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background: rgba(255,255,255,0.1);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        button:hover { background: #f0f0f0; }
+        .info { margin-top: 1rem; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🔐 Accès Super Admin</h1>
+        <p id="status">Prêt à créer la session</p>
+        <button onclick="login()">Se Connecter</button>
+        <div class="info">
+            <p>Créera une session locale super-admin</p>
+            <p>puis redirigera vers le dashboard</p>
+        </div>
+    </div>
+    <script>
+        function login() {
+            document.getElementById('status').textContent = 'Création session...';
+            
+            // Nettoyer d'abord
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Créer session
+            localStorage.setItem('ndjobi_demo_session', JSON.stringify({
+                user: {
+                    id: 'local-super-admin',
+                    email: 'super-admin@ndjobi.local',
+                    full_name: 'Super Admin'
+                },
+                role: 'super_admin'
+            }));
+            
+            document.getElementById('status').textContent = '✅ Session créée !';
+            
+            setTimeout(() => {
+                document.getElementById('status').textContent = 'Redirection...';
+                window.location.href = '/dashboard/super-admin';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

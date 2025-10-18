@@ -31,6 +31,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { SystemMaintenancePanel } from '@/components/admin/SecureModuleAccess';
+import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 
 interface SystemStats {
   totalUsers: number;
@@ -115,7 +116,41 @@ const SuperAdminDashboard = () => {
   const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   
-  console.log('🏛️ SuperAdminDashboard state:', { user: !!user, role, authLoading });
+  // SOLUTION DE CONTOURNEMENT : Vérifier directement localStorage si useAuth échoue
+  const [localUser, setLocalUser] = useState<any>(null);
+  const [localRole, setLocalRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const checkLocalSession = () => {
+      try {
+        const demoSessionData = localStorage.getItem('ndjobi_demo_session');
+        if (demoSessionData) {
+          const demoSession = JSON.parse(demoSessionData);
+          if (demoSession.role === 'super_admin') {
+            console.log('🔧 SuperAdminDashboard: Session locale détectée directement');
+            setLocalUser(demoSession.user);
+            setLocalRole(demoSession.role);
+          }
+        }
+      } catch (err) {
+        console.error('❌ Erreur lecture session locale:', err);
+      }
+    };
+    
+    checkLocalSession();
+  }, []);
+  
+  // Utiliser la session locale si useAuth échoue
+  const effectiveUser = user || localUser;
+  const effectiveRole = role || localRole;
+  
+  console.log('🏛️ SuperAdminDashboard state:', { 
+    user: !!effectiveUser, 
+    role: effectiveRole, 
+    authLoading,
+    localUser: !!localUser,
+    localRole 
+  });
   
   const [activeView, setActiveView] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(false);
@@ -4367,6 +4402,9 @@ const SuperAdminDashboard = () => {
           )}
         </div>
       </main>
+      
+      <IAstedFloatingButton />
+      
       <Footer />
 
       {/* Formulaires de configuration */}

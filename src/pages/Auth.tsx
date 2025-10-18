@@ -30,17 +30,26 @@ const Auth = () => {
   const handleDemoLogin = async () => {
     setLoading('demo');
     try {
-      const { data: signInData, error } = await supabase.auth.signInWithPassword({
+      // Utiliser le service de session locale au lieu de Supabase
+      const { demoAccountService } = await import('@/services/demoAccountService');
+      
+      // Créer une session locale pour le compte démo user
+      const success = demoAccountService.createLocalSessionFor({
         email: '24177777001@ndjobi.com',
-        password: '123456',
+        role: 'user',
+        fullName: 'Citoyen Démo',
+        phone: '+24177777001'
       });
 
-      if (error) throw error;
+      if (!success) throw new Error('Erreur création session démo');
 
       toast({
         title: 'Connexion démo réussie !',
         description: 'Vous êtes connecté avec le compte citoyen démo',
       });
+      
+      // Dispatcher l'événement pour notifier le changement de session
+      window.dispatchEvent(new Event('ndjobi:demo:session:changed'));
       
       navigate('/dashboard/user');
     } catch (error: any) {

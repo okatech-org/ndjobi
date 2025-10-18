@@ -115,8 +115,11 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
 
       // OTP validé: on utilise le code attendu par signInSuperAdmin depuis l'env
       const envCode = import.meta.env.VITE_SUPER_ADMIN_CODE as string;
+     
       const result = await signInSuperAdmin(envCode);
+     
       if (result.success) {
+        
         toast({ title: 'Authentification réussie', description: 'Bienvenue dans l\'espace Super Admin' });
         onClose();
       }
@@ -141,17 +144,10 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
 
       const methodLabel = method === 'sms' ? 'SMS' : method === 'whatsapp' ? 'WhatsApp' : 'Email';
       
-      // En mode dev, afficher le code dans le toast
-      if (twilioVerifyService.isDevMode()) {
-        const devCode = twilioVerifyService.getDevCode();
-        toast({ 
-          title: '🧪 Mode DEV - Code de test', 
-          description: `Code à saisir: ${devCode}`,
-          duration: 30000, // 30 secondes
-        });
-      } else {
-        toast({ title: 'Code envoyé', description: `Un code d'accès a été envoyé par ${methodLabel}.` });
-      }
+      toast({ 
+        title: 'Code envoyé', 
+        description: `Un code d'accès a été envoyé par ${methodLabel}.` 
+      });
       
       // Focus sur la première case de code
       setTimeout(() => inputRefs[0].current?.focus(), 100);
@@ -166,16 +162,10 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
             setTimeRemaining(10 * 60);
             setFallbackInfo("Basculement automatique sur l'e‑mail suite à un blocage d'envoi.");
             
-            if (twilioVerifyService.isDevMode()) {
-              const devCode = twilioVerifyService.getDevCode();
-              toast({ 
-                title: '🧪 Mode DEV - Code de test', 
-                description: `Code à saisir: ${devCode}`,
-                duration: 30000,
-              });
-            } else {
-              toast({ title: 'Code envoyé par e‑mail', description: `Envoi automatique sur l'e‑mail` });
-            }
+            toast({ 
+              title: 'Code envoyé par e‑mail', 
+              description: `Envoi automatique sur l'e‑mail` 
+            });
             
             setTimeout(() => inputRefs[0].current?.focus(), 100);
             return;
@@ -230,9 +220,6 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
           <DialogTitle className="flex items-center gap-2 text-center justify-center">
             <Shield className="h-6 w-6 text-primary" />
             Authentification Super Admin
-            {twilioVerifyService.isDevMode() && (
-              <span className="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded font-mono">DEV</span>
-            )}
           </DialogTitle>
           <DialogDescription className="text-center">
             Accès sécurisé à l'administration système
@@ -288,15 +275,6 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
             </div>
           </div>
 
-          {/* Messages d'information */}
-          {twilioVerifyService.isDevMode() && codeSent && (
-            <Alert className="bg-yellow-50 border-yellow-200">
-              <AlertCircle className="h-4 w-4 text-yellow-600" />
-              <AlertDescription className="text-xs text-yellow-800">
-                🧪 <strong>Mode développement</strong> - Code de test: <code className="font-mono font-bold">{twilioVerifyService.getDevCode()}</code>
-              </AlertDescription>
-            </Alert>
-          )}
           
           {fallbackInfo && (
             <Alert>

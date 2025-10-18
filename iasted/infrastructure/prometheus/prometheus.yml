@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'iasted'
+    environment: 'development'
+
+scrape_configs:
+  - job_name: 'iasted-api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['api:8000']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'python_.*'
+        action: drop
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+

@@ -58,6 +58,10 @@ export function useAuth() {
                 console.log('🎭 Session démo détectée - role:', demoSession.role);
                 setUser(demoSession.user);
                 setRole(demoSession.role);
+                // FORCER la session pour éviter les conflits
+                if (demoSession.role === 'super_admin') {
+                  console.log('🔧 Session Super Admin forcée - accès garanti');
+                }
               } catch (err) {
                 console.error('❌ Erreur parsing session démo:', err);
                 console.log('❌ Aucune session trouvée');
@@ -126,6 +130,8 @@ export function useAuth() {
     
     try {
       const result = await authService.authenticateSuperAdmin(code);
+
+      console.log({result})
       
       if (result.success) {
         setUser(authService.getCurrentUser());

@@ -1,151 +1,58 @@
-import { useState, useRef, useEffect } from 'react';
-import { IAstedButton } from '@/components/ui/iAstedButton';
+/**
+ * Bouton flottant iAsted pour accès rapide depuis n'importe quelle page
+ * Utilise le bouton sphérique avec animations organiques 3D
+ */
+
+import { useState } from 'react';
+import { Bot, Brain } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { IAstedChat } from './IAstedChat';
+import { IAstedButton } from '@/components/ui/iAstedButton';
 
-export function IAstedFloatingButton() {
+export const IAstedFloatingButton = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [isMobile, setIsMobile] = useState(false);
-  const buttonRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth <= 768; // md breakpoint
-      setIsMobile(mobile);
-      
-      const savedPosition = localStorage.getItem('iasted_button_position');
-      if (savedPosition) {
-        const { x, y } = JSON.parse(savedPosition);
-        setPosition({ x, y });
-      } else {
-        setPosition({ 
-          x: mobile ? window.innerWidth - 120 : window.innerWidth - 200,
-          y: mobile ? window.innerHeight - 140 : window.innerHeight - 200 
-        });
-      }
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
-    
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
-
-    const maxX = window.innerWidth - 100; // marge pour mobile
-    const maxY = window.innerHeight - 100;
-
-    const boundedX = Math.max(20, Math.min(newX, maxX));
-    const boundedY = Math.max(20, Math.min(newY, maxY));
-
-    setPosition({ x: boundedX, y: boundedY });
-  };
-
-  // Support tactile pour mobile
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setIsDragging(true);
-    setDragStart({
-      x: touch.clientX - position.x,
-      y: touch.clientY - position.y,
-    });
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const touch = e.touches[0];
-    const newX = touch.clientX - dragStart.x;
-    const newY = touch.clientY - dragStart.y;
-    const maxX = window.innerWidth - 100;
-    const maxY = window.innerHeight - 100;
-    const boundedX = Math.max(12, Math.min(newX, maxX));
-    const boundedY = Math.max(12, Math.min(newY, maxY));
-    setPosition({ x: boundedX, y: boundedY });
-  };
-
-  const handleTouchEnd = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      localStorage.setItem('iasted_button_position', JSON.stringify(position));
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      localStorage.setItem('iasted_button_position', JSON.stringify(position));
-    }
-  };
-
-  const handleClick = () => {
-    if (!isDragging) {
-      setIsOpen(true);
-    }
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragStart, position]);
 
   return (
     <>
-      <div
-        ref={buttonRef}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          position: 'fixed',
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          cursor: isDragging ? 'grabbing' : 'grab',
-          zIndex: 2147483646,
-          transition: isDragging ? 'none' : 'all 0.3s',
-          opacity: isOpen ? 0 : 1,
-          transform: isOpen ? 'scale(0)' : 'scale(1)',
-          WebkitTapHighlightColor: 'transparent',
-        }}
-      >
-        <div onClick={handleClick}>
-          <IAstedButton size={isMobile ? 'md' : 'lg'} />
-        </div>
+      {/* Bouton sphérique iAsted avec animations 3D */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <IAstedButton 
+          onClick={() => setIsOpen(true)}
+          size="md"
+        />
       </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-4xl">
-            <IAstedChat isOpen={isOpen} onClose={() => setIsOpen(false)} />
-          </div>
-        </div>
-      )}
+      {/* Dialog avec iAsted Chat complet */}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <Bot className="w-6 h-6 text-white" />
+              </div>
+              Assistant Vocal iAsted
+              <Badge variant="secondary" className="ml-auto">
+                <Brain className="w-3 h-3 mr-1" />
+                Intelligence Artificielle
+              </Badge>
+            </DialogTitle>
+            <DialogDescription>
+              Votre assistant intelligent pour la plateforme Ndjobi - Optimisé pour le français gabonais
+            </DialogDescription>
+          </DialogHeader>
+          
+          <IAstedChat isOpen={isOpen} />
+        </DialogContent>
+      </Dialog>
     </>
   );
-}
+};
 
+export default IAstedFloatingButton;
