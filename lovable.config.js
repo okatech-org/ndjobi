@@ -16,7 +16,9 @@ export default {
   environment: {
     NODE_ENV: 'production',
     VITE_APP_ENV: 'production',
-    VITE_APP_URL: 'https://ndjobi.com'
+    VITE_APP_URL: 'https://ndjobi.com',
+    VITE_SUPABASE_URL: 'https://xfxqwlbqysiezqdpeqpv.supabase.co',
+    VITE_SUPABASE_PUBLISHABLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmeHF3bGJxeXNpZXpxZHBlcXB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMDYyNjgsImV4cCI6MjA3NTc4MjI2OH0.0DobXhl43BgOeUMKEmyWyYkM7Iuwc_cBhD7mYCZMO8k'
   },
   
   // Configuration des redirections

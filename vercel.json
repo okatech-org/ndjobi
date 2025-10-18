@@ -4,8 +4,10 @@
   "framework": "vite",
   "installCommand": "npm install --legacy-peer-deps",
   "env": {
-    "VITE_SUPABASE_URL": "@supabase_url",
-    "VITE_SUPABASE_PUBLISHABLE_KEY": "@supabase_key"
+    "VITE_SUPABASE_URL": "https://xfxqwlbqysiezqdpeqpv.supabase.co",
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmeHF3bGJxeXNpZXpxZHBlcXB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMDYyNjgsImV4cCI6MjA3NTc4MjI2OH0.0DobXhl43BgOeUMKEmyWyYkM7Iuwc_cBhD7mYCZMO8k",
+    "VITE_APP_ENV": "production",
+    "VITE_APP_URL": "https://ndjobi.lovable.app"
   },
   "headers": [
     {
