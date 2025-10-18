@@ -124,15 +124,32 @@ export class AuthService {
         return { success: false, error: 'Code PIN incorrect' };
       }
 
-      // Trouver l'utilisateur Super Admin par email
+      // Trouver l'utilisateur Super Admin par email d'abord, puis par téléphone
       console.log('🔍 Recherche du compte Super Admin avec email:', superAdminEmail);
       
-      const { data: userData, error: userError } = await supabase
+      let { data: userData, error: userError } = await supabase
         .from('profiles')
         .select('id, email, full_name, phone')
         .eq('email', superAdminEmail);
 
-      console.log('📊 Résultat requête profiles:', { userData, userError });
+      console.log('📊 Résultat requête profiles (email):', { userData, userError });
+
+      // Si pas trouvé par email, essayer par téléphone
+      if (!userData || userData.length === 0) {
+        console.log('🔍 Recherche alternative par téléphone:', superAdminPhone);
+        
+        const { data: phoneData, error: phoneError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, phone')
+          .eq('phone', superAdminPhone);
+
+        console.log('📊 Résultat requête profiles (téléphone):', { phoneData, phoneError });
+
+        if (phoneData && phoneData.length > 0) {
+          userData = phoneData;
+          userError = phoneError;
+        }
+      }
 
       if (userError) {
         console.error('❌ Erreur requête profiles:', userError);
@@ -140,7 +157,7 @@ export class AuthService {
       }
 
       if (!userData || userData.length === 0) {
-        console.log('❌ Aucun profil trouvé pour:', superAdminEmail);
+        console.log('❌ Aucun profil trouvé pour email:', superAdminEmail, 'ou téléphone:', superAdminPhone);
         return { success: false, error: 'Compte Super Admin introuvable' };
       }
 
