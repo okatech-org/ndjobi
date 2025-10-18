@@ -1,5 +1,3 @@
-/// <reference types="https://deno.land/x/edge_runtime/index.d.ts" />
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
