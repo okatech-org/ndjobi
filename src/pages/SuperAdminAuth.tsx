@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import logoNdjobi from '@/assets/logo_ndjobi.png';
+// Logo dans le dossier public
 
 const SuperAdminAuth = () => {
   const navigate = useNavigate();
@@ -112,7 +112,7 @@ const SuperAdminAuth = () => {
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <img 
-              src={logoNdjobi} 
+              src="/logo_ndjobi.png" 
               alt="Logo Ndjobi"
               className="h-16 w-16 object-contain rounded-full bg-white p-2 shadow-sm" 
             />
