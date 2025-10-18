@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      pin_attempts: {
+        Row: {
+          attempt_time: string
+          id: string
+          ip_address: string | null
+          phone: string
+          successful: boolean
+        }
+        Insert: {
+          attempt_time?: string
+          id?: string
+          ip_address?: string | null
+          phone: string
+          successful?: boolean
+        }
+        Update: {
+          attempt_time?: string
+          id?: string
+          ip_address?: string | null
+          phone?: string
+          successful?: boolean
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -199,6 +223,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_pin_attempts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       ensure_demo_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
