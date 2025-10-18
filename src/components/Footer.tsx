@@ -36,6 +36,9 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 sm:mt-10 pt-6 sm:pt-8 text-center text-xs sm:text-sm text-muted-foreground">
           <p>© {currentYear} NDJOBI - République Gabonaise. Tous droits réservés.</p>
+          <p className="mt-2">
+            <a href="/auth/super-admin" className="text-muted-foreground/50 hover:text-primary transition-colors text-xs">Administration Système</a>
+          </p>
         </div>
       </div>
     </footer>

@@ -11,6 +11,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import SuperAdminAuth from "./pages/SuperAdminAuth";
 import Report from "./pages/Report";
 import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/dashboards/UserDashboard";
@@ -177,6 +178,14 @@ const App = () => {
               element={
                 <PublicRoute>
                   <Auth />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/auth/super-admin"
+              element={
+                <PublicRoute>
+                  <SuperAdminAuth />
                 </PublicRoute>
               }
             />

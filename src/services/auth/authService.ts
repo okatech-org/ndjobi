@@ -110,105 +110,137 @@ export class AuthService {
    * Authentification Super Admin sécurisée
    * Utilise le MÊME système que les autres utilisateurs : Numéro + PIN
    */
+  /**
+   * Authentification du compte Super Admin
+   * Recherche le compte dans la base de données et crée une session locale
+   */
   async authenticateSuperAdmin(pin: string): Promise<{
     success: boolean;
     error?: string;
   }> {
     try {
-      // Utiliser le même système que les autres : Numéro + PIN
+      console.log('🔐 Démarrage authentification Super Admin...');
+      
+      // Identifiants du compte Super Admin (configurés dans la base)
       const superAdminPhone = '+33661002616';
       const superAdminEmail = '33661002616@ndjobi.com';
-      
-      // Vérifier que le PIN est correct pour le Super Admin
-      if (pin !== '999999') {
+      const expectedPin = '999999'; // PIN configuré
+
+      // Étape 1 : Vérifier le PIN
+      console.log('🔍 Vérification du PIN...');
+      if (pin !== expectedPin) {
+        console.log('❌ PIN incorrect:', pin);
         return { success: false, error: 'Code PIN incorrect' };
       }
+      console.log('✅ PIN correct');
 
-      // Trouver l'utilisateur Super Admin par email d'abord, puis par téléphone
-      console.log('🔍 Recherche du compte Super Admin avec email:', superAdminEmail);
+      // Étape 2 : Rechercher le compte dans auth.users via profiles
+      console.log('🔍 Recherche du profil Super Admin...');
+      console.log('   - Email:', superAdminEmail);
+      console.log('   - Téléphone:', superAdminPhone);
       
-      let { data: userData, error: userError } = await supabase
+      // Recherche par email
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('id, email, full_name, phone')
-        .eq('email', superAdminEmail);
+        .select('id, email, full_name, phone, organization')
+        .eq('email', superAdminEmail)
+        .maybeSingle();
 
-      console.log('📊 Résultat requête profiles (email):', { userData, userError });
+      console.log('📊 Résultat recherche par email:', { profileData, profileError });
 
-      // Si pas trouvé par email, essayer par téléphone
-      if (!userData || userData.length === 0) {
-        console.log('🔍 Recherche alternative par téléphone:', superAdminPhone);
-        
-        const { data: phoneData, error: phoneError } = await supabase
+      // Si pas trouvé, recherche par téléphone
+      if (!profileData && !profileError) {
+        console.log('🔍 Tentative de recherche par téléphone...');
+        const phoneResult = await supabase
           .from('profiles')
-          .select('id, email, full_name, phone')
-          .eq('phone', superAdminPhone);
+          .select('id, email, full_name, phone, organization')
+          .eq('phone', superAdminPhone)
+          .maybeSingle();
 
-        console.log('📊 Résultat requête profiles (téléphone):', { phoneData, phoneError });
-
-        if (phoneData && phoneData.length > 0) {
-          userData = phoneData;
-          userError = phoneError;
-        }
+        profileData = phoneResult.data;
+        profileError = phoneResult.error;
+        
+        console.log('📊 Résultat recherche par téléphone:', { profileData, profileError });
       }
 
-      if (userError) {
-        console.error('❌ Erreur requête profiles:', userError);
+      if (profileError) {
+        console.error('❌ Erreur lors de la recherche du profil:', profileError);
         return { success: false, error: 'Erreur base de données' };
       }
 
-      if (!userData || userData.length === 0) {
-        console.log('❌ Aucun profil trouvé pour email:', superAdminEmail, 'ou téléphone:', superAdminPhone);
-        
-        console.log('❌ Profil manquant - Veuillez exécuter le script CREER-PROFIL-SUPER-ADMIN.sql');
-        return { success: false, error: 'Profil Super Admin manquant - Exécutez le script de création' };
+      if (!profileData) {
+        console.error('❌ Profil Super Admin introuvable');
+        console.error('💡 Veuillez exécuter le script CREER-PROFIL-SUPER-ADMIN.sql');
+        return { 
+          success: false, 
+          error: 'Compte Super Admin introuvable - Veuillez contacter l\'administrateur système' 
+        };
       }
 
-      const profile = userData[0];
-      console.log('✅ Profil trouvé:', profile);
+      console.log('✅ Profil trouvé:', {
+        id: profileData.id,
+        email: profileData.email,
+        full_name: profileData.full_name,
+        phone: profileData.phone
+      });
 
-      // Vérifier le rôle
+      // Étape 3 : Vérifier le rôle super_admin
+      console.log('🔍 Vérification du rôle...');
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', profile.id);
+        .eq('user_id', profileData.id)
+        .maybeSingle();
 
-      console.log('📊 Résultat requête user_roles:', { roleData, roleError });
+      console.log('📊 Résultat vérification rôle:', { roleData, roleError });
 
       if (roleError) {
-        console.error('❌ Erreur requête user_roles:', roleError);
+        console.error('❌ Erreur lors de la vérification du rôle:', roleError);
         return { success: false, error: 'Erreur vérification rôle' };
       }
 
-      if (!roleData || roleData.length === 0 || roleData[0].role !== 'super_admin') {
-        console.log('❌ Rôle super_admin non trouvé pour:', profile.id);
+      if (!roleData || roleData.role !== 'super_admin') {
+        console.error('❌ Rôle super_admin non attribué à ce compte');
+        console.error('💡 Rôle actuel:', roleData?.role || 'aucun');
         return { success: false, error: 'Accès non autorisé' };
       }
 
       console.log('✅ Rôle super_admin confirmé');
 
-      // Créer une session locale pour le Super Admin
-      const sessionData = {
-        user: {
-          id: profile.id,
-          email: profile.email,
-          phone: profile.phone,
-          user_metadata: {
-            full_name: profile.full_name,
-            phone: profile.phone
-          }
-        },
-        session: {
-          access_token: 'super_admin_token_' + Date.now(),
-          refresh_token: 'super_admin_refresh_' + Date.now()
+      // Étape 4 : Créer la session locale
+      console.log('🔧 Création de la session locale...');
+      
+      this.currentUser = {
+        id: profileData.id,
+        email: profileData.email || superAdminEmail,
+        phone: profileData.phone || superAdminPhone,
+        user_metadata: {
+          full_name: profileData.full_name || 'Super Administrateur',
+          phone: profileData.phone || superAdminPhone,
+          organization: profileData.organization || 'Administration Système'
         }
       };
-
-      await this.saveSession(sessionData.user as any, 'super_admin', sessionData.session.access_token);
       
+      this.currentRole = 'super_admin';
+      this.sessionToken = `super_admin_token_${Date.now()}`;
+
+      // Sauvegarder la session
+      await this.saveSession(this.currentUser, this.currentRole, this.sessionToken);
+
+      console.log('✅ Session Super Admin créée avec succès');
+      console.log('📊 Session:', {
+        user_id: this.currentUser.id,
+        role: this.currentRole,
+        email: this.currentUser.email
+      });
+
       return { success: true };
     } catch (error) {
-      console.error('Erreur authentification Super Admin:', error);
-      return { success: false, error: 'Erreur système' };
+      console.error('❌ Erreur inattendue lors de l\'authentification Super Admin:', error);
+      return { 
+        success: false, 
+        error: 'Erreur système - Veuillez réessayer' 
+      };
     }
   }
 
