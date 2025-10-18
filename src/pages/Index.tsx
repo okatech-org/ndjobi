@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/SEOHead";
 import Header from "@/components/Header";
 import HeroWithVideo from "@/components/HeroWithVideo";
@@ -10,21 +7,6 @@ import StatsSection from "@/components/StatsSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
-
-  // NE PAS rediriger automatiquement pour éviter les boucles
-  // L'utilisateur peut cliquer sur "Mon Profil" dans le Header pour aller au dashboard
-  
-  // Afficher un loader uniquement pendant le chargement initial
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <SEOHead
