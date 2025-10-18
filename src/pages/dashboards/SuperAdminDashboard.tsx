@@ -6,7 +6,8 @@ import {
   Eye, TrendingUp, Server, ChevronRight, AlertTriangle,
   Clock, Check, X, RefreshCcw, Download, Upload, MapPin, CheckCircle,
   Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus,
-  Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff, Brain, Package, Radio, Crown
+  Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff, Brain, Package, Radio, Crown,
+  Mail, Phone
 } from 'lucide-react';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { useAuth } from '@/hooks/useAuth';
@@ -4009,144 +4010,281 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
-  // Composant pour afficher les comptes démo de la base de données
+  // Composant pour afficher les 9 comptes démo configurés
   const DatabaseDemoAccountsCards = () => {
-    const [databaseAccounts, setDatabaseAccounts] = useState<DatabaseDemoAccount[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-      const loadDatabaseAccounts = async () => {
-        try {
-          setLoading(true);
-          const accounts = await demoAccountsFromDatabaseService.fetchDemoAccounts();
-          setDatabaseAccounts(accounts);
-        } catch (error) {
-          console.error('Erreur lors du chargement des comptes démo:', error);
-          toast({
-            variant: 'destructive',
-            title: 'Erreur',
-            description: 'Impossible de charger les comptes démo depuis la base de données',
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      loadDatabaseAccounts();
-    }, []);
-
-    if (loading) {
-      return (
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-lg">Comptes Démo de la Base de Données</CardTitle>
-            <CardDescription>
-              Chargement des comptes depuis la base de données...
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center py-8">
-              <RefreshCcw className="h-6 w-6 animate-spin mr-2" />
-              <span>Chargement...</span>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Grouper les comptes par rôle
-    const accountsByRole = databaseAccounts.reduce((acc, account) => {
-      if (!acc[account.role]) {
-        acc[account.role] = [];
+    // 9 comptes démo configurés statiquement (basés sur les données de demoAccountsFromDatabase)
+    const demoAccountsList = [
+      {
+        id: 'demo-1',
+        email: '24177888001@ndjobi.com',
+        full_name: 'Jean Dupont',
+        phone: '+24177888001',
+        pin: '111111',
+        organization: 'Présidence de la République',
+        role: 'admin' as const,
+        description: 'Accès présidentiel - Administration complète'
+      },
+      {
+        id: 'demo-2',
+        email: '24177888002@ndjobi.com',
+        full_name: 'Marie Martin',
+        phone: '+24177888002',
+        pin: '222222',
+        organization: 'DGSS (Direction Générale de la Sécurité d\'État)',
+        role: 'sub_admin' as const,
+        description: 'Sous-Admin DGSS - Vue sectorielle Sécurité'
+      },
+      {
+        id: 'demo-3',
+        email: '24177888003@ndjobi.com',
+        full_name: 'Pierre Bernard',
+        phone: '+24177888003',
+        pin: '333333',
+        organization: 'DGR (Direction Générale du Renseignement)',
+        role: 'sub_admin' as const,
+        description: 'Sous-Admin DGR - Vue sectorielle Renseignement'
+      },
+      {
+        id: 'demo-4',
+        email: '24177888004@ndjobi.com',
+        full_name: 'Sophie Dubois',
+        phone: '+24177888004',
+        pin: '444444',
+        organization: 'Ministère de la Défense',
+        role: 'agent' as const,
+        description: 'Agent Défense - Enquêtes opérationnelles terrain'
+      },
+      {
+        id: 'demo-5',
+        email: '24177888005@ndjobi.com',
+        full_name: 'Luc Thomas',
+        phone: '+24177888005',
+        pin: '555555',
+        organization: 'Ministère de la Justice',
+        role: 'agent' as const,
+        description: 'Agent Justice - Traitement des cas judiciaires'
+      },
+      {
+        id: 'demo-6',
+        email: '24177888006@ndjobi.com',
+        full_name: 'Claire Robert',
+        phone: '+24177888006',
+        pin: '666666',
+        organization: 'Commission Anti-Corruption',
+        role: 'agent' as const,
+        description: 'Agent Anti-Corruption - Enquêtes spécialisées'
+      },
+      {
+        id: 'demo-7',
+        email: '24177888007@ndjobi.com',
+        full_name: 'Antoine Petit',
+        phone: '+24177888007',
+        pin: '777777',
+        organization: 'Ministère de l\'Intérieur',
+        role: 'agent' as const,
+        description: 'Agent Intérieur - Coordination nationale'
+      },
+      {
+        id: 'demo-8',
+        email: '24177888008@ndjobi.com',
+        full_name: 'Fatou Diallo',
+        phone: '+24177888008',
+        pin: '888888',
+        organization: 'Citoyen',
+        role: 'user' as const,
+        description: 'Citoyen Démo - Signalements et protection projets'
+      },
+      {
+        id: 'demo-9',
+        email: '24177888009@ndjobi.com',
+        full_name: 'Anonyme',
+        phone: '+24177888009',
+        pin: '999999',
+        organization: 'Anonyme',
+        role: 'user' as const,
+        description: 'Compte Anonyme - Signalements sans identification'
       }
-      acc[account.role].push(account);
-      return acc;
-    }, {} as Record<string, DatabaseDemoAccount[]>);
+    ];
+
+    const getRoleIcon = (role: string) => {
+      switch (role) {
+        case 'admin': return <Crown className="h-5 w-5 text-yellow-500" />;
+        case 'sub_admin': return <Shield className="h-5 w-5 text-blue-500" />;
+        case 'agent': return <User className="h-5 w-5 text-green-500" />;
+        case 'user': return <User className="h-5 w-5 text-gray-500" />;
+        default: return <User className="h-5 w-5" />;
+      }
+    };
+
+    const getRoleBadgeColor = (role: string) => {
+      switch (role) {
+        case 'admin': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        case 'sub_admin': return 'bg-blue-100 text-blue-800 border-blue-300';
+        case 'agent': return 'bg-green-100 text-green-800 border-green-300';
+        case 'user': return 'bg-gray-100 text-gray-800 border-gray-300';
+        default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      }
+    };
+
+    const getRoleDisplayName = (role: string) => {
+      const names: Record<string, string> = {
+        'admin': 'Président / Administrateur',
+        'sub_admin': 'Sous-Administrateur',
+        'agent': 'Agent',
+        'user': 'Citoyen'
+      };
+      return names[role] || role;
+    };
 
     return (
       <Card className="border-primary/20">
         <CardHeader>
-          <CardTitle className="text-lg">Comptes Démo de la Base de Données</CardTitle>
-          <CardDescription>
-            Ces comptes sont créés et configurés dans la base de données Supabase
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <TestTube className="h-6 w-6 text-cyan-500" />
+                9 Comptes Démo Configurés
+              </CardTitle>
+              <CardDescription className="mt-2">
+                Comptes de test pré-configurés avec différents rôles et permissions
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="text-lg px-4 py-2">
+              <Users className="h-4 w-4 mr-2" />
+              {demoAccountsList.length} comptes
+            </Badge>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(accountsByRole).map(([role, accounts]) => (
-              <Card key={role} className="border-blue-200 bg-blue-50/10">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    {role === 'admin' && <Lock className="h-4 w-4" />}
-                    {role === 'sub_admin' && <Shield className="h-4 w-4" />}
-                    {role === 'agent' && <User className="h-4 w-4" />}
-                    {role === 'user' && <User className="h-4 w-4" />}
-                    {demoAccountsFromDatabaseService.getRoleDisplayName(role)} ({accounts.length})
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    {demoAccountsFromDatabaseService.getRoleDescription(role)}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {accounts.map((account, index) => (
-                    <div key={account.id} className="border rounded-lg p-3 bg-white/50">
-                      <div className="space-y-2 text-sm">
-                        <div>
-                          <span className="font-semibold">Email:</span> {account.email}
-                        </div>
-                        <div>
-                          <span className="font-semibold">PIN:</span> {account.pin}
-                        </div>
-                        <div>
-                          <span className="font-semibold">Téléphone:</span> {account.phone}
-                        </div>
-                        <div>
-                          <span className="font-semibold">Organisation:</span> {account.organization}
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleSwitchToDemo({
-                              id: account.id,
-                              email: account.email,
-                              role: account.role,
-                              password: account.pin,
-                              fullName: account.full_name,
-                              phoneNumber: account.phone.replace('+241', ''),
-                              countryCode: '+241'
-                            })}
-                            disabled={switchingAccount}
-                          >
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            {switchingAccount ? 'Basculement...' : 'Accès direct'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleCopyCredentials(account.email, account.pin)}
-                          >
-                            <Download className="h-3 w-3 mr-1" />
-                            Copier
-                          </Button>
-                        </div>
+        <CardContent className="space-y-6">
+          <Alert className="border-cyan-500/50 bg-cyan-50/10">
+            <AlertCircle className="h-4 w-4 text-cyan-600" />
+            <AlertTitle>Comptes de Démonstration</AlertTitle>
+            <AlertDescription>
+              Ces comptes permettent de tester toutes les fonctionnalités de la plateforme selon différents rôles.
+              Utilisez le bouton "Tester" pour basculer vers un compte ou "Copier" pour obtenir les identifiants.
+            </AlertDescription>
+          </Alert>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            {demoAccountsList.map((account, index) => (
+              <Card key={account.id} className="border-2 hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      {getRoleIcon(account.role)}
+                      <div>
+                        <CardTitle className="text-base">{account.full_name}</CardTitle>
+                        <Badge className={`mt-1 ${getRoleBadgeColor(account.role)}`}>
+                          {getRoleDisplayName(account.role)}
+                        </Badge>
                       </div>
                     </div>
-                  ))}
+                    <Badge variant="outline" className="text-lg font-bold">
+                      #{index + 1}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <Mail className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                      <div className="flex-1">
+                        <p className="font-medium text-xs text-muted-foreground">Email</p>
+                        <p className="text-xs break-all">{account.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <Phone className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                      <div className="flex-1">
+                        <p className="font-medium text-xs text-muted-foreground">Téléphone</p>
+                        <p className="text-xs">{account.phone}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <Key className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                      <div className="flex-1">
+                        <p className="font-medium text-xs text-muted-foreground">Code PIN</p>
+                        <p className="text-base font-mono font-bold">{account.pin}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <Globe className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                      <div className="flex-1">
+                        <p className="font-medium text-xs text-muted-foreground">Organisation</p>
+                        <p className="text-xs">{account.organization}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground italic">{account.description}</p>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleSwitchToDemo({
+                        id: account.id,
+                        email: account.email,
+                        role: account.role,
+                        password: account.pin,
+                        fullName: account.full_name,
+                        phoneNumber: account.phone.replace('+241', ''),
+                        countryCode: '+241'
+                      })}
+                      disabled={switchingAccount}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      {switchingAccount ? 'Basculement...' : 'Tester'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCopyCredentials(account.email, account.pin)}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Comptes de la Base de Données</AlertTitle>
-            <AlertDescription>
-              Ces comptes sont créés directement dans Supabase et utilisent le système d'authentification 
-              unifié (numéro de téléphone + PIN à 6 chiffres). Ils sont persistants et ne sont pas 
-              réinitialisés automatiquement.
-            </AlertDescription>
-          </Alert>
+          <Card className="border-blue-200 bg-blue-50/10">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-blue-600" />
+                Comment utiliser ces comptes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <Badge className="mt-0.5">1</Badge>
+                <div>
+                  <p className="font-medium">Méthode 1: Basculement direct</p>
+                  <p className="text-xs text-muted-foreground">Cliquez sur "Tester" pour basculer immédiatement vers ce compte</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Badge className="mt-0.5">2</Badge>
+                <div>
+                  <p className="font-medium">Méthode 2: Connexion manuelle</p>
+                  <p className="text-xs text-muted-foreground">Copiez les identifiants et utilisez-les sur la page de connexion (/auth)</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Badge className="mt-0.5">3</Badge>
+                <div>
+                  <p className="font-medium">Système d'authentification</p>
+                  <p className="text-xs text-muted-foreground">Numéro de téléphone + PIN à 6 chiffres (système unifié pour tous les utilisateurs)</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     );
