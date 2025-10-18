@@ -50,11 +50,11 @@ function MasqueLogo3D({ size = 64, animate = true }) {
   );
 
   const breathe = animate ? { y: [0, -3, 0] } : { y: 0 };
-  const breatheTr = animate ? { duration: 3.5, repeat: Infinity, ease: "easeInOut" } : {};
+  const breatheTr: any = animate ? { duration: 3.5, repeat: Infinity, ease: "easeInOut" } : {};
   const blink = animate ? { scaleY: [1, 0.1, 1] } : { scaleY: 1 };
-  const blinkTr = animate ? { duration: 0.3, repeat: Infinity, repeatDelay: 4 } : {};
+  const blinkTr: any = animate ? { duration: 0.3, repeat: Infinity, repeatDelay: 4 } : {};
   const treePulse = animate ? { scale: [1, 1.03, 1] } : { scale: 1 };
-  const pulseTr = animate ? { duration: 2.5, repeat: Infinity, ease: "easeInOut" } : {};
+  const pulseTr: any = animate ? { duration: 2.5, repeat: Infinity, ease: "easeInOut" } : {};
 
   return (
     <svg viewBox="0 0 1000 1000" width={size} height={size} role="img" aria-label="Logo Agent IA Ndjobi">
@@ -125,6 +125,8 @@ interface CollectedData {
   budget_estimate?: string;
   timeline?: string;
   isAnonymous?: boolean;
+  gps_latitude?: number;
+  gps_longitude?: number;
 }
 
 const INITIAL_MESSAGE: Message = {
@@ -691,7 +693,7 @@ export default function NdjobiAIAgent() {
         break;
       case 'witness_yes':
       case 'witness_no':
-        handleSend(action);
+        handleSend();
         break;
       case 'edit_report':
       case 'edit_project':
@@ -785,7 +787,7 @@ export default function NdjobiAIAgent() {
         break;
       default:
         if (action.startsWith('cat_') || action.startsWith('innov_') || action.startsWith('stage_')) {
-          handleSend(action);
+          handleSend();
         }
     }
   };

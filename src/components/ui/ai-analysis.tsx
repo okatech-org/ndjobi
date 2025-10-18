@@ -165,7 +165,7 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
             <h3 className="font-semibold text-sm text-muted-foreground mb-2">
               Résumé
             </h3>
-            <p className="text-sm">{analysis.summary}</p>
+            <p className="text-sm">{String(analysis.summary || '')}</p>
           </div>
 
           {/* Severity (for reports only) */}
@@ -174,24 +174,24 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
                 Niveau de gravité
               </h3>
-              <Badge className={getSeverityColor(analysis.severity)}>
-                {getSeverityLabel(analysis.severity)}
+              <Badge className={getSeverityColor(String(analysis.severity || ''))}>
+                {getSeverityLabel(String(analysis.severity || ''))}
               </Badge>
             </div>
           )}
 
           {/* Key Points */}
-          {analysis.keyPoints && analysis.keyPoints.length > 0 && (
+          {Array.isArray(analysis.keyPoints) && analysis.keyPoints.length > 0 && (
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
                 Points clés
               </h3>
               <ul className="space-y-2">
-                {analysis.keyPoints.map((point: string, index: number) => (
+                {(analysis.keyPoints as string[]).map((point: string, index: number) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>{point}</span>
+                    <span>{String(point)}</span>
                   </li>
                 ))}
               </ul>
@@ -199,17 +199,17 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
           )}
 
           {/* Recommendations */}
-          {analysis.recommendations && analysis.recommendations.length > 0 && (
+          {Array.isArray(analysis.recommendations) && analysis.recommendations.length > 0 && (
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2 flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
                 Recommandations
               </h3>
               <ul className="space-y-2">
-                {analysis.recommendations.map((rec: string, index: number) => (
+                {(analysis.recommendations as string[]).map((rec: string, index: number) => (
                   <li key={index} className="flex items-start gap-2 text-sm bg-muted p-2 rounded">
                     <span className="font-bold text-primary">{index + 1}.</span>
-                    <span>{rec}</span>
+                    <span>{String(rec)}</span>
                   </li>
                 ))}
               </ul>
@@ -223,21 +223,21 @@ export const AIAnalysis = ({ type, data, onAnalysisComplete }: AIAnalysisProps) 
                 Impact estimé
               </h3>
               <p className="text-sm bg-blue-50 dark:bg-blue-950 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                {analysis.estimatedImpact}
+                {String(analysis.estimatedImpact || '')}
               </p>
             </div>
           )}
 
           {/* Related Categories */}
-          {analysis.relatedCategories && analysis.relatedCategories.length > 0 && (
+          {Array.isArray(analysis.relatedCategories) && analysis.relatedCategories.length > 0 && (
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
                 Catégories liées
               </h3>
               <div className="flex flex-wrap gap-2">
-                {analysis.relatedCategories.map((category: string, index: number) => (
+                {(analysis.relatedCategories as string[]).map((category: string, index: number) => (
                   <Badge key={index} variant="outline">
-                    {category}
+                    {String(category)}
                   </Badge>
                 ))}
               </div>

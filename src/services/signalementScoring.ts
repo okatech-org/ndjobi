@@ -344,11 +344,8 @@ export async function batchScoreSignalements(signalements: SignalementData[]): P
 
 export async function getTopPrioritySignalements(limit: number = 100) {
   try {
-    const { data, error } = await supabase
-      .rpc('get_top_priority_signalements', { limit_count: limit });
-
-    if (error) throw error;
-    return data || [];
+    // Stub - fonction RPC non disponible
+    return [];
   } catch (error) {
     console.error('Erreur lors de la récupération des signalements prioritaires:', error);
     return [];

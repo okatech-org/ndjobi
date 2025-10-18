@@ -40,8 +40,8 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    if (typeof window !== 'undefined' && (window as Record<string, unknown>).Sentry) {
-      ((window as Record<string, unknown>).Sentry as { captureException: (err: Error) => void }).captureException(error);
+    if (typeof window !== 'undefined' && (window as any).Sentry) {
+      (window as any).Sentry.captureException(error);
     }
   }
 

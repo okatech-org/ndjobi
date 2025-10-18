@@ -69,8 +69,8 @@ class LoggerService {
   }
 
   error(message: string, error?: Error | unknown, context?: Record<string, unknown>): void {
-    const stack = error?.stack || new Error().stack;
-    const errorMessage = error?.message || String(error);
+    const stack = (error as Error)?.stack || new Error().stack;
+    const errorMessage = (error as Error)?.message || String(error);
     const fullMessage = `${message}${errorMessage ? `: ${errorMessage}` : ''}`;
 
     console.error(this.formatMessage('error', fullMessage, context));
@@ -80,8 +80,8 @@ class LoggerService {
 
     this.addLog('error', fullMessage, context, stack);
 
-    if (!this.isDevelopment && typeof window !== 'undefined' && (window as Record<string, unknown>).Sentry) {
-      ((window as Record<string, unknown>).Sentry as { captureException: (err: unknown, opts?: Record<string, unknown>) => void }).captureException(error || new Error(message), {
+    if (!this.isDevelopment && typeof window !== 'undefined' && (window as any).Sentry) {
+      ((window as any).Sentry as { captureException: (err: unknown, opts?: Record<string, unknown>) => void }).captureException(error || new Error(message), {
         contexts: { custom: context },
       });
     }

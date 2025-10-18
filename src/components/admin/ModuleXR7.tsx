@@ -57,6 +57,7 @@ export function ModuleXR7() {
       const { data: userData } = await supabase.auth.getUser();
 
       const activationData = {
+        id: crypto.randomUUID(),
         signalement_id: activationForm.signalement_id,
         reason: activationForm.raison,
         judicial_authorization: activationForm.autorisation_judiciaire,
@@ -64,7 +65,7 @@ export function ModuleXR7() {
         legal_reference: activationForm.reference_legale || 'Protocole XR-7 Emergency',
         start_date: new Date().toISOString(),
         end_date: new Date(Date.now() + (activationForm.duree_heures || 24) * 60 * 60 * 1000).toISOString(),
-        activated_by: userData?.user?.id,
+        activated_by: userData?.user?.id || '',
         status: 'active',
         activation_metadata: {
           protection_temoins: activationForm.protection_temoins,
@@ -75,7 +76,7 @@ export function ModuleXR7() {
 
       const { error } = await supabase
         .from('emergency_activations')
-        .insert(activationData);
+        .insert([activationData]);
 
       if (error) throw error;
 

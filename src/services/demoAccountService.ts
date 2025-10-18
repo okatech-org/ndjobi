@@ -80,7 +80,10 @@ class DemoAccountService {
         id: `local-${account.role}`,
         email: account.email,
         full_name: account.fullName,
-        created_at: new Date().toISOString()
+        avatar_url: '',
+        organization: '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       const sessionData: LocalDemoSession = {
@@ -125,7 +128,10 @@ class DemoAccountService {
         id: `local-${role}`,
         email,
         full_name: fullName || `Démo ${role}`,
-        created_at: new Date().toISOString()
+        avatar_url: '',
+        organization: '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       const sessionData: LocalDemoSession = {
