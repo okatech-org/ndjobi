@@ -158,7 +158,9 @@ export class AuthService {
 
       if (!userData || userData.length === 0) {
         console.log('❌ Aucun profil trouvé pour email:', superAdminEmail, 'ou téléphone:', superAdminPhone);
-        return { success: false, error: 'Compte Super Admin introuvable' };
+        
+        console.log('❌ Profil manquant - Veuillez exécuter le script CREER-PROFIL-SUPER-ADMIN.sql');
+        return { success: false, error: 'Profil Super Admin manquant - Exécutez le script de création' };
       }
 
       const profile = userData[0];
