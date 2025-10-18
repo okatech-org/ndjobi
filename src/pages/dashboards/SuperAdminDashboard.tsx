@@ -4012,99 +4012,29 @@ const SuperAdminDashboard = () => {
 
   // Composant pour afficher les 9 comptes démo configurés
   const DatabaseDemoAccountsCards = () => {
-    // 9 comptes démo configurés statiquement (basés sur les données de demoAccountsFromDatabase)
-    const demoAccountsList = [
-      {
-        id: 'demo-1',
-        email: '24177888001@ndjobi.com',
-        full_name: 'Jean Dupont',
-        phone: '+24177888001',
-        pin: '111111',
-        organization: 'Présidence de la République',
-        role: 'admin' as const,
-        description: 'Accès présidentiel - Administration complète'
-      },
-      {
-        id: 'demo-2',
-        email: '24177888002@ndjobi.com',
-        full_name: 'Marie Martin',
-        phone: '+24177888002',
-        pin: '222222',
-        organization: 'DGSS (Direction Générale de la Sécurité d\'État)',
-        role: 'sub_admin' as const,
-        description: 'Sous-Admin DGSS - Vue sectorielle Sécurité'
-      },
-      {
-        id: 'demo-3',
-        email: '24177888003@ndjobi.com',
-        full_name: 'Pierre Bernard',
-        phone: '+24177888003',
-        pin: '333333',
-        organization: 'DGR (Direction Générale du Renseignement)',
-        role: 'sub_admin' as const,
-        description: 'Sous-Admin DGR - Vue sectorielle Renseignement'
-      },
-      {
-        id: 'demo-4',
-        email: '24177888004@ndjobi.com',
-        full_name: 'Sophie Dubois',
-        phone: '+24177888004',
-        pin: '444444',
-        organization: 'Ministère de la Défense',
-        role: 'agent' as const,
-        description: 'Agent Défense - Enquêtes opérationnelles terrain'
-      },
-      {
-        id: 'demo-5',
-        email: '24177888005@ndjobi.com',
-        full_name: 'Luc Thomas',
-        phone: '+24177888005',
-        pin: '555555',
-        organization: 'Ministère de la Justice',
-        role: 'agent' as const,
-        description: 'Agent Justice - Traitement des cas judiciaires'
-      },
-      {
-        id: 'demo-6',
-        email: '24177888006@ndjobi.com',
-        full_name: 'Claire Robert',
-        phone: '+24177888006',
-        pin: '666666',
-        organization: 'Commission Anti-Corruption',
-        role: 'agent' as const,
-        description: 'Agent Anti-Corruption - Enquêtes spécialisées'
-      },
-      {
-        id: 'demo-7',
-        email: '24177888007@ndjobi.com',
-        full_name: 'Antoine Petit',
-        phone: '+24177888007',
-        pin: '777777',
-        organization: 'Ministère de l\'Intérieur',
-        role: 'agent' as const,
-        description: 'Agent Intérieur - Coordination nationale'
-      },
-      {
-        id: 'demo-8',
-        email: '24177888008@ndjobi.com',
-        full_name: 'Fatou Diallo',
-        phone: '+24177888008',
-        pin: '888888',
-        organization: 'Citoyen',
-        role: 'user' as const,
-        description: 'Citoyen Démo - Signalements et protection projets'
-      },
-      {
-        id: 'demo-9',
-        email: '24177888009@ndjobi.com',
-        full_name: 'Anonyme',
-        phone: '+24177888009',
-        pin: '999999',
-        organization: 'Anonyme',
-        role: 'user' as const,
-        description: 'Compte Anonyme - Signalements sans identification'
-      }
-    ];
+    const [demoAccountsList, setDemoAccountsList] = useState<DatabaseDemoAccount[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Charger les comptes démo depuis la base de données
+    useEffect(() => {
+      const loadDemoAccounts = async () => {
+        try {
+          const accounts = await demoAccountsFromDatabaseService.fetchDemoAccounts();
+          setDemoAccountsList(accounts);
+        } catch (error) {
+          console.error('Erreur lors du chargement des comptes démo:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Erreur',
+            description: 'Impossible de charger les comptes démo',
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadDemoAccounts();
+    }, []);
 
     const getRoleIcon = (role: string) => {
       switch (role) {
@@ -4126,15 +4056,15 @@ const SuperAdminDashboard = () => {
       }
     };
 
-    const getRoleDisplayName = (role: string) => {
-      const names: Record<string, string> = {
-        'admin': 'Président / Administrateur',
-        'sub_admin': 'Sous-Administrateur',
-        'agent': 'Agent',
-        'user': 'Citoyen'
-      };
-      return names[role] || role;
-    };
+    if (loading) {
+      return (
+        <Card className="border-primary/20">
+          <CardContent className="py-12 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </CardContent>
+        </Card>
+      );
+    }
 
     return (
       <Card className="border-primary/20">
@@ -4170,15 +4100,15 @@ const SuperAdminDashboard = () => {
               <Card key={account.id} className="border-2 hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      {getRoleIcon(account.role)}
-                      <div>
-                        <CardTitle className="text-base">{account.full_name}</CardTitle>
-                        <Badge className={`mt-1 ${getRoleBadgeColor(account.role)}`}>
-                          {getRoleDisplayName(account.role)}
-                        </Badge>
+                      <div className="flex items-center gap-2">
+                        {getRoleIcon(account.role)}
+                        <div>
+                          <CardTitle className="text-base">{account.full_name}</CardTitle>
+                          <Badge className={`mt-1 ${getRoleBadgeColor(account.role)}`}>
+                            {demoAccountsFromDatabaseService.getRoleDisplayName(account.role)}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
                     <Badge variant="outline" className="text-lg font-bold">
                       #{index + 1}
                     </Badge>
@@ -4220,7 +4150,9 @@ const SuperAdminDashboard = () => {
                   </div>
 
                   <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground italic">{account.description}</p>
+                    <p className="text-xs text-muted-foreground italic">
+                      {demoAccountsFromDatabaseService.getRoleDescription(account.role)}
+                    </p>
                   </div>
 
                   <div className="flex gap-2 pt-2">
@@ -4230,11 +4162,10 @@ const SuperAdminDashboard = () => {
                       onClick={() => handleSwitchToDemo({
                         id: account.id,
                         email: account.email,
-                        role: account.role,
+                        role: account.role as 'admin' | 'sub_admin' | 'agent' | 'user',
                         password: account.pin,
                         fullName: account.full_name,
-                        phoneNumber: account.phone.replace('+241', ''),
-                        countryCode: '+241'
+                        phoneNumber: account.phone
                       })}
                       disabled={switchingAccount}
                     >
