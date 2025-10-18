@@ -107,175 +107,79 @@ export class AuthService {
   }
 
   /**
-   * Authentification Super Admin sécurisée
+   * Authentification Super Admin avec Supabase Auth (VRAI compte, pas demo)
    * Utilise le MÊME système que les autres utilisateurs : Numéro + PIN
-   */
-  /**
-   * Authentification du compte Super Admin
-   * Recherche le compte dans la base de données et crée une session locale
    */
   async authenticateSuperAdmin(pin: string): Promise<{
     success: boolean;
     error?: string;
   }> {
     try {
-      console.log('🔐 Démarrage authentification Super Admin...');
-      
-      // Identifiants du compte Super Admin (configurés dans la base)
-      const superAdminPhone = '+33661002616';
       const superAdminEmail = '33661002616@ndjobi.com';
-      const expectedPin = '999999'; // PIN configuré
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: superAdminEmail,
+        password: pin,
+      });
 
-      // Étape 1 : Vérifier le PIN
-      console.log('🔍 Vérification du PIN...');
-      if (pin !== expectedPin) {
-        console.log('❌ PIN incorrect:', pin);
+      if (error) {
         return { success: false, error: 'Code PIN incorrect' };
       }
-      console.log('✅ PIN correct');
 
-      // Étape 2 : Rechercher le compte dans auth.users via profiles
-      console.log('🔍 Recherche du profil Super Admin...');
-      console.log('   - Email:', superAdminEmail);
-      console.log('   - Téléphone:', superAdminPhone);
+      if (!data.user) {
+        return { success: false, error: 'Authentification échouée' };
+      }
+
+      const role = await this.getUserRole(data.user.id);
       
-      // Recherche par email
-      let { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, phone, organization')
-        .eq('email', superAdminEmail)
-        .maybeSingle();
-
-      console.log('📊 Résultat recherche par email:', { 
-        profileData, 
-        profileError,
-        profileDataType: typeof profileData,
-        profileDataNull: profileData === null,
-        profileDataUndefined: profileData === undefined
-      });
-
-      // Si pas trouvé, recherche par téléphone
-      if (!profileData && !profileError) {
-        console.log('🔍 Tentative de recherche par téléphone...');
-        const phoneResult = await supabase
-          .from('profiles')
-          .select('id, email, full_name, phone, organization')
-          .eq('phone', superAdminPhone)
-          .maybeSingle();
-
-        profileData = phoneResult.data;
-        profileError = phoneResult.error;
-        
-        console.log('📊 Résultat recherche par téléphone:', { 
-          profileData, 
-          profileError,
-          profileDataType: typeof profileData,
-          profileDataNull: profileData === null,
-          profileDataUndefined: profileData === undefined
-        });
-      }
-      
-      // Debug supplémentaire : essayer une recherche sans filtre pour voir ce qui existe
-      console.log('🔍 Debug: Recherche de TOUS les profils pour diagnostic...');
-      const { data: allProfiles, error: allError } = await supabase
-        .from('profiles')
-        .select('id, email, phone, full_name')
-        .limit(10);
-      
-      console.log('📊 Tous les profils (10 premiers):', { 
-        count: allProfiles?.length || 0,
-        profiles: allProfiles,
-        error: allError
-      });
-
-      // Fallback RPC (bypass RLS en toute sécurité via SECURITY DEFINER)
-      if (!profileData && !profileError) {
-        console.log('🔍 Fallback RPC get_super_admin_profile...');
-        const { data: rpcProfiles, error: rpcError } = await supabase.rpc('get_super_admin_profile');
-        if (rpcError) {
-          console.warn('⚠️ RPC get_super_admin_profile error:', rpcError);
-        }
-        const rpcProfile = Array.isArray(rpcProfiles) ? rpcProfiles[0] : rpcProfiles;
-        if (rpcProfile) {
-          profileData = rpcProfile as any;
-          console.log('✅ Profil récupéré via RPC:', profileData);
-        }
-      }
-
-      if (profileError) {
-        console.error('❌ Erreur lors de la recherche du profil:', profileError);
-        return { success: false, error: 'Erreur base de données' };
-      }
-
-      if (!profileData) {
-        console.error('❌ Profil Super Admin introuvable');
-        console.error('💡 Veuillez exécuter le script CREER-PROFIL-SUPER-ADMIN.sql');
-        return { 
-          success: false, 
-          error: 'Compte Super Admin introuvable - Veuillez contacter l\'administrateur système' 
-        };
-      }
-
-      console.log('✅ Profil trouvé:', {
-        id: profileData.id,
-        email: profileData.email,
-        full_name: profileData.full_name,
-        phone: profileData.phone
-      });
-
-      // Étape 3 : Vérifier le rôle super_admin
-      console.log('🔍 Vérification du rôle via RPC...');
-      const { data: roleData, error: roleError } = await supabase
-        .rpc('get_user_role', { _user_id: profileData.id });
-      
-      console.log('📊 Résultat vérification rôle:', { roleData, roleError });
-
-      if (roleError) {
-        console.error('❌ Erreur lors de la vérification du rôle:', roleError);
-        return { success: false, error: 'Erreur vérification rôle' };
-      }
-
-      if (!roleData || roleData !== 'super_admin') {
-        console.error('❌ Rôle super_admin non attribué à ce compte');
-        console.error('💡 Rôle actuel:', roleData || 'aucun');
+      if (role !== 'super_admin') {
+        await this.signOut();
         return { success: false, error: 'Accès non autorisé' };
       }
 
-      console.log('✅ Rôle super_admin confirmé');
-
-      // Étape 4 : Créer la session locale
-      console.log('🔧 Création de la session locale...');
+      await this.saveSession(data.user, 'super_admin', data.session?.access_token);
       
-      this.currentUser = {
-        id: profileData.id,
-        email: profileData.email || superAdminEmail,
-        phone: profileData.phone || superAdminPhone,
-        user_metadata: {
-          full_name: profileData.full_name || 'Super Administrateur',
-          phone: profileData.phone || superAdminPhone,
-          organization: profileData.organization || 'Administration Système'
-        }
-      };
-      
-      this.currentRole = 'super_admin';
-      this.sessionToken = `super_admin_token_${Date.now()}`;
-
-      // Sauvegarder la session
-      await this.saveSession(this.currentUser, this.currentRole, this.sessionToken);
-
-      console.log('✅ Session Super Admin créée avec succès');
-      console.log('📊 Session:', {
-        user_id: this.currentUser.id,
-        role: this.currentRole,
-        email: this.currentUser.email
-      });
-
       return { success: true };
     } catch (error) {
-      console.error('❌ Erreur inattendue lors de l\'authentification Super Admin:', error);
       return { 
         success: false, 
         error: 'Erreur système - Veuillez réessayer' 
+      };
+    }
+  }
+
+  /**
+   * Réinitialise le PIN du Super Admin après vérification OTP
+   */
+  async resetSuperAdminPin(newPin: string): Promise<{
+    success: boolean;
+    error?: string;
+  }> {
+    try {
+      const superAdminEmail = '33661002616@ndjobi.com';
+      
+      // On ne peut pas changer le password d'un utilisateur non connecté
+      // Solution: Utiliser une Edge Function Supabase avec service_role
+      const { data, error } = await supabase.functions.invoke('reset-super-admin-pin', {
+        body: {
+          email: superAdminEmail,
+          newPassword: newPin,
+        },
+      });
+
+      if (error) {
+        return { 
+          success: false, 
+          error: 'Impossible de réinitialiser le PIN. Veuillez le faire manuellement dans Supabase Auth.' 
+        };
+      }
+
+      // Tenter de se connecter avec le nouveau PIN
+      return await this.authenticateSuperAdmin(newPin);
+    } catch (error) {
+      return { 
+        success: false, 
+        error: 'Veuillez réinitialiser le PIN manuellement dans Supabase Auth (Edit user → Password)' 
       };
     }
   }
@@ -327,21 +231,32 @@ export class AuthService {
 
   /**
    * Sauvegarde la session de manière sécurisée
-   * Utilise sessionStorage au lieu de localStorage pour plus de sécurité
+   * Utilise sessionStorage pour les utilisateurs normaux
+   * Et localStorage pour le Super Admin (persistance après refresh)
    */
   private async saveSession(user: any, role: UserRole, token?: string) {
     this.currentUser = user;
     this.currentRole = role;
     this.sessionToken = token || null;
 
-    // Utiliser sessionStorage (plus sécurisé que localStorage)
+    // Session data
     const sessionData = {
       userId: user.id,
       role: role,
       timestamp: new Date().toISOString(),
     };
 
+    // Pour les utilisateurs normaux : sessionStorage
     sessionStorage.setItem('ndjobi_session', JSON.stringify(sessionData));
+    
+    // Pour le Super Admin : localStorage (persistance maximale)
+    if (role === 'super_admin') {
+      const superAdminSessionData = {
+        user: user,
+        role: role,
+      };
+      localStorage.setItem('ndjobi_super_admin_session', JSON.stringify(superAdminSessionData));
+    }
   }
 
   /**
@@ -357,6 +272,7 @@ export class AuthService {
     localStorage.removeItem('ndjobi_session');
     localStorage.removeItem('localDemoSession');
     localStorage.removeItem('ndjobi_demo_session');
+    localStorage.removeItem('ndjobi_super_admin_session');
     
     // Réinitialiser l'état global si nécessaire
     if (window.globalAuthState) {

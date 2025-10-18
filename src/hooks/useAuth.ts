@@ -33,6 +33,58 @@ export function useAuth() {
       }, 3000);
 
       try {
+        // Vérifier d'abord la session Super Admin (localStorage)
+        const superAdminSessionData = localStorage.getItem('ndjobi_super_admin_session');
+        if (superAdminSessionData) {
+          try {
+            const superAdminSession = JSON.parse(superAdminSessionData);
+            
+            if (isMounted) {
+              setUser(superAdminSession.user);
+              setRole(superAdminSession.role);
+              
+              if (authService && typeof authService === 'object') {
+                (authService as any).currentUser = superAdminSession.user;
+                (authService as any).currentRole = superAdminSession.role;
+              }
+            }
+            
+            clearTimeout(timeoutId);
+            if (isMounted) {
+              setIsLoading(false);
+            }
+            return;
+          } catch (err) {
+            console.error('Erreur parsing session:', err);
+          }
+        }
+        
+        const demoSessionData = localStorage.getItem('ndjobi_demo_session');
+        if (demoSessionData) {
+          try {
+            const demoSession = JSON.parse(demoSessionData);
+            
+            if (isMounted) {
+              setUser(demoSession.user);
+              setRole(demoSession.role);
+              
+              if (authService && typeof authService === 'object') {
+                (authService as any).currentUser = demoSession.user;
+                (authService as any).currentRole = demoSession.role;
+              }
+            }
+            
+            clearTimeout(timeoutId);
+            if (isMounted) {
+              setIsLoading(false);
+            }
+            return;
+          } catch (err) {
+            console.error('Erreur parsing session:', err);
+          }
+        }
+        
+        // Sinon, vérifier l'authentification normale
         const isAuth = authService.isAuthenticated();
         
         if (isAuth) {
@@ -43,6 +95,7 @@ export function useAuth() {
             setRole(role);
           }
         } else {
+          // Vérifier sessionStorage
           const sessionData = sessionStorage.getItem('ndjobi_session');
           if (sessionData) {
             const { userId, role: sessionRole } = JSON.parse(sessionData);
@@ -50,24 +103,6 @@ export function useAuth() {
             if (isMounted) {
               setUser(authService.getCurrentUser());
               setRole(authService.getCurrentRole());
-            }
-          } else {
-            const demoSessionData = localStorage.getItem('ndjobi_demo_session');
-            if (demoSessionData) {
-              try {
-                const demoSession = JSON.parse(demoSessionData);
-                if (isMounted) {
-                  setUser(demoSession.user);
-                  setRole(demoSession.role);
-                  
-                  if (authService && typeof authService === 'object') {
-                    (authService as any).currentUser = demoSession.user;
-                    (authService as any).currentRole = demoSession.role;
-                  }
-                }
-              } catch (err) {
-                console.error('❌ Erreur parsing session démo:', err);
-              }
             }
           }
         }
@@ -171,6 +206,35 @@ export function useAuth() {
   }, [navigate]);
 
   /**
+   * Réinitialise le PIN du Super Admin après vérification OTP
+   */
+  const resetSuperAdminPin = useCallback(async (
+    newPin: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await authService.resetSuperAdminPin(newPin);
+      
+      if (result.success) {
+        setUser(authService.getCurrentUser());
+        setRole(authService.getCurrentRole());
+      } else {
+        setError(result.error || null);
+      }
+      
+      return result;
+    } catch (err) {
+      const errorMessage = 'Erreur lors de la réinitialisation du PIN';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
    * Déconnexion
    */
   const signOut = useCallback(async () => {
@@ -225,6 +289,7 @@ export function useAuth() {
     // Actions
     signInWithPhone,
     signInSuperAdmin,
+    resetSuperAdminPin,
     signOut,
     
     // Utilitaires

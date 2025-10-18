@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { twilioVerifyService } from '@/services/twilioVerifyService';
 import { superAdminCodeService } from '@/services/auth/superAdminCodeService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SuperAdminAuthProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
   const [timeRemaining, setTimeRemaining] = useState(0);
   
   const { toast } = useToast();
-  const { signInSuperAdmin, isLoading, error: authError, clearError } = useAuth();
+  const { signInSuperAdmin, resetSuperAdminPin, isLoading, error: authError, clearError } = useAuth();
   const contactInfo = superAdminCodeService.getContactInfo();
   
   const pinInputRefs = [
@@ -227,13 +228,19 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     }
 
     try {
-      // Pour le Super Admin, utiliser directement le PIN sans Twilio Verify
-      // car c'est un système local sécurisé
-      const result = await signInSuperAdmin(fullPin);
+      let result;
+      
+      // Si en mode "forgot", réinitialiser le PIN d'abord
+      if (mode === 'forgot' && otpVerified) {
+        result = await resetSuperAdminPin(fullPin);
+      } else {
+        // Mode login normal
+        result = await signInSuperAdmin(fullPin);
+      }
      
       if (result.success) {
         toast({ 
-          title: 'Authentification réussie', 
+          title: mode === 'forgot' ? 'PIN réinitialisé avec succès' : 'Authentification réussie', 
           description: 'Bienvenue dans l\'espace Super Admin' 
         });
         onClose();

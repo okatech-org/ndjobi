@@ -22,31 +22,79 @@ class DemoAccountService {
   private readonly STORAGE_KEY = 'ndjobi_demo_session';
   private readonly SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 heures
 
-  // Comptes démo disponibles
+  // Comptes démo disponibles (mis à jour avec les comptes de la base de données)
   public readonly DEMO_ACCOUNTS: DemoAccountData[] = [
     {
-      email: '24177777002@ndjobi.com',
-      password: '123456',
-      role: 'agent',
-      label: 'Agent DGSS',
-      fullName: 'Agent DGSS Démo',
-      phone: '+24177777002'
-    },
-    {
-      email: '24177777003@ndjobi.com',
-      password: '123456',
+      email: '24177888001@ndjobi.com',
+      password: '111111',
       role: 'admin',
-      label: 'Protocole d\'État',
-      fullName: 'Protocole d\'État Démo',
-      phone: '+24177777003'
+      label: 'Président / Administrateur',
+      fullName: 'Président / Administrateur',
+      phone: '+24177888001'
     },
     {
-      email: '24177777000@ndjobi.com',
-      password: '123456',
-      role: 'super_admin',
-      label: 'Super Administrateur',
-      fullName: 'Super Administrateur',
-      phone: '+24177777000'
+      email: '24177888002@ndjobi.com',
+      password: '222222',
+      role: 'sub_admin',
+      label: 'Sous-Admin DGSS',
+      fullName: 'Sous-Admin DGSS',
+      phone: '+24177888002'
+    },
+    {
+      email: '24177888003@ndjobi.com',
+      password: '333333',
+      role: 'sub_admin',
+      label: 'Sous-Admin DGR',
+      fullName: 'Sous-Admin DGR',
+      phone: '+24177888003'
+    },
+    {
+      email: '24177888004@ndjobi.com',
+      password: '444444',
+      role: 'agent',
+      label: 'Agent Défense',
+      fullName: 'Agent Défense',
+      phone: '+24177888004'
+    },
+    {
+      email: '24177888005@ndjobi.com',
+      password: '555555',
+      role: 'agent',
+      label: 'Agent Justice',
+      fullName: 'Agent Justice',
+      phone: '+24177888005'
+    },
+    {
+      email: '24177888006@ndjobi.com',
+      password: '666666',
+      role: 'agent',
+      label: 'Agent Anti-Corruption',
+      fullName: 'Agent Anti-Corruption',
+      phone: '+24177888006'
+    },
+    {
+      email: '24177888007@ndjobi.com',
+      password: '777777',
+      role: 'agent',
+      label: 'Agent Intérieur',
+      fullName: 'Agent Intérieur',
+      phone: '+24177888007'
+    },
+    {
+      email: '24177888008@ndjobi.com',
+      password: '888888',
+      role: 'user',
+      label: 'Citoyen Démo',
+      fullName: 'Citoyen Démo',
+      phone: '+24177888008'
+    },
+    {
+      email: '24177888009@ndjobi.com',
+      password: '999999',
+      role: 'user',
+      label: 'Citoyen Anonyme',
+      fullName: 'Citoyen Anonyme',
+      phone: '+24177888009'
     }
   ];
 

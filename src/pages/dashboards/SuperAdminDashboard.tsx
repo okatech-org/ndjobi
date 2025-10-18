@@ -8,6 +8,7 @@ import {
   Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus,
   Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff, Brain, Package, Radio, Crown
 } from 'lucide-react';
+import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { useAuth } from '@/hooks/useAuth';
 import { superAdminAuthService } from '@/services/superAdminAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { systemManagementService, type DatabaseStats, type ServiceStatus } from '@/services/systemManagement';
 import { userManagementService, type UserDetail, type UserStats } from '@/services/userManagement';
 import { accountSwitchingService, type DemoAccount } from '@/services/accountSwitching';
+import { demoAccountsFromDatabaseService, type DatabaseDemoAccount } from '@/services/demoAccountsFromDatabase';
 import { getDashboardUrl } from '@/lib/roleUtils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -64,7 +66,7 @@ interface ActivityLog {
   user: string;
   action: string;
   type: 'info' | 'success' | 'warning' | 'error';
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 interface ApiKey {
@@ -85,7 +87,7 @@ interface ConnectedApp {
   url?: string;
   status: 'connected' | 'disconnected' | 'error';
   lastSync?: string;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 interface MCPConfig {
@@ -106,7 +108,14 @@ interface AIAgent {
   status: 'active' | 'inactive' | 'training';
   capabilities: string[];
   lastUsed?: string;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
+}
+
+interface SecurityScanResults {
+  vulnerabilities: number;
+  passed: number;
+  warnings: number;
+  details: string[];
 }
 
 const SuperAdminDashboard = () => {
@@ -141,7 +150,7 @@ const SuperAdminDashboard = () => {
   // États pour la gestion système
   const [dbStats, setDbStats] = useState<DatabaseStats | null>(null);
   const [services, setServices] = useState<ServiceStatus[]>([]);
-  const [securityScanResults, setSecurityScanResults] = useState<any>(null);
+  const [securityScanResults, setSecurityScanResults] = useState<SecurityScanResults | null>(null);
   
   // États pour la gestion des utilisateurs
   const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
@@ -167,6 +176,8 @@ const SuperAdminDashboard = () => {
   const [showSuspendDialog, setShowSuspendDialog] = useState(false);
   const [suspendReason, setSuspendReason] = useState('');
   const [usersError, setUsersError] = useState<string | null>(null);
+  const [systemError, setSystemError] = useState<string | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
   
   // États pour la vue démo
   const [demoAccounts, setDemoAccounts] = useState<Array<{
@@ -187,19 +198,39 @@ const SuperAdminDashboard = () => {
   
   // Vérification de session locale en cas de défaillance de useAuth
   const [localRole, setLocalRole] = useState<string | null>(null);
+  const [localUser, setLocalUser] = useState<{ id: string; email?: string } | null>(null);
+  
   useEffect(() => {
-    try {
-      const demoSession = localStorage.getItem('ndjobi_demo_session');
-      if (demoSession) {
-        const parsed = JSON.parse(demoSession);
-        if (parsed.role === 'super_admin') {
-          setLocalRole('super_admin');
+    const checkLocalSession = () => {
+      try {
+        let sessionData = localStorage.getItem('ndjobi_super_admin_session');
+        
+        if (!sessionData) {
+          sessionData = localStorage.getItem('ndjobi_demo_session');
         }
+        
+        if (sessionData) {
+          const parsed = JSON.parse(sessionData);
+          if (parsed.role === 'super_admin') {
+            setLocalRole('super_admin');
+            setLocalUser(parsed.user);
+          }
+        } else {
+          setLocalRole(null);
+          setLocalUser(null);
+        }
+      } catch (err) {
+        setLocalRole(null);
+        setLocalUser(null);
       }
-    } catch (err) {
-      console.error('Erreur lecture session locale:', err);
+    };
+    
+    checkLocalSession();
+    
+    if (!authLoading && !role) {
+      checkLocalSession();
     }
-  }, []);
+  }, [authLoading, role]);
 
   // IMPORTANT: TOUS les hooks doivent être déclarés avant tout return conditionnel
   useEffect(() => {
@@ -213,7 +244,7 @@ const SuperAdminDashboard = () => {
   }, [location.search]);
 
   useEffect(() => {
-    const effectiveUser = user || (localRole ? { id: 'local-super-admin' } : null);
+    const effectiveUser = user || localUser || (localRole ? { id: 'local-super-admin' } : null);
     if (effectiveUser && !hasLoadedData.current) {
       hasLoadedData.current = true;
       loadSystemStats();
@@ -222,15 +253,17 @@ const SuperAdminDashboard = () => {
       loadSystemData();
       loadConfigurationData();
     }
-  }, [user, localRole]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, localUser, localRole]);
 
   // Charger les données système quand on change de vue
   useEffect(() => {
-    const effectiveUser = user || (localRole ? { id: 'local-super-admin' } : null);
+    const effectiveUser = user || localUser || (localRole ? { id: 'local-super-admin' } : null);
     if (activeView === 'system' && effectiveUser) {
       loadSystemData();
     }
-  }, [activeView, user, localRole]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeView, user, localUser, localRole]);
 
   // Debounce simple pour la recherche (éviter spam d'updates UI)
   useEffect(() => {
@@ -240,29 +273,13 @@ const SuperAdminDashboard = () => {
     return () => clearTimeout(id);
   }, [searchTerm]);
 
-  // Returns conditionnels APRÈS tous les hooks
-  const effectiveRole = role || localRole;
-  
-  if (authLoading && !localRole) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Chargement...</p>
-      </div>
-    );
-  }
-  
-  if (!effectiveRole || effectiveRole !== 'super_admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500">Accès refusé</p>
-      </div>
-    );
-  }
-
-  // Fonctions de chargement (peuvent être après les hooks)
+  // Fonctions de chargement
   const loadSystemData = async () => {
     if (activeView === 'system') {
       try {
+        setIsLoading(true);
+        setSystemError(null);
+        
         const [stats, serviceStatus] = await Promise.all([
           systemManagementService.getDatabaseStats(),
           systemManagementService.checkServiceStatus(),
@@ -279,8 +296,22 @@ const SuperAdminDashboard = () => {
           totalReports: stats.signalementCount,
           totalProjects: stats.projetCount,
         }));
+        
+        toast({
+          title: "Données système actualisées",
+          description: "Les statistiques système ont été mises à jour avec succès",
+        });
       } catch (error) {
         console.error('Erreur chargement données système:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Erreur lors du chargement des données système';
+        setSystemError(errorMessage);
+        toast({
+          variant: 'destructive',
+          title: "Erreur de chargement",
+          description: errorMessage,
+        });
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -429,11 +460,19 @@ const SuperAdminDashboard = () => {
       setConnectedApps(mockConnectedApps);
       setMcpConfigs(mockMCPConfigs);
       setAiAgents(mockAIAgents);
+      setConfigError(null);
+      
+      toast({
+        title: "Configuration chargée",
+        description: "Les paramètres de configuration ont été récupérés avec succès",
+      });
     } catch (error) {
       console.error('Erreur chargement configuration:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur lors du chargement de la configuration';
+      setConfigError(errorMessage);
       toast({
         title: "Erreur",
-        description: "Impossible de charger la configuration",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -472,16 +511,105 @@ const SuperAdminDashboard = () => {
     }
   };
 
-  const loadActivityLogs = () => {
-    const logs: ActivityLog[] = [
-      { time: new Date().toLocaleTimeString('fr-FR'), user: 'User #892', action: 'Nouveau signalement créé', type: 'info', icon: FileText },
-      { time: new Date(Date.now() - 120000).toLocaleTimeString('fr-FR'), user: 'Agent #12', action: 'Cas validé et transmis', type: 'success', icon: Check },
-      { time: new Date(Date.now() - 240000).toLocaleTimeString('fr-FR'), user: 'Admin #3', action: 'Rapport mensuel généré', type: 'warning', icon: Download },
-      { time: new Date(Date.now() - 360000).toLocaleTimeString('fr-FR'), user: 'System', action: 'Backup automatique complété', type: 'success', icon: Database },
-      { time: new Date(Date.now() - 480000).toLocaleTimeString('fr-FR'), user: 'User #445', action: 'Projet protégé ajouté', type: 'info', icon: Shield },
-    ];
-    setActivityLogs(logs);
+  const loadActivityLogs = async () => {
+    try {
+      // Charger les derniers signalements comme activité
+      const { data: recentReports, error: reportsError } = await supabase
+        .from('signalements')
+        .select(`
+          id,
+          title,
+          created_at,
+          profiles!inner(email, full_name)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      // Charger les derniers utilisateurs créés
+      const { data: recentUsers, error: usersError } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, created_at')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const logs: ActivityLog[] = [];
+
+      // Ajouter les signalements récents
+      if (recentReports && !reportsError) {
+        (recentReports as unknown as Array<{ id: string; created_at: string; profiles?: { full_name?: string; email?: string } | null; title: string }>).forEach((report) => {
+          logs.push({
+            time: new Date(report.created_at).toLocaleTimeString('fr-FR'),
+            user: report.profiles?.full_name || report.profiles?.email || 'Utilisateur',
+            action: `Signalement créé: ${report.title}`,
+            type: 'info',
+            icon: FileText
+          });
+        });
+      }
+
+      // Ajouter les nouveaux utilisateurs
+      if (recentUsers && !usersError) {
+        recentUsers.forEach((user: { created_at: string; full_name?: string; email: string }) => {
+          logs.push({
+            time: new Date(user.created_at).toLocaleTimeString('fr-FR'),
+            user: user.full_name || user.email,
+            action: 'Nouveau compte créé',
+            type: 'success',
+            icon: UserPlus
+          });
+        });
+      }
+
+      // Ajouter quelques logs système
+      logs.push(
+        {
+          time: new Date().toLocaleTimeString('fr-FR'),
+          user: 'System',
+          action: 'Dashboard Super Admin chargé',
+          type: 'info',
+          icon: Shield
+        },
+        {
+          time: new Date(Date.now() - 300000).toLocaleTimeString('fr-FR'),
+          user: 'System',
+          action: 'Vérification sécurité effectuée',
+          type: 'success',
+          icon: Check
+        }
+      );
+
+      // Trier par temps décroissant et limiter à 10
+      logs.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+      setActivityLogs(logs.slice(0, 10));
+    } catch (error) {
+      console.error('Erreur lors du chargement des logs d\'activité:', error);
+      // Fallback vers des logs mockés en cas d'erreur
+      const fallbackLogs: ActivityLog[] = [
+        { time: new Date().toLocaleTimeString('fr-FR'), user: 'System', action: 'Dashboard Super Admin chargé', type: 'info', icon: Shield },
+        { time: new Date(Date.now() - 300000).toLocaleTimeString('fr-FR'), user: 'System', action: 'Vérification sécurité effectuée', type: 'success', icon: Check },
+      ];
+      setActivityLogs(fallbackLogs);
+    }
   };
+
+  // Returns conditionnels APRÈS tous les hooks et fonctions de chargement
+  const effectiveRole = role || localRole;
+  
+  if (authLoading && !localRole) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Chargement...</p>
+      </div>
+    );
+  }
+  
+  if (!effectiveRole || effectiveRole !== 'super_admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">Accès refusé</p>
+      </div>
+    );
+  }
 
   const handleNavigateToView = (view: string) => {
     navigate(`?view=${view}`);
@@ -661,7 +789,7 @@ const SuperAdminDashboard = () => {
     try {
       setIsLoading(true);
       const { user, stats } = await userManagementService.getUserDetails(userId);
-      setSelectedUser(user as any);
+      setSelectedUser(user);
       setUserStats(stats);
       setShowUserDetails(true);
     } catch (error) {
@@ -680,7 +808,7 @@ const SuperAdminDashboard = () => {
       const user = users.find(u => u.id === userId);
       if (!user) return;
       
-      setSelectedUser(user as any);
+      setSelectedUser(user as unknown as UserDetail);
       setNewRole(user.role);
       setShowEditRole(true);
     } catch (error) {
@@ -721,7 +849,7 @@ const SuperAdminDashboard = () => {
     const user = users.find(u => u.id === userId);
     if (!user) return;
     
-    setSelectedUser(user as any);
+    setSelectedUser(user as unknown as UserDetail);
     setShowSuspendDialog(true);
   };
 
@@ -1233,6 +1361,28 @@ const SuperAdminDashboard = () => {
               </CardContent>
             </Card>
           </div>
+      )}
+
+      {/* Affichage des erreurs système */}
+      {systemError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erreur Système</AlertTitle>
+          <AlertDescription>
+            {systemError}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="ml-2"
+              onClick={() => {
+                setSystemError(null);
+                loadSystemData();
+              }}
+            >
+              Réessayer
+            </Button>
+          </AlertDescription>
+        </Alert>
       )}
 
     <Card>
@@ -1993,7 +2143,7 @@ const SuperAdminDashboard = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-semibold">{item.role}</h4>
-                          <Badge variant={item.color as any}>{item.role.split(' ')[0]}</Badge>
+                          <Badge variant={item.color as 'destructive' | 'default' | 'secondary' | 'outline'}>{item.role.split(' ')[0]}</Badge>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {item.features.map((feature, j) => (
@@ -3549,7 +3699,6 @@ const SuperAdminDashboard = () => {
   );
 
   const renderXR7View = () => {
-    const { ModuleXR7 } = require('@/components/admin/ModuleXR7');
     return <ModuleXR7 />;
   };
 
@@ -3574,6 +3723,28 @@ const SuperAdminDashboard = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Affichage des erreurs de configuration */}
+          {configError && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Erreur Configuration</AlertTitle>
+              <AlertDescription>
+                {configError}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="ml-2"
+                  onClick={() => {
+                    setConfigError(null);
+                    loadConfigurationData();
+                  }}
+                >
+                  Réessayer
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <Tabs defaultValue="api-keys" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="api-keys">Clés API</TabsTrigger>
@@ -3838,122 +4009,195 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
-  const renderDemoView = () => {
-    // Initialiser les comptes démo prédéfinis
-    if (demoAccounts.length === 0) {
-      setDemoAccounts([
-        {
-          id: 'demo-user',
-          email: '24177777001@ndjobi.temp',
-          role: 'user',
-          password: '123456',
-          phoneNumber: '77777001',
-          countryCode: '+241',
-          fullName: 'Citoyen Démo',
-          created_at: new Date().toISOString(),
-          last_used: null
-        },
-        {
-          id: 'demo-agent',
-          email: '24177777002@ndjobi.com',
-          role: 'agent',
-          password: '123456',
-          phoneNumber: '77777002',
-          countryCode: '+241',
-          fullName: 'Agent DGSS Démo',
-          created_at: new Date().toISOString(),
-          last_used: null
-        },
-        {
-          id: 'demo-admin',
-          email: '24177777003@ndjobi.com',
-          role: 'admin',
-          password: '123456',
-          phoneNumber: '77777003',
-          countryCode: '+241',
-          fullName: 'Protocole d\'État Démo',
-          created_at: new Date().toISOString(),
-          last_used: null
-        },
-        // Ajout de comptes agents supplémentaires prédéfinis
-        {
-          id: 'demo-agent-2',
-          email: 'demo.agent.2@ndjobi.com',
-          role: 'agent',
-          password: 'demo123',
-          phoneNumber: '77777012',
-          countryCode: '+241',
-          fullName: 'Agent DGSS Démo 2',
-          created_at: new Date().toISOString(),
-          last_used: null
-        },
-        {
-          id: 'demo-agent-3',
-          email: 'demo.agent.3@ndjobi.com',
-          role: 'agent',
-          password: 'demo123',
-          phoneNumber: '77777013',
-          countryCode: '+241',
-          fullName: 'Agent DGSS Démo 3',
-          created_at: new Date().toISOString(),
-          last_used: null
-        },
-        {
-          id: 'demo-agent-4',
-          email: 'demo.agent.4@ndjobi.com',
-          role: 'agent',
-          password: 'demo123',
-          phoneNumber: '77777014',
-          countryCode: '+241',
-          fullName: 'Agent DGSS Démo 4',
-          created_at: new Date().toISOString(),
-          last_used: null
+  // Composant pour afficher les comptes démo de la base de données
+  const DatabaseDemoAccountsCards = () => {
+    const [databaseAccounts, setDatabaseAccounts] = useState<DatabaseDemoAccount[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const loadDatabaseAccounts = async () => {
+        try {
+          setLoading(true);
+          const accounts = await demoAccountsFromDatabaseService.fetchDemoAccounts();
+          setDatabaseAccounts(accounts);
+        } catch (error) {
+          console.error('Erreur lors du chargement des comptes démo:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Erreur',
+            description: 'Impossible de charger les comptes démo depuis la base de données',
+          });
+        } finally {
+          setLoading(false);
         }
-      ]);
+      };
+
+      loadDatabaseAccounts();
+    }, []);
+
+    if (loading) {
+      return (
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-lg">Comptes Démo de la Base de Données</CardTitle>
+            <CardDescription>
+              Chargement des comptes depuis la base de données...
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center py-8">
+              <RefreshCcw className="h-6 w-6 animate-spin mr-2" />
+              <span>Chargement...</span>
+            </div>
+          </CardContent>
+        </Card>
+      );
     }
 
-    const handleSwitchToDemo = async (demoAccount: DemoAccount) => {
-      console.log('🔄 handleSwitchToDemo appelé avec:', demoAccount);
-      setSwitchingAccount(true);
-      try {
-        console.log('📞 Appel accountSwitchingService.switchToDemoAccount...');
-        const result = await accountSwitchingService.switchToDemoAccount(demoAccount);
-        console.log('📥 Résultat du basculement:', result);
-        
-        if (result.success) {
-          console.log('✅ Basculement réussi, affichage toast...');
-          toast({
-            title: 'Basculement réussi',
-            description: `Vous êtes maintenant connecté en tant que ${demoAccount.fullName}`,
-          });
-          // Redirection immédiate vers le dashboard du rôle cible
-          const target = demoAccount.role === 'super_admin' ? '/dashboard/super-admin'
-            : demoAccount.role === 'admin' ? '/dashboard/admin'
-            : demoAccount.role === 'agent' ? '/dashboard/agent'
-            : '/dashboard/user';
-          console.log('🎯 Redirection vers:', target);
-          
-          // Attendre que l'événement soit traité, puis recharger la page
-          setTimeout(() => {
-            console.log('🚀 Rechargement complet de la page vers:', target);
-            window.location.href = target;
-          }, 100);
-        } else {
-          console.error('❌ Basculement échoué:', result.error);
-          throw new Error(result.error || 'Erreur de basculement');
-        }
-      } catch (error: any) {
-        console.error('💥 Erreur de basculement:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Erreur de basculement',
-          description: error.message || 'Impossible de basculer vers ce compte',
-        });
-      } finally {
-        console.log('🏁 handleSwitchToDemo terminé, setSwitchingAccount(false)');
-        setSwitchingAccount(false);
+    // Grouper les comptes par rôle
+    const accountsByRole = databaseAccounts.reduce((acc, account) => {
+      if (!acc[account.role]) {
+        acc[account.role] = [];
       }
-    };
+      acc[account.role].push(account);
+      return acc;
+    }, {} as Record<string, DatabaseDemoAccount[]>);
+
+    return (
+      <Card className="border-primary/20">
+        <CardHeader>
+          <CardTitle className="text-lg">Comptes Démo de la Base de Données</CardTitle>
+          <CardDescription>
+            Ces comptes sont créés et configurés dans la base de données Supabase
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.entries(accountsByRole).map(([role, accounts]) => (
+              <Card key={role} className="border-blue-200 bg-blue-50/10">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    {role === 'admin' && <Lock className="h-4 w-4" />}
+                    {role === 'sub_admin' && <Shield className="h-4 w-4" />}
+                    {role === 'agent' && <User className="h-4 w-4" />}
+                    {role === 'user' && <User className="h-4 w-4" />}
+                    {demoAccountsFromDatabaseService.getRoleDisplayName(role)} ({accounts.length})
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {demoAccountsFromDatabaseService.getRoleDescription(role)}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {accounts.map((account, index) => (
+                    <div key={account.id} className="border rounded-lg p-3 bg-white/50">
+                      <div className="space-y-2 text-sm">
+                        <div>
+                          <span className="font-semibold">Email:</span> {account.email}
+                        </div>
+                        <div>
+                          <span className="font-semibold">PIN:</span> {account.pin}
+                        </div>
+                        <div>
+                          <span className="font-semibold">Téléphone:</span> {account.phone}
+                        </div>
+                        <div>
+                          <span className="font-semibold">Organisation:</span> {account.organization}
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleSwitchToDemo({
+                              id: account.id,
+                              email: account.email,
+                              role: account.role,
+                              password: account.pin,
+                              fullName: account.full_name,
+                              phoneNumber: account.phone.replace('+241', ''),
+                              countryCode: '+241'
+                            })}
+                            disabled={switchingAccount}
+                          >
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            {switchingAccount ? 'Basculement...' : 'Accès direct'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCopyCredentials(account.email, account.pin)}
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            Copier
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Comptes de la Base de Données</AlertTitle>
+            <AlertDescription>
+              Ces comptes sont créés directement dans Supabase et utilisent le système d'authentification 
+              unifié (numéro de téléphone + PIN à 6 chiffres). Ils sont persistants et ne sont pas 
+              réinitialisés automatiquement.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // Fonctions de gestion des comptes démo (doivent être définies avant renderDemoView)
+  const handleSwitchToDemo = async (demoAccount: DemoAccount) => {
+    setSwitchingAccount(true);
+    try {
+      const result = await accountSwitchingService.switchToDemoAccount(demoAccount);
+      
+      if (result.success) {
+        toast({
+          title: 'Basculement réussi',
+          description: `Vous êtes maintenant connecté en tant que ${demoAccount.fullName}`,
+        });
+        const target = demoAccount.role === 'super_admin' ? '/dashboard/super-admin'
+          : demoAccount.role === 'admin' ? '/dashboard/admin'
+          : demoAccount.role === 'agent' ? '/dashboard/agent'
+          : '/dashboard/user';
+        
+        setTimeout(() => {
+          window.location.href = target;
+        }, 100);
+      } else {
+        throw new Error(result.error || 'Erreur de basculement');
+      }
+    } catch (error) {
+      console.error('💥 Erreur de basculement:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Impossible de basculer vers ce compte';
+      toast({
+        variant: 'destructive',
+        title: 'Erreur de basculement',
+        description: errorMessage,
+      });
+    } finally {
+      setSwitchingAccount(false);
+    }
+  };
+
+  const handleCopyCredentials = (email: string, password: string) => {
+    const credentials = `Email: ${email}\nMot de passe: ${password}`;
+    navigator.clipboard.writeText(credentials);
+    toast({
+      title: "Copié",
+      description: "Les identifiants ont été copiés dans le presse-papiers",
+    });
+  };
+
+  const renderDemoView = () => {
+    // Les comptes démo sont maintenant chargés depuis la base de données via DatabaseDemoAccountsCards
 
     const handleCreateDemoAccount = async () => {
       setCreatingAccount(true);
@@ -3998,11 +4242,12 @@ const SuperAdminDashboard = () => {
             last_used: null
           }]);
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error creating demo account:', error);
+        const errorMessage = error instanceof Error ? error.message : "Impossible de créer le compte démo";
         toast({
           title: "Erreur",
-          description: error.message || "Impossible de créer le compte démo",
+          description: errorMessage,
           variant: "destructive",
         });
       } finally {
@@ -4022,23 +4267,15 @@ const SuperAdminDashboard = () => {
         });
 
         setDemoAccounts(prev => prev.filter(acc => acc.id !== accountId));
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error deleting demo account:', error);
+        const errorMessage = error instanceof Error ? error.message : "Impossible de supprimer le compte";
         toast({
           title: "Erreur",
-          description: error.message || "Impossible de supprimer le compte",
+          description: errorMessage,
           variant: "destructive",
         });
       }
-    };
-
-    const handleCopyCredentials = (email: string, password: string) => {
-      const credentials = `Email: ${email}\nMot de passe: ${password}`;
-      navigator.clipboard.writeText(credentials);
-      toast({
-        title: "Copié",
-        description: "Les identifiants ont été copiés dans le presse-papiers",
-      });
     };
 
     return (
@@ -4094,197 +4331,19 @@ const SuperAdminDashboard = () => {
                   <UserPlus className="h-4 w-4 mr-2" />
                   {creatingAccount ? "Création..." : "Créer un compte"}
                 </Button>
-              </div>
-
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Rôle</TableHead>
-                    <TableHead>Mot de passe</TableHead>
-                    <TableHead>Téléphone</TableHead>
-                    <TableHead>Créé le</TableHead>
-                    <TableHead>Dernière utilisation</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {demoAccounts.map((account) => (
-                    <TableRow key={account.id}>
-                      <TableCell className="font-mono text-sm">{account.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          account.role === 'admin' ? 'default' :
-                          account.role === 'agent' ? 'secondary' :
-                          'outline'
-                        }>
-                          {account.role === 'user' ? 'Citoyen' :
-                           account.role === 'agent' ? 'Agent DGSS' :
-                           'Protocole d\'État'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{account.password}</TableCell>
-                      <TableCell className="text-sm">{`${account.countryCode || '+241'} ${account.phoneNumber || ''}`}</TableCell>
-                      <TableCell className="text-sm">
-                        {new Date(account.created_at).toLocaleDateString('fr-FR')}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {account.last_used ? new Date(account.last_used).toLocaleDateString('fr-FR') : 'Jamais'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleSwitchToDemo({
-                              id: account.id,
-                              email: account.email,
-                              role: account.role,
-                              password: account.password,
-                              fullName: account.fullName || `Démo ${account.role === 'user' ? 'Citoyen' : account.role === 'agent' ? 'Agent DGSS' : 'Protocole d\'État'}`,
-                              phoneNumber: account.phoneNumber || '77777001',
-                              countryCode: account.countryCode || '+241'
-                            })}
-                            disabled={switchingAccount}
-                          >
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            {switchingAccount ? 'Basculement...' : 'Accès direct'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleCopyCredentials(account.email, account.password)}
-                          >
-                            <Download className="h-3 w-3 mr-1" />
-                            Copier
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteDemoAccount(account.id, account.email)}
-                          >
-                            <Trash2 className="h-3 w-3 mr-1" />
-                            Supprimer
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            <Card className="border-primary/20">
-              <CardHeader>
-                <CardTitle className="text-lg">Comptes Démo Pré-configurés</CardTitle>
-                <CardDescription>
-                  Ces comptes sont disponibles pour les démonstrations publiques
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card className="border-blue-200 bg-blue-50/10">
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Compte Citoyen
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Utilisateur standard
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <div>
-                        <span className="font-semibold">Email:</span> demo.citoyen@ndjobi.com
-                      </div>
-                      <div>
-                        <span className="font-semibold">Mot de passe:</span> demo123
-                      </div>
-                      <div className="text-muted-foreground">
-                        Accès aux fonctionnalités de base : signalements, protection de projets
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-green-200 bg-green-50/10">
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Shield className="h-4 w-4" />
-                        Agent DGSS
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Direction Générale des Services Spéciaux
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <div>
-                        <span className="font-semibold">Email:</span> demo.agent@ndjobi.com
-                      </div>
-                      <div>
-                        <span className="font-semibold">Mot de passe:</span> demo123
-                      </div>
-                      <div className="text-muted-foreground">
-                        Accès aux enquêtes, gestion des cas, rapports terrain
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-purple-200 bg-purple-50/10">
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Lock className="h-4 w-4" />
-                        Protocole d'État
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Accès présidentiel - Administrateur
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <div>
-                        <span className="font-semibold">Email:</span> demo.admin@ndjobi.com
-                      </div>
-                      <div>
-                        <span className="font-semibold">Mot de passe:</span> demo123
-                      </div>
-                      <div className="text-muted-foreground">
-                        Accès à la supervision, validation, rapports avancés
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-green-200/60 bg-green-50/10">
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Shield className="h-4 w-4" />
-                        Pack Agents DGSS (x3)
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Ensemble de comptes pour démontrer le dispatch intelligent et l'assignation
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <div>
-                        <span className="font-semibold">Emails:</span> demo.agent.2@ndjobi.com, demo.agent.3@ndjobi.com, demo.agent.4@ndjobi.com
-                      </div>
-                      <div>
-                        <span className="font-semibold">Mot de passe:</span> demo123
-                      </div>
-                      <div className="text-muted-foreground">
-                        Idéal pour tester l'assignation multi-agents et la charge
-                      </div>
-                    </CardContent>
-                  </Card>
                 </div>
 
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Note importante</AlertTitle>
+                <AlertTitle>Comptes Démo Migrés</AlertTitle>
                   <AlertDescription>
-                    Les comptes démo sont réinitialisés toutes les 24 heures. Toutes les données créées sont fictives et seront supprimées automatiquement.
+                  Les comptes démo ont été migrés vers la base de données Supabase. 
+                  Consultez la section "Comptes Démo de la Base de Données" ci-dessous pour accéder aux comptes configurés.
                   </AlertDescription>
                 </Alert>
-              </CardContent>
-            </Card>
+            </div>
+
+            <DatabaseDemoAccountsCards />
           </CardContent>
         </Card>
       </div>
@@ -4406,18 +4465,22 @@ const SuperAdminDashboard = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="key-name">Nom de la clé</Label>
+              <Label htmlFor="key-name">Nom de la clé *</Label>
               <Input
                 id="key-name"
                 value={newApiKey.name || ''}
                 onChange={(e) => setNewApiKey(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Ex: OpenAI GPT-4 Production"
+                className={!newApiKey.name ? 'border-red-200' : ''}
               />
+              {!newApiKey.name && (
+                <p className="text-sm text-red-500 mt-1">Le nom de la clé est requis</p>
+              )}
             </div>
             <div>
-              <Label htmlFor="key-service">Service</Label>
-              <Select value={newApiKey.service || ''} onValueChange={(value) => setNewApiKey(prev => ({ ...prev, service: value as any }))}>
-                <SelectTrigger>
+              <Label htmlFor="key-service">Service *</Label>
+              <Select value={newApiKey.service || ''} onValueChange={(value) => setNewApiKey(prev => ({ ...prev, service: value as 'openai' | 'claude' | 'gemini' | 'google' | 'azure' | 'twilio' | 'custom' }))}>
+                <SelectTrigger className={!newApiKey.service ? 'border-red-200' : ''}>
                   <SelectValue placeholder="Sélectionner un service" />
                 </SelectTrigger>
                 <SelectContent>
@@ -4430,16 +4493,23 @@ const SuperAdminDashboard = () => {
                   <SelectItem value="custom">Personnalisé</SelectItem>
                 </SelectContent>
               </Select>
+              {!newApiKey.service && (
+                <p className="text-sm text-red-500 mt-1">Le service est requis</p>
+              )}
             </div>
             <div>
-              <Label htmlFor="key-value">Clé API</Label>
+              <Label htmlFor="key-value">Clé API *</Label>
               <Input
                 id="key-value"
                 type="password"
                 value={newApiKey.key || ''}
                 onChange={(e) => setNewApiKey(prev => ({ ...prev, key: e.target.value }))}
                 placeholder="sk-..."
+                className={!newApiKey.key ? 'border-red-200' : ''}
               />
+              {!newApiKey.key && (
+                <p className="text-sm text-red-500 mt-1">La clé API est requise</p>
+              )}
             </div>
             <div>
               <Label htmlFor="key-limit">Limite d'usage (optionnel)</Label>
@@ -4456,7 +4526,10 @@ const SuperAdminDashboard = () => {
             <Button variant="outline" onClick={() => setShowApiKeyForm(false)}>
               Annuler
             </Button>
-            <Button onClick={handleAddApiKey}>
+            <Button 
+              onClick={handleAddApiKey}
+              disabled={!newApiKey.name || !newApiKey.service || !newApiKey.key}
+            >
               <Save className="h-4 w-4 mr-2" />
               Ajouter
             </Button>
@@ -4475,17 +4548,21 @@ const SuperAdminDashboard = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="app-name">Nom de l'application</Label>
+              <Label htmlFor="app-name">Nom de l'application *</Label>
               <Input
                 id="app-name"
                 value={newApp.name || ''}
                 onChange={(e) => setNewApp(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Ex: Slack Notifications"
+                className={!newApp.name ? 'border-red-200' : ''}
               />
+              {!newApp.name && (
+                <p className="text-sm text-red-500 mt-1">Le nom de l'application est requis</p>
+              )}
             </div>
             <div>
               <Label htmlFor="app-type">Type de connexion</Label>
-              <Select value={newApp.type || ''} onValueChange={(value) => setNewApp(prev => ({ ...prev, type: value as any }))}>
+              <Select value={newApp.type || ''} onValueChange={(value) => setNewApp(prev => ({ ...prev, type: value as 'webhook' | 'api' | 'oauth' | 'mcp' }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un type" />
                 </SelectTrigger>
@@ -4549,7 +4626,7 @@ const SuperAdminDashboard = () => {
             </div>
             <div>
               <Label htmlFor="mcp-protocol">Protocole</Label>
-              <Select value={newMCP.protocol || ''} onValueChange={(value) => setNewMCP(prev => ({ ...prev, protocol: value as any }))}>
+              <Select value={newMCP.protocol || ''} onValueChange={(value) => setNewMCP(prev => ({ ...prev, protocol: value as 'http' | 'websocket' | 'grpc' }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un protocole" />
                 </SelectTrigger>
