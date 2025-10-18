@@ -116,7 +116,7 @@ export class AuthService {
     try {
       // Utiliser le même système que les autres : Numéro + PIN
       const superAdminPhone = '+33661002616';
-      const superAdminEmail = 'superadmin@ndjobi.com';
+      const superAdminEmail = '33661002616@ndjobi.com';
       
       // Vérifier que le PIN est correct pour le Super Admin
       if (pin !== '999999') {
