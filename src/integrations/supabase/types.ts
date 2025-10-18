@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      iasted_conversations: {
+        Row: {
+          actions_triggered: Json | null
+          artifacts_generated: string[] | null
+          assistant_audio_url: string | null
+          assistant_message: string
+          context_data: Json | null
+          created_at: string | null
+          id: string
+          mode: string
+          response_time_ms: number | null
+          session_id: string
+          user_id: string | null
+          user_message: string
+          user_message_audio_url: string | null
+          user_message_transcription: string | null
+          user_message_vector: unknown | null
+        }
+        Insert: {
+          actions_triggered?: Json | null
+          artifacts_generated?: string[] | null
+          assistant_audio_url?: string | null
+          assistant_message: string
+          context_data?: Json | null
+          created_at?: string | null
+          id?: string
+          mode: string
+          response_time_ms?: number | null
+          session_id: string
+          user_id?: string | null
+          user_message: string
+          user_message_audio_url?: string | null
+          user_message_transcription?: string | null
+          user_message_vector?: unknown | null
+        }
+        Update: {
+          actions_triggered?: Json | null
+          artifacts_generated?: string[] | null
+          assistant_audio_url?: string | null
+          assistant_message?: string
+          context_data?: Json | null
+          created_at?: string | null
+          id?: string
+          mode?: string
+          response_time_ms?: number | null
+          session_id?: string
+          user_id?: string | null
+          user_message?: string
+          user_message_audio_url?: string | null
+          user_message_transcription?: string | null
+          user_message_vector?: unknown | null
+        }
+        Relationships: []
+      }
+      iasted_knowledge_base: {
+        Row: {
+          confidence_score: number | null
+          content: string
+          content_vector: unknown | null
+          created_at: string | null
+          id: string
+          knowledge_type: string
+          last_accessed_at: string | null
+          relevance_score: number | null
+          source_conversation_id: string | null
+          source_data: Json | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          content: string
+          content_vector?: unknown | null
+          created_at?: string | null
+          id?: string
+          knowledge_type: string
+          last_accessed_at?: string | null
+          relevance_score?: number | null
+          source_conversation_id?: string | null
+          source_data?: Json | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          content?: string
+          content_vector?: unknown | null
+          created_at?: string | null
+          id?: string
+          knowledge_type?: string
+          last_accessed_at?: string | null
+          relevance_score?: number | null
+          source_conversation_id?: string | null
+          source_data?: Json | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iasted_knowledge_base_source_conversation_id_fkey"
+            columns: ["source_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "iasted_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       national_kpis: {
         Row: {
           calculated_at: string | null
