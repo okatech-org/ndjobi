@@ -255,6 +255,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_president: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "user" | "agent" | "admin" | "super_admin" | "sub_admin"
