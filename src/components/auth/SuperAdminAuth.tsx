@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Lock, Smartphone, Mail, AlertCircle, MessageSquare } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Shield, KeyRound, AlertCircle, Phone, Smartphone, MessageSquare, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { superAdminCodeService } from '@/services/auth/superAdminCodeService';
 import { twilioVerifyService } from '@/services/twilioVerifyService';
+import { superAdminCodeService } from '@/services/auth/superAdminCodeService';
 
 interface SuperAdminAuthProps {
   isOpen: boolean;
@@ -16,19 +17,21 @@ interface SuperAdminAuthProps {
 }
 
 export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
-  const [code, setCode] = useState(['', '', '', '', '', '']);
-  const [isSendingCode, setIsSendingCode] = useState(false);
-  const [codeSent, setCodeSent] = useState(false);
+  const [pin, setPin] = useState(['', '', '', '', '', '']);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [mode, setMode] = useState<'login' | 'forgot'>('login');
+  const [channel, setChannel] = useState<'sms' | 'whatsapp' | 'email'>('sms');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [selectedChannel, setSelectedChannel] = useState<'sms' | 'whatsapp' | 'email' | null>(null);
-  const [fallbackInfo, setFallbackInfo] = useState<string | null>(null);
-
+  
   const { toast } = useToast();
   const { signInSuperAdmin, isLoading, error: authError, clearError } = useAuth();
   const contactInfo = superAdminCodeService.getContactInfo();
   
-  // Refs pour les inputs de code
-  const inputRefs = [
+  const pinInputRefs = [
     React.useRef<HTMLInputElement>(null),
     React.useRef<HTMLInputElement>(null),
     React.useRef<HTMLInputElement>(null),
@@ -37,15 +40,23 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     React.useRef<HTMLInputElement>(null),
   ];
 
-  // Countdown timer pour le code
+  const otpInputRefs = [
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+  ];
+
   useEffect(() => {
-    if (!codeSent || timeRemaining <= 0) return;
+    if (!otpSent || timeRemaining <= 0) return;
 
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
         const next = prev - 1;
         if (next <= 0) {
-          setCodeSent(false);
+          setOtpSent(false);
           toast({
             variant: 'destructive',
             title: 'Code expiré',
@@ -57,135 +68,199 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [codeSent, timeRemaining, toast]);
+  }, [otpSent, timeRemaining, toast]);
 
-  // Gérer la saisie dans les cases de code
-  const handleCodeChange = (index: number, value: string) => {
+  const handlePinChange = (index: number, value: string) => {
     if (value.length > 1) {
       value = value[0];
     }
     
     if (!/^\d*$/.test(value)) return;
 
-    const newCode = [...code];
-    newCode[index] = value;
-    setCode(newCode);
+    const newPin = [...pin];
+    newPin[index] = value;
+    setPin(newPin);
 
-    // Auto-focus sur la case suivante
     if (value && index < 5) {
-      inputRefs[index + 1].current?.focus();
+      pinInputRefs[index + 1].current?.focus();
     }
   };
 
-  // Gérer la touche Backspace
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
-      inputRefs[index - 1].current?.focus();
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) {
+      value = value[0];
     }
-  };
-
-  // Soumettre le code OTP
-  const handleCodeSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    clearError();
     
-    const fullCode = code.join('');
-    if (fullCode.length !== 6) {
-      toast({ variant: 'destructive', title: 'Code incomplet', description: 'Veuillez saisir les 6 chiffres' });
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otpCode];
+    newOtp[index] = value;
+    setOtpCode(newOtp);
+
+    if (value && index < 5) {
+      otpInputRefs[index + 1].current?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>, refs: any[], state: string[]) => {
+    if (e.key === 'Backspace' && !state[index] && index > 0) {
+      refs[index - 1].current?.focus();
+    }
+  };
+
+  const handleSendOtp = async () => {
+    if (!phoneNumber || phoneNumber.length < 8) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Numéro manquant', 
+        description: 'Veuillez saisir votre numéro de téléphone' 
+      });
+      return;
+    }
+
+    setIsSendingOtp(true);
+    clearError();
+
+    try {
+      const to = channel === 'email' ? contactInfo.email : phoneNumber;
+      const startRes = await twilioVerifyService.start(to, channel);
+      
+      if (!startRes.success) {
+        throw new Error(startRes.error || 'Échec envoi OTP');
+      }
+      
+      setOtpSent(true);
+      setTimeRemaining(10 * 60);
+      setOtpCode(['', '', '', '', '', '']);
+
+      const methodLabel = channel === 'sms' ? 'SMS' : channel === 'whatsapp' ? 'WhatsApp' : 'Email';
+      
+      toast({ 
+        title: 'Code envoyé', 
+        description: `Un code de vérification a été envoyé par ${methodLabel}.` 
+      });
+      
+      setTimeout(() => otpInputRefs[0].current?.focus(), 100);
+    } catch (error: any) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Erreur', 
+        description: error?.message || 'Impossible d\'envoyer le code' 
+      });
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const fullOtp = otpCode.join('');
+    if (fullOtp.length !== 6) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Code incomplet', 
+        description: 'Veuillez saisir les 6 chiffres du code OTP' 
+      });
       return;
     }
 
     try {
-      const channel = selectedChannel || 'sms';
-      const to = channel === 'email' ? contactInfo.email : contactInfo.phone;
-      if (!to) {
-        toast({ variant: 'destructive', title: 'Contact manquant', description: 'Aucun destinataire configuré' });
-        return;
-      }
-
-      // Vérifier le code OTP via Twilio Verify
-      const verifyRes = await twilioVerifyService.check(to, fullCode);
+      const to = channel === 'email' ? contactInfo.email : phoneNumber;
+      const verifyRes = await twilioVerifyService.check(to, fullOtp);
+      
       if (!verifyRes.success || verifyRes.valid !== true) {
-        toast({ variant: 'destructive', title: 'Code invalide', description: verifyRes.error || 'Le code OTP est invalide' });
-        // Réinitialiser le code
-        setCode(['', '', '', '', '', '']);
-        inputRefs[0].current?.focus();
+        toast({ 
+          variant: 'destructive', 
+          title: 'Code invalide', 
+          description: verifyRes.error || 'Le code OTP est invalide' 
+        });
+        setOtpCode(['', '', '', '', '', '']);
+        otpInputRefs[0].current?.focus();
         return;
       }
 
-      // OTP validé: on utilise le code attendu par signInSuperAdmin depuis l'env
-      const envCode = import.meta.env.VITE_SUPER_ADMIN_CODE as string;
-     
-      const result = await signInSuperAdmin(envCode);
-     
-      if (result.success) {
-        
-        toast({ title: 'Authentification réussie', description: 'Bienvenue dans l\'espace Super Admin' });
-        onClose();
-      }
+      setOtpVerified(true);
+      toast({ 
+        title: 'Code vérifié', 
+        description: 'Vous pouvez maintenant créer votre nouveau PIN' 
+      });
+      
+      setTimeout(() => pinInputRefs[0].current?.focus(), 100);
     } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Erreur', description: err?.message || 'Vérification OTP impossible' });
+      toast({ 
+        variant: 'destructive', 
+        title: 'Erreur', 
+        description: err?.message || 'Vérification OTP impossible' 
+      });
     }
   };
 
-  const handleSendCode = async (method: 'sms' | 'whatsapp' | 'email') => {
-    setIsSendingCode(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     clearError();
-    setSelectedChannel(method);
+    
+    const fullPin = pin.join('');
+    if (fullPin.length !== 6) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'PIN incomplet', 
+        description: 'Veuillez saisir les 6 chiffres du PIN' 
+      });
+      return;
+    }
+
+    if (!phoneNumber || phoneNumber.length < 8) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Numéro manquant', 
+        description: 'Veuillez saisir votre numéro de téléphone' 
+      });
+      return;
+    }
+
+    if (mode === 'forgot' && !otpVerified) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Vérification requise', 
+        description: 'Veuillez d\'abord vérifier le code OTP' 
+      });
+      return;
+    }
 
     try {
-      const to = method === 'email' ? contactInfo.email : contactInfo.phone;
-      const startRes = await twilioVerifyService.start(to, method);
-      if (!startRes.success) throw new Error(startRes.error || 'Échec envoi OTP');
-      
-      setCodeSent(true);
-      setTimeRemaining(10 * 60);
-      setCode(['', '', '', '', '', '']);
-
-      const methodLabel = method === 'sms' ? 'SMS' : method === 'whatsapp' ? 'WhatsApp' : 'Email';
-      
-      toast({ 
-        title: 'Code envoyé', 
-        description: `Un code d'accès a été envoyé par ${methodLabel}.` 
-      });
-      
-      // Focus sur la première case de code
-      setTimeout(() => inputRefs[0].current?.focus(), 100);
-    } catch (error: any) {
-      // Fallback automatique vers E-mail en cas d'échec
-      try {
-        if (method !== 'email') {
-          const emailRes = await twilioVerifyService.start(contactInfo.email, 'email');
-          if (emailRes.success) {
-            setSelectedChannel('email');
-            setCodeSent(true);
-            setTimeRemaining(10 * 60);
-            setFallbackInfo("Basculement automatique sur l'e‑mail suite à un blocage d'envoi.");
-            
-            toast({ 
-              title: 'Code envoyé par e‑mail', 
-              description: `Envoi automatique sur l'e‑mail` 
-            });
-            
-            setTimeout(() => inputRefs[0].current?.focus(), 100);
-            return;
-          }
-        }
-        toast({ variant: 'destructive', title: 'Erreur', description: error?.message || 'Impossible d\'envoyer le code' });
-      } catch (fallbackErr: any) {
-        toast({ variant: 'destructive', title: 'Erreur', description: fallbackErr?.message || 'Impossible d\'envoyer le code' });
+      const result = await signInSuperAdmin(fullPin);
+     
+      if (result.success) {
+        toast({ 
+          title: 'Authentification réussie', 
+          description: 'Bienvenue dans l\'espace Super Admin' 
+        });
+        onClose();
+      } else {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Erreur d\'authentification', 
+          description: result.error || 'Code PIN incorrect' 
+        });
+        setPin(['', '', '', '', '', '']);
+        pinInputRefs[0].current?.focus();
       }
-    } finally {
-      setIsSendingCode(false);
+    } catch (err: any) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Erreur', 
+        description: err?.message || 'Authentification impossible' 
+      });
     }
   };
 
   const resetForm = () => {
-    setCode(['', '', '', '', '', '']);
-    setCodeSent(false);
+    setPin(['', '', '', '', '', '']);
+    setOtpCode(['', '', '', '', '', '']);
+    setPhoneNumber('');
+    setMode('login');
+    setOtpSent(false);
+    setOtpVerified(false);
     setTimeRemaining(0);
-    setSelectedChannel(null);
-    setFallbackInfo(null);
     clearError();
   };
 
@@ -200,7 +275,6 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Masquer les informations sensibles
   const maskPhone = (phone: string) => {
     if (phone.length < 4) return phone;
     return phone.slice(0, -4).replace(/\d/g, '●') + phone.slice(-4);
@@ -215,81 +289,134 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-center justify-center">
             <Shield className="h-6 w-6 text-primary" />
             Authentification Super Admin
           </DialogTitle>
           <DialogDescription className="text-center">
-            Accès sécurisé à l'administration système
+            {mode === 'login' ? 'Accès sécurisé à l\'administration système' : 'Réinitialisation du code PIN'}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleCodeSubmit} className="space-y-6">
-          {/* Sélection du canal - Aligné sur une ligne */}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Choisir le canal de réception</Label>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                type="button"
-                variant={selectedChannel === 'sms' ? 'default' : 'outline'}
-                className="flex-col h-auto py-3 px-2"
-                onClick={() => handleSendCode('sms')}
-                disabled={isSendingCode || isLoading}
-              >
-                <Smartphone className="h-5 w-5 mb-1" />
-                <span className="text-xs font-medium">SMS</span>
-                <span className="text-[10px] text-muted-foreground mt-0.5">
-                  {maskPhone(contactInfo.phone)}
-                </span>
-              </Button>
-
-              <Button
-                type="button"
-                variant={selectedChannel === 'whatsapp' ? 'default' : 'outline'}
-                className="flex-col h-auto py-3 px-2"
-                onClick={() => handleSendCode('whatsapp')}
-                disabled={isSendingCode || isLoading}
-              >
-                <MessageSquare className="h-5 w-5 mb-1" />
-                <span className="text-xs font-medium">WhatsApp</span>
-                <span className="text-[10px] text-muted-foreground mt-0.5">
-                  {maskPhone(contactInfo.phone)}
-                </span>
-              </Button>
-
-              <Button
-                type="button"
-                variant={selectedChannel === 'email' ? 'default' : 'outline'}
-                className="flex-col h-auto py-3 px-2"
-                onClick={() => handleSendCode('email')}
-                disabled={isSendingCode || isLoading}
-              >
-                <Mail className="h-5 w-5 mb-1" />
-                <span className="text-xs font-medium">Email</span>
-                <span className="text-[10px] text-muted-foreground mt-0.5 truncate w-full">
-                  {maskEmail(contactInfo.email)}
-                </span>
-              </Button>
+            <Label htmlFor="phone-number" className="text-sm font-medium">
+              Numéro de téléphone
+            </Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="phone-number"
+                type="tel"
+                placeholder="+33 6 61 00 26 16"
+                className="pl-10"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                disabled={isLoading || otpVerified}
+                autoComplete="tel"
+              />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Numéro configuré pour le compte Super Admin
+            </p>
           </div>
 
-          
-          {fallbackInfo && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-xs">{fallbackInfo}</AlertDescription>
-            </Alert>
-          )}
+          {mode === 'forgot' && (
+            <>
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Canal de réception</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    type="button"
+                    variant={channel === 'sms' ? 'default' : 'outline'}
+                    className="flex-col h-auto py-3 px-2"
+                    onClick={() => setChannel('sms')}
+                    disabled={isSendingOtp || isLoading || otpVerified}
+                  >
+                    <Smartphone className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">SMS</span>
+                  </Button>
 
-          {codeSent && timeRemaining > 0 && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-xs">
-                Code envoyé ! Expire dans {formatTime(timeRemaining)}
-              </AlertDescription>
-            </Alert>
+                  <Button
+                    type="button"
+                    variant={channel === 'whatsapp' ? 'default' : 'outline'}
+                    className="flex-col h-auto py-3 px-2"
+                    onClick={() => setChannel('whatsapp')}
+                    disabled={isSendingOtp || isLoading || otpVerified}
+                  >
+                    <MessageSquare className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">WhatsApp</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant={channel === 'email' ? 'default' : 'outline'}
+                    className="flex-col h-auto py-3 px-2"
+                    onClick={() => setChannel('email')}
+                    disabled={isSendingOtp || isLoading || otpVerified}
+                  >
+                    <Mail className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">Email</span>
+                  </Button>
+                </div>
+              </div>
+
+              {!otpVerified && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full"
+                  onClick={handleSendOtp}
+                  disabled={isSendingOtp || isLoading || !phoneNumber}
+                >
+                  {isSendingOtp ? 'Envoi...' : otpSent ? 'Renvoyer le code' : 'Envoyer le code'}
+                </Button>
+              )}
+
+              {otpSent && !otpVerified && (
+                <>
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      Code envoyé ! Expire dans {formatTime(timeRemaining)}
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Code OTP reçu</Label>
+                    <div className="flex gap-2 justify-center">
+                      {otpCode.map((digit, index) => (
+                        <Input
+                          key={index}
+                          ref={otpInputRefs[index]}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleOtpChange(index, e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(index, e, otpInputRefs, otpCode)}
+                          className="w-12 h-14 text-center text-xl font-bold"
+                          disabled={isLoading}
+                          autoComplete="off"
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="w-full"
+                    onClick={handleVerifyOtp}
+                    disabled={isLoading || otpCode.join('').length !== 6}
+                  >
+                    Vérifier le code
+                  </Button>
+                </>
+              )}
+            </>
           )}
 
           {authError && (
@@ -299,53 +426,97 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
             </Alert>
           )}
 
-          {/* Cases de code à 6 chiffres */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Code d'authentification à 6 chiffres</Label>
-            <div className="flex gap-2 justify-center">
-              {code.map((digit, index) => (
-                <Input
-                  key={index}
-                  ref={inputRefs[index]}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleCodeChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-14 text-center text-xl font-bold"
-                  disabled={!codeSent || isLoading}
-                  autoComplete="off"
-                />
-              ))}
+          {(mode === 'login' || otpVerified) && (
+            <>
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">
+                  {mode === 'forgot' ? 'Nouveau code PIN à 6 chiffres' : 'Code PIN à 6 chiffres'}
+                </Label>
+                <div className="flex gap-2 justify-center">
+                  {pin.map((digit, index) => (
+                    <Input
+                      key={index}
+                      ref={pinInputRefs[index]}
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handlePinChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(index, e, pinInputRefs, pin)}
+                      className="w-12 h-14 text-center text-xl font-bold"
+                      disabled={isLoading}
+                      autoComplete="off"
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  {mode === 'forgot' ? 'Créez votre nouveau PIN' : 'Entrez le code PIN du compte Super Admin'}
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || pin.join('').length !== 6}
+              >
+                {isLoading ? (
+                  <>
+                    <KeyRound className="mr-2 h-4 w-4 animate-spin" />
+                    Vérification...
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-2 h-4 w-4" />
+                    {mode === 'forgot' ? 'Réinitialiser et se connecter' : 'Se connecter'}
+                  </>
+                )}
+              </Button>
+            </>
+          )}
+
+          {mode === 'login' && (
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="link"
+                className="text-xs text-muted-foreground hover:text-primary"
+                onClick={() => {
+                  setMode('forgot');
+                  setPin(['', '', '', '', '', '']);
+                }}
+              >
+                PIN oublié ? (Réinitialisation par SMS/WhatsApp)
+              </Button>
             </div>
+          )}
+
+          {mode === 'forgot' && !otpVerified && (
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="link"
+                className="text-xs text-muted-foreground hover:text-primary"
+                onClick={() => {
+                  setMode('login');
+                  setOtpSent(false);
+                  setOtpCode(['', '', '', '', '', '']);
+                }}
+              >
+                ← Retour à la connexion
+              </Button>
+            </div>
+          )}
+
+          <div className="bg-muted/50 p-3 rounded-lg">
+            <p className="text-xs text-center text-muted-foreground">
+              🔐 Système unifié : Numéro + PIN (6 chiffres)
+            </p>
+            <p className="text-xs text-center text-muted-foreground mt-1">
+              Même système que les autres utilisateurs
+            </p>
           </div>
-
-          {/* Bouton de validation */}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading || !codeSent || code.join('').length !== 6}
-          >
-            {isLoading ? (
-              <>
-                <Lock className="mr-2 h-4 w-4 animate-spin" />
-                Vérification...
-              </>
-            ) : (
-              <>
-                <Shield className="mr-2 h-4 w-4" />
-                Valider le code
-              </>
-            )}
-          </Button>
-
-          <p className="text-xs text-center text-muted-foreground">
-            En cas d'échec SMS/WhatsApp, un envoi automatique par e‑mail est tenté
-          </p>
         </form>
       </DialogContent>
     </Dialog>
   );
 };
-

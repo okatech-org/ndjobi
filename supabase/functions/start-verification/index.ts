@@ -1,3 +1,5 @@
+/// <reference types="https://deno.land/x/edge_runtime/index.d.ts" />
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
@@ -55,9 +57,8 @@ serve(async (req: Request) => {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error?.message || "Server error" }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Server error";
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
   }
 });
-
-

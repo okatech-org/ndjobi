@@ -19,69 +19,85 @@ export function useAuth() {
    * Initialise l'état d'authentification au chargement
    */
   useEffect(() => {
+    let isMounted = true;
+    
     const initAuth = async () => {
+      if (!isMounted) return;
       setIsLoading(true);
       
-      // Timeout de sécurité pour éviter les boucles infinies
       const timeoutId = setTimeout(() => {
-        console.warn('⏱️ Timeout auth init - force loading=false');
-        setIsLoading(false);
+        if (isMounted) {
+          console.warn('⏱️ Timeout auth init');
+          setIsLoading(false);
+        }
       }, 3000);
 
       try {
-        // Vérifier si l'utilisateur est déjà authentifié
         const isAuth = authService.isAuthenticated();
-        console.log('🔐 useAuth init - isAuthenticated:', isAuth);
         
         if (isAuth) {
           const user = authService.getCurrentUser();
           const role = authService.getCurrentRole();
-          console.log('✅ Session restaurée - user:', user?.id, 'role:', role);
-          setUser(user);
-          setRole(role);
+          if (isMounted) {
+            setUser(user);
+            setRole(role);
+          }
         } else {
-          // Vérifier la session dans sessionStorage
           const sessionData = sessionStorage.getItem('ndjobi_session');
           if (sessionData) {
             const { userId, role: sessionRole } = JSON.parse(sessionData);
-            console.log('🔄 Restauration session depuis storage - userId:', userId, 'role:', sessionRole);
-            // Recharger les données utilisateur depuis Supabase
             await authService.authenticateWithSession(userId, sessionRole);
-            setUser(authService.getCurrentUser());
-            setRole(authService.getCurrentRole());
+            if (isMounted) {
+              setUser(authService.getCurrentUser());
+              setRole(authService.getCurrentRole());
+            }
           } else {
-            // Vérifier la session démo dans localStorage
             const demoSessionData = localStorage.getItem('ndjobi_demo_session');
             if (demoSessionData) {
               try {
                 const demoSession = JSON.parse(demoSessionData);
-                console.log('🎭 Session démo détectée - role:', demoSession.role);
-                setUser(demoSession.user);
-                setRole(demoSession.role);
-                // FORCER la session pour éviter les conflits
-                if (demoSession.role === 'super_admin') {
-                  console.log('🔧 Session Super Admin forcée - accès garanti');
+                if (isMounted) {
+                  setUser(demoSession.user);
+                  setRole(demoSession.role);
+                  
+                  if (authService && typeof authService === 'object') {
+                    (authService as any).currentUser = demoSession.user;
+                    (authService as any).currentRole = demoSession.role;
+                  }
                 }
               } catch (err) {
                 console.error('❌ Erreur parsing session démo:', err);
-                console.log('❌ Aucune session trouvée');
               }
-            } else {
-              console.log('❌ Aucune session trouvée');
             }
           }
         }
       } catch (err) {
         console.error('❌ Erreur initialisation auth:', err);
-        setError('Erreur lors de l\'initialisation de l\'authentification');
+        if (isMounted) {
+          setError('Erreur lors de l\'initialisation de l\'authentification');
+        }
       } finally {
         clearTimeout(timeoutId);
-        setIsLoading(false);
-        console.log('✅ useAuth init terminé - loading=false');
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     initAuth();
+
+    const handleDemoSessionChange = () => {
+      if (isMounted) {
+        initAuth();
+      }
+    };
+
+    window.addEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
+    };
   }, []);
 
   /**

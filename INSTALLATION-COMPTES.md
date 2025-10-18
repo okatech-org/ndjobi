@@ -1,254 +1,107 @@
-# 🚀 Installation des Comptes de Production NDJOBI
+# Installation des Comptes de Démonstration NDJOBI
 
-## 📋 Vue d'ensemble
+## 🎯 Objectif
+Créer tous les comptes de démonstration dans la base de données Supabase selon la logique complète des rôles et permissions.
 
-Ce guide vous permet de créer automatiquement les 10 comptes de production avec leur hiérarchie complète.
+## 📋 Prérequis
+- Accès au dashboard Supabase sur Lovable
+- Droits d'administration sur la base de données
 
-## ✅ Comptes à créer
+## 🚀 Étapes d'Installation
 
-| Rôle | Téléphone | PIN | Description |
-|------|-----------|-----|-------------|
-| Super Admin | +33 6 61 00 26 16 | 999999 | Contrôle total système |
-| Admin Principal | +241 77 888 001 | 111111 | Président/Supervision globale |
-| Sous-Admin DGSS | +241 77 888 002 | 222222 | Vue sectorielle DGSS |
-| Sous-Admin DGR | +241 77 888 003 | 333333 | Vue sectorielle DGR |
-| Agent Défense | +241 77 888 004 | 444444 | Enquêtes ministère Défense |
-| Agent Justice | +241 77 888 005 | 555555 | Enquêtes ministère Justice |
-| Agent LAC | +241 77 888 006 | 666666 | Lutte Anti-Corruption |
-| Agent Intérieur | +241 77 888 007 | 777777 | Enquêtes ministère Intérieur |
-| Citoyen | +241 77 888 008 | 888888 | Utilisateur standard |
-| Anonyme | +241 77 888 009 | 999999 | Signalements anonymes |
+### Étape 1 : Accéder au Dashboard Supabase
 
-## 🔧 Option 1 : Script Automatisé (Recommandé)
+1. Connectez-vous à votre compte Lovable
+2. Ouvrez votre projet NDJOBI
+3. Allez dans l'onglet **Database** ou **SQL Editor**
 
-### Prérequis
-```bash
-# Installer les dépendances si nécessaire
-npm install @supabase/supabase-js
-```
+### Étape 2 : Exécuter le Script SQL
 
-### Exécution
+1. Copiez le contenu du fichier : `scripts/create-demo-accounts-logique-complete.sql`
+2. Collez-le dans l'éditeur SQL de Supabase
+3. Cliquez sur **Run** ou **Execute**
 
-1. **Obtenir la clé Service Role de Supabase**:
-   - Ouvrez votre projet sur Lovable
-   - Allez dans les paramètres Cloud
-   - Copiez la `Service Role Key`
+### Étape 3 : Vérifier la Création
 
-2. **Exécuter le script**:
-```bash
-# Définir la variable d'environnement
-export SUPABASE_SERVICE_ROLE_KEY="votre_service_role_key_ici"
-
-# Exécuter le script
-npx ts-node scripts/create-production-accounts.ts
-```
-
-### Résultat attendu
-```
-🚀 NDJOBI - Création des comptes de production
-============================================================
-
-📱 Création : Super Admin (super_admin)
-   Tel: +33661002616
-   ✅ Utilisateur créé: xxx-xxx-xxx
-   ✅ Profil créé
-   ✅ Rôle assigné: super_admin
-
-... (répété pour chaque compte)
-
-✅ SETUP TERMINÉ AVEC SUCCÈS!
-```
-
-## 🗄️ Option 2 : SQL Direct (via Dashboard)
-
-Si vous préférez utiliser le SQL Editor de Supabase:
-
-1. **Ouvrez le SQL Editor** dans votre projet Lovable Cloud
-
-2. **Copiez et exécutez ce script SQL**:
+Exécutez cette requête pour vérifier que tous les comptes ont été créés :
 
 ```sql
--- Note: Les utilisateurs doivent d'abord être créés via l'API Auth
--- Ce script assigne seulement les rôles aux utilisateurs existants
-
-DO $$
-DECLARE
-  v_user_id UUID;
-BEGIN
-  -- Super Admin
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '33661002616@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'super_admin')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    RAISE NOTICE 'Super Admin configuré';
-  END IF;
-
-  -- Admin Principal
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888001@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'admin')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Président - Administrateur Principal' WHERE id = v_user_id;
-    RAISE NOTICE 'Admin Principal configuré';
-  END IF;
-
-  -- Sous-Admin DGSS
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888002@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'admin')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Sous-Admin DGSS' WHERE id = v_user_id;
-    RAISE NOTICE 'Sous-Admin DGSS configuré';
-  END IF;
-
-  -- Sous-Admin DGR
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888003@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'admin')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Sous-Admin DGR' WHERE id = v_user_id;
-    RAISE NOTICE 'Sous-Admin DGR configuré';
-  END IF;
-
-  -- Agents
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888004@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'agent')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Agent Défense' WHERE id = v_user_id;
-  END IF;
-
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888005@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'agent')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Agent Justice' WHERE id = v_user_id;
-  END IF;
-
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888006@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'agent')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Agent Lutte Anti-Corruption' WHERE id = v_user_id;
-  END IF;
-
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888007@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'agent')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Agent Intérieur' WHERE id = v_user_id;
-  END IF;
-
-  -- Users
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888008@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'user')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Citoyen Utilisateur' WHERE id = v_user_id;
-  END IF;
-
-  SELECT id INTO v_user_id FROM auth.users WHERE email = '24177888009@ndjobi.com';
-  IF v_user_id IS NOT NULL THEN
-    INSERT INTO user_roles (user_id, role) VALUES (v_user_id, 'user')
-    ON CONFLICT (user_id, role) DO NOTHING;
-    UPDATE profiles SET full_name = 'Utilisateur Anonyme' WHERE id = v_user_id;
-  END IF;
-
-  RAISE NOTICE '✅ Configuration des rôles terminée';
-END $$;
-
--- Vérification
 SELECT 
-  p.full_name,
-  p.email,
-  ur.role,
-  u.phone
-FROM profiles p
-JOIN user_roles ur ON p.id = ur.user_id
-JOIN auth.users u ON p.id = u.id
-WHERE p.email LIKE '%@ndjobi.com'
-ORDER BY 
-  CASE ur.role
-    WHEN 'super_admin' THEN 1
-    WHEN 'admin' THEN 2
-    WHEN 'agent' THEN 3
-    WHEN 'user' THEN 4
-  END;
+    ur.role AS "Rôle",
+    p.full_name AS "Nom",
+    p.phone AS "Téléphone",
+    p.organization AS "Organisation",
+    u.email AS "Email",
+    u.created_at AS "Date création"
+FROM auth.users u
+JOIN public.profiles p ON u.id = p.id
+JOIN public.user_roles ur ON u.id = ur.user_id
+WHERE u.email LIKE '24177888%@ndjobi.com'
+ORDER BY ur.role, p.organization;
 ```
 
-**⚠️ Important**: Ce script SQL n'assigne que les rôles. Les utilisateurs doivent d'abord exister dans `auth.users`. Utilisez l'Option 1 (script automatisé) pour créer les comptes complets.
+## ✅ Comptes Créés
 
-## 🔐 Sécurité
+Après l'exécution du script, vous aurez les comptes suivants :
 
-### Permissions par rôle
+| Rôle | Nom | Téléphone | PIN | Organisation |
+|------|-----|-----------|-----|--------------|
+| super_admin | Super Administrateur | +33 6 61 00 26 16 | 999999 | NDJOBI Platform |
+| admin | Président / Administrateur | +241 77 888 001 | 111111 | Présidence de la République |
+| sub_admin | Sous-Admin DGSS | +241 77 888 002 | 222222 | Direction Générale Sécurité |
+| sub_admin | Sous-Admin DGR | +241 77 888 003 | 333333 | Direction Générale Renseignements |
+| agent | Agent Ministère Défense | +241 77 888 004 | 444444 | Ministère de la Défense |
+| agent | Agent Ministère Justice | +241 77 888 005 | 555555 | Ministère de la Justice |
+| agent | Agent Lutte Anti-Corruption | +241 77 888 006 | 666666 | Commission LAC |
+| agent | Agent Ministère Intérieur | +241 77 888 007 | 777777 | Ministère de l'Intérieur |
+| user | Citoyen Démo | +241 77 888 008 | 888888 | - |
+| user | Citoyen Anonyme | +241 77 888 009 | 999999 | - |
 
-**Super Admin**:
-- Contrôle total système
-- Impersonation
-- Monitoring technique
-- Gestion utilisateurs
+## 🔐 Test de Connexion
 
-**Admin**:
-- Supervision globale (Admin Principal)
-- Vue sectorielle étendue (Sous-Admins)
-- Validation des signalements
-- Supervision des agents
+Pour tester un compte :
 
-**Agent**:
-- Enquêtes opérationnelles
-- Signalements assignés uniquement
-- Cloisonnement par ministère
+1. Ouvrez l'application NDJOBI
+2. Saisissez un numéro de téléphone (ex: +241 77 888 001)
+3. Saisissez le PIN correspondant (ex: 111111)
+4. Vous serez redirigé vers le dashboard correspondant à votre rôle
 
-**User**:
-- Envoi de signalements
-- Suivi de leurs propres signalements
-- Consultation statistiques publiques
-- Mode anonyme disponible
+## 🛠️ Dépannage
 
-## 🧪 Test des comptes
+### Erreur : "Role 'sub_admin' does not exist"
 
-Après création, testez chaque compte:
+Si vous recevez cette erreur, exécutez d'abord :
 
-```bash
-# URL de connexion
-https://ndjobi.lovable.app/auth
-
-# Test Super Admin
-Téléphone: +33661002616
-PIN: 999999
-
-# Test Admin
-Téléphone: +24177888001
-PIN: 111111
+```sql
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'sub_admin';
 ```
 
-## ❓ Dépannage
+### Erreur : "User already exists"
 
-### Erreur "User already exists"
-```bash
-# Le script gère automatiquement les comptes existants
-# Il mettra à jour les rôles au lieu de créer un doublon
-```
+Le script gère automatiquement les utilisateurs existants. Si vous voulez réinitialiser, exécutez d'abord :
 
-### Service Role Key manquante
-```bash
-# Obtenez-la depuis:
-# Lovable → Projet → Settings → Cloud → Service Role Key
-```
-
-### Problème de connexion
-```bash
-# Vérifiez que Twilio est configuré pour l'OTP
-# Ou désactivez la vérification email dans Supabase Auth
+```sql
+-- Supprimer les comptes de démonstration existants
+DELETE FROM public.user_roles WHERE user_id IN (
+    SELECT id FROM auth.users WHERE email LIKE '24177888%@ndjobi.com'
+);
+DELETE FROM public.profiles WHERE id IN (
+    SELECT id FROM auth.users WHERE email LIKE '24177888%@ndjobi.com'
+);
+DELETE FROM auth.users WHERE email LIKE '24177888%@ndjobi.com';
 ```
 
 ## 📞 Support
 
-En cas de problème:
-1. Vérifiez les logs du script
-2. Consultez le SQL Editor pour voir les utilisateurs créés
-3. Vérifiez les variables d'environnement Supabase
+Si vous rencontrez des problèmes :
 
----
+1. Vérifiez que les politiques RLS sont actives
+2. Vérifiez que l'enum `app_role` contient tous les rôles
+3. Vérifiez les logs Supabase pour plus de détails
 
-**Note**: Ce guide utilise Lovable Cloud (Supabase) pour la gestion des comptes. Tous les mots de passe et PINs sont stockés de manière sécurisée.
+## ⚠️ Important
+
+- Ces comptes sont pour **DÉMONSTRATION** uniquement
+- **NE PAS** utiliser en production avec ces PINs
+- Changer les PINs et numéros pour un usage réel
+- Les numéros doivent être réels pour recevoir les codes OTP en production

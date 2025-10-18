@@ -3,45 +3,36 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Phone, KeyRound } from 'lucide-react';
+import { Loader2, Phone, KeyRound, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { phoneFormats, getPhoneErrorMessage } from '@/lib/phoneValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { userPersistence } from '@/services/userPersistence';
-import { twilioVerifyService } from '@/services/twilioVerifyService';
 
-// Fonction pour créer un schéma dynamique basé sur le pays
 const createLoginSchema = (countryCode: string) => {
   const format = phoneFormats[countryCode];
-  const minDigits = format?.minDigits || 8;
-  const maxDigits = format?.maxDigits || 15;
   const pattern = format?.pattern || /^\d{8,15}$/;
   
   return z.object({
-    channel: z.enum(['sms', 'whatsapp', 'email']).default('sms'),
     countryCode: z.string().min(1, { message: 'Sélectionnez un indicatif' }),
     phoneNumber: z.string()
       .trim()
       .regex(pattern, { message: getPhoneErrorMessage(countryCode) }),
-    emailAddress: z.string().email({ message: 'E-mail invalide' }).optional(),
     pin: z.string()
       .length(6, { message: 'Le code PIN doit contenir 6 chiffres' })
       .regex(/^\d+$/, { message: 'Le code PIN ne doit contenir que des chiffres' }),
-    otpCode: z.string().length(6, { message: 'Code OTP à 6 chiffres' }).optional(),
   });
 };
 
 type LoginFormData = {
-  channel: 'sms' | 'whatsapp' | 'email';
   countryCode: string;
   phoneNumber: string;
-  emailAddress?: string;
   pin: string;
-  otpCode?: string;
 };
 
 const getDashboardUrl = (role: string): string => {
@@ -63,10 +54,6 @@ export const PhoneLogin = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [countryCode, setCountryCode] = useState('+241');
-  const [channel, setChannel] = useState<'sms' | 'whatsapp' | 'email'>('sms');
-  const [step, setStep] = useState<'request' | 'verify'>('request');
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [fallbackInfo, setFallbackInfo] = useState<string | null>(null);
 
   const {
     register,
@@ -76,60 +63,13 @@ export const PhoneLogin = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(createLoginSchema(countryCode)),
     defaultValues: {
-      channel: 'sms',
       countryCode: '+241',
     },
   });
 
-  // Mettre à jour le schéma quand le pays change
   const handleCountryChange = (newCountryCode: string) => {
     setCountryCode(newCountryCode);
     setValue('countryCode', newCountryCode);
-  };
-
-  const handleChannelChange = (newChannel: 'sms' | 'whatsapp' | 'email') => {
-    setChannel(newChannel);
-    setValue('channel', newChannel);
-  };
-
-  const buildTo = (data: LoginFormData): string => {
-    if (data.channel === 'email') {
-      return (data.emailAddress || '').trim();
-    }
-    return `${data.countryCode}${data.phoneNumber}`;
-  };
-
-  const onRequestOtp = async (data: LoginFormData) => {
-    try {
-      setLoading(true);
-      const to = buildTo(data);
-      if (!to) throw new Error('Destinataire manquant');
-      const res = await twilioVerifyService.start(to, data.channel);
-      if (!res.success) throw new Error(res.error || 'Échec envoi OTP');
-      toast({ title: 'Code envoyé', description: `Vérifiez votre ${data.channel === 'email' ? 'e-mail' : data.channel}` });
-      setStep('verify');
-      setFallbackInfo(null);
-    } catch (e: any) {
-      // Fallback automatique vers e‑mail si possible
-      try {
-        if (data.channel !== 'email' && data.emailAddress) {
-          const emailRes = await twilioVerifyService.start(data.emailAddress, 'email');
-          if (emailRes.success) {
-            setChannel('email');
-            setValue('channel', 'email');
-            setStep('verify');
-            setFallbackInfo("Nous avons détecté un blocage d'envoi. Un code vous a été envoyé par e‑mail.");
-            toast({ title: 'Code envoyé par e‑mail', description: `Nous avons basculé automatiquement sur l'e‑mail: ${data.emailAddress}` });
-            return;
-          }
-        }
-        toast({ variant: 'destructive', title: 'Erreur', description: e?.message || 'Échec envoi OTP' });
-      } catch (fb: any) {
-        toast({ variant: 'destructive', title: 'Erreur', description: fb?.message || 'Échec envoi OTP' });
-      }
-    } finally {
-      setLoading(false);
-    }
   };
 
   const onSubmit = async (data: LoginFormData) => {
@@ -137,22 +77,8 @@ export const PhoneLogin = () => {
     try {
       const fullPhone = `${data.countryCode}${data.phoneNumber}`;
       
-      if (!otpVerified) {
-        if (!data.otpCode || data.otpCode.length !== 6) {
-          throw new Error('Entrez le code OTP reçu');
-        }
-        const to = data.channel === 'email' ? (data.emailAddress || '').trim() : fullPhone;
-        const vr = await twilioVerifyService.check(to, data.otpCode);
-        if (!vr.success || vr.valid !== true) {
-          throw new Error(vr.error || 'Code OTP invalide');
-        }
-        setOtpVerified(true);
-      }
-
-      // Convertir le numéro en email pour l'authentification
       const email = `${fullPhone.replace('+', '')}@ndjobi.com`;
       
-      // Authentification avec email + PIN (password)
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: email,
         password: data.pin,
@@ -163,7 +89,6 @@ export const PhoneLogin = () => {
         throw new Error('Numéro ou code PIN incorrect');
       }
 
-      // Récupérer le rôle de l'utilisateur
       let dashboardUrl = '/dashboard/user';
       let userRole = 'user';
       if (signInData?.user) {
@@ -180,7 +105,6 @@ export const PhoneLogin = () => {
           dashboardUrl = getDashboardUrl(roleData.role);
         }
 
-        // Enregistrer les données utilisateur pour l'authentification PWA
         await userPersistence.storeUser({
           id: signInData.user.id,
           phoneNumber: data.phoneNumber,
@@ -216,29 +140,14 @@ export const PhoneLogin = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription className="text-xs">
+          Connexion avec votre numéro et votre PIN à 6 chiffres
+        </AlertDescription>
+      </Alert>
+
       <div className="space-y-2">
-        <Label htmlFor="channel">Canal de vérification</Label>
-        <Select value={channel} onValueChange={(v) => handleChannelChange(v as any)}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-background z-50">
-            <SelectItem value="sms">SMS</SelectItem>
-            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-            <SelectItem value="email">E-mail</SelectItem>
-          </SelectContent>
-        </Select>
-        <input type="hidden" {...register('channel')} value={channel} />
-        <p className="text-xs text-muted-foreground">
-          En cas d'échec d'envoi sur le canal choisi, un envoi par e‑mail pourra être tenté automatiquement si une adresse est renseignée.
-        </p>
-      </div>
-      <div className="space-y-2">
-        {fallbackInfo && (
-          <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-            {fallbackInfo}
-          </div>
-        )}
         <Label htmlFor="login-phone">Numéro de téléphone</Label>
         <div className="flex gap-2">
           <Select value={countryCode} onValueChange={handleCountryChange}>
@@ -270,16 +179,6 @@ export const PhoneLogin = () => {
         )}
       </div>
 
-      {channel === 'email' && (
-        <div className="space-y-2">
-          <Label htmlFor="email">E-mail pour OTP</Label>
-          <Input id="email" type="email" placeholder="votre@email.com" {...register('emailAddress')} />
-          {errors.emailAddress && (
-            <p className="text-xs text-destructive">{String(errors.emailAddress.message)}</p>
-          )}
-        </div>
-      )}
-
       <div className="space-y-2">
         <Label htmlFor="pin">Code PIN (6 chiffres)</Label>
         <div className="relative">
@@ -299,37 +198,25 @@ export const PhoneLogin = () => {
         )}
       </div>
 
-      {step === 'verify' && (
-        <div className="space-y-2">
-          <Label htmlFor="otp">Code OTP reçu</Label>
-          <Input id="otp" type="text" inputMode="numeric" maxLength={6} placeholder="123456" {...register('otpCode')} />
-          {errors.otpCode && (
-            <p className="text-xs text-destructive">{String(errors.otpCode.message)}</p>
-          )}
-        </div>
-      )}
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Connexion...
+          </>
+        ) : (
+          'Se connecter'
+        )}
+      </Button>
 
-      <div className="flex gap-2">
-        <Button type="button" variant="secondary" onClick={handleSubmit(onRequestOtp)} disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Envoi...
-            </>
-          ) : (
-            'Envoyer le code'
-          )}
-        </Button>
-
-        <Button type="submit" className="flex-1" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Vérification...
-            </>
-          ) : (
-            'Se connecter'
-          )}
+      <div className="text-center">
+        <Button
+          type="button"
+          variant="link"
+          className="text-xs text-muted-foreground hover:text-primary"
+          onClick={() => navigate('/auth/forgot-password')}
+        >
+          Mot de passe oublié ? (Réinitialisation par SMS/WhatsApp)
         </Button>
       </div>
     </form>

@@ -107,76 +107,39 @@ export class AuthService {
 
   /**
    * Authentification Super Admin sécurisée
-   * Utilise des variables d'environnement pour les credentials
+   * Utilise le MÊME système que les autres utilisateurs : Numéro + PIN
    */
-  async authenticateSuperAdmin(code: string): Promise<{
+  async authenticateSuperAdmin(pin: string): Promise<{
     success: boolean;
     error?: string;
   }> {
     try {
-      // Vérifier le code depuis une variable d'environnement
-      const validCode = import.meta.env.VITE_SUPER_ADMIN_CODE as string | undefined;
-      const demoEnabled = (import.meta.env.VITE_ENABLE_SUPER_ADMIN_DEMO as string | undefined) !== 'false';
-
-      const createDemoSession = () => {
-        const demoUser = { id: 'local-super-admin', email: 'superadmin@local' };
-        try {
-          localStorage.setItem('ndjobi_demo_session', JSON.stringify({ user: demoUser, role: 'super_admin' }));
-        } catch {}
-        this.currentUser = demoUser;
-        this.currentRole = 'super_admin';
-      };
+      // Utiliser le même système que les autres : Numéro + PIN
+      const superAdminPhone = '+33661002616';
+      const superAdminEmail = 'superadmin@ndjobi.com';
       
-      if (!validCode) {
-        console.warn('Code Super Admin non configuré');
-        if (demoEnabled) {
-          console.warn('Activation du mode démo Super Admin (fallback)');
-          createDemoSession();
-          return { success: true };
-        }
-        return { success: false, error: 'Configuration manquante' };
-      }
-
-      if (code !== validCode) {
-        return { success: false, error: 'Code invalide' };
-      }
-
-      // Authentifier avec les credentials Super Admin depuis env
-      const superAdminEmail = import.meta.env.VITE_SUPER_ADMIN_EMAIL as string | undefined;
-      const superAdminPassword = import.meta.env.VITE_SUPER_ADMIN_PASSWORD as string | undefined;
-
-      if (!superAdminEmail || !superAdminPassword) {
-        console.error('Credentials Super Admin non configurés');
-        if (demoEnabled) {
-          console.warn('Activation du mode démo Super Admin (fallback credentials manquants)');
-          createDemoSession();
-          return { success: true };
-        }
-        return { success: false, error: 'Configuration manquante' };
-      }
-
+      // Authentifier avec email + PIN (comme les autres utilisateurs)
       const { data, error } = await supabase.auth.signInWithPassword({
         email: superAdminEmail,
-        password: superAdminPassword,
+        password: pin,
       });
 
       if (error) {
-        if (demoEnabled) {
-          console.warn('Echec authentification réelle Super Admin, bascule en mode démo');
-          createDemoSession();
-          return { success: true };
-        }
-        return { success: false, error: error.message };
+        return { success: false, error: 'Code PIN incorrect' };
+      }
+
+      if (!data.user) {
+        return { success: false, error: 'Authentification échouée' };
       }
 
       // Vérifier que c'est bien un super admin
-      const role = await this.getUserRole(data.user!.id);
+      const role = await this.getUserRole(data.user.id);
       if (role !== 'super_admin') {
         await this.signOut();
         return { success: false, error: 'Accès non autorisé' };
       }
 
-      await this.saveSession(data.user!, 'super_admin', data.session?.access_token);
+      await this.saveSession(data.user, 'super_admin', data.session?.access_token);
       
       return { success: true };
     } catch (error) {

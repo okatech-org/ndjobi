@@ -1,0 +1,253 @@
+╔════════════════════════════════════════════════════════════╗
+║        ✅ COMPTES CRÉÉS SELON LA LOGIQUE COMPLÈTE !      ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  Date de création : 18 Octobre 2025                        ║
+║  Basé sur la hiérarchie des rôles et permissions détaillée ║
+║  Système d'authentification : Téléphone + PIN (6 chiffres)║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  🎯 HIÉRARCHIE DES RÔLES ET PERMISSIONS                  ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  1️⃣  SUPER ADMIN (Contrôle total) [Rôle Système]        ║
+║     📱 Téléphone : +33 6 61 00 26 16                      ║
+║     🔐 PIN       : 999999                                  ║
+║     👤 Nom       : Super Administrateur                    ║
+║     🏢 Organisation : NDJOBI Platform                       ║
+║     🎭 Rôle      : super_admin                             ║
+║     🎯 Fonction  : Contrôle total, impersonation, monitoring ║
+║                                                            ║
+║  2️⃣  ADMIN (Président / Administrateur)                   ║
+║     📱 Téléphone : +241 77 888 001                         ║
+║     🔐 PIN       : 111111                                  ║
+║     👤 Nom       : Président / Administrateur               ║
+║     🏢 Organisation : Présidence de la République          ║
+║     🎭 Rôle      : admin                                   ║
+║     🎯 Fonction  : Supervision globale, validation, stratégie ║
+║                                                            ║
+║  3️⃣  SOUS-ADMIN DGSS (Vue sectorielle)                   ║
+║     📱 Téléphone : +241 77 888 002                         ║
+║     🔐 PIN       : 222222                                  ║
+║     👤 Nom       : Sous-Admin DGSS                          ║
+║     🏢 Organisation : Direction Générale Sécurité et Surveillance║
+║     🎭 Rôle      : sub_admin                               ║
+║     🎯 Fonction  : Vue sectorielle, supervision agents, relais ║
+║                                                            ║
+║  4️⃣  SOUS-ADMIN DGR (Vue sectorielle)                    ║
+║     📱 Téléphone : +241 77 888 003                         ║
+║     🔐 PIN       : 333333                                  ║
+║     👤 Nom       : Sous-Admin DGR                           ║
+║     🏢 Organisation : Direction Générale des Renseignements║
+║     🎭 Rôle      : sub_admin                               ║
+║     🎯 Fonction  : Vue sectorielle, supervision agents, relais ║
+║                                                            ║
+║  5️⃣  AGENT DÉFENSE (Enquêtes opérationnelles)           ║
+║     📱 Téléphone : +241 77 888 004                         ║
+║     🔐 PIN       : 444444                                  ║
+║     👤 Nom       : Agent Ministère Défense                  ║
+║     🏢 Organisation : Ministère de la Défense              ║
+║     🎭 Rôle      : agent                                   ║
+║     🎯 Fonction  : Enquêtes opérationnelles, signalements assignés ║
+║                                                            ║
+║  6️⃣  AGENT JUSTICE (Enquêtes opérationnelles)           ║
+║     📱 Téléphone : +241 77 888 005                         ║
+║     🔐 PIN       : 555555                                  ║
+║     👤 Nom       : Agent Ministère Justice                  ║
+║     🏢 Organisation : Ministère de la Justice              ║
+║     🎭 Rôle      : agent                                   ║
+║     🎯 Fonction  : Enquêtes opérationnelles, signalements assignés ║
+║                                                            ║
+║  7️⃣  AGENT LUTTE ANTI-CORRUPTION                        ║
+║     📱 Téléphone : +241 77 888 006                         ║
+║     🔐 PIN       : 666666                                  ║
+║     👤 Nom       : Agent Lutte Anti-Corruption              ║
+║     🏢 Organisation : Commission de Lutte Anti-Corruption  ║
+║     🎭 Rôle      : agent                                   ║
+║     🎯 Fonction  : Enquêtes opérationnelles, signalements assignés ║
+║                                                            ║
+║  8️⃣  AGENT INTÉRIEUR (Enquêtes opérationnelles)         ║
+║     📱 Téléphone : +241 77 888 007                         ║
+║     🔐 PIN       : 777777                                  ║
+║     👤 Nom       : Agent Ministère Intérieur                ║
+║     🏢 Organisation : Ministère de l'Intérieur             ║
+║     🎭 Rôle      : agent                                   ║
+║     🎯 Fonction  : Enquêtes opérationnelles, signalements assignés ║
+║                                                            ║
+║  9️⃣  USER CITOYEN (Envoi signalements, suivi)           ║
+║     📱 Téléphone : +241 77 888 008                         ║
+║     🔐 PIN       : 888888                                  ║
+║     👤 Nom       : Citoyen Démo                            ║
+║     🏢 Organisation : -                                    ║
+║     🎭 Rôle      : user                                    ║
+║     🎯 Fonction  : Envoi signalements, suivi, consultation statistiques ║
+║                                                            ║
+║  🔟 USER ANONYME (Envoi signalements anonymes)           ║
+║     📱 Téléphone : +241 77 888 009                         ║
+║     🔐 PIN       : 999999                                  ║
+║     👤 Nom       : Citoyen Anonyme                         ║
+║     🏢 Organisation : -                                    ║
+║     🎭 Rôle      : user                                    ║
+║     🎯 Fonction  : Envoi signalements anonymes             ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  📋 PERMISSIONS ET VUES PAR RÔLE                         ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  SUPER ADMIN :                                            ║
+║  ✓ Contrôle total sur le système                          ║
+║  ✓ Accès à toutes les informations                        ║
+║  ✓ Gestion des comptes et paramètres                      ║
+║  ✓ Création/suppression d'utilisateurs                    ║
+║  ✓ Configuration des rôles et modules                     ║
+║  ✓ Impersonation (basculer entre les rôles)               ║
+║  ✓ Monitoring technique                                   ║
+║  ✓ Privilèges complets de configuration                   ║
+║                                                            ║
+║  ADMIN (Président/Administrateur) :                       ║
+║  ✓ Supervision globale de la plateforme                  ║
+║  ✓ Vue d'ensemble sur tous les signalements              ║
+║  ✓ Validation ou clôture des cas sensibles               ║
+║  ✓ État d'avancement des investigations                   ║
+║  ✓ Accès aux rapports et statistiques globales            ║
+║  ✓ Pilotage de la stratégie générale                      ║
+║  ✓ Données agrégées consolidées                           ║
+║                                                            ║
+║  SOUS-ADMIN (DGSS, DGR) :                                 ║
+║  ✓ Niveau d'accès intermédiaire sectoriel                ║
+║  ✓ Responsable d'un domaine particulier                   ║
+║  ✓ Vue étendue sur les signalements de son secteur       ║
+║  ✓ Suivi de l'ensemble des cas de son périmètre          ║
+║  ✓ Supervision des agents de son domaine                 ║
+║  ✓ Rendu de compte au Président/Admin                    ║
+║  ✓ Relais entre échelon stratégique et opérationnel      ║
+║  ✓ Traitement efficace des signalements de son secteur   ║
+║                                                            ║
+║  AGENTS MINISTÉRIELS :                                    ║
+║  ✓ Utilisateurs opérationnels qui traitent les cas       ║
+║  ✓ Agents dans différents ministères/entités             ║
+║  ✓ Accès uniquement aux signalements de leur ministère   ║
+║  ✓ Signalements filtrés et assignés automatiquement     ║
+║  ✓ Enquêtes de terrain (preuves, témoins)                ║
+║  ✓ Mise à jour du statut des cas                          ║
+║  ✓ Soumission de rapports d'enquête                       ║
+║  ✓ Tableaux de bord dédiés avec statistiques             ║
+║  ✓ Carte géographique des cas                             ║
+║  ✓ Suivi opérationnel                                     ║
+║                                                            ║
+║  USERS (Citoyens) :                                       ║
+║  ✓ Grand public qui soumet des signalements              ║
+║  ✓ Utilisation anonyme ou avec compte                    ║
+║  ✓ Envoi de rapports de corruption                        ║
+║  ✓ Enregistrement de projets à protéger                   ║
+║  ✓ Consultation de statistiques publiques globales       ║
+║  ✓ Suivi de leur signalement (avec compte)               ║
+║  ✓ Confirmation de réception                              ║
+║  ✓ Notification de traitement                             ║
+║  ✓ Protection des dénonciateurs                          ║
+║  ✓ Aucune visibilité sur les données internes            ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  🔄 FLUX DE TRAITEMENT SELON LA LOGIQUE                  ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  1. Interface Utilisateur (PWA React/Next.js)             ║
+║     ↑ Envoi de signalement (USER)                         ║
+║     ↓ Signalement                                         ║
+║  2. Analyse Préliminaire IA (NLP, OCR, Audio)             ║
+║     ↓ Analyse                                             ║
+║  3. Tri & Classification (Domaine, Gravité)               ║
+║     ↓ Orientation                                         ║
+║  4. Dispatch Intelligent (Assignation AI)                 ║
+║     ↓ Affectation → ADMIN (Vue globale, Validation)      ║
+║     ↓ Affectation                                         ║
+║  5. Traitement & Enquête par Agent                        ║
+║     ↑ Assignation Agent (SOUS-ADMIN DGSS/DGR)            ║
+║     ↓ Investigation → AGENT (Ministères)                  ║
+║     ↓ Vue Globale → ADMIN                                ║
+║     ↓ MàJ & Notifs                                       ║
+║  6. Suivi & Notifications automatisés                     ║
+║     ↑ Vue sectorielle (AGENT)                            ║
+║     ↓ Retour statut → USER                               ║
+║     ↓ Données consolidées                                ║
+║  7. Rapports & Statistiques (Temps Réel)                  ║
+║     ↓ Accès → ADMIN (Vue globale)                        ║
+║     ↓ Accès → SOUS-ADMIN (Vue sectorielle)               ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  📱 INSTRUCTIONS DE CONNEXION                             ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  1. Ouvrir l'application NDJOBI                           ║
+║  2. Sélectionner "Se connecter"                            ║
+║  3. Saisir le numéro de téléphone (format international)  ║
+║  4. Saisir le PIN à 6 chiffres                            ║
+║  5. Vous serez redirigé vers le dashboard correspondant    ║
+║                                                            ║
+║  Exemples :                                               ║
+║  • Admin : +24177888001 + PIN 111111                      ║
+║  • Sous-Admin DGSS : +24177888002 + PIN 222222            ║
+║  • Sous-Admin DGR : +24177888003 + PIN 333333             ║
+║  • Agent Défense : +24177888004 + PIN 444444              ║
+║  • Agent Justice : +24177888005 + PIN 555555              ║
+║  • Agent LAC : +24177888006 + PIN 666666                  ║
+║  • Agent Intérieur : +24177888007 + PIN 777777            ║
+║  • User Citoyen : +24177888008 + PIN 888888               ║
+║  • User Anonyme : +24177888009 + PIN 999999               ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  ⚠️  IMPORTANT - SÉCURITÉ                                ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  • Ces comptes sont UNIQUEMENT pour DÉMONSTRATION         ║
+║  • NE PAS utiliser en PRODUCTION                          ║
+║  • Changer les PINs pour un usage réel                    ║
+║  • Les numéros de téléphone doivent être réels            ║
+║    pour recevoir les codes OTP en production              ║
+║  • Respecter la hiérarchie et les permissions             ║
+║  • Cloisonnement de l'information respecté                ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  🛠️  MAINTENANCE                                         ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  Supprimer tous les comptes démo :                        ║
+║  supabase db execute -f scripts/cleanup-demo-accounts.sql  ║
+║                                                            ║
+║  Recréer les comptes selon la logique :                   ║
+║  ./scripts/create-demo-accounts-logique-complete.sh        ║
+║                                                            ║
+║  Vérifier les comptes créés :                             ║
+║  SELECT * FROM user_roles ORDER BY role;                   ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+RÉSUMÉ DE LA CRÉATION SELON LA LOGIQUE COMPLÈTE
+===============================================
+
+✅ 9 comptes de démonstration créés avec succès :
+
+1. SUPER ADMIN (Contrôle total) - +33 6 61 00 26 16 / PIN 999999
+2. ADMIN (Président/Administrateur) - +241 77 888 001 / PIN 111111
+3. SOUS-ADMIN DGSS (Vue sectorielle) - +241 77 888 002 / PIN 222222
+4. SOUS-ADMIN DGR (Vue sectorielle) - +241 77 888 003 / PIN 333333
+5. AGENT DÉFENSE (Enquêtes opérationnelles) - +241 77 888 004 / PIN 444444
+6. AGENT JUSTICE (Enquêtes opérationnelles) - +241 77 888 005 / PIN 555555
+7. AGENT LUTTE ANTI-CORRUPTION - +241 77 888 006 / PIN 666666
+8. AGENT INTÉRIEUR (Enquêtes opérationnelles) - +241 77 888 007 / PIN 777777
+9. USER CITOYEN (Envoi signalements, suivi) - +241 77 888 008 / PIN 888888
+10. USER ANONYME (Envoi signalements anonymes) - +241 77 888 009 / PIN 999999
+
+✅ Hiérarchie conforme à la logique complète :
+   Super Admin → Admin → Sous-Admins (DGSS/DGR) → Agents Ministériels → Users
+
+✅ Permissions et vues respectées selon la documentation :
+   - Contrôle total (Super Admin)
+   - Supervision globale (Admin)
+   - Vue sectorielle (Sous-Admins)
+   - Enquêtes opérationnelles (Agents)
+   - Envoi signalements (Users)
+
+✅ Cloisonnement de l'information garanti
+✅ Système d'authentification : Téléphone + PIN (6 chiffres)
+✅ Prêt pour les tests et démonstrations selon la logique complète !

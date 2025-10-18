@@ -1,0 +1,42 @@
+═══════════════════════════════════════════════════════════
+  MÉMO RAPIDE : CRÉER LE COMPTE SUPER ADMIN (2 MIN)
+═══════════════════════════════════════════════════════════
+
+⚡ ÉTAPE 1 : Créer l'utilisateur (1 min)
+───────────────────────────────────────────────────────────
+URL : https://supabase.com/dashboard/project/xfxqwlbqysiezqdpeqpv/auth/users
+
+→ "Add user" → "Create new user"
+→ Email    : superadmin@ndjobi.com
+→ Password : ChangeMeStrong!123
+→ ✅ Auto Confirm User (IMPORTANT !)
+→ "Create user"
+
+
+⚡ ÉTAPE 2 : Attribuer le rôle (1 min)
+───────────────────────────────────────────────────────────
+URL : https://supabase.com/dashboard/project/xfxqwlbqysiezqdpeqpv/sql
+
+→ Copier scripts/create-super-admin-final.sql
+→ Coller dans SQL Editor
+→ RUN (ou Ctrl+Enter)
+→ Vérifier "Compte Super Admin configuré avec succès!"
+
+
+⚡ ÉTAPE 3 : Tester (30 sec)
+───────────────────────────────────────────────────────────
+→ Rafraîchir : http://localhost:5173/auth/super-admin
+→ Numéro : +33661002616
+→ Code SMS : (celui reçu)
+→ ✅ SUCCÈS : Plus d'erreur 400 !
+
+
+═══════════════════════════════════════════════════════════
+CREDENTIALS
+═══════════════════════════════════════════════════════════
+Email    : superadmin@ndjobi.com
+Password : ChangeMeStrong!123
+Code OTP : 999999
+Phone    : +33661002616
+═══════════════════════════════════════════════════════════
+

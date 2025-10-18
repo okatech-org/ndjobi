@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Zap, Database, Users, User, Shield, Activity, Terminal, 
@@ -110,47 +110,10 @@ interface AIAgent {
 }
 
 const SuperAdminDashboard = () => {
-  console.log('🏛️ SuperAdminDashboard RENDER START');
   const navigate = useNavigate();
   const location = useLocation();
   const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
-  
-  // SOLUTION DE CONTOURNEMENT : Vérifier directement localStorage si useAuth échoue
-  const [localUser, setLocalUser] = useState<any>(null);
-  const [localRole, setLocalRole] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const checkLocalSession = () => {
-      try {
-        const demoSessionData = localStorage.getItem('ndjobi_demo_session');
-        if (demoSessionData) {
-          const demoSession = JSON.parse(demoSessionData);
-          if (demoSession.role === 'super_admin') {
-            console.log('🔧 SuperAdminDashboard: Session locale détectée directement');
-            setLocalUser(demoSession.user);
-            setLocalRole(demoSession.role);
-          }
-        }
-      } catch (err) {
-        console.error('❌ Erreur lecture session locale:', err);
-      }
-    };
-    
-    checkLocalSession();
-  }, []);
-  
-  // Utiliser la session locale si useAuth échoue
-  const effectiveUser = user || localUser;
-  const effectiveRole = role || localRole;
-  
-  console.log('🏛️ SuperAdminDashboard state:', { 
-    user: !!effectiveUser, 
-    role: effectiveRole, 
-    authLoading,
-    localUser: !!localUser,
-    localRole 
-  });
   
   const [activeView, setActiveView] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(false);
@@ -220,6 +183,23 @@ const SuperAdminDashboard = () => {
   const [newAccountRole, setNewAccountRole] = useState<string>('user');
   const [creatingAccount, setCreatingAccount] = useState(false);
   const [switchingAccount, setSwitchingAccount] = useState(false);
+  const hasLoadedData = useRef(false);
+  
+  // Vérification de session locale en cas de défaillance de useAuth
+  const [localRole, setLocalRole] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const demoSession = localStorage.getItem('ndjobi_demo_session');
+      if (demoSession) {
+        const parsed = JSON.parse(demoSession);
+        if (parsed.role === 'super_admin') {
+          setLocalRole('super_admin');
+        }
+      }
+    } catch (err) {
+      console.error('Erreur lecture session locale:', err);
+    }
+  }, []);
 
   // IMPORTANT: TOUS les hooks doivent être déclarés avant tout return conditionnel
   useEffect(() => {
@@ -233,21 +213,24 @@ const SuperAdminDashboard = () => {
   }, [location.search]);
 
   useEffect(() => {
-    if (user) {
+    const effectiveUser = user || (localRole ? { id: 'local-super-admin' } : null);
+    if (effectiveUser && !hasLoadedData.current) {
+      hasLoadedData.current = true;
       loadSystemStats();
       loadUsers();
       loadActivityLogs();
       loadSystemData();
       loadConfigurationData();
     }
-  }, [user]);
+  }, [user, localRole]);
 
   // Charger les données système quand on change de vue
   useEffect(() => {
-    if (activeView === 'system' && user) {
+    const effectiveUser = user || (localRole ? { id: 'local-super-admin' } : null);
+    if (activeView === 'system' && effectiveUser) {
       loadSystemData();
     }
-  }, [activeView, user]);
+  }, [activeView, user, localRole]);
 
   // Debounce simple pour la recherche (éviter spam d'updates UI)
   useEffect(() => {
@@ -258,14 +241,17 @@ const SuperAdminDashboard = () => {
   }, [searchTerm]);
 
   // Returns conditionnels APRÈS tous les hooks
-  if (authLoading) {
+  const effectiveRole = role || localRole;
+  
+  if (authLoading && !localRole) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
-  if (!role || role !== 'super_admin') {
+  
+  if (!effectiveRole || effectiveRole !== 'super_admin') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-red-500">Accès refusé</p>

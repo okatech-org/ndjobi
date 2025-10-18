@@ -1,0 +1,161 @@
+╔════════════════════════════════════════════════════════════╗
+║        ✅ COMPTES DÉMO NDJOBI CRÉÉS AVEC SUCCÈS !        ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  Date de création : 18 Octobre 2025                        ║
+║  Système d'authentification : Téléphone + PIN (6 chiffres)║
+║  Hiérarchie conforme au diagramme fourni                   ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  🔐 HIÉRARCHIE DES RÔLES (selon diagram en image)        ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  1️⃣  SUPER ADMIN (Contrôle total) [Rôle Système]         ║
+║     📱 Téléphone : +33 6 61 00 26 16                      ║
+║     🔐 PIN       : 999999                                  ║
+║     👤 Nom       : Super Administrateur                    ║
+║     🏢 Organisation : NDJOBI Platform                       ║
+║     🎭 Rôle      : super_admin                             ║
+║                                                            ║
+║  2️⃣  ADMIN (Président / Admin - Vue globale, Validation)  ║
+║     📱 Téléphone : +241 77 888 001                         ║
+║     🔐 PIN       : 111111                                  ║
+║     👤 Nom       : Protocole d'État - Président            ║
+║     🏢 Organisation : Présidence de la République          ║
+║     🎭 Rôle      : admin                                   ║
+║                                                            ║
+║  3️⃣  SOUS-ADMIN (Sous-Admins - Vue sectorielle)          ║
+║     📱 Téléphone : +241 77 888 004                         ║
+║     🔐 PIN       : 444444                                  ║
+║     👤 Nom       : Sous-Administrateur                     ║
+║     🏢 Organisation : Administration Déléguée              ║
+║     🎭 Rôle      : sub_admin                               ║
+║                                                            ║
+║  4️⃣  AGENT (Agents - Enquête)                             ║
+║     📱 Téléphone : +241 77 888 002                         ║
+║     🔐 PIN       : 222222                                  ║
+║     👤 Nom       : Agent Principal DGSS                    ║
+║     🏢 Organisation : Direction Générale de la Sécurité    ║
+║     🎭 Rôle      : agent                                   ║
+║                                                            ║
+║  5️⃣  USER (Citoyens - Signalement)                        ║
+║     📱 Téléphone : +241 77 888 003                         ║
+║     🔐 PIN       : 333333                                  ║
+║     👤 Nom       : Citoyen Démo                            ║
+║     🏢 Organisation : -                                    ║
+║     🎭 Rôle      : user                                    ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  📋 FONCTIONNALITÉS PAR RÔLE                              ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  SUPER ADMIN :                                            ║
+║  ✓ Contrôle total du système                              ║
+║  ✓ Gestion des utilisateurs                               ║
+║  ✓ Configuration de la plateforme                         ║
+║  ✓ Logs et audit                                          ║
+║  ✓ Module XR7 et IASTED                                  ║
+║                                                            ║
+║  ADMIN (Président) :                                      ║
+║  ✓ Vue globale et validation                              ║
+║  ✓ Gestion des signalements                               ║
+║  ✓ Gestion des protocoles                                 ║
+║  ✓ Statistiques complètes                                 ║
+║  ✓ Module protocole d'État                                ║
+║                                                            ║
+║  SOUS-ADMIN :                                             ║
+║  ✓ Vue sectorielle (DGSS, DGR)                           ║
+║  ✓ Assignation des agents                                 ║
+║  ✓ Gestion limitée des protocoles                         ║
+║  ✓ Statistiques restreintes                               ║
+║  ✓ Consultation des signalements                          ║
+║                                                            ║
+║  AGENT :                                                  ║
+║  ✓ Enquête et investigation                               ║
+║  ✓ Traitement des signalements assignés                   ║
+║  ✓ Rapports d'investigation                               ║
+║  ✓ Vue sectorielle                                        ║
+║                                                            ║
+║  USER (Citoyen) :                                         ║
+║  ✓ Envoi de signalements                                  ║
+║  ✓ Suivi de ses signalements                              ║
+║  ✓ Réception des retours de statut                        ║
+║  ✓ Messagerie sécurisée                                   ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  🔄 FLUX DE TRAITEMENT (selon diagramme)                 ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  1. Interface Utilisateur (PWA React/Next.js)             ║
+║     ↓ Signalement                                         ║
+║  2. Analyse Préliminaire IA (NLP, OCR, Audio)             ║
+║     ↓ Analyse                                             ║
+║  3. Tri & Classification (Domaine, Gravité)               ║
+║     ↓ Orientation                                         ║
+║  4. Dispatch Intelligent (Assignation AI)                 ║
+║     ↓ Affectation                                         ║
+║  5. Traitement & Enquête par Agent                        ║
+║     ↓ MàJ & Notifs                                        ║
+║  6. Suivi & Notifications automatisés                     ║
+║     ↓ Données consolidées                                 ║
+║  7. Rapports & Statistiques (Temps Réel)                  ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  📱 INSTRUCTIONS DE CONNEXION                             ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  1. Ouvrir l'application NDJOBI                           ║
+║  2. Sélectionner "Se connecter"                            ║
+║  3. Saisir le numéro de téléphone (format international)  ║
+║  4. Saisir le PIN à 6 chiffres                            ║
+║  5. Vous serez redirigé vers le dashboard correspondant    ║
+║                                                            ║
+║  Exemples :                                               ║
+║  • Admin : +24177888001 + PIN 111111                      ║
+║  • Sous-Admin : +24177888004 + PIN 444444                 ║
+║  • Agent : +24177888002 + PIN 222222                      ║
+║  • User : +24177888003 + PIN 333333                       ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  ⚠️  IMPORTANT - SÉCURITÉ                                ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  • Ces comptes sont UNIQUEMENT pour DÉMONSTRATION         ║
+║  • NE PAS utiliser en PRODUCTION                          ║
+║  • Changer les PINs pour un usage réel                    ║
+║  • Les numéros de téléphone doivent être réels            ║
+║    pour recevoir les codes OTP en production              ║
+║  • Respecter la hiérarchie des rôles                      ║
+║                                                            ║
+╠════════════════════════════════════════════════════════════╣
+║  🛠️  MAINTENANCE                                         ║
+╠════════════════════════════════════════════════════════════╣
+║                                                            ║
+║  Supprimer tous les comptes démo :                        ║
+║  supabase db execute -f scripts/cleanup-demo-accounts.sql  ║
+║                                                            ║
+║  Recréer les comptes :                                    ║
+║  ./scripts/create-demo-accounts-v2.sh                      ║
+║                                                            ║
+║  Vérifier les comptes créés :                             ║
+║  SELECT * FROM user_roles ORDER BY role;                   ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+RÉSUMÉ DE LA CRÉATION
+=====================
+
+✅ 4 comptes de démonstration créés avec succès :
+   1. ADMIN (Protocole d'État) - +24177888001 / PIN 111111
+   2. SOUS-ADMIN (Administration Déléguée) - +24177888004 / PIN 444444  
+   3. AGENT (DGSS) - +24177888002 / PIN 222222
+   4. USER (Citoyen) - +24177888003 / PIN 333333
+
+✅ Super Admin existant : +33661002616 / PIN 999999
+
+✅ Hiérarchie conforme au diagramme fourni :
+   Super Admin → Admin → Sous-Admin → Agent → User
+
+✅ Système d'authentification : Téléphone + PIN (6 chiffres)
+
+✅ Prêt pour les tests et démonstrations !

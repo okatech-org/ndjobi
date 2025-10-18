@@ -91,13 +91,37 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!user || role !== 'admin') {
+  // Vérifier aussi la session démo dans localStorage pour éviter les problèmes de timing
+  let hasAdminAccess = role === 'admin';
+  let localRole = null;
+  
+  if (!hasAdminAccess) {
+    try {
+      const demoSessionData = localStorage.getItem('ndjobi_demo_session');
+      console.log('🔍 [AdminDashboard] Vérification localStorage - demoSessionData:', demoSessionData ? 'trouvé' : 'vide');
+      if (demoSessionData) {
+        const demoSession = JSON.parse(demoSessionData);
+        console.log('🔍 [AdminDashboard] Session démo parsée - role:', demoSession.role);
+        localRole = demoSession.role;
+        hasAdminAccess = demoSession.role === 'admin';
+      }
+    } catch (e) {
+      console.error('❌ [AdminDashboard] Erreur parsing session démo:', e);
+    }
+  }
+
+  console.log('🔍 [AdminDashboard] État final - user:', user?.id, 'role:', role, 'localRole:', localRole, 'hasAdminAccess:', hasAdminAccess);
+
+  if (!user && !hasAdminAccess) {
+    console.error('❌ [AdminDashboard] Accès refusé - user:', user, 'hasAdminAccess:', hasAdminAccess);
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-red-500">Accès refusé - Réservé au Protocole d'État</p>
       </div>
     );
   }
+
+  console.log('✅ [AdminDashboard] Accès autorisé, rendu du dashboard');
 
   const renderDashboardGlobal = () => (
     <div className="space-y-4 md:space-y-6">
