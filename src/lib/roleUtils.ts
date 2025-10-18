@@ -5,6 +5,7 @@ export const getDashboardUrl = (role: UserRole | null): string => {
     case 'super_admin':
       return '/dashboard/super-admin';
     case 'admin':
+    case 'sub_admin':
       return '/dashboard/admin';
     case 'agent':
       return '/dashboard/agent';
@@ -17,7 +18,7 @@ export const getDashboardUrl = (role: UserRole | null): string => {
 
 export const getRoleFromDashboardUrl = (url: string): UserRole | null => {
   if (url.includes('/dashboard/super-admin')) return 'super_admin';
-  if (url.includes('/dashboard/admin')) return 'admin';
+  if (url.includes('/dashboard/admin')) return 'admin'; // sub_admin also uses admin dashboard
   if (url.includes('/dashboard/agent')) return 'agent';
   if (url.includes('/dashboard/user')) return 'user';
   return null;

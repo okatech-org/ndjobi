@@ -438,6 +438,7 @@ export class AuthService {
     const roleHierarchy: Record<UserRole, number> = {
       'super_admin': 4,
       'admin': 3,
+      'sub_admin': 2.5,
       'agent': 2,
       'user': 1,
     };
