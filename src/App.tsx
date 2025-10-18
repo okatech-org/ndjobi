@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/dashboards/UserDashboard";
 import Statistics from "./pages/Statistics";
 import DebugAuth from "./pages/DebugAuth";
+import CreateDemoAccounts from "./pages/CreateDemoAccounts";
 import NdjobiAIAgent from "@/components/ai-agent/NdjobiAIAgent";
 import { PWAAuth } from "@/components/auth/PWAAuth";
 
@@ -241,6 +242,7 @@ const App = () => {
             />
             <Route path="/statistiques" element={<Statistics />} />
             <Route path="/debug" element={<DebugAuth />} />
+            <Route path="/admin/create-demo-accounts" element={<CreateDemoAccounts />} />
             <Route path="*" element={
               <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la page..." />}>
                 <NotFound />
