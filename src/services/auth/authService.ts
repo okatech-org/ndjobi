@@ -146,7 +146,13 @@ export class AuthService {
         .eq('email', superAdminEmail)
         .maybeSingle();
 
-      console.log('📊 Résultat recherche par email:', { profileData, profileError });
+      console.log('📊 Résultat recherche par email:', { 
+        profileData, 
+        profileError,
+        profileDataType: typeof profileData,
+        profileDataNull: profileData === null,
+        profileDataUndefined: profileData === undefined
+      });
 
       // Si pas trouvé, recherche par téléphone
       if (!profileData && !profileError) {
@@ -160,8 +166,27 @@ export class AuthService {
         profileData = phoneResult.data;
         profileError = phoneResult.error;
         
-        console.log('📊 Résultat recherche par téléphone:', { profileData, profileError });
+        console.log('📊 Résultat recherche par téléphone:', { 
+          profileData, 
+          profileError,
+          profileDataType: typeof profileData,
+          profileDataNull: profileData === null,
+          profileDataUndefined: profileData === undefined
+        });
       }
+      
+      // Debug supplémentaire : essayer une recherche sans filtre pour voir ce qui existe
+      console.log('🔍 Debug: Recherche de TOUS les profils pour diagnostic...');
+      const { data: allProfiles, error: allError } = await supabase
+        .from('profiles')
+        .select('id, email, phone, full_name')
+        .limit(10);
+      
+      console.log('📊 Tous les profils (10 premiers):', { 
+        count: allProfiles?.length || 0,
+        profiles: allProfiles,
+        error: allError
+      });
 
       if (profileError) {
         console.error('❌ Erreur lors de la recherche du profil:', profileError);
