@@ -234,6 +234,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_super_admin_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          full_name: string
+          id: string
+          organization: string
+          phone: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

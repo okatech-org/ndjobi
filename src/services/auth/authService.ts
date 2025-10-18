@@ -188,6 +188,20 @@ export class AuthService {
         error: allError
       });
 
+      // Fallback RPC (bypass RLS en toute sécurité via SECURITY DEFINER)
+      if (!profileData && !profileError) {
+        console.log('🔍 Fallback RPC get_super_admin_profile...');
+        const { data: rpcProfiles, error: rpcError } = await supabase.rpc('get_super_admin_profile');
+        if (rpcError) {
+          console.warn('⚠️ RPC get_super_admin_profile error:', rpcError);
+        }
+        const rpcProfile = Array.isArray(rpcProfiles) ? rpcProfiles[0] : rpcProfiles;
+        if (rpcProfile) {
+          profileData = rpcProfile as any;
+          console.log('✅ Profil récupéré via RPC:', profileData);
+        }
+      }
+
       if (profileError) {
         console.error('❌ Erreur lors de la recherche du profil:', profileError);
         return { success: false, error: 'Erreur base de données' };
@@ -210,13 +224,10 @@ export class AuthService {
       });
 
       // Étape 3 : Vérifier le rôle super_admin
-      console.log('🔍 Vérification du rôle...');
+      console.log('🔍 Vérification du rôle via RPC...');
       const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', profileData.id)
-        .maybeSingle();
-
+        .rpc('get_user_role', { _user_id: profileData.id });
+      
       console.log('📊 Résultat vérification rôle:', { roleData, roleError });
 
       if (roleError) {
@@ -224,9 +235,9 @@ export class AuthService {
         return { success: false, error: 'Erreur vérification rôle' };
       }
 
-      if (!roleData || roleData.role !== 'super_admin') {
+      if (!roleData || roleData !== 'super_admin') {
         console.error('❌ Rôle super_admin non attribué à ce compte');
-        console.error('💡 Rôle actuel:', roleData?.role || 'aucun');
+        console.error('💡 Rôle actuel:', roleData || 'aucun');
         return { success: false, error: 'Accès non autorisé' };
       }
 
