@@ -124,36 +124,57 @@ export class AuthService {
       }
 
       // Trouver l'utilisateur Super Admin par email
+      console.log('🔍 Recherche du compte Super Admin avec email:', superAdminEmail);
+      
       const { data: userData, error: userError } = await supabase
         .from('profiles')
         .select('id, email, full_name, phone')
-        .eq('email', superAdminEmail)
-        .single();
+        .eq('email', superAdminEmail);
 
-      if (userError || !userData) {
+      console.log('📊 Résultat requête profiles:', { userData, userError });
+
+      if (userError) {
+        console.error('❌ Erreur requête profiles:', userError);
+        return { success: false, error: 'Erreur base de données' };
+      }
+
+      if (!userData || userData.length === 0) {
+        console.log('❌ Aucun profil trouvé pour:', superAdminEmail);
         return { success: false, error: 'Compte Super Admin introuvable' };
       }
+
+      const profile = userData[0];
+      console.log('✅ Profil trouvé:', profile);
 
       // Vérifier le rôle
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', userData.id)
-        .single();
+        .eq('user_id', profile.id);
 
-      if (roleError || !roleData || roleData.role !== 'super_admin') {
+      console.log('📊 Résultat requête user_roles:', { roleData, roleError });
+
+      if (roleError) {
+        console.error('❌ Erreur requête user_roles:', roleError);
+        return { success: false, error: 'Erreur vérification rôle' };
+      }
+
+      if (!roleData || roleData.length === 0 || roleData[0].role !== 'super_admin') {
+        console.log('❌ Rôle super_admin non trouvé pour:', profile.id);
         return { success: false, error: 'Accès non autorisé' };
       }
+
+      console.log('✅ Rôle super_admin confirmé');
 
       // Créer une session locale pour le Super Admin
       const sessionData = {
         user: {
-          id: userData.id,
-          email: userData.email,
-          phone: userData.phone,
+          id: profile.id,
+          email: profile.email,
+          phone: profile.phone,
           user_metadata: {
-            full_name: userData.full_name,
-            phone: userData.phone
+            full_name: profile.full_name,
+            phone: profile.phone
           }
         },
         session: {
