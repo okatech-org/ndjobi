@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { useIAstedVoice } from '@/hooks/iasted/useIAstedVoice';
 import { IAstedConversationHistory } from '@/components/iasted';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -22,12 +23,17 @@ export interface IAstedChatProps {
 }
 
 export const IAstedChat = ({ isOpen = false }: IAstedChatProps) => {
-  const { session, role } = useAuth();
+  const { role } = useAuth();
   const { toast } = useToast();
   const [sessionStarted, setSessionStarted] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [token, setToken] = useState<string>('');
 
-  const token = session?.access_token || '';
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setToken(session?.access_token || '');
+    });
+  }, []);
 
   const {
     isConnected,

@@ -3,11 +3,11 @@
  * Interface simple : clic pour parler, re-clic pour arrêter
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { useIAstedVoice } from '@/hooks/iasted/useIAstedVoice';
 import {
   Tooltip,
@@ -27,11 +27,15 @@ export const IAstedVoiceButton = ({
   variant = 'default',
   showLabel = true,
 }: IAstedVoiceButtonProps) => {
-  const { session } = useAuth();
   const { toast } = useToast();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [token, setToken] = useState<string>('');
 
-  const token = session?.access_token || '';
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setToken(session?.access_token || '');
+    });
+  }, []);
 
   const {
     isConnected,
