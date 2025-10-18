@@ -8,3 +8,6 @@ enable_signup = true
 enable_signup = true
 double_confirm_changes = false
 enable_confirmations = false
+
+[functions.iasted-chat]
+verify_jwt = false
