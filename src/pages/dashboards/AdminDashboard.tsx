@@ -27,6 +27,7 @@ import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -799,6 +800,10 @@ export default function AdminDashboard() {
                 </Button>
                 
                 <div className="h-8 w-px bg-border hidden md:block" />
+                
+                <ThemeToggle />
+                
+                <div className="h-8 w-px bg-border hidden lg:block" />
                 
                 <div className="hidden lg:flex items-center gap-2 text-xs">
                   <Badge variant="outline" className="text-[10px] px-2">
