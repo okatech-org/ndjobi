@@ -5,7 +5,7 @@ import {
   FileText, TrendingUp, Shield, AlertTriangle, Eye, Filter,
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
-  AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu, Bell
+  AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,8 +26,7 @@ import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
-import { AdminHeader } from '@/components/admin/AdminHeader';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -54,7 +53,6 @@ export default function AdminDashboard() {
   const activeView = searchParams.get('view') || 'dashboard';
   const [timeRange, setTimeRange] = useState<string>('30days');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
-  const [unreadNotifications, setUnreadNotifications] = useState(3);
   
   const {
     notifications: realtimeNotifications,
@@ -131,187 +129,113 @@ export default function AdminDashboard() {
   console.log('✅ [AdminDashboard] Accès autorisé, rendu du dashboard');
 
   const renderDashboardGlobal = () => (
-    <div className="space-y-6">
-      {/* KPIs Cards Grid - Style inspiré du modèle */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Carte 1: Profils surveillés */}
-        <Card className="glass-effect border border-border/50 relative overflow-hidden group hover-lift transition-all">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="p-3 rounded-xl bg-[hsl(var(--accent-intel))]/20">
-                <Users className="h-6 w-6 text-[hsl(var(--accent-intel))]" />
-              </div>
-              <Badge className="bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))] border-none text-xs px-2 py-1">
-                +12.5%
-              </Badge>
+    <div className="space-y-4 md:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Signalements Nationaux
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.total_signalements?.toLocaleString() || 0}</div>
+                <Badge className="mt-1 md:mt-2 text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]">{kpis?.tendance || '+0%'}</Badge>
             </div>
-            <div className="space-y-3">
-              <div className="text-4xl font-bold tracking-tight">
-                {kpis?.total_signalements?.toLocaleString() || '2 847'}
-              </div>
-              <p className="text-sm text-muted-foreground">Profils surveillés</p>
-              <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                <div className="h-full w-[67%] bg-gradient-to-r from-[hsl(var(--accent-intel))] via-[hsl(var(--accent-warning))] to-[hsl(var(--accent-intel))]/50 rounded-full" />
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-[hsl(var(--accent-warning))]" />
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Carte 2: Localisations actives */}
-        <Card className="glass-effect border border-border/50 relative overflow-hidden group hover-lift transition-all">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="p-3 rounded-xl bg-[hsl(var(--accent-success))]/20">
-                <MapPin className="h-6 w-6 text-[hsl(var(--accent-success))]" />
-              </div>
-              <Badge className="bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))] border-none text-xs px-2 py-1">
-                +8.3%
-              </Badge>
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[67%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
-            <div className="space-y-3">
-              <div className="text-4xl font-bold tracking-tight">
-                {(kpis?.impact_economique ? Math.floor(kpis.impact_economique / 1000000) : 1234).toLocaleString()}
-              </div>
-              <p className="text-sm text-muted-foreground">Localisations actives</p>
-              <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                <div className="h-full w-[82%] bg-gradient-to-r from-[hsl(var(--accent-intel))] via-[hsl(var(--accent-warning))] to-[hsl(var(--accent-success))]/50 rounded-full" />
-              </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              {kpis?.signalements_critiques || 0} cas critiques
             </div>
           </CardContent>
         </Card>
 
-        {/* Carte 3: Notes ce mois */}
-        <Card className="glass-effect border border-border/50 relative overflow-hidden group hover-lift transition-all">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="p-3 rounded-xl bg-[hsl(var(--accent-warning))]/20">
-                <FileText className="h-6 w-6 text-[hsl(var(--accent-warning))]" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-success))] to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Impact Économique
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">
+                  {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
+                </div>
+                <div className="text-xs md:text-sm text-[hsl(var(--accent-success))] mt-1 md:mt-2">FCFA récupérés</div>
               </div>
-              <Badge className="bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))] border-none text-xs px-2 py-1">
-                -2.1%
-              </Badge>
-            </div>
-            <div className="space-y-3">
-              <div className="text-4xl font-bold tracking-tight">156</div>
-              <p className="text-sm text-muted-foreground">Notes ce mois</p>
-              <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                <div className="h-full w-[45%] bg-gradient-to-r from-[hsl(var(--accent-intel))] via-[hsl(var(--accent-warning))] to-muted/50 rounded-full" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Carte 4: Alertes actives */}
-        <Card className="glass-effect border border-border/50 relative overflow-hidden group hover-lift transition-all">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="p-3 rounded-xl bg-[hsl(var(--accent-danger))]/20">
-                <AlertTriangle className="h-6 w-6 text-[hsl(var(--accent-danger))]" />
-              </div>
-              <Badge className="bg-muted/30 text-muted-foreground border-none text-xs px-2 py-1">
-                0%
-              </Badge>
-            </div>
-            <div className="space-y-3">
-              <div className="text-4xl font-bold tracking-tight">
-                {kpis?.signalements_critiques || 23}
-              </div>
-              <p className="text-sm text-muted-foreground">Alertes actives</p>
-              <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                <div className="h-full w-[28%] bg-gradient-to-r from-[hsl(var(--accent-intel))] via-[hsl(var(--accent-warning))] to-muted/50 rounded-full" />
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-success))]/20 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[hsl(var(--accent-success))]" />
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Cartes d'action - Style inspiré du modèle */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Voir tous les profils */}
-        <Card className="glass-effect border border-border/50 hover-lift transition-all cursor-pointer group">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-[hsl(var(--accent-intel))]/20">
-                <Users className="h-6 w-6 text-[hsl(var(--accent-intel))]" />
-              </div>
-              <div className="flex-1 space-y-1">
-                <h3 className="font-semibold text-base group-hover:text-[hsl(var(--accent-intel))] transition-colors">
-                  Voir tous les profils
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Liste complète des profils gabonais
-                </p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[hsl(var(--accent-intel))] group-hover:translate-x-1 transition-all" />
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[85%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-success))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              Fonds restitués
             </div>
           </CardContent>
         </Card>
 
-        {/* Carte des profils */}
-        <Card className="glass-effect border border-border/50 hover-lift transition-all cursor-pointer group">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-[hsl(var(--accent-success))]/20">
-                <MapPin className="h-6 w-6 text-[hsl(var(--accent-success))]" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-intel))] to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Taux de Résolution
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="w-full">
+                <div className="text-2xl md:text-3xl font-bold mb-3 tabular-nums">{kpis?.taux_resolution || 0}%</div>
+                <Progress value={kpis?.taux_resolution || 0} className="h-2" />
               </div>
-              <div className="flex-1 space-y-1">
-                <h3 className="font-semibold text-base group-hover:text-[hsl(var(--accent-success))] transition-colors">
-                  Carte des profils
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Répartition géographique
-                </p>
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-intel))]/20 flex items-center justify-center ml-3">
+                <Target className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
               </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[hsl(var(--accent-success))] group-hover:translate-x-1 transition-all" />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              Objectif: 85%
             </div>
           </CardContent>
         </Card>
 
-        {/* Notes récentes */}
-        <Card className="glass-effect border border-border/50 hover-lift transition-all cursor-pointer group">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-[hsl(var(--accent-warning))]/20">
-                <FileText className="h-6 w-6 text-[hsl(var(--accent-warning))]" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Score Transparence
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.score_transparence || 0}/100</div>
+                <Badge variant="outline" className="mt-1 md:mt-2 text-xs">Deuxième République</Badge>
               </div>
-              <div className="flex-1 space-y-1">
-                <h3 className="font-semibold text-base group-hover:text-[hsl(var(--accent-warning))] transition-colors">
-                  Notes récentes
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Derniers renseignements
-                </p>
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-purple-500" />
               </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[hsl(var(--accent-warning))] group-hover:translate-x-1 transition-all" />
+            </div>
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[{kpis?.score_transparence || 0}%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-purple-500 rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              Indice national
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Carte Audit sécurité */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="glass-effect border border-border/50 hover-lift transition-all cursor-pointer group">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-purple-500/20">
-                <Shield className="h-6 w-6 text-purple-500" />
-              </div>
-              <div className="flex-1 space-y-1">
-                <h3 className="font-semibold text-base group-hover:text-purple-500 transition-colors">
-                  Audit sécurité
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Journaux d'activité
-                </p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts Grid avec espacement uniforme */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="glass-effect border-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -472,7 +396,7 @@ export default function AdminDashboard() {
   );
 
   const renderValidation = () => (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Cas Sensibles - Validation Présidentielle</h3>
@@ -596,7 +520,7 @@ export default function AdminDashboard() {
     );
 
   const renderSuiviEnquetes = () => (
-      <div className="space-y-8">
+      <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Suivi des Enquêtes Nationales</h3>
@@ -707,7 +631,7 @@ export default function AdminDashboard() {
   );
 
   const renderGestionSousAdmins = () => (
-      <div className="space-y-8">
+      <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion des Sous-Administrateurs</h3>
@@ -801,7 +725,7 @@ export default function AdminDashboard() {
   );
 
   const renderRapportsStrategiques = () => (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Rapports Stratégiques</h3>
@@ -889,11 +813,52 @@ export default function AdminDashboard() {
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col w-full relative z-10">
-          <AdminHeader unreadNotifications={unreadNotifications} />
+          {/* En-tête glassmorphism */}
+          <header className="h-16 glass-effect sticky top-0 z-40">
+            <div className="h-full px-4 md:px-6 flex items-center justify-between">
+              {/* Gauche: Titre et badge */}
+              <div className="flex items-center gap-3">
+                {/* Bouton menu mobile */}
+                <SidebarTrigger className="lg:hidden">
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SidebarTrigger>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center animate-pulse-glow">
+                    <Shield className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="hidden md:block">
+                    <h1 className="text-base font-bold">PROTOCOLE D'ÉTAT</h1>
+                    <p className="text-[9px] text-muted-foreground">Intelligence • Vision 2025</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Droite: Actions et infos */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-live-pulse" />
+                  <span className="text-xs font-medium text-red-500">LIVE</span>
+                </div>
+                
+                <ThemeToggle />
+                
+                <div className="h-8 w-px bg-border/50 hidden lg:block" />
+                
+                <div className="hidden lg:flex items-center gap-2">
+                  <Badge variant="outline" className="text-[10px] px-2 bg-[hsl(var(--accent-success))]/10 border-[hsl(var(--accent-success))]/30">
+                    Gabon • Vision 2025
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </header>
 
-          {/* Contenu principal avec scroll - espacements uniformes */}
+          {/* Contenu principal avec scroll */}
           <main className="flex-1 overflow-y-auto">
-            <div className="container max-w-[1600px] mx-auto px-4 md:px-6 py-6 space-y-8">
+            <div className="container py-6 md:py-8 space-y-6">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
