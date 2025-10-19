@@ -44,6 +44,7 @@ export const IAstedFloatingButton = () => {
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioUnlockedRef = useRef(false);
+  const micPermissionGrantedRef = useRef(false);
 
   // Auto-scroll
   useEffect(() => {
@@ -118,6 +119,54 @@ export const IAstedFloatingButton = () => {
   };
 
   /**
+   * Vérifier et demander l'accès micro une seule fois
+   */
+  const ensureMicrophoneAccess = async (): Promise<boolean> => {
+    // Si déjà accordé dans cette session, ne pas redemander
+    if (micPermissionGrantedRef.current) {
+      console.log('✅ Micro: accès déjà accordé dans cette session');
+      return true;
+    }
+
+    try {
+      // Vérifier l'état de la permission via l'API Permissions
+      if (navigator.permissions && navigator.permissions.query) {
+        const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        console.log('🎤 État permission micro:', permissionStatus.state);
+        
+        if (permissionStatus.state === 'granted') {
+          micPermissionGrantedRef.current = true;
+          return true;
+        } else if (permissionStatus.state === 'denied') {
+          toast({
+            title: 'Microphone bloqué',
+            description: 'Veuillez autoriser l\'accès au microphone dans les paramètres du navigateur',
+            variant: 'destructive'
+          });
+          return false;
+        }
+      }
+
+      // Si l'état est 'prompt' ou API non disponible, demander l'accès
+      console.log('🎤 Demande d\'accès au microphone...');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+      micPermissionGrantedRef.current = true;
+      console.log('✅ Accès micro accordé et mémorisé');
+      return true;
+
+    } catch (error: any) {
+      console.error('❌ Erreur accès microphone:', error);
+      toast({
+        title: 'Microphone requis',
+        description: 'Veuillez autoriser l\'accès au microphone pour utiliser la fonction vocale',
+        variant: 'destructive'
+      });
+      return false;
+    }
+  };
+
+  /**
    * Double clic : Mode vocal
    */
   const handleDoubleClick = async () => {
@@ -135,16 +184,9 @@ export const IAstedFloatingButton = () => {
     // Démarrer en mode vocal sans ouvrir l'interface
     setMode('voice');
 
-    // Demander l'accès micro lors de la première interaction (iOS/Chrome mobile)
-    try {
-      const tmpStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      tmpStream.getTracks().forEach(t => t.stop());
-    } catch (e) {
-      toast({
-        title: 'Microphone requis',
-        description: 'Veuillez autoriser l\'accès au microphone',
-        variant: 'destructive'
-      });
+    // Vérifier/demander l'accès micro (une seule fois)
+    const hasMic = await ensureMicrophoneAccess();
+    if (!hasMic) {
       return;
     }
 
@@ -539,20 +581,18 @@ export const IAstedFloatingButton = () => {
     setMode('voice');
     await unlockAudioIfNeeded();
     
+    // Vérifier/demander l'accès micro (une seule fois)
+    const hasMic = await ensureMicrophoneAccess();
+    if (!hasMic) {
+      return;
+    }
+    
     // Message de transition si déjà des messages
     if (messages.length > 0) {
       await speakWelcomeMessage();
     }
     
-    try {
-      await startVoiceInteraction();
-    } catch (e) {
-      toast({
-        title: 'Microphone requis',
-        description: 'Veuillez autoriser l\'accès au microphone',
-        variant: 'destructive'
-      });
-    }
+    await startVoiceInteraction();
   };
 
   return (
