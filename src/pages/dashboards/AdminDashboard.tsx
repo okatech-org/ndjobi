@@ -2013,9 +2013,9 @@ export default function AdminDashboard() {
                 Génération de Rapport
               </span>
             </DialogTitle>
-            <DialogDescription className="text-sm mt-2 flex items-center gap-2">
+            <DialogDescription className="text-sm mt-2 flex items-center gap-2 text-foreground/80">
               <Building2 className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-              {selectedAdmin?.organization} - {rapportType === 'cas' 
+              <span className="font-medium">{selectedAdmin?.organization}</span> - {rapportType === 'cas' 
                 ? `Sélection des cas à inclure dans le rapport`
                 : `Configuration du rapport global pour la période sélectionnée`
               }
@@ -2025,7 +2025,7 @@ export default function AdminDashboard() {
           <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
             {/* Type de rapport */}
             <div className="space-y-3">
-              <Label className="text-sm font-semibold flex items-center gap-2">
+              <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
                 <Filter className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
                 Type de rapport
               </Label>
@@ -2045,8 +2045,8 @@ export default function AdminDashboard() {
                   <div className="flex flex-col items-center gap-2">
                     <BarChart3 className={`h-5 w-5 ${rapportType === 'global' ? 'text-[hsl(var(--accent-intel))]' : 'text-muted-foreground'}`} />
                     <div className="text-center">
-                      <div className="font-semibold">Rapport Global</div>
-                      <div className="text-xs text-muted-foreground">Vue d'ensemble ministère</div>
+                      <div className="font-semibold text-foreground">Rapport Global</div>
+                      <div className="text-xs text-foreground/70">Vue d'ensemble ministère</div>
                     </div>
                   </div>
                 </Button>
@@ -2062,8 +2062,8 @@ export default function AdminDashboard() {
                   <div className="flex flex-col items-center gap-2">
                     <Package className={`h-5 w-5 ${rapportType === 'cas' ? 'text-[hsl(var(--accent-success))]' : 'text-muted-foreground'}`} />
                     <div className="text-center">
-                      <div className="font-semibold">Rapport Cas</div>
-                      <div className="text-xs text-muted-foreground">Sélection spécifique</div>
+                      <div className="font-semibold text-foreground">Rapport Cas</div>
+                      <div className="text-xs text-foreground/70">Sélection spécifique</div>
                     </div>
                   </div>
                 </Button>
@@ -2075,7 +2075,7 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 {/* Période de suivi */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
                     <Calendar className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
                     Période de suivi
                   </Label>
@@ -2084,27 +2084,27 @@ export default function AdminDashboard() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="glass-effect border-none">
-                      <SelectItem value="hebdomadaire" className="hover:bg-muted/50">
+                      <SelectItem value="hebdomadaire" className="hover:bg-muted/50 text-foreground">
                         <div className="flex items-center gap-2">
-                          <Clock className="h-3 w-3" />
+                          <Clock className="h-3 w-3 text-foreground/70" />
                           Hebdomadaire
                         </div>
                       </SelectItem>
-                      <SelectItem value="mensuel" className="hover:bg-muted/50">
+                      <SelectItem value="mensuel" className="hover:bg-muted/50 text-foreground">
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-3 w-3" />
+                          <Calendar className="h-3 w-3 text-foreground/70" />
                           Mensuel
                         </div>
                       </SelectItem>
-                      <SelectItem value="trimestriel" className="hover:bg-muted/50">
+                      <SelectItem value="trimestriel" className="hover:bg-muted/50 text-foreground">
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-3 w-3" />
+                          <Calendar className="h-3 w-3 text-foreground/70" />
                           Trimestriel
                         </div>
                       </SelectItem>
-                      <SelectItem value="annuel" className="hover:bg-muted/50">
+                      <SelectItem value="annuel" className="hover:bg-muted/50 text-foreground">
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-3 w-3" />
+                          <Calendar className="h-3 w-3 text-foreground/70" />
                           Annuel
                         </div>
                       </SelectItem>
@@ -2115,7 +2115,7 @@ export default function AdminDashboard() {
                 {/* Dates */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium flex items-center gap-2">
+                    <Label className="text-sm font-medium flex items-center gap-2 text-foreground">
                       <Calendar className="h-3 w-3 text-[hsl(var(--accent-success))]" />
                       Date de début
                     </Label>
@@ -2127,7 +2127,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium flex items-center gap-2">
+                    <Label className="text-sm font-medium flex items-center gap-2 text-foreground">
                       <Calendar className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
                       Date de fin
                     </Label>
@@ -2143,7 +2143,7 @@ export default function AdminDashboard() {
                 {/* Résumé du rapport global */}
                 <Card className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 via-transparent to-[hsl(var(--accent-success))]/5">
                   <CardHeader className="pb-3 border-b border-muted/10">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
                       <BarChart3 className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
                       Contenu du rapport global
                     </CardTitle>
@@ -2151,29 +2151,29 @@ export default function AdminDashboard() {
                   <CardContent className="space-y-3 pt-4 text-xs">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="p-2 rounded-lg bg-muted/30">
-                        <span className="text-muted-foreground flex items-center gap-1">
-                          <Building2 className="h-3 w-3" />
+                        <span className="text-foreground/70 flex items-center gap-1">
+                          <Building2 className="h-3 w-3 text-foreground/60" />
                           Administration
                         </span>
-                        <div className="font-semibold mt-1">{selectedAdmin?.organization}</div>
+                        <div className="font-semibold mt-1 text-foreground">{selectedAdmin?.organization}</div>
                       </div>
                       <div className="p-2 rounded-lg bg-muted/30">
-                        <span className="text-muted-foreground flex items-center gap-1">
-                          <Users className="h-3 w-3" />
+                        <span className="text-foreground/70 flex items-center gap-1">
+                          <Users className="h-3 w-3 text-foreground/60" />
                           Responsable
                         </span>
-                        <div className="font-semibold mt-1">{selectedAdmin?.nom}</div>
+                        <div className="font-semibold mt-1 text-foreground">{selectedAdmin?.nom}</div>
                       </div>
                       <div className="p-2 rounded-lg bg-muted/30">
-                        <span className="text-muted-foreground flex items-center gap-1">
-                          <Package className="h-3 w-3" />
+                        <span className="text-foreground/70 flex items-center gap-1">
+                          <Package className="h-3 w-3 text-foreground/60" />
                           Total cas
                         </span>
                         <div className="font-semibold mt-1 text-[hsl(var(--accent-intel))]">{adminCases.length}</div>
                       </div>
                       <div className="p-2 rounded-lg bg-muted/30">
-                        <span className="text-muted-foreground flex items-center gap-1">
-                          <AlertTriangle className="h-3 w-3" />
+                        <span className="text-foreground/70 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3 text-foreground/60" />
                           Problématiques
                         </span>
                         <div className="font-semibold mt-1 text-[hsl(var(--accent-warning))]">{adminProblematiques.length}</div>
@@ -2181,8 +2181,8 @@ export default function AdminDashboard() {
                     </div>
                     <div className="pt-3 border-t border-muted/20">
                       <div className="p-3 rounded-lg bg-gradient-to-r from-[hsl(var(--accent-success))]/10 to-transparent">
-                        <span className="text-muted-foreground flex items-center gap-1 mb-2">
-                          <DollarSign className="h-3 w-3" />
+                        <span className="text-foreground/70 flex items-center gap-1 mb-2">
+                          <DollarSign className="h-3 w-3 text-foreground/60" />
                           Impact financier total
                         </span>
                         <div className="text-base font-bold text-[hsl(var(--accent-success))]">
@@ -2201,14 +2201,14 @@ export default function AdminDashboard() {
                 {/* Sélection des cas */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">
+                    <Label className="text-sm font-medium text-foreground">
                       Sélection des cas ({selectedCasIds.length}/{adminCases.length})
                     </Label>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleToggleAllCas}
-                      className="h-7 text-xs"
+                      className="h-7 text-xs text-foreground hover:bg-muted/50"
                     >
                       {selectedCasIds.length === adminCases.length ? 'Tout désélectionner' : 'Tout sélectionner'}
                     </Button>
@@ -2248,13 +2248,13 @@ export default function AdminDashboard() {
                                 {cas.priorite}
                               </Badge>
                             </div>
-                            <div className="text-sm font-medium mb-1">{cas.titre}</div>
-                            <div className="text-xs text-muted-foreground mb-2">{cas.description}</div>
+                            <div className="text-sm font-medium mb-1 text-foreground">{cas.titre}</div>
+                            <div className="text-xs text-foreground/70 mb-2">{cas.description}</div>
                             <div className="flex items-center justify-between text-xs">
                               <span className="text-[hsl(var(--accent-success))] font-medium">
                                 {cas.montant}
                               </span>
-                              <span className="text-muted-foreground">{cas.localisation}</span>
+                              <span className="text-foreground/60">{cas.localisation}</span>
                             </div>
                           </div>
                         </div>
@@ -2295,7 +2295,7 @@ export default function AdminDashboard() {
 
             {/* Options de format */}
             <div className="space-y-3">
-              <Label className="text-sm font-semibold flex items-center gap-2">
+              <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
                 <Download className="h-4 w-4 text-[hsl(var(--accent-success))]" />
                 Format du rapport
               </Label>
@@ -2312,7 +2312,7 @@ export default function AdminDashboard() {
                 >
                   <div className="flex flex-col items-center gap-1">
                     <FileText className={`h-4 w-4 ${formatRapport === 'pdf' ? 'text-red-500' : 'text-muted-foreground'}`} />
-                    <span className="text-xs font-semibold">PDF</span>
+                    <span className="text-xs font-semibold text-foreground">PDF</span>
                   </div>
                 </Button>
                 <Button
@@ -2327,7 +2327,7 @@ export default function AdminDashboard() {
                 >
                   <div className="flex flex-col items-center gap-1">
                     <FileText className={`h-4 w-4 ${formatRapport === 'excel' ? 'text-green-500' : 'text-muted-foreground'}`} />
-                    <span className="text-xs font-semibold">Excel</span>
+                    <span className="text-xs font-semibold text-foreground">Excel</span>
                   </div>
                 </Button>
                 <Button
@@ -2342,7 +2342,7 @@ export default function AdminDashboard() {
                 >
                   <div className="flex flex-col items-center gap-1">
                     <FileText className={`h-4 w-4 ${formatRapport === 'word' ? 'text-blue-500' : 'text-muted-foreground'}`} />
-                    <span className="text-xs font-semibold">Word</span>
+                    <span className="text-xs font-semibold text-foreground">Word</span>
                   </div>
                 </Button>
               </div>
@@ -2351,8 +2351,8 @@ export default function AdminDashboard() {
             {/* Informations de livraison */}
             <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
               <FileText className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-              <AlertTitle className="text-[hsl(var(--accent-intel))] text-xs">Information</AlertTitle>
-              <AlertDescription className="text-xs text-muted-foreground">
+              <AlertTitle className="text-[hsl(var(--accent-intel))] text-xs font-semibold">Information</AlertTitle>
+              <AlertDescription className="text-xs text-foreground/80">
                 Le rapport sera généré et disponible au téléchargement dans quelques instants. 
                 Une notification sera envoyée une fois le processus terminé.
               </AlertDescription>
