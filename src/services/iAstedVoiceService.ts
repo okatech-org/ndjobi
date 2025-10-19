@@ -219,11 +219,25 @@ export class IAstedVoiceService {
       const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(audioBlob);
 
-      // Jouer l'audio
-      const audio = new Audio(audioUrl);
-      await audio.play();
-
-      return { success: true, audioUrl, audioBlob };
+      // Jouer l'audio et attendre la fin
+      return new Promise((resolve) => {
+        const audio = new Audio(audioUrl);
+        
+        audio.onended = () => {
+          console.log('✅ Lecture audio terminée');
+          resolve({ success: true, audioUrl, audioBlob });
+        };
+        
+        audio.onerror = (err) => {
+          console.error('❌ Erreur lecture audio:', err);
+          resolve({ success: false, error: 'Erreur lecture audio' });
+        };
+        
+        audio.play().catch((err) => {
+          console.error('❌ Erreur démarrage audio:', err);
+          resolve({ success: false, error: 'Impossible de lire l\'audio' });
+        });
+      });
 
     } catch (error: any) {
       console.error('Erreur ElevenLabs:', error);

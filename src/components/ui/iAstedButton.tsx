@@ -972,9 +972,6 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
   // Déterminer les classes d'état vocal
   const voiceStateClass = voiceListening ? 'voice-listening' : voiceSpeaking ? 'voice-speaking' : '';
 
-  // Debug: afficher l'état actuel
-  console.log('🎭 iAsted Button State:', { voiceListening, voiceSpeaking, voiceProcessing, isInterfaceOpen, voiceStateClass });
-
   const handleClick = () => {
     const shockwaveId = Date.now();
     setShockwaves([...shockwaves, { id: shockwaveId }]);
