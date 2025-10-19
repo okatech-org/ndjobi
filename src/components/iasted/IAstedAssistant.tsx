@@ -11,6 +11,8 @@ import { IAstedStorageService } from '@/services/iAstedStorageService';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
+import { supabase } from '@/integrations/supabase/client';
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;

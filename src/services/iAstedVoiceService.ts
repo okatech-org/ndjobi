@@ -5,6 +5,8 @@
  * pour l'interaction vocale avec l'assistant présidentiel.
  */
 
+import { supabase } from '@/integrations/supabase/client';
+
 export class IAstedVoiceService {
   
   // Configuration vocale
@@ -124,33 +126,28 @@ export class IAstedVoiceService {
   }
 
   /**
-   * Transcrire un audio avec l'API Whisper d'OpenAI
+   * Transcrire un audio avec Deepgram via edge function
    */
   private static async transcribeAudio(audioBlob: Blob): Promise<string> {
     try {
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'recording.webm');
-      formData.append('model', 'whisper-1');
-      formData.append('language', 'fr');
-      formData.append('response_format', 'text');
+      // Convert blob to base64
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const base64Audio = btoa(
+        String.fromCharCode(...new Uint8Array(arrayBuffer))
+      );
 
-      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
-        },
-        body: formData
+      // Call Deepgram via edge function
+      const { data, error } = await supabase.functions.invoke('iasted-stt', {
+        body: { audio: base64Audio }
       });
 
-      if (!response.ok) {
-        throw new Error(`Whisper API error: ${response.status}`);
-      }
+      if (error) throw error;
+      if (!data?.text) throw new Error('No transcription returned');
 
-      const transcription = await response.text();
-      return transcription.trim();
+      return data.text;
 
     } catch (error: any) {
-      console.error('Erreur API Whisper:', error);
+      console.error('Erreur Deepgram:', error);
       
       // Fallback : Web Speech API (moins précis mais gratuit)
       return this.transcribeWithWebSpeech(audioBlob);
@@ -190,7 +187,7 @@ export class IAstedVoiceService {
    */
 
   /**
-   * Convertir du texte en audio et le jouer
+   * Convertir du texte en audio et le jouer avec ElevenLabs via edge function
    */
   static async speakText(text: string): Promise<{
     success: boolean;
@@ -199,102 +196,36 @@ export class IAstedVoiceService {
     error?: string;
   }> {
     try {
-      // Option 1 : Utiliser Azure TTS (meilleure qualité)
-      if (import.meta.env.VITE_AZURE_SPEECH_KEY) {
-        return await this.speakWithAzureTTS(text);
-      }
+      // Call ElevenLabs via edge function
+      const { data, error } = await supabase.functions.invoke('iasted-tts', {
+        body: { text }
+      });
 
-      // Option 2 : Utiliser OpenAI TTS
-      if (import.meta.env.VITE_OPENAI_API_KEY) {
-        return await this.speakWithOpenAITTS(text);
-      }
+      if (error) throw error;
+      if (!data?.audioContent) throw new Error('No audio returned');
 
-      // Option 3 : Fallback - Web Speech API (gratuit mais qualité moindre)
-      return this.speakWithWebSpeech(text);
+      // Convert base64 to blob
+      const binaryString = atob(data.audioContent);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      // Jouer l'audio
+      const audio = new Audio(audioUrl);
+      await audio.play();
+
+      return { success: true, audioUrl, audioBlob };
 
     } catch (error: any) {
-      console.error('Erreur synthèse vocale:', error);
-      return { 
-        success: false, 
-        error: error.message 
-      };
+      console.error('Erreur ElevenLabs:', error);
+      
+      // Fallback : Web Speech API
+      return this.speakWithWebSpeech(text);
     }
-  }
-
-  /**
-   * TTS avec Azure Cognitive Services (Recommandé)
-   */
-  private static async speakWithAzureTTS(text: string): Promise<any> {
-    const apiKey = import.meta.env.VITE_AZURE_SPEECH_KEY;
-    const region = import.meta.env.VITE_AZURE_SPEECH_REGION || 'westeurope';
-
-    const ssml = `
-      <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="fr-FR">
-        <voice name="${this.VOICE_CONFIG.voiceName}">
-          <prosody rate="${this.VOICE_CONFIG.rate}" pitch="${this.VOICE_CONFIG.pitch}">
-            ${text}
-          </prosody>
-        </voice>
-      </speak>
-    `;
-
-    const response = await fetch(
-      `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
-      {
-        method: 'POST',
-        headers: {
-          'Ocp-Apim-Subscription-Key': apiKey,
-          'Content-Type': 'application/ssml+xml',
-          'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3'
-        },
-        body: ssml
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Azure TTS error: ${response.status}`);
-    }
-
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-
-    // Jouer l'audio
-    const audio = new Audio(audioUrl);
-    await audio.play();
-
-    return { success: true, audioUrl, audioBlob };
-  }
-
-  /**
-   * TTS avec OpenAI
-   */
-  private static async speakWithOpenAITTS(text: string): Promise<any> {
-    const response = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'tts-1',
-        input: text,
-        voice: 'nova', // Voix féminine professionnelle
-        speed: 1.0
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`OpenAI TTS error: ${response.status}`);
-    }
-
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-
-    // Jouer l'audio
-    const audio = new Audio(audioUrl);
-    await audio.play();
-
-    return { success: true, audioUrl, audioBlob };
   }
 
   /**
