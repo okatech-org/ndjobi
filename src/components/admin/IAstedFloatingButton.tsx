@@ -43,6 +43,7 @@ export const IAstedFloatingButton = () => {
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioUnlockedRef = useRef(false);
 
   // Auto-scroll
   useEffect(() => {
@@ -110,6 +111,12 @@ export const IAstedFloatingButton = () => {
     }
   };
 
+  const unlockAudioIfNeeded = async () => {
+    if (audioUnlockedRef.current) return;
+    await primeAudio();
+    audioUnlockedRef.current = true;
+  };
+
   /**
    * Double clic : Mode vocal
    */
@@ -117,7 +124,7 @@ export const IAstedFloatingButton = () => {
     console.log('🎙️ Mode vocal activé - Double clic détecté');
 
     // Débloquer l'audio immédiatement (user gesture)
-    await primeAudio();
+    await unlockAudioIfNeeded();
     
     // Si déjà ouvert en mode texte, basculer vers vocal
     if (isOpen && mode === 'text') {
@@ -128,8 +135,11 @@ export const IAstedFloatingButton = () => {
     // Démarrer en mode vocal sans ouvrir l'interface
     setMode('voice');
 
-    const hasMic = await IAstedVoiceService.checkMicrophonePermission();
-    if (!hasMic) {
+    // Demander l'accès micro lors de la première interaction (iOS/Chrome mobile)
+    try {
+      const tmpStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      tmpStream.getTracks().forEach(t => t.stop());
+    } catch (e) {
       toast({
         title: 'Microphone requis',
         description: 'Veuillez autoriser l\'accès au microphone',
@@ -138,7 +148,7 @@ export const IAstedFloatingButton = () => {
       return;
     }
 
-    // Saluer selon l'heure puis lancer l'écoute
+    // Saluer puis lancer l'écoute
     await speakGreeting();
     await startVoiceInteraction();
   };
@@ -147,6 +157,7 @@ export const IAstedFloatingButton = () => {
    * Message de salutation selon l'heure
    */
   const speakGreeting = async () => {
+    await unlockAudioIfNeeded();
     const hour = new Date().getHours();
     let greeting = 'Bonjour';
     
@@ -526,29 +537,28 @@ export const IAstedFloatingButton = () => {
   const switchToVoice = async () => {
     console.log('🔄 Basculement vers mode vocal');
     setMode('voice');
+    await unlockAudioIfNeeded();
     
-    const hasMic = await IAstedVoiceService.checkMicrophonePermission();
-    if (!hasMic) {
-      toast({
-        title: 'Microphone requis',
-        description: 'Veuillez autoriser l\'accès au microphone',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     // Message de transition si déjà des messages
     if (messages.length > 0) {
       await speakWelcomeMessage();
     }
     
-    await startVoiceInteraction();
+    try {
+      await startVoiceInteraction();
+    } catch (e) {
+      toast({
+        title: 'Microphone requis',
+        description: 'Veuillez autoriser l\'accès au microphone',
+        variant: 'destructive'
+      });
+    }
   };
 
   return (
     <>
       {/* BOUTON SPHÉRIQUE */}
-      <div className="fixed bottom-6 right-6 z-50 relative">
+      <div className="fixed bottom-6 right-6 z-50 relative" onTouchStart={unlockAudioIfNeeded} onMouseDown={unlockAudioIfNeeded}>
         {/* Indicateurs visuels animés */}
         {isListening && (
           <div className="absolute -inset-4 rounded-full ring-4 ring-purple-500 animate-ping pointer-events-none opacity-75" />
