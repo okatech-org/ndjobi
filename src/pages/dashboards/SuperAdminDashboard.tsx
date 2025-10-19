@@ -1197,11 +1197,11 @@ const SuperAdminDashboard = () => {
               </CardHeader>
               <CardContent>
           <Tabs defaultValue="activity" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="activity">Activité</TabsTrigger>
-              <TabsTrigger value="security">Sécurité</TabsTrigger>
-              <TabsTrigger value="errors">Erreurs</TabsTrigger>
-              <TabsTrigger value="audit">Audit</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+              <TabsTrigger value="activity" className="text-xs sm:text-sm">Activité</TabsTrigger>
+              <TabsTrigger value="security" className="text-xs sm:text-sm">Sécurité</TabsTrigger>
+              <TabsTrigger value="errors" className="text-xs sm:text-sm">Erreurs</TabsTrigger>
+              <TabsTrigger value="audit" className="text-xs sm:text-sm">Audit</TabsTrigger>
             </TabsList>
             
             <TabsContent value="activity" className="mt-4">
@@ -1209,9 +1209,9 @@ const SuperAdminDashboard = () => {
                 {activityLogs.map((log, i) => {
                   const Icon = log.icon;
                   return (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <Icon className={`h-4 w-4 ${
+                    <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                        <Icon className={`h-4 w-4 flex-shrink-0 ${
                           log.type === 'success' ? 'text-green-500' :
                           log.type === 'warning' ? 'text-yellow-500' :
                           log.type === 'error' ? 'text-red-500' :
@@ -1225,9 +1225,9 @@ const SuperAdminDashboard = () => {
                         } className="text-xs">
                           {log.user}
                         </Badge>
-                        <span className="text-sm">{log.action}</span>
+                        <span className="text-xs sm:text-sm">{log.action}</span>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => toast({ title: "Détails du log", description: log.action })}>
+                      <Button variant="ghost" size="sm" onClick={() => toast({ title: "Détails du log", description: log.action })} className="self-end sm:self-auto">
                         <Eye className="h-4 w-4" />
                       </Button>
                     </div>
@@ -1660,10 +1660,10 @@ const SuperAdminDashboard = () => {
       </div>
 
       <Card>
-              <CardHeader>
+          <CardHeader>
           <CardTitle>Gestion des Utilisateurs</CardTitle>
           <CardDescription>Administration complète des comptes utilisateurs</CardDescription>
-          <div className="flex gap-4 mt-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -1674,7 +1674,7 @@ const SuperAdminDashboard = () => {
               />
                   </div>
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Filtrer par rôle" />
               </SelectTrigger>
               <SelectContent>
@@ -1685,9 +1685,9 @@ const SuperAdminDashboard = () => {
                 <SelectItem value="user">Citoyen</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={() => loadUsers()} disabled={isLoading}>
-              <RefreshCcw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              Actualiser
+            <Button onClick={() => loadUsers()} disabled={isLoading} className="w-full sm:w-auto">
+              <RefreshCcw className={`h-4 w-4 sm:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Actualiser</span>
             </Button>
                 </div>
               </CardHeader>
@@ -1699,6 +1699,9 @@ const SuperAdminDashboard = () => {
               <AlertDescription>{usersError}</AlertDescription>
             </Alert>
           )}
+          <div className="overflow-x-auto -mx-6 sm:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <div className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -1811,6 +1814,9 @@ const SuperAdminDashboard = () => {
               Affichage de 20 sur {filteredUsers.length} utilisateurs
             </div>
           )}
+              </div>
+            </div>
+          </div>
               </CardContent>
             </Card>
 
@@ -4920,68 +4926,77 @@ const SuperAdminDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container py-8">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
+      <main className="flex-1 container px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Centre de Contrôle Système</h1>
-              <p className="text-muted-foreground mt-2">
+              <h1 className="text-2xl sm:text-3xl font-bold">Centre de Contrôle Système</h1>
+              <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
                 Supervision complète de la plateforme NDJOBI
               </p>
             </div>
-            <div className="flex gap-2">
-              <Badge variant="destructive" className="text-lg px-4 py-2">
-                <Zap className="h-5 w-5 mr-2" />
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="destructive" className="text-sm sm:text-base px-3 py-1.5 sm:px-4 sm:py-2">
+                <Zap className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                 Super Admin
               </Badge>
-              <Badge variant="outline" className="text-lg px-4 py-2">
-                <Lock className="h-5 w-5 mr-2" />
+              <Badge variant="outline" className="text-sm sm:text-base px-3 py-1.5 sm:px-4 sm:py-2">
+                <Lock className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                 Accès Maximum
               </Badge>
             </div>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
             <Button
               variant={activeView === 'dashboard' ? 'default' : 'outline'}
               onClick={() => handleNavigateToView('dashboard')}
+              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
             >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Dashboard
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Dashboard</span>
+              <span className="xs:hidden">Dash</span>
             </Button>
             <Button
               variant={activeView === 'system' ? 'default' : 'outline'}
               onClick={() => handleNavigateToView('system')}
+              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
             >
-              <Server className="h-4 w-4 mr-2" />
-              Gestion Système
+              <Server className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Gestion Système</span>
+              <span className="xs:hidden">Système</span>
             </Button>
             <Button
               variant={activeView === 'users' ? 'default' : 'outline'}
               onClick={() => handleNavigateToView('users')}
+              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
             >
-              <Users className="h-4 w-4 mr-2" />
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Utilisateurs
             </Button>
             <Button
               variant={activeView === 'project' ? 'default' : 'outline'}
               onClick={() => handleNavigateToView('project')}
+              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
             >
-              <FileText className="h-4 w-4 mr-2" />
+              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Projet
             </Button>
             <Button
               variant={activeView === 'xr7' ? 'default' : 'outline'}
               onClick={() => handleNavigateToView('xr7')}
+              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
             >
-              <Lock className="h-4 w-4 mr-2" />
-              Module XR-7
+              <Lock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Module XR-7</span>
+              <span className="xs:hidden">XR-7</span>
             </Button>
             <Button
               variant={activeView === 'demo' ? 'default' : 'outline'}
               onClick={() => handleNavigateToView('demo')}
+              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
             >
-              <PlayCircle className="h-4 w-4 mr-2" />
+              <PlayCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Démo
             </Button>
           </div>
