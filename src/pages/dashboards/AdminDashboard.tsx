@@ -25,7 +25,6 @@ import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
-import { IAstedAssistant } from '@/components/iasted/IAstedAssistant';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -881,9 +880,6 @@ export default function AdminDashboard() {
       </main>
       
       {activeView !== 'iasted' && <IAstedFloatingButton />}
-      
-      {/* iAsted Assistant - Composant principal */}
-      <IAstedAssistant />
 
       <div className="border-t mt-8 md:mt-12">
         <div className="container py-4 md:py-6">
