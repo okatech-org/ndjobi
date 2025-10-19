@@ -791,13 +791,6 @@ export default function AdminDashboard() {
               
               {/* Droite: Actions et infos */}
               <div className="flex items-center gap-3">
-                <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2">
-                  <Activity className="h-4 w-4" />
-                  <span className="text-xs">Nous Contacter</span>
-                </Button>
-                
-                <div className="h-8 w-px bg-border hidden md:block" />
-                
                 <ThemeToggle />
                 
                 <div className="h-8 w-px bg-border hidden lg:block" />
