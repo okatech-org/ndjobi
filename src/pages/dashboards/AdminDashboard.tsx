@@ -774,16 +774,13 @@ export default function AdminDashboard() {
                 </SidebarTrigger>
                 
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <Crown className="h-5 w-5 text-primary" />
-                    <div className="hidden md:block">
-                      <h1 className="text-base font-bold">
-                        PROTOCOLE D'ÉTAT
-                      </h1>
-                      <p className="text-[10px] text-muted-foreground">
-                        Bonne gouvernance
-                      </p>
-                    </div>
+                  <div className="hidden md:block">
+                    <h1 className="text-base font-bold">
+                      PROTOCOLE D'ÉTAT
+                    </h1>
+                    <p className="text-[10px] text-muted-foreground">
+                      Bonne gouvernance
+                    </p>
                   </div>
                   <Badge variant="default" className="text-[10px] px-2 py-0.5">
                     <Shield className="h-2.5 w-2.5 mr-1" />
