@@ -4571,27 +4571,27 @@ const SuperAdminDashboard = () => {
     };
 
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="space-y-3 sm:space-y-6">
+        <div className="flex items-center justify-between mb-2 sm:mb-4 gap-2">
           <div>
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <TestTube className="h-6 w-6 text-cyan-500" />
+            <h2 className="text-base sm:text-xl font-bold flex items-center gap-1.5 sm:gap-2">
+              <TestTube className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-500" />
               9 Comptes Démo Configurés
             </h2>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">
               Comptes de test pré-configurés avec différents rôles et permissions
             </p>
           </div>
-          <Badge variant="outline" className="text-lg px-4 py-2">
-            <Users className="h-4 w-4 mr-2" />
-            {demoAccountsList.length} comptes
+          <Badge variant="outline" className="text-xs sm:text-lg px-2 py-1 sm:px-4 sm:py-2 flex-shrink-0">
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            {demoAccountsList.length}
           </Badge>
         </div>
 
-        <Alert className="border-cyan-500/50 bg-cyan-50/10">
+        <Alert className="border-cyan-500/50 bg-cyan-50/10 p-3 sm:p-4">
           <AlertCircle className="h-4 w-4 text-cyan-600" />
-          <AlertTitle>Comptes de Démonstration</AlertTitle>
-          <AlertDescription>
+          <AlertTitle className="text-sm sm:text-base">Comptes de Démonstration</AlertTitle>
+          <AlertDescription className="text-xs sm:text-sm">
             Ces comptes permettent de tester toutes les fonctionnalités de la plateforme selon différents rôles.
             Utilisez le bouton "Tester" pour basculer vers un compte ou "Copier" pour obtenir les identifiants.
           </AlertDescription>
@@ -4692,32 +4692,32 @@ const SuperAdminDashboard = () => {
         </div>
 
         <Card className="border-blue-200 bg-blue-50/10">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-blue-600" />
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-1.5 sm:gap-2">
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               Comment utiliser ces comptes
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-start gap-3">
-              <Badge className="mt-0.5">1</Badge>
+          <CardContent className="space-y-2 sm:space-y-3 text-sm p-3 sm:p-6 pt-0">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Badge className="mt-0.5 text-[10px] sm:text-xs">1</Badge>
               <div>
-                <p className="font-medium">Méthode 1: Basculement direct</p>
-                <p className="text-xs text-muted-foreground">Cliquez sur "Tester" pour basculer immédiatement vers ce compte</p>
+                <p className="font-medium text-xs sm:text-sm">Méthode 1: Basculement direct</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Cliquez sur "Tester" pour basculer immédiatement vers ce compte</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <Badge className="mt-0.5">2</Badge>
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Badge className="mt-0.5 text-[10px] sm:text-xs">2</Badge>
               <div>
-                <p className="font-medium">Méthode 2: Connexion manuelle</p>
-                <p className="text-xs text-muted-foreground">Copiez les identifiants et utilisez-les sur la page de connexion (/auth)</p>
+                <p className="font-medium text-xs sm:text-sm">Méthode 2: Connexion manuelle</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Copiez les identifiants et utilisez-les sur la page de connexion (/auth)</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <Badge className="mt-0.5">3</Badge>
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Badge className="mt-0.5 text-[10px] sm:text-xs">3</Badge>
               <div>
-                <p className="font-medium">Système d'authentification</p>
-                <p className="text-xs text-muted-foreground">Numéro de téléphone + PIN à 6 chiffres (système unifié pour tous les utilisateurs)</p>
+                <p className="font-medium text-xs sm:text-sm">Système d'authentification</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Numéro de téléphone + PIN à 6 chiffres (système unifié pour tous les utilisateurs)</p>
               </div>
             </div>
           </CardContent>
