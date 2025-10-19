@@ -40,6 +40,18 @@ export const IAstedFloatingButton = () => {
   const [sessionId] = useState(uuidv4());
   const [silenceTimer, setSilenceTimer] = useState<NodeJS.Timeout | null>(null);
   const [audioAnalyser, setAudioAnalyser] = useState<AnalyserNode | null>(null);
+  
+  // États pour le drag and drop
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState(() => {
+    // Charger la position sauvegardée ou position par défaut
+    const saved = localStorage.getItem('iasted-button-position');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return { x: window.innerWidth - 80, y: window.innerHeight / 2 };
+  });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -48,11 +60,90 @@ export const IAstedFloatingButton = () => {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioUnlockedRef = useRef(false);
   const micPermissionGrantedRef = useRef(false);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const hasDraggedRef = useRef(false);
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Gestion du drag and drop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Empêcher le drag si on clique pour ouvrir/interagir
+    if (e.button !== 0) return; // Seulement bouton gauche
+    
+    hasDraggedRef.current = false;
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+    e.preventDefault();
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    hasDraggedRef.current = false;
+    setIsDragging(true);
+    setDragStart({
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y
+    });
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      hasDraggedRef.current = true;
+      const newX = Math.max(0, Math.min(e.clientX - dragStart.x, window.innerWidth - 80));
+      const newY = Math.max(0, Math.min(e.clientY - dragStart.y, window.innerHeight - 80));
+      
+      setPosition({ x: newX, y: newY });
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      hasDraggedRef.current = true;
+      const touch = e.touches[0];
+      const newX = Math.max(0, Math.min(touch.clientX - dragStart.x, window.innerWidth - 80));
+      const newY = Math.max(0, Math.min(touch.clientY - dragStart.y, window.innerHeight - 80));
+      
+      setPosition({ x: newX, y: newY });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      // Sauvegarder la position
+      localStorage.setItem('iasted-button-position', JSON.stringify(position));
+      
+      // Réinitialiser le flag de drag après un court délai
+      setTimeout(() => {
+        hasDraggedRef.current = false;
+      }, 100);
+    };
+
+    const handleTouchEnd = () => {
+      setIsDragging(false);
+      localStorage.setItem('iasted-button-position', JSON.stringify(position));
+      
+      setTimeout(() => {
+        hasDraggedRef.current = false;
+      }, 100);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, dragStart, position]);
 
   /**
    * GESTION DES CLICS
@@ -60,6 +151,12 @@ export const IAstedFloatingButton = () => {
    * Double clic : Mode vocal
    */
   const handleButtonClick = () => {
+    // Ne pas traiter le clic si on vient de drag
+    if (hasDraggedRef.current) {
+      console.log('🚫 Clic ignoré car on vient de drag');
+      return;
+    }
+    
     clickCountRef.current += 1;
 
     if (clickTimerRef.current) {
@@ -609,8 +706,28 @@ export const IAstedFloatingButton = () => {
 
   return (
     <>
-      {/* BOUTON SPHÉRIQUE */}
-      <div className="fixed top-1/2 -translate-y-1/2 right-6 z-50" onTouchStart={unlockAudioIfNeeded} onMouseDown={unlockAudioIfNeeded}>
+      {/* BOUTON SPHÉRIQUE DÉPLAÇABLE */}
+      <div 
+        ref={buttonRef}
+        className="fixed z-50 cursor-move"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          transform: 'translate(-50%, -50%)',
+          transition: isDragging ? 'none' : 'transform 0.2s ease-out'
+        }}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onClick={(e) => {
+          // Empêcher le clic si on vient de drag
+          if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          unlockAudioIfNeeded();
+        }}
+      >
         {/* Indicateurs visuels animés */}
         {isListening && (
           <div className="absolute -inset-4 rounded-full ring-4 ring-purple-500 animate-ping pointer-events-none opacity-75" />
@@ -640,7 +757,17 @@ export const IAstedFloatingButton = () => {
 
       {/* INTERFACE CHAT */}
       {isOpen && (
-        <Card className="fixed top-1/2 -translate-y-1/2 right-24 w-[400px] h-[600px] shadow-2xl z-50 flex flex-col max-w-[calc(100vw-2rem)] md:w-[400px]">
+        <Card 
+          className="fixed w-[400px] h-[600px] shadow-2xl z-50 flex flex-col max-w-[calc(100vw-2rem)] md:w-[400px]"
+          style={{
+            // Positionner le chat à gauche du bouton si possible, sinon à droite
+            left: position.x > window.innerWidth / 2 
+              ? `${position.x - 420}px` 
+              : `${position.x + 80}px`,
+            top: `${Math.max(10, Math.min(position.y - 300, window.innerHeight - 610))}px`,
+            transition: isDragging ? 'none' : 'all 0.3s ease-out'
+          }}
+        >
           {/* En-tête */}
           <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-600 to-blue-600">
             <div className="flex items-center gap-3">
