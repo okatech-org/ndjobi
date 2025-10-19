@@ -14,7 +14,10 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
@@ -42,6 +45,22 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedOrganization, setSelectedOrganization] = useState<string>('all');
+  
+  // États pour les modals et actions
+  const [isNommerModalOpen, setIsNommerModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState<any>(null);
+  const [isLoadingAction, setIsLoadingAction] = useState(false);
+  
+  // États pour le formulaire de nomination
+  const [nomForm, setNomForm] = useState({
+    nom: '',
+    email: '',
+    phone: '',
+    role: 'agent' as 'sub_admin' | 'agent',
+    organization: '',
+    secteur: ''
+  });
   const {
     kpis,
     casSensibles,
@@ -113,6 +132,78 @@ export default function AdminDashboard() {
 
   // Obtenir les organisations uniques
   const uniqueOrganizations = Array.from(new Set(sousAdmins.map(admin => admin.organization))).filter(Boolean);
+
+  // Fonction pour nommer un nouveau sous-admin/agent
+  const handleNommerSousAdmin = async () => {
+    if (!nomForm.nom || !nomForm.email || !nomForm.phone || !nomForm.organization) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez remplir tous les champs obligatoires.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoadingAction(true);
+    try {
+      // Simulation de création (à remplacer par appel API Supabase)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Nomination réussie",
+        description: `${nomForm.nom} a été nommé${nomForm.role === 'sub_admin' ? ' Sous-Admin' : ' Agent'} avec succès.`,
+      });
+
+      // Réinitialiser le formulaire
+      setNomForm({
+        nom: '',
+        email: '',
+        phone: '',
+        role: 'agent',
+        organization: '',
+        secteur: ''
+      });
+      setIsNommerModalOpen(false);
+      
+      // Recharger les données
+      reloadData();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer le compte. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingAction(false);
+    }
+  };
+
+  // Fonction pour voir les détails d'un admin
+  const handleVoirDetails = (admin: any) => {
+    setSelectedAdmin(admin);
+    setIsDetailsModalOpen(true);
+  };
+
+  // Fonction pour générer le rapport d'un admin
+  const handleGenererRapportAdmin = async (admin: any) => {
+    setIsLoadingAction(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Rapport généré",
+        description: `Le rapport de ${admin.nom} a été généré avec succès.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le rapport.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingAction(false);
+    }
+  };
 
   if (authLoading) {
     return (
@@ -668,10 +759,13 @@ export default function AdminDashboard() {
             Supervision des directeurs sectoriels et performance
           </p>
             </div>
-        <Button className="bg-[hsl(var(--accent-intel))] hover:bg-[hsl(var(--accent-intel))]/90 text-white">
+        <Button 
+          className="bg-[hsl(var(--accent-intel))] hover:bg-[hsl(var(--accent-intel))]/90 text-white"
+          onClick={() => setIsNommerModalOpen(true)}
+        >
           <UserPlus className="h-4 w-4 mr-2" />
           Nommer Sous-Admin
-              </Button>
+        </Button>
             </div>
 
       {/* Barre de recherche intelligente */}
@@ -872,12 +966,28 @@ export default function AdminDashboard() {
               )}
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1 glass-effect border-none">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                  onClick={() => handleVoirDetails(admin)}
+                  disabled={isLoadingAction}
+                >
                   <Eye className="h-4 w-4 mr-2" />
                   Voir Détails
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 glass-effect border-none">
-                  <FileText className="h-4 w-4 mr-2" />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                  onClick={() => handleGenererRapportAdmin(admin)}
+                  disabled={isLoadingAction}
+                >
+                  {isLoadingAction ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileText className="h-4 w-4 mr-2" />
+                  )}
                   Rapport
                 </Button>
               </div>
@@ -902,6 +1012,268 @@ export default function AdminDashboard() {
           </span>
         </AlertDescription>
       </Alert>
+
+      {/* Modal Nommer Sous-Admin */}
+      <Dialog open={isNommerModalOpen} onOpenChange={setIsNommerModalOpen}>
+        <DialogContent className="glass-effect border-none max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
+              Nommer un Sous-Admin ou Agent
+            </DialogTitle>
+            <DialogDescription>
+              Créez un nouveau compte pour coordonner les opérations sectorielles
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nom">Nom complet *</Label>
+                <Input
+                  id="nom"
+                  placeholder="Nom et prénom"
+                  value={nomForm.nom}
+                  onChange={(e) => setNomForm({...nomForm, nom: e.target.value})}
+                  className="glass-effect border-none"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="role">Rôle *</Label>
+                <Select value={nomForm.role} onValueChange={(value) => setNomForm({...nomForm, role: value as 'sub_admin' | 'agent'})}>
+                  <SelectTrigger className="glass-effect border-none">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sub_admin">Sous-Administrateur</SelectItem>
+                    <SelectItem value="agent">Agent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@ndjobi.com"
+                  value={nomForm.email}
+                  onChange={(e) => setNomForm({...nomForm, email: e.target.value})}
+                  className="glass-effect border-none"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="phone">Téléphone *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+24177888XXX"
+                  value={nomForm.phone}
+                  onChange={(e) => setNomForm({...nomForm, phone: e.target.value})}
+                  className="glass-effect border-none"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="organization">Organisation *</Label>
+              <Input
+                id="organization"
+                placeholder="Ministère, Direction, Agence..."
+                value={nomForm.organization}
+                onChange={(e) => setNomForm({...nomForm, organization: e.target.value})}
+                className="glass-effect border-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="secteur">Secteur de spécialisation *</Label>
+              <Textarea
+                id="secteur"
+                placeholder="Décrivez le secteur d'intervention..."
+                value={nomForm.secteur}
+                onChange={(e) => setNomForm({...nomForm, secteur: e.target.value})}
+                className="glass-effect border-none min-h-[100px]"
+              />
+            </div>
+
+            <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
+              <Shield className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+              <AlertDescription className="text-xs text-muted-foreground">
+                Le compte sera créé avec un code PIN temporaire qui devra être modifié lors de la première connexion.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsNommerModalOpen(false)}
+              disabled={isLoadingAction}
+              className="glass-effect border-none"
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleNommerSousAdmin}
+              disabled={isLoadingAction}
+              className="bg-[hsl(var(--accent-intel))] hover:bg-[hsl(var(--accent-intel))]/90 text-white"
+            >
+              {isLoadingAction ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Création...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Créer le compte
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Détails Admin */}
+      <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
+              Détails - {selectedAdmin?.nom}
+            </DialogTitle>
+            <DialogDescription>
+              Informations détaillées et historique de performance
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedAdmin && (
+            <div className="space-y-6 py-4">
+              {/* Informations principales */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="glass-effect border-none">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Contact</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedAdmin.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedAdmin.phone}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="glass-effect border-none">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Organisation</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <div><strong>Rôle:</strong> {selectedAdmin.role === 'sub_admin' ? 'Sub-Admin' : selectedAdmin.role === 'agent' ? 'Agent' : 'Citoyen'}</div>
+                    <div><strong>Secteur:</strong> {selectedAdmin.organization}</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Métriques de performance */}
+              <Card className="glass-effect border-none">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">Performance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-6">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[hsl(var(--accent-intel))]">
+                        {selectedAdmin.cas_traites || selectedAdmin.casTraites}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">Cas traités</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[hsl(var(--accent-success))]">
+                        {selectedAdmin.taux_succes || selectedAdmin.taux}%
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">Taux de succès</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[hsl(var(--accent-warning))]">
+                        {selectedAdmin.delai_moyen_jours || selectedAdmin.delai}j
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">Délai moyen</div>
+                    </div>
+                  </div>
+                  <Progress value={selectedAdmin.taux_succes || selectedAdmin.taux} className="h-2 mt-4" />
+                </CardContent>
+              </Card>
+
+              {/* Privilèges */}
+              {selectedAdmin.privileges && (
+                <Card className="glass-effect border-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium">Privilèges</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedAdmin.privileges.map((privilege: string, idx: number) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          <Shield className="h-3 w-3 mr-1" />
+                          {privilege}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Statut */}
+              <Alert className={`glass-effect border-none ${
+                selectedAdmin.statut === 'Actif'
+                  ? 'bg-gradient-to-br from-[hsl(var(--accent-success))]/10 to-transparent'
+                  : 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent'
+              }`}>
+                {selectedAdmin.statut === 'Actif' ? (
+                  <CheckCircle className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                )}
+                <AlertTitle>Statut: {selectedAdmin.statut}</AlertTitle>
+                <AlertDescription className="text-xs">
+                  {selectedAdmin.statut === 'Actif'
+                    ? 'Compte actif et opérationnel. Performance conforme aux standards nationaux.'
+                    : 'Attention requise. Performance en dessous des standards. Suivi recommandé.'}
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDetailsModalOpen(false)}
+              className="glass-effect border-none"
+            >
+              Fermer
+            </Button>
+            <Button
+              onClick={() => {
+                setIsDetailsModalOpen(false);
+                if (selectedAdmin) handleGenererRapportAdmin(selectedAdmin);
+              }}
+              className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Générer Rapport
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
             </div>
   );
 
