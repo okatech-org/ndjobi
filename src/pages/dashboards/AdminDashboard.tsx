@@ -55,6 +55,7 @@ export default function AdminDashboard() {
   const [adminHistory, setAdminHistory] = useState<any[]>([]);
   const [adminCases, setAdminCases] = useState<any[]>([]);
   const [adminProblematiques, setAdminProblematiques] = useState<any[]>([]);
+  const [adminOpinionPublique, setAdminOpinionPublique] = useState<any>(null);
   const [adminRecommandations, setAdminRecommandations] = useState<any[]>([]);
   const [rapportType, setRapportType] = useState<'cas' | 'global'>('global');
   const [selectedCas, setSelectedCas] = useState<any>(null);
@@ -398,6 +399,62 @@ export default function AdminDashboard() {
             indicateursSucces: 'KPI 1 : Délai moyen traitement cas critiques réduit à 48h (vs 8-12 mois actuellement). KPI 2 : Taux de récupération des fonds détournés porté à 70% (vs 20% actuellement). KPI 3 : Nombre de signalements citoyens multiplié par 3 (effet confiance). KPI 4 : Classement Transparency International amélioré de 15 places en 2 ans. KPI 5 : Aucune dérive autoritaire constatée (audit annuel indépendant).'
           }
         ]);
+
+        // Opinion publique spécifique à l'Agent Pêche
+        setAdminOpinionPublique({
+          sentimentGeneral: 'Négatif',
+          scoreConfiance: 32,
+          tauxSatisfaction: 28,
+          principauxGriefs: [
+            {
+              id: 'GRIEF-001',
+              sujet: 'Lenteur administrative et impunité',
+              pourcentage: 68,
+              intensite: 'Très élevée',
+              description: 'Les communautés de pêcheurs dénoncent massivement la lenteur des enquêtes administratives et le sentiment d\'impunité des fraudeurs. Le cas des 12 coopératives fictives, qui ont opéré pendant plus de 2 ans (2022-2024) sans être inquiétées malgré plusieurs signalements citoyens dès novembre 2022, cristallise la colère populaire. Les pêcheurs légitimes estiment que "l\'État protège les voleurs pendant que les honnêtes gens souffrent". Cette perception alimente une défiance profonde envers les institutions administratives et judiciaires.'
+            },
+            {
+              id: 'GRIEF-002',
+              sujet: 'Injustice dans l\'attribution des subventions',
+              pourcentage: 54,
+              intensite: 'Élevée',
+              description: 'Les vrais pêcheurs artisanaux et coopératives légitimes dénoncent un système d\'attribution des subventions publiques profondément inéquitable. Pendant que des entités fictives ont reçu 5 milliards FCFA sans justification, 230 coopératives légitimes (7 500 pêcheurs) attendent depuis 18 mois des aides promises par le Programme National d\'Appui à la Pêche Artisanale. Cette situation crée un sentiment d\'abandon et nourrit la suspicion de corruption généralisée au sein de l\'administration. Les témoignages recueillis parlent de "système à deux vitesses" favorisant les réseaux politiques.'
+            },
+            {
+              id: 'GRIEF-003',
+              sujet: 'Détérioration des conditions de vie',
+              pourcentage: 47,
+              intensite: 'Moyenne',
+              description: 'Les communautés côtières observent une dégradation constante de leurs conditions socio-économiques depuis 3 ans. La raréfaction des ressources halieutiques due à la surpêche illégale (notamment par navires étrangers non contrôlés) a réduit les prises moyennes de 40%. Les équipements vieillissants (pirogues, filets, moteurs) ne peuvent être renouvelés faute d\'accès au crédit. Les infrastructures portuaires communautaires (quais, chambres froides, ateliers de transformation) restent à l\'état de projet malgré les promesses électorales de 2023. Cette situation pousse les jeunes pêcheurs vers l\'exode rural ou la migration clandestine.'
+            }
+          ],
+          sourcesDonnees: [
+            'Sondage IFOP Gabon (1 250 personnes, 12 communautés côtières) - Janvier 2025',
+            'Analyse réseaux sociaux (Facebook, Twitter, WhatsApp) - 45 000 mentions - Décembre 2024',
+            'Consultations citoyennes organisées par le Conseil National de la Pêche - Novembre 2024',
+            '18 pétitions en ligne (125 000 signatures cumulées) - Octobre-Décembre 2024',
+            'Rapports d\'ONG (Transparency Gabon, Observatoire Citoyen) - T4 2024'
+          ],
+          tendanceEvolution: 'Dégradation accélérée',
+          risqueSocial: 'Élevé',
+          impactPolitique: 'L\'affaire des coopératives fictives a un impact politique majeur. Elle alimente les critiques de l\'opposition sur la "gouvernance opaque" et la "corruption systémique". Lors des élections locales de décembre 2024 dans 5 communes côtières (Port-Gentil, Cap Lopez, Mayumba, Gamba, Libreville-Maritime), les candidats gouvernementaux ont subi un recul de 12 points en moyenne. Les slogans "Rendez l\'argent des pêcheurs!" et "Justice pour nos coopératives!" ont mobilisé plus de 5 000 manifestants à Port-Gentil en janvier 2025. Sans action rapide et visible du gouvernement, le risque est une défiance durable envers les institutions dans ces zones stratégiques qui représentent 8% de l\'électorat national.',
+          recommandationsCommunication: [
+            'URGENCE : Communiqué présidentiel officiel dans les 7 jours reconnaissant le problème, présentant les mesures prises (gel des comptes, poursuites judiciaires) et s\'engageant personnellement sur le recouvrement intégral des fonds détournés.',
+            'Tournée présidentielle dans les 3 principales communautés de pêcheurs (Port-Gentil, Cap Lopez, Mayumba) dans les 30 jours pour dialogue direct, écoute des doléances et annonces concrètes.',
+            'Campagne médiatique multi-canal (TV, radio, réseaux sociaux) expliquant de manière pédagogique les réformes en cours, avec témoignages de pêcheurs bénéficiaires et experts indépendants.',
+            'Publication hebdomadaire des progrès de l\'enquête et des montants récupérés (transparence totale) sur un site web dédié et via SMS aux 12 000 pêcheurs enregistrés.',
+            'Organisation de "États Généraux de la Pêche Artisanale" dans les 90 jours avec participation de toutes les parties prenantes pour co-construire les solutions et restaurer la confiance.'
+          ],
+          actionsCorrectivesUrgentes: [
+            'Déblocage immédiat d\'une enveloppe d\'urgence de 2 milliards FCFA pour les 230 coopératives légitimes en attente (délai 15 jours maximum).',
+            'Création d\'un Fonds d\'Indemnisation des Victimes alimenté par les fonds détournés récupérés (objectif 3,5 milliards FCFA).',
+            'Instauration d\'une ligne téléphonique verte présidentielle gratuite (numéro court 1234) pour signalements directs et suivi des cas.',
+            'Nomination d\'un Médiateur Présidentiel pour le Secteur Halieutique avec pouvoir d\'investigation et de recommandation directe à la Présidence.',
+            'Organisation d\'une cérémonie publique de remise symbolique de chèques aux premières coopératives indemnisées (impact médiatique fort).'
+          ],
+          dateAnalyse: '2025-01-19',
+          prochaineSondage: '2025-03-15 (suivi post-mesures correctives)'
+        });
       } else {
         // Données génériques pour les autres agents
         setAdminHistory([
@@ -1728,6 +1785,138 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   </div>
+
+                  {/* Opinion publique */}
+                  {adminOpinionPublique && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                          <div className="text-sm font-semibold text-foreground">Opinion publique</div>
+                          <Badge variant="outline" className="text-xs">
+                            Analyse {adminOpinionPublique.dateAnalyse}
+                          </Badge>
+                        </div>
+                        <div className={`text-xs font-medium px-2 py-1 rounded ${
+                          adminOpinionPublique.sentimentGeneral === 'Négatif' ? 'bg-red-500/20 text-red-500' :
+                          adminOpinionPublique.sentimentGeneral === 'Neutre' ? 'bg-gray-500/20 text-gray-500' :
+                          'bg-green-500/20 text-green-500'
+                        }`}>
+                          Sentiment: {adminOpinionPublique.sentimentGeneral}
+                        </div>
+                      </div>
+
+                      {/* Indicateurs clés */}
+                      <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent border border-muted/10">
+                        <div className="text-center space-y-1">
+                          <div className="text-xs text-foreground/70">Score de confiance</div>
+                          <div className={`text-2xl font-bold ${
+                            adminOpinionPublique.scoreConfiance < 40 ? 'text-red-500' :
+                            adminOpinionPublique.scoreConfiance < 60 ? 'text-orange-500' :
+                            'text-green-500'
+                          }`}>{adminOpinionPublique.scoreConfiance}%</div>
+                        </div>
+                        <div className="text-center space-y-1">
+                          <div className="text-xs text-foreground/70">Taux de satisfaction</div>
+                          <div className={`text-2xl font-bold ${
+                            adminOpinionPublique.tauxSatisfaction < 40 ? 'text-red-500' :
+                            adminOpinionPublique.tauxSatisfaction < 60 ? 'text-orange-500' :
+                            'text-green-500'
+                          }`}>{adminOpinionPublique.tauxSatisfaction}%</div>
+                        </div>
+                        <div className="text-center space-y-1">
+                          <div className="text-xs text-foreground/70">Risque social</div>
+                          <Badge className={`text-xs font-medium ${
+                            adminOpinionPublique.risqueSocial === 'Élevé' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                            adminOpinionPublique.risqueSocial === 'Moyen' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                            'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                          }`}>
+                            {adminOpinionPublique.risqueSocial}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Principaux griefs */}
+                      <div className="space-y-3">
+                        <div className="text-xs font-semibold text-foreground">Principaux griefs de la population</div>
+                        {adminOpinionPublique.principauxGriefs.map((grief: any) => (
+                          <div key={grief.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs font-mono">{grief.id}</Badge>
+                                <Badge className={`text-xs font-medium ${
+                                  grief.intensite === 'Très élevée' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                  grief.intensite === 'Élevée' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                  'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                                }`}>
+                                  {grief.intensite}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Progress value={grief.pourcentage} className="w-24 h-2" />
+                                <span className="text-xs font-medium text-foreground">{grief.pourcentage}%</span>
+                              </div>
+                            </div>
+                            <div className="text-sm font-semibold text-foreground">{grief.sujet}</div>
+                            <div className="text-xs text-foreground/80 leading-relaxed">{grief.description}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Impact politique */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Flag className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                          <span className="text-xs font-semibold text-foreground">Impact politique</span>
+                        </div>
+                        <div className="text-xs text-foreground/80 leading-relaxed p-3 rounded-lg bg-gradient-to-r from-[hsl(var(--accent-warning))]/10 to-transparent border border-muted/10">
+                          {adminOpinionPublique.impactPolitique}
+                        </div>
+                      </div>
+
+                      {/* Recommandations communication */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Activity className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                          <span className="text-xs font-semibold text-foreground">Recommandations communication</span>
+                        </div>
+                        <div className="space-y-1 pl-3">
+                          {adminOpinionPublique.recommandationsCommunication.map((rec: string, idx: number) => (
+                            <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-success))] mt-1.5 flex-shrink-0"></div>
+                              <span>{rec}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Actions correctives urgentes */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                          <span className="text-xs font-semibold text-foreground">Actions correctives urgentes</span>
+                        </div>
+                        <div className="space-y-1 pl-3">
+                          {adminOpinionPublique.actionsCorrectivesUrgentes.map((action: string, idx: number) => (
+                            <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-warning))] mt-1.5 flex-shrink-0"></div>
+                              <span>{action}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Sources et suivi */}
+                      <div className="flex items-center justify-between pt-3 border-t border-muted/10">
+                        <div className="text-xs text-foreground/60">
+                          Tendance: <span className="font-medium text-foreground/80">{adminOpinionPublique.tendanceEvolution}</span>
+                        </div>
+                        <div className="text-xs text-foreground/60">
+                          Prochain sondage: <span className="font-medium text-foreground/80">{adminOpinionPublique.prochaineSondage}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Recommandations présidentielles */}
                   <div className="space-y-4">
