@@ -119,10 +119,81 @@ export function useProtocolEtat() {
     ]);
     
     setSousAdmins([
-      { id: '1', user_id: '1', nom: 'Sous-Admin Mer', secteur: 'Mer et Pêche', cas_traites: 38, taux_succes: 45, delai_moyen_jours: 12, statut: 'Attention' },
-      { id: '2', user_id: '2', nom: 'Sous-Admin Justice', secteur: 'Justice', cas_traites: 45, taux_succes: 78, delai_moyen_jours: 8, statut: 'Actif' },
-      { id: '3', user_id: '3', nom: 'Sous-Admin Santé', secteur: 'Santé', cas_traites: 41, taux_succes: 62, delai_moyen_jours: 10, statut: 'Actif' },
-      { id: '4', user_id: '4', nom: 'Sous-Admin Social', secteur: 'Affaires Sociales', cas_traites: 35, taux_succes: 58, delai_moyen_jours: 11, statut: 'Actif' }
+      { 
+        id: '1', 
+        user_id: '24177888002', 
+        nom: 'Sous-Admin DGSS', 
+        secteur: 'DGSS (Direction Générale de la Sécurité d\'État)', 
+        cas_traites: 45, 
+        taux_succes: 78, 
+        delai_moyen_jours: 8, 
+        statut: 'Actif',
+        email: '24177888002@ndjobi.com',
+        phone: '+24177888002',
+        role: 'sub_admin',
+        organization: 'DGSS',
+        privileges: ['Vue sectorielle sécurité d\'État', 'Assignation d\'agents terrain', 'Statistiques sectorielles DGSS', 'Rapports ministériels', 'Coordination enquêtes sécuritaires']
+      },
+      { 
+        id: '2', 
+        user_id: '24177888003', 
+        nom: 'Sous-Admin DGR', 
+        secteur: 'DGR (Direction Générale du Renseignement)', 
+        cas_traites: 38, 
+        taux_succes: 72, 
+        delai_moyen_jours: 9, 
+        statut: 'Actif',
+        email: '24177888003@ndjobi.com',
+        phone: '+24177888003',
+        role: 'sub_admin',
+        organization: 'DGR',
+        privileges: ['Vue sectorielle renseignement', 'Assignation agents spécialisés', 'Enquêtes sensibles et confidentielles', 'Intelligence anticorruption', 'Rapports de renseignement']
+      },
+      { 
+        id: '3', 
+        user_id: '24177888010', 
+        nom: 'Agent Pêche', 
+        secteur: 'Ministère de la Mer de la Pêche et de l\'Économie Bleue', 
+        cas_traites: 52, 
+        taux_succes: 65, 
+        delai_moyen_jours: 11, 
+        statut: 'Actif',
+        email: '24177888010@ndjobi.com',
+        phone: '+24177888010',
+        role: 'agent',
+        organization: 'Ministère Pêche',
+        privileges: ['Traitement des signalements liés à la pêche', 'Enquêtes sur les infractions maritimes', 'Surveillance des activités de pêche', 'Rapports sectoriels pêche']
+      },
+      { 
+        id: '4', 
+        user_id: '24177888008', 
+        nom: 'Citoyen Démo', 
+        secteur: 'Citoyen Gabonais', 
+        cas_traites: 12, 
+        taux_succes: 85, 
+        delai_moyen_jours: 5, 
+        statut: 'Actif',
+        email: '24177888008@ndjobi.com',
+        phone: '+24177888008',
+        role: 'user',
+        organization: 'Citoyen Gabonais',
+        privileges: ['Création signalements', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED']
+      },
+      { 
+        id: '5', 
+        user_id: '24177888009', 
+        nom: 'Citoyen Anonyme', 
+        secteur: 'Citoyen Gabonais', 
+        cas_traites: 8, 
+        taux_succes: 90, 
+        delai_moyen_jours: 4, 
+        statut: 'Actif',
+        email: '24177888009@ndjobi.com',
+        phone: '+24177888009',
+        role: 'user',
+        organization: 'Citoyen Gabonais',
+        privileges: ['Création signalements anonymes', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED']
+      }
     ]);
     
     setPerformanceMinisteres([
@@ -176,8 +247,84 @@ export function useProtocolEtat() {
       if (distrib) setDistributionRegionale(distrib);
       if (performance) {
         setSubAdminPerformance(performance);
-        // Mapper vers l'ancien format pour compatibilité
-        setSousAdmins(performance);
+        // Utiliser les comptes réels au lieu des données de performance
+        setSousAdmins([
+          { 
+            id: '1', 
+            user_id: '24177888002', 
+            nom: 'Sous-Admin DGSS', 
+            secteur: 'DGSS (Direction Générale de la Sécurité d\'État)', 
+            cas_traites: 45, 
+            taux_succes: 78, 
+            delai_moyen_jours: 8, 
+            statut: 'Actif',
+            email: '24177888002@ndjobi.com',
+            phone: '+24177888002',
+            role: 'sub_admin',
+            organization: 'DGSS',
+            privileges: ['Vue sectorielle sécurité d\'État', 'Assignation d\'agents terrain', 'Statistiques sectorielles DGSS', 'Rapports ministériels', 'Coordination enquêtes sécuritaires']
+          },
+          { 
+            id: '2', 
+            user_id: '24177888003', 
+            nom: 'Sous-Admin DGR', 
+            secteur: 'DGR (Direction Générale du Renseignement)', 
+            cas_traites: 38, 
+            taux_succes: 72, 
+            delai_moyen_jours: 9, 
+            statut: 'Actif',
+            email: '24177888003@ndjobi.com',
+            phone: '+24177888003',
+            role: 'sub_admin',
+            organization: 'DGR',
+            privileges: ['Vue sectorielle renseignement', 'Assignation agents spécialisés', 'Enquêtes sensibles et confidentielles', 'Intelligence anticorruption', 'Rapports de renseignement']
+          },
+          { 
+            id: '3', 
+            user_id: '24177888010', 
+            nom: 'Agent Pêche', 
+            secteur: 'Ministère de la Mer de la Pêche et de l\'Économie Bleue', 
+            cas_traites: 52, 
+            taux_succes: 65, 
+            delai_moyen_jours: 11, 
+            statut: 'Actif',
+            email: '24177888010@ndjobi.com',
+            phone: '+24177888010',
+            role: 'agent',
+            organization: 'Ministère Pêche',
+            privileges: ['Traitement des signalements liés à la pêche', 'Enquêtes sur les infractions maritimes', 'Surveillance des activités de pêche', 'Rapports sectoriels pêche']
+          },
+          { 
+            id: '4', 
+            user_id: '24177888008', 
+            nom: 'Citoyen Démo', 
+            secteur: 'Citoyen Gabonais', 
+            cas_traites: 12, 
+            taux_succes: 85, 
+            delai_moyen_jours: 5, 
+            statut: 'Actif',
+            email: '24177888008@ndjobi.com',
+            phone: '+24177888008',
+            role: 'user',
+            organization: 'Citoyen Gabonais',
+            privileges: ['Création signalements', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED']
+          },
+          { 
+            id: '5', 
+            user_id: '24177888009', 
+            nom: 'Citoyen Anonyme', 
+            secteur: 'Citoyen Gabonais', 
+            cas_traites: 8, 
+            taux_succes: 90, 
+            delai_moyen_jours: 4, 
+            statut: 'Actif',
+            email: '24177888009@ndjobi.com',
+            phone: '+24177888009',
+            role: 'user',
+            organization: 'Citoyen Gabonais',
+            privileges: ['Création signalements anonymes', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED']
+          }
+        ]);
       }
       if (!directives.error && directives.data) setDirectivesActives(directives.data);
       

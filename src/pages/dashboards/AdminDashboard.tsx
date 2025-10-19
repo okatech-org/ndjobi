@@ -5,7 +5,8 @@ import {
   FileText, TrendingUp, Shield, AlertTriangle, Eye, Filter,
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
-  AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu
+  AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu,
+  Mail, Phone
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -674,22 +675,64 @@ export default function AdminDashboard() {
             </div>
         </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 text-sm">
-              <div>
-                  <div className="text-muted-foreground mb-1">Cas traités</div>
-                  <div className="text-2xl font-bold tabular-nums">{admin.casTraites}</div>
-              </div>
-                <div>
-                  <div className="text-muted-foreground mb-1">Taux succès</div>
-                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux}%</div>
-            </div>
-              <div>
-                  <div className="text-muted-foreground mb-1">Délai moyen</div>
-                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai}</div>
-              </div>
+              {/* Informations de contact */}
+              <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Mail className="h-3 w-3" />
+                  <span className="truncate">{admin.email}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Phone className="h-3 w-3" />
+                  <span>{admin.phone}</span>
+                </div>
               </div>
 
-              <Progress value={admin.taux} className="h-2" />
+              {/* Métriques de performance */}
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <div className="text-muted-foreground mb-1">Cas traités</div>
+                  <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground mb-1">Taux succès</div>
+                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes}%</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground mb-1">Délai moyen</div>
+                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours}j</div>
+                </div>
+              </div>
+
+              <Progress value={admin.taux || admin.taux_succes} className="h-2" />
+
+              {/* Rôle et organisation */}
+              <div className="flex items-center justify-between text-xs">
+                <Badge variant="outline" className="text-[10px]">
+                  {admin.role === 'sub_admin' ? 'Sub-Admin' : 
+                   admin.role === 'agent' ? 'Agent' : 
+                   admin.role === 'user' ? 'Citoyen' : admin.role}
+                </Badge>
+                <span className="text-muted-foreground">{admin.organization}</span>
+              </div>
+
+              {/* Privilèges (pour les rôles admin/agent) */}
+              {admin.privileges && (admin.role === 'sub_admin' || admin.role === 'agent') && (
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">Privilèges:</div>
+                  <div className="flex flex-wrap gap-1">
+                    {admin.privileges.slice(0, 2).map((privilege, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0.5">
+                        {privilege}
+                      </Badge>
+                    ))}
+                    {admin.privileges.length > 2 && (
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0.5">
+                        +{admin.privileges.length - 2} autres
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {admin.statut === 'Attention' && (
                 <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
@@ -708,8 +751,8 @@ export default function AdminDashboard() {
                 <Button variant="outline" size="sm" className="flex-1 glass-effect border-none">
                   <FileText className="h-4 w-4 mr-2" />
                   Rapport
-              </Button>
-            </div>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -721,9 +764,13 @@ export default function AdminDashboard() {
           Coordination Nationale
         </AlertTitle>
         <AlertDescription className="text-muted-foreground">
-          {sousAdmins.length} Sous-Administrateurs actifs coordonnent les agents 
-          opérationnels sur l'ensemble du territoire national. 
-          Performance globale: {Math.round(sousAdmins.reduce((acc, a) => acc + a.taux, 0) / sousAdmins.length)}%
+          {sousAdmins.length} comptes actifs coordonnent les opérations 
+          sur l'ensemble du territoire national. 
+          Performance globale: {Math.round(sousAdmins.reduce((acc, a) => acc + (a.taux || a.taux_succes), 0) / sousAdmins.length)}%
+          <br />
+          <span className="text-xs mt-1 block">
+            • {sousAdmins.filter(a => a.role === 'sub_admin').length} Sub-Admin • {sousAdmins.filter(a => a.role === 'agent').length} Agent • {sousAdmins.filter(a => a.role === 'user').length} Citoyen
+          </span>
         </AlertDescription>
       </Alert>
             </div>
