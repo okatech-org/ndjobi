@@ -132,8 +132,8 @@ export default function AdminDashboard() {
   const renderDashboardGlobal = () => (
     <div className="space-y-4 md:space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover-lift stat-card-interactive animate-slide-up cursor-pointer">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent animate-scan" />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Signalements Nationaux
@@ -142,24 +142,25 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.total_signalements?.toLocaleString() || 0}</div>
-                <Badge className="mt-1 md:mt-2 text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]">{kpis?.tendance || '+0%'}</Badge>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums transition-all duration-300 group-hover:scale-105">{kpis?.total_signalements?.toLocaleString() || 0}</div>
+                <Badge className="mt-1 md:mt-2 text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))] group-hover:bg-[hsl(var(--accent-warning))]/30 transition-colors">{kpis?.tendance || '+0%'}</Badge>
             </div>
-              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-[hsl(var(--accent-warning))]" />
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center group-hover:bg-[hsl(var(--accent-warning))]/30 transition-all duration-300">
+                <AlertTriangle className="h-5 w-5 text-[hsl(var(--accent-warning))] animate-bounce-subtle" />
               </div>
             </div>
             <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
-              <div className="h-full w-[67%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+              <div className="h-full w-[67%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] rounded-full transition-all duration-500" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
               {kpis?.signalements_critiques || 0} cas critiques
             </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-[hsl(var(--accent-warning))]/5 rounded-full blur-2xl group-hover:bg-[hsl(var(--accent-warning))]/10 transition-all duration-300" />
           </CardContent>
         </Card>
 
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-success))] to-transparent" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover-lift stat-card-interactive animate-slide-up cursor-pointer" style={{ animationDelay: '0.1s' }}>
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-success))] to-transparent animate-scan" style={{ animationDelay: '0.5s' }} />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Impact Économique
@@ -168,26 +169,27 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl md:text-3xl font-bold tabular-nums">
+                <div className="text-2xl md:text-3xl font-bold tabular-nums transition-all duration-300 group-hover:scale-105">
                   {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
                 </div>
-                <div className="text-xs md:text-sm text-[hsl(var(--accent-success))] mt-1 md:mt-2">FCFA récupérés</div>
+                <div className="text-xs md:text-sm text-[hsl(var(--accent-success))] mt-1 md:mt-2 group-hover:font-semibold transition-all">FCFA récupérés</div>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-success))]/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-success))]/20 flex items-center justify-center group-hover:bg-[hsl(var(--accent-success))]/30 transition-all duration-300">
                 <DollarSign className="h-5 w-5 text-[hsl(var(--accent-success))]" />
               </div>
             </div>
             <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
-              <div className="h-full w-[85%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-success))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+              <div className="h-full w-[85%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-success))] rounded-full transition-all duration-500" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
               Fonds restitués
             </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-[hsl(var(--accent-success))]/5 rounded-full blur-2xl group-hover:bg-[hsl(var(--accent-success))]/10 transition-all duration-300" />
           </CardContent>
         </Card>
 
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-intel))] to-transparent" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover-lift stat-card-interactive animate-slide-up cursor-pointer" style={{ animationDelay: '0.2s' }}>
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-intel))] to-transparent animate-scan" style={{ animationDelay: '1s' }} />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Taux de Résolution
@@ -196,21 +198,22 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="w-full">
-                <div className="text-2xl md:text-3xl font-bold mb-3 tabular-nums">{kpis?.taux_resolution || 0}%</div>
-                <Progress value={kpis?.taux_resolution || 0} className="h-2" />
+                <div className="text-2xl md:text-3xl font-bold mb-3 tabular-nums transition-all duration-300 group-hover:scale-105">{kpis?.taux_resolution || 0}%</div>
+                <Progress value={kpis?.taux_resolution || 0} className="h-2 transition-all duration-500" />
               </div>
-              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-intel))]/20 flex items-center justify-center ml-3">
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-intel))]/20 flex items-center justify-center ml-3 group-hover:bg-[hsl(var(--accent-intel))]/30 transition-all duration-300">
                 <Target className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
               </div>
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
               Objectif: 85%
             </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-[hsl(var(--accent-intel))]/5 rounded-full blur-2xl group-hover:bg-[hsl(var(--accent-intel))]/10 transition-all duration-300" />
           </CardContent>
         </Card>
 
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover-lift stat-card-interactive animate-slide-up cursor-pointer" style={{ animationDelay: '0.3s' }}>
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-purple-500 to-transparent animate-scan" style={{ animationDelay: '1.5s' }} />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Score Transparence
@@ -219,15 +222,15 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.score_transparence || 0}/100</div>
-                <Badge variant="outline" className="mt-1 md:mt-2 text-xs">Deuxième République</Badge>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums transition-all duration-300 group-hover:scale-105">{kpis?.score_transparence || 0}/100</div>
+                <Badge variant="outline" className="mt-1 md:mt-2 text-xs group-hover:border-purple-500/50 transition-colors">Deuxième République</Badge>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-purple-500" />
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-all duration-300">
+                <Shield className="h-5 w-5 text-purple-500 animate-glow-pulse" />
               </div>
             </div>
             <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
-              <div className="h-full w-[{kpis?.score_transparence || 0}%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-purple-500 rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+              <div className="h-full w-[{kpis?.score_transparence || 0}%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-purple-500 rounded-full transition-all duration-500" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
               Indice national

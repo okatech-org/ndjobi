@@ -161,28 +161,33 @@ export function AdminSidebar() {
                   <SidebarMenuItem key={item.title} style={{ animationDelay: `${index * 50}ms` }} className="animate-fade-in">
                     <SidebarMenuButton
                       onClick={() => navigate(item.url)}
-                      className={`group relative transition-all duration-300 rounded-xl overflow-hidden ${
+                      className={`group relative transition-all duration-300 rounded-xl overflow-hidden hover:translate-x-1 ${
                         active
-                          ? "bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-intel))]/80 text-white shadow-lg hover:shadow-xl"
-                          : "hover:bg-muted/50 hover:translate-x-1"
+                          ? "bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-intel))]/80 text-white shadow-lg hover:shadow-xl scale-105"
+                          : "hover:bg-muted/50"
                       } ${collapsed ? "justify-center px-3 py-3" : "px-3 py-3"}`}
                       tooltip={collapsed ? item.title : undefined}
                     >
-                      {/* Animated background on hover */}
+                      {/* Shimmer effect on hover */}
                       {!active && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--accent-intel))]/0 via-[hsl(var(--accent-intel))]/5 to-[hsl(var(--accent-intel))]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(var(--accent-intel))]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />
+                      )}
+                      
+                      {/* Glow effect for active item */}
+                      {active && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--accent-intel))]/50 to-[hsl(var(--accent-warning))]/30 blur-xl animate-pulse" />
                       )}
                       
                       <div className="flex items-center gap-3 w-full min-w-0 relative z-10">
                         <div className={`p-1.5 rounded-lg transition-all duration-300 ${
                           active 
-                            ? "bg-white/20" 
-                            : "bg-muted/30 group-hover:bg-[hsl(var(--accent-intel))]/10"
+                            ? "bg-white/20 shadow-inner animate-bounce-subtle" 
+                            : "bg-muted/30 group-hover:bg-[hsl(var(--accent-intel))]/10 group-hover:scale-110"
                         }`}>
                           <Icon
-                            className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
+                            className={`h-4 w-4 flex-shrink-0 transition-all duration-300 group-hover:rotate-3 ${
                               active
-                                ? "text-white"
+                                ? "text-white animate-pulse"
                                 : "text-muted-foreground group-hover:text-[hsl(var(--accent-intel))]"
                             }`}
                           />
@@ -191,25 +196,25 @@ export function AdminSidebar() {
                           <div className="flex items-center justify-between flex-1 gap-2 min-w-0 animate-fade-in">
                             <div className="flex flex-col min-w-0 flex-1">
                               <span
-                                className={`font-semibold text-sm leading-tight truncate transition-colors ${
-                                  active ? "text-white" : "text-foreground group-hover:text-[hsl(var(--accent-intel))]"
+                                className={`font-semibold text-sm leading-tight truncate transition-all duration-300 ${
+                                  active ? "text-white" : "text-foreground group-hover:text-[hsl(var(--accent-intel))] group-hover:translate-x-0.5"
                                 }`}
                               >
                                 {item.title}
                               </span>
                               {!active && (
-                                <span className="text-[10px] text-muted-foreground leading-tight mt-0.5 truncate group-hover:text-muted-foreground/80">
+                                <span className="text-[10px] text-muted-foreground leading-tight mt-0.5 truncate group-hover:text-muted-foreground/80 transition-colors">
                                   {item.description}
                                 </span>
                               )}
                             </div>
                             {item.badge && (
                               <Badge
-                                className={`text-[9px] px-1.5 py-0.5 font-bold uppercase flex-shrink-0 ${
+                                className={`text-[9px] px-1.5 py-0.5 font-bold uppercase flex-shrink-0 transition-all duration-300 group-hover:scale-110 ${
                                   item.badge === 'prioritaire' || item.badge === 'critique'
                                     ? 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))] border-[hsl(var(--accent-danger))]/30 animate-pulse'
                                     : item.badge === 'IA'
-                                    ? 'bg-[hsl(var(--accent-intel))]/20 text-[hsl(var(--accent-intel))] border-[hsl(var(--accent-intel))]/30'
+                                    ? 'bg-[hsl(var(--accent-intel))]/20 text-[hsl(var(--accent-intel))] border-[hsl(var(--accent-intel))]/30 animate-pulse-glow'
                                     : 'bg-muted/50 text-muted-foreground'
                                 }`}
                               >
@@ -219,13 +224,13 @@ export function AdminSidebar() {
                           </div>
                         )}
                       </div>
-                      {/* Indicateur actif sur le côté - effet glassmorphism */}
+                      {/* Indicateur actif sur le côté avec animation */}
                       {active && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3/4 bg-white rounded-r-full shadow-lg animate-scale-in" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3/4 bg-white rounded-r-full shadow-[0_0_10px_rgba(255,255,255,0.5)] animate-scale-in" />
                       )}
-                      {/* Bordure animée pour l'item actif */}
+                      {/* Bordure lumineuse pour l'item actif */}
                       {active && (
-                        <div className="absolute inset-0 border-2 border-white/20 rounded-xl pointer-events-none" />
+                        <div className="absolute inset-0 border-2 border-white/20 rounded-xl pointer-events-none animate-pulse" />
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -238,31 +243,31 @@ export function AdminSidebar() {
         {/* Footer de la sidebar - design glassmorphism */}
         <div className="mt-auto border-t border-border/50 pt-4 glass-effect rounded-br-2xl">
           {!collapsed ? (
-            <div className="px-4 pb-4 space-y-2.5 animate-fade-in">
-              <div className="flex items-center gap-2 text-xs p-2 rounded-lg bg-[hsl(var(--accent-success))]/10">
+            <div className="px-4 pb-4 space-y-2.5 animate-fade-in glass-effect rounded-lg p-3 hover:bg-muted/30 transition-all duration-300 cursor-pointer group">
+              <div className="flex items-center gap-2 text-xs p-2 rounded-lg bg-[hsl(var(--accent-success))]/10 group-hover:bg-[hsl(var(--accent-success))]/15 transition-colors">
                 <div className="relative">
                   <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-success))] animate-live-pulse" />
                   <div className="absolute inset-0 w-2 h-2 rounded-full bg-[hsl(var(--accent-success))]/30 animate-ping" />
                 </div>
-                <span className="text-muted-foreground font-semibold text-[11px]">
+                <span className="text-muted-foreground font-semibold text-[11px] group-hover:text-foreground transition-colors">
                   Système Opérationnel
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1">
+              <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1 group-hover:text-foreground transition-colors">
                 <span className="font-medium">Version 2.0.0</span>
-                <Badge className="text-[8px] px-1.5 py-0 bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]/30">
-                  <Shield className="h-2 w-2 mr-0.5" />
-                  Sécurisé
+                <Badge className="text-[8px] px-1.5 py-0 bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]/30 group-hover:scale-105 transition-transform">
+                  <Shield className="h-2 w-2 mr-0.5 animate-glow-pulse" />
+                  Actif
                 </Badge>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center pb-4 gap-2">
+            <div className="flex flex-col items-center pb-4 gap-2 glass-effect rounded-lg p-2 mx-2 hover:bg-muted/30 transition-all duration-300 cursor-pointer group">
               <div className="relative">
                 <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-success))] animate-live-pulse" />
                 <div className="absolute inset-0 w-2 h-2 rounded-full bg-[hsl(var(--accent-success))]/30 animate-ping" />
               </div>
-              <Shield className="h-3 w-3 text-muted-foreground" />
+              <Shield className="h-3 w-3 text-muted-foreground group-hover:text-[hsl(var(--accent-success))] transition-colors" />
             </div>
           )}
         </div>
