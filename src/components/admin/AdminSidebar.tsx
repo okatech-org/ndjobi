@@ -120,10 +120,10 @@ export function AdminSidebar() {
       collapsible="icon"
     >
       <div className="absolute inset-0 glass-effect rounded-r-2xl" />
-      <SidebarContent className="relative z-10 flex flex-col h-full">
+      <SidebarContent className="relative z-10 flex flex-col h-full gap-0">
         {/* Header avec logo - design glassmorphism - alignement parfait */}
         <div
-          className={`flex items-center gap-3 px-4 py-3 mb-0 border-b border-border/50 transition-all flex-shrink-0 ${
+          className={`flex items-center gap-3 px-4 py-2 border-b border-border/50 transition-all flex-shrink-0 ${
             collapsed ? "justify-center px-2" : ""
           }`}
         >
@@ -146,9 +146,9 @@ export function AdminSidebar() {
         </div>
 
         {/* Menu Principal - Design glassmorphism - espacement uniforme */}
-        <SidebarGroup className="flex-1 py-4">
+        <SidebarGroup className="flex-1 p-0">
           {!collapsed && (
-            <SidebarGroupLabel className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+            <SidebarGroupLabel className="px-4 h-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
               Navigation
             </SidebarGroupLabel>
           )}
