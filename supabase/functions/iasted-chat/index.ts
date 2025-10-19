@@ -17,33 +17,91 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
+    // Récupérer le token d'authentification
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error("Non authentifié");
+    }
+
     // Initialiser Supabase pour récupérer le contexte
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Récupérer le contexte présidentiel
-    const presidentialContext = await getPresidentialContext(supabase);
+    // Récupérer l'utilisateur depuis le token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError || !user) {
+      throw new Error("Utilisateur non authentifié");
+    }
+
+    // Récupérer le rôle de l'utilisateur
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    const userRole = userRoles?.role || 'user';
+
+    // Récupérer le profil pour le nom complet
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, metadata')
+      .eq('id', user.id)
+      .single();
+
+    // Récupérer le contexte adapté au rôle
+    const presidentialContext = await getPresidentialContext(supabase, userRole);
+
+    // Construire le salut personnalisé selon le rôle
+    let greeting = "";
+    let roleDescription = "";
+    
+    switch(userRole) {
+      case 'admin':
+        greeting = "Excellence Monsieur le Président";
+        roleDescription = "Tu es le conseiller virtuel personnel du Président de la République Gabonaise dans le cadre de la lutte anticorruption et de la mise en œuvre de la Vision Gabon 2025.";
+        break;
+      case 'sub_admin':
+        const department = profile?.metadata?.department || profile?.metadata?.role_type || 'DGSS';
+        greeting = department.toUpperCase();
+        roleDescription = `Tu es l'assistant IA du ${department.toUpperCase()} (${getDepartmentFullName(department)}), responsable de l'analyse et du suivi des cas dans ton secteur.`;
+        break;
+      case 'super_admin':
+        greeting = "Asted";
+        roleDescription = "Tu es l'assistant IA du Super Administrateur système, responsable de la supervision technique et de la gestion globale de la plateforme NDJOBI.";
+        break;
+      default:
+        greeting = "Excellence";
+        roleDescription = "Tu es iAsted, l'Assistant IA de la plateforme NDJOBI au Gabon.";
+    }
 
     // Construire le prompt système pour iAsted
-    const systemPrompt = `Tu es iAsted, l'Assistant IA Présidentiel Intelligent de la plateforme NDJOBI au Gabon.
+    const systemPrompt = `Tu es iAsted, l'Assistant IA Intelligent de la plateforme NDJOBI au Gabon.
 
 # TON RÔLE ET TON IDENTITÉ
 
-Tu es le conseiller virtuel personnel du Président de la République Gabonaise dans le cadre de la lutte anticorruption et de la mise en œuvre de la Vision Gabon 2025. Tu opères dans le contexte de la Deuxième République, instaurée après la transition de 2023-2025.
+${roleDescription}
+
+# SALUTATION
+Utilise toujours "${greeting}" pour t'adresser à ton interlocuteur. Par exemple: "Bonjour ${greeting}" ou "Bonsoir ${greeting}" selon l'heure.
+
+Tu opères dans le contexte de la Deuxième République, instaurée après la transition de 2023-2025.
 
 # TA MISSION
 
-Accompagner le Président dans :
-- La prise de décisions stratégiques sur les cas de corruption sensibles
-- L'analyse des tendances et patterns dans les signalements nationaux
-- La supervision de la performance des Sous-Administrateurs (DGSS, DGR, DGLIC, etc.)
-- L'évaluation de l'impact des actions anticorruption sur les piliers de la Vision 2025
-- La formulation de recommandations politiques basées sur les données
+${getMissionByRole(userRole)}
+
+# NIVEAU D'ACCÈS ET PERMISSIONS
+Tu as accès à : ${getPermissionsByRole(userRole)}
 
 # TON STYLE DE COMMUNICATION
 
-Tu t'adresses au Président avec respect mais de manière directe et pragmatique. Tu es :
+${getCommunicationStyleByRole(userRole)}
 - **Concis et précis** : Va droit au but avec des réponses structurées
 - **Factuel et data-driven** : Appuie toujours tes recommandations sur des données réelles
 - **Stratégique** : Pense toujours aux implications politiques et à l'impact sur la Vision 2025
@@ -144,43 +202,159 @@ ${presidentialContext}`;
 });
 
 /**
- * Récupérer le contexte présidentiel depuis Supabase
+ * Obtenir le nom complet du département
  */
-async function getPresidentialContext(supabase: any): Promise<string> {
-  try {
-    // 1. Récupérer les KPIs nationaux
-    const { data: signalements } = await supabase
-      .from('signalements')
-      .select('id, status, priority, created_at')
-      .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+function getDepartmentFullName(department: string): string {
+  const departments: Record<string, string> = {
+    'dgss': 'Direction Générale de la Sécurité et de la Surveillance',
+    'dgr': 'Direction Générale du Renseignement',
+    'dglic': "Direction Générale de Lutte contre l'Enrichissement Illicite et la Corruption",
+    'sub_admin_dgss': 'Direction Générale de la Sécurité et de la Surveillance',
+    'sub_admin_dgr': 'Direction Générale du Renseignement',
+  };
+  return departments[department.toLowerCase()] || department;
+}
 
-    const total = signalements?.length || 0;
-    const critiques = signalements?.filter((s: any) => s.priority === 'critique').length || 0;
-    const resolus = signalements?.filter((s: any) => 
+/**
+ * Obtenir la mission selon le rôle
+ */
+function getMissionByRole(role: string): string {
+  switch(role) {
+    case 'admin':
+      return `Accompagner le Président dans :
+- La prise de décisions stratégiques sur les cas de corruption sensibles
+- L'analyse des tendances et patterns dans les signalements nationaux
+- La supervision de la performance des Sous-Administrateurs (DGSS, DGR, DGLIC, etc.)
+- L'évaluation de l'impact des actions anticorruption sur les piliers de la Vision 2025
+- La formulation de recommandations politiques basées sur les données`;
+    case 'sub_admin':
+      return `Accompagner le sous-administrateur dans :
+- L'analyse des cas de son secteur spécifique
+- Le suivi de la performance de son équipe
+- L'identification de patterns dans sa zone de responsabilité
+- La recommandation d'actions tactiques sur les cas assignés`;
+    case 'super_admin':
+      return `Accompagner le super administrateur dans :
+- La supervision technique de la plateforme
+- L'analyse globale des performances système
+- La gestion des utilisateurs et des accès
+- La maintenance et l'optimisation du système
+- Le monitoring de la sécurité et de l'intégrité des données`;
+    default:
+      return "Assister l'utilisateur dans ses tâches sur la plateforme NDJOBI.";
+  }
+}
+
+/**
+ * Obtenir les permissions selon le rôle
+ */
+function getPermissionsByRole(role: string): string {
+  switch(role) {
+    case 'admin':
+      return "Tous les signalements, toutes les statistiques nationales, toutes les performances des sous-admins, tous les cas sensibles";
+    case 'sub_admin':
+      return "Les signalements de ton secteur, les statistiques de ton département, la performance de ton équipe";
+    case 'super_admin':
+      return "Tous les signalements, toutes les données système, tous les utilisateurs, toutes les configurations";
+    default:
+      return "Les données de base accessibles";
+  }
+}
+
+/**
+ * Obtenir le style de communication selon le rôle
+ */
+function getCommunicationStyleByRole(role: string): string {
+  switch(role) {
+    case 'admin':
+      return `Tu t'adresses au Président avec respect mais de manière directe et pragmatique. Tu es :
+- **Concis et précis** : Va droit au but avec des réponses structurées
+- **Factuel et data-driven** : Appuie toujours tes recommandations sur des données réelles
+- **Stratégique** : Pense toujours aux implications politiques et à l'impact sur la Vision 2025
+- **Proactif** : Anticipe les questions de suivi et propose des actions concrètes`;
+    case 'sub_admin':
+      return `Tu t'adresses au sous-administrateur de manière professionnelle et collaborative. Tu es :
+- **Précis et opérationnel** : Fournis des informations actionnables
+- **Basé sur les données de ton secteur** : Concentre-toi sur les métriques de son département
+- **Tactique** : Propose des actions concrètes pour améliorer la performance
+- **Collaboratif** : Aide à coordonner avec les autres services`;
+    case 'super_admin':
+      return `Tu t'adresses au super administrateur de manière technique et professionnelle. Tu es :
+- **Technique et précis** : Fournis des informations système détaillées
+- **Orienté sécurité** : Alerte sur les problèmes de sécurité ou d'intégrité
+- **Analytique** : Présente des statistiques d'usage et de performance
+- **Proactif** : Propose des optimisations et améliorations système`;
+    default:
+      return "Tu es professionnel, clair et concis.";
+  }
+}
+
+/**
+ * Récupérer le contexte adapté au rôle depuis Supabase
+ */
+async function getPresidentialContext(supabase: any, role: string): Promise<string> {
+  try {
+    // Adapter les requêtes selon le rôle
+    let signalements: any[] = [];
+    
+    if (role === 'admin' || role === 'super_admin') {
+      // Accès complet pour admin et super_admin
+      const { data } = await supabase
+        .from('signalements')
+        .select('id, status, priority, created_at, metadata')
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+      signalements = data || [];
+    } else if (role === 'sub_admin') {
+      // Accès limité au secteur pour sub_admin
+      // On devrait filtrer par secteur mais on ne l'a pas dans la requête initiale
+      const { data } = await supabase
+        .from('signalements')
+        .select('id, status, priority, created_at, metadata')
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+      signalements = data || [];
+    }
+
+    const total = signalements.length;
+    const critiques = signalements.filter((s: any) => s.priority === 'critique').length;
+    const resolus = signalements.filter((s: any) => 
       s.status === 'resolved' || s.status === 'closed'
-    ).length || 0;
+    ).length;
     const tauxResolution = total > 0 ? Math.round((resolus / total) * 100) : 0;
 
-    // 2. Récupérer les cas sensibles
-    const { data: casSensibles } = await supabase
-      .from('signalements')
-      .select('title, type, status, location, priority')
-      .eq('priority', 'critique')
-      .in('status', ['pending', 'under_investigation'])
-      .order('created_at', { ascending: false })
-      .limit(5);
+    // 2. Récupérer les cas sensibles (selon permissions)
+    let casSensibles: any[] = [];
+    if (role === 'admin' || role === 'super_admin') {
+      const { data } = await supabase
+        .from('signalements')
+        .select('title, type, status, location, priority')
+        .eq('priority', 'critique')
+        .in('status', ['pending', 'under_investigation'])
+        .order('created_at', { ascending: false })
+        .limit(5);
+      casSensibles = data || [];
+    }
 
-    // 3. Récupérer la performance des sous-admins
-    const { data: subAdminPerf } = await supabase
-      .from('subadmin_performance')
-      .select('cas_traites, taux_succes, statut')
-      .order('taux_succes', { ascending: false })
-      .limit(5);
+    // 3. Récupérer la performance des sous-admins (uniquement pour admin et super_admin)
+    let subAdminPerf: any[] = [];
+    if (role === 'admin' || role === 'super_admin') {
+      const { data } = await supabase
+        .from('subadmin_performance')
+        .select('cas_traites, taux_succes, statut')
+        .order('taux_succes', { ascending: false })
+        .limit(5);
+      subAdminPerf = data || [];
+    }
 
-    const avgCasTraites = subAdminPerf?.reduce((sum: number, sa: any) => sum + sa.cas_traites, 0) / (subAdminPerf?.length || 1);
-    const avgTauxSucces = subAdminPerf?.reduce((sum: number, sa: any) => sum + sa.taux_succes, 0) / (subAdminPerf?.length || 1);
+    const avgCasTraites = subAdminPerf.length > 0 
+      ? subAdminPerf.reduce((sum: number, sa: any) => sum + sa.cas_traites, 0) / subAdminPerf.length 
+      : 0;
+    const avgTauxSucces = subAdminPerf.length > 0 
+      ? subAdminPerf.reduce((sum: number, sa: any) => sum + sa.taux_succes, 0) / subAdminPerf.length 
+      : 0;
 
-    return `
+    // Construire le contexte selon le rôle
+    if (role === 'admin') {
+      return `
 # CONTEXTE PRÉSIDENTIEL ACTUEL (Données Temps Réel)
 
 ## KPIs Nationaux (30 derniers jours)
@@ -190,7 +364,7 @@ async function getPresidentialContext(supabase: any): Promise<string> {
 - **Cas en cours** : ${total - resolus}
 
 ## Cas Sensibles Actuels (Top 5)
-${casSensibles?.map((cas: any, idx: number) => `
+${casSensibles.map((cas: any, idx: number) => `
 ${idx + 1}. **${cas.title}**
    - Type : ${cas.type}
    - Statut : ${cas.status}
@@ -200,11 +374,40 @@ ${idx + 1}. **${cas.title}**
 ## Performance des Sous-Admins
 - **Moyenne cas traités** : ${Math.round(avgCasTraites)} cas/mois
 - **Moyenne taux succès** : ${Math.round(avgTauxSucces)}%
-- **Nombre sous-admins actifs** : ${subAdminPerf?.length || 0}
+- **Nombre sous-admins actifs** : ${subAdminPerf.length}
 
 ---`;
+    } else if (role === 'sub_admin') {
+      return `
+# CONTEXTE DE TON SECTEUR (Données Temps Réel)
+
+## Statistiques (30 derniers jours)
+- **Total signalements** : ${total}
+- **Cas critiques** : ${critiques}
+- **Taux de résolution** : ${tauxResolution}%
+- **Cas en cours** : ${total - resolus}
+
+---`;
+    } else if (role === 'super_admin') {
+      return `
+# CONTEXTE SYSTÈME (Données Temps Réel)
+
+## Statistiques Globales (30 derniers jours)
+- **Total signalements** : ${total}
+- **Cas critiques** : ${critiques}
+- **Taux de résolution** : ${tauxResolution}%
+- **Cas en cours** : ${total - resolus}
+
+## Performance Système
+- **Nombre sous-admins actifs** : ${subAdminPerf.length}
+- **Moyenne cas traités/sous-admin** : ${Math.round(avgCasTraites)} cas/mois
+
+---`;
+    }
+
+    return "";
   } catch (error) {
     console.error("Erreur récupération contexte:", error);
-    return "# CONTEXTE PRÉSIDENTIEL : Données temporairement indisponibles\n";
+    return "# CONTEXTE : Données temporairement indisponibles\n";
   }
 }
