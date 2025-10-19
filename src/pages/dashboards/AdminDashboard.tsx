@@ -26,7 +26,6 @@ import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
@@ -131,160 +130,107 @@ export default function AdminDashboard() {
   console.log('✅ [AdminDashboard] Accès autorisé, rendu du dashboard');
 
   const renderDashboardGlobal = () => (
-    <div className="space-y-6">
-      {/* KPI Cards - Design inspiré de la référence */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Signalements */}
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-2px] transition-all">
-          <CardContent className="pt-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                <Users className="h-6 w-6 text-blue-500" />
+    <div className="space-y-4 md:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Signalements Nationaux
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.total_signalements?.toLocaleString() || 0}</div>
+                <Badge className="mt-1 md:mt-2 text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]">{kpis?.tendance || '+0%'}</Badge>
+            </div>
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-[hsl(var(--accent-warning))]" />
               </div>
-              <Badge className="bg-green-500/20 text-green-500 border-green-500/30 text-xs">
-                +{kpis?.tendance || '12.5%'}
-              </Badge>
             </div>
-            <div className="space-y-1">
-              <div className="text-4xl font-bold tabular-nums">
-                {(kpis?.total_signalements || 2847).toLocaleString()}
-              </div>
-              <p className="text-sm text-muted-foreground">Signalements surveillés</p>
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[67%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
-            <div className="mt-4 h-1.5 bg-muted/30 rounded-full overflow-hidden">
-              <div className="h-full w-[67%] bg-gradient-to-r from-blue-500 via-blue-400 to-orange-400 rounded-full" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Localisations */}
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-2px] transition-all">
-          <CardContent className="pt-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center">
-                <MapPin className="h-6 w-6 text-green-600" />
-              </div>
-              <Badge className="bg-green-500/20 text-green-500 border-green-500/30 text-xs">
-                +8.3%
-              </Badge>
-            </div>
-            <div className="space-y-1">
-              <div className="text-4xl font-bold tabular-nums">
-                {distributionRegionale.length || 1234}
-              </div>
-              <p className="text-sm text-muted-foreground">Régions actives</p>
-            </div>
-            <div className="mt-4 h-1.5 bg-muted/30 rounded-full overflow-hidden">
-              <div className="h-full w-[75%] bg-gradient-to-r from-green-600 via-green-500 to-orange-400 rounded-full" />
+            <div className="mt-2 text-xs text-muted-foreground">
+              {kpis?.signalements_critiques || 0} cas critiques
             </div>
           </CardContent>
         </Card>
 
-        {/* Card 3: Impact Économique */}
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-2px] transition-all">
-          <CardContent className="pt-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-600/20 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-amber-600" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-success))] to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Impact Économique
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">
+                  {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
+                </div>
+                <div className="text-xs md:text-sm text-[hsl(var(--accent-success))] mt-1 md:mt-2">FCFA récupérés</div>
               </div>
-              <Badge className="bg-red-500/20 text-red-500 border-red-500/30 text-xs">
-                -{((kpis?.impact_economique || 0) / 100000000).toFixed(1)}%
-              </Badge>
-            </div>
-            <div className="space-y-1">
-              <div className="text-4xl font-bold tabular-nums">
-                {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-success))]/20 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[hsl(var(--accent-success))]" />
               </div>
-              <p className="text-sm text-muted-foreground">Impact économique (FCFA)</p>
             </div>
-            <div className="mt-4 h-1.5 bg-muted/30 rounded-full overflow-hidden">
-              <div className="h-full w-[45%] bg-gradient-to-r from-amber-600 via-amber-500 to-orange-400 rounded-full" />
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[85%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-success))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 4: Alertes */}
-        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-2px] transition-all">
-          <CardContent className="pt-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-red-600/20 flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
-              </div>
-              <Badge className="bg-muted/50 text-muted-foreground border-muted text-xs">
-                0%
-              </Badge>
-            </div>
-            <div className="space-y-1">
-              <div className="text-4xl font-bold tabular-nums">
-                {kpis?.signalements_critiques || 23}
-              </div>
-              <p className="text-sm text-muted-foreground">Alertes actives</p>
-            </div>
-            <div className="mt-4 h-1.5 bg-muted/30 rounded-full overflow-hidden">
-              <div className="h-full w-[30%] bg-gradient-to-r from-red-600 via-red-500 to-orange-400 rounded-full" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Action Cards - Design inspiré de la référence */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass-effect border-none group hover:translate-y-[-2px] transition-all cursor-pointer">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <Users className="h-5 w-5 text-blue-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm">Tous les signalements</h3>
-                <p className="text-xs text-muted-foreground">Liste complète nationale</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <div className="mt-2 text-xs text-muted-foreground">
+              Fonds restitués
             </div>
           </CardContent>
         </Card>
 
-        <Card className="glass-effect border-none group hover:translate-y-[-2px] transition-all cursor-pointer">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-green-600/20 flex items-center justify-center flex-shrink-0">
-                <MapPin className="h-5 w-5 text-green-600" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-intel))] to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Taux de Résolution
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="w-full">
+                <div className="text-2xl md:text-3xl font-bold mb-3 tabular-nums">{kpis?.taux_resolution || 0}%</div>
+                <Progress value={kpis?.taux_resolution || 0} className="h-2" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm">Carte des régions</h3>
-                <p className="text-xs text-muted-foreground">Répartition géographique</p>
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-intel))]/20 flex items-center justify-center ml-3">
+                <Target className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              Objectif: 85%
             </div>
           </CardContent>
         </Card>
 
-        <Card className="glass-effect border-none group hover:translate-y-[-2px] transition-all cursor-pointer">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-600/20 flex items-center justify-center flex-shrink-0">
-                <FileText className="h-5 w-5 text-amber-600" />
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Score Transparence
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.score_transparence || 0}/100</div>
+                <Badge variant="outline" className="mt-1 md:mt-2 text-xs">Deuxième République</Badge>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm">Rapports récents</h3>
-                <p className="text-xs text-muted-foreground">Derniers documents</p>
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-purple-500" />
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-effect border-none group hover:translate-y-[-2px] transition-all cursor-pointer">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-600/20 flex items-center justify-center flex-shrink-0">
-                <Shield className="h-5 w-5 text-purple-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm">Audit sécurité</h3>
-                <p className="text-xs text-muted-foreground">Journaux d'activité</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[{kpis?.score_transparence || 0}%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-purple-500 rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              Indice national
             </div>
           </CardContent>
         </Card>
@@ -868,8 +814,80 @@ export default function AdminDashboard() {
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col w-full relative z-10">
-          {/* En-tête avec nouveau composant AdminHeader */}
-          <AdminHeader />
+          {/* En-tête glassmorphism avec animations */}
+          <header className="sticky top-0 z-40 glass-effect border-b border-border/50">
+            <div className="h-full px-4 md:px-6 flex items-center justify-between">
+              {/* Gauche: Logo et titre */}
+              <div className="flex items-center gap-4">
+                {/* Bouton menu mobile */}
+                <SidebarTrigger className="lg:hidden">
+                  <Button variant="ghost" size="icon" className="hover:bg-muted/50 transition-colors">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SidebarTrigger>
+                
+                {/* Logo et titre animés */}
+                <div className="flex items-center gap-3">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-warning))]/20 rounded-lg blur-md group-hover:blur-lg transition-all animate-pulse-glow" />
+                    <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center shadow-lg animate-pulse-glow">
+                      <Shield className="h-5 w-5 text-white" />
+                    </div>
+                  </div>
+                  <div className="hidden md:flex flex-col">
+                    <h1 className="text-base font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
+                      PROTOCOLE D'ÉTAT
+                    </h1>
+                    <p className="text-[9px] text-muted-foreground">Intelligence • Vision 2025</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Centre: Indicateurs en temps réel */}
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-effect border border-border/50">
+                  <div className="relative">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-live-pulse" />
+                    <div className="absolute inset-0 w-2 h-2 rounded-full bg-red-500/30 animate-ping" />
+                  </div>
+                  <span className="text-xs font-medium text-red-500">LIVE</span>
+                </div>
+                
+                <div className="h-6 w-px bg-border/50" />
+                
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-effect border border-border/50">
+                  <Activity className="h-4 w-4 text-[hsl(var(--accent-success))] animate-pulse" />
+                  <span className="text-xs text-muted-foreground">Surveillance Active</span>
+                </div>
+              </div>
+              
+              {/* Droite: Actions et indicateurs */}
+              <div className="flex items-center gap-3">
+                {/* Notification badge */}
+                <Button variant="ghost" size="icon" className="relative glass-effect hover:bg-muted/50 transition-all">
+                  <Bell className="h-4 w-4" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute top-1 right-1 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                  )}
+                </Button>
+                
+                <ThemeToggle />
+                
+                <div className="h-8 w-px bg-border/50 hidden lg:block" />
+                
+                {/* Badge Vision 2025 */}
+                <div className="hidden lg:flex items-center gap-2">
+                  <Badge className="text-[10px] px-2.5 py-1 bg-[hsl(var(--accent-success))]/10 text-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]/30 animate-fade-in">
+                    <Flag className="h-3 w-3 mr-1" />
+                    Gabon • Vision 2025
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </header>
 
           {/* Contenu principal avec scroll */}
           <main className="flex-1 overflow-y-auto">
