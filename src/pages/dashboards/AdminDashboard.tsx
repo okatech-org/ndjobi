@@ -1511,19 +1511,24 @@ export default function AdminDashboard() {
 
       {/* Modal Détails Admin */}
       <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
-              Détails - {selectedAdmin?.nom}
+        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
+          <DialogHeader className="border-b border-muted/10 pb-4">
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20">
+                <Eye className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
+              </div>
+              <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                Détails - {selectedAdmin?.nom}
+              </span>
             </DialogTitle>
-            <DialogDescription>
-              Informations détaillées et historique de performance
+            <DialogDescription className="text-sm mt-2 flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+              {selectedAdmin?.organization} - Informations détaillées et historique de performance
             </DialogDescription>
           </DialogHeader>
           
           {selectedAdmin && (
-            <div className="space-y-6 py-4">
+            <div className="space-y-6 py-4 flex-1 overflow-y-auto pr-2">
               {/* Analyse et recommandations présidentielles - EN HAUT */}
               <Card className="glass-effect border-none">
                 <CardHeader>
@@ -1973,12 +1978,13 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="border-t border-muted/10 pt-4">
             <Button
               variant="outline"
               onClick={() => setIsDetailsModalOpen(false)}
-              className="glass-effect border-none"
+              className="glass-effect border-none hover:bg-muted/50 transition-all"
             >
+              <XCircle className="h-4 w-4 mr-2" />
               Fermer
             </Button>
             <Button
@@ -1986,10 +1992,10 @@ export default function AdminDashboard() {
                 setIsDetailsModalOpen(false);
                 if (selectedAdmin) handleOuvrirRapportModal(selectedAdmin);
               }}
-              className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
+              className="bg-gradient-to-r from-[hsl(var(--accent-success))] to-[hsl(var(--accent-intel))] hover:from-[hsl(var(--accent-success))]/90 hover:to-[hsl(var(--accent-intel))]/90 text-white shadow-lg transition-all"
             >
-              <FileText className="h-4 w-4 mr-2" />
-              Rapport Global
+              <Download className="h-4 w-4 mr-2" />
+              Générer Rapport Global
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1997,14 +2003,19 @@ export default function AdminDashboard() {
 
       {/* Modal Génération de Rapport */}
       <Dialog open={isRapportModalOpen} onOpenChange={setIsRapportModalOpen}>
-        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-[hsl(var(--accent-success))]" />
-              Génération de Rapport - {selectedAdmin?.organization}
+        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
+          <DialogHeader className="border-b border-muted/10 pb-4">
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-success))]/20 to-[hsl(var(--accent-intel))]/20">
+                <FileText className="h-5 w-5 text-[hsl(var(--accent-success))]" />
+              </div>
+              <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                Génération de Rapport
+              </span>
             </DialogTitle>
-            <DialogDescription>
-              {rapportType === 'cas' 
+            <DialogDescription className="text-sm mt-2 flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+              {selectedAdmin?.organization} - {rapportType === 'cas' 
                 ? `Sélection des cas à inclure dans le rapport`
                 : `Configuration du rapport global pour la période sélectionnée`
               }
@@ -2013,8 +2024,11 @@ export default function AdminDashboard() {
           
           <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
             {/* Type de rapport */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Type de rapport</Label>
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold flex items-center gap-2">
+                <Filter className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                Type de rapport
+              </Label>
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   variant={rapportType === 'global' ? 'default' : 'outline'}
@@ -2022,18 +2036,36 @@ export default function AdminDashboard() {
                     setRapportType('global');
                     setSelectedCasIds([]);
                   }}
-                  className="glass-effect border-none"
+                  className={`glass-effect border-none h-auto py-4 transition-all ${
+                    rapportType === 'global' 
+                      ? 'bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20 border border-[hsl(var(--accent-intel))]/30 shadow-lg' 
+                      : 'hover:bg-muted/50'
+                  }`}
                 >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Rapport Global
+                  <div className="flex flex-col items-center gap-2">
+                    <BarChart3 className={`h-5 w-5 ${rapportType === 'global' ? 'text-[hsl(var(--accent-intel))]' : 'text-muted-foreground'}`} />
+                    <div className="text-center">
+                      <div className="font-semibold">Rapport Global</div>
+                      <div className="text-xs text-muted-foreground">Vue d'ensemble ministère</div>
+                    </div>
+                  </div>
                 </Button>
                 <Button
                   variant={rapportType === 'cas' ? 'default' : 'outline'}
                   onClick={() => setRapportType('cas')}
-                  className="glass-effect border-none"
+                  className={`glass-effect border-none h-auto py-4 transition-all ${
+                    rapportType === 'cas' 
+                      ? 'bg-gradient-to-br from-[hsl(var(--accent-success))]/20 to-[hsl(var(--accent-intel))]/20 border border-[hsl(var(--accent-success))]/30 shadow-lg' 
+                      : 'hover:bg-muted/50'
+                  }`}
                 >
-                  <Package className="h-4 w-4 mr-2" />
-                  Rapport Cas
+                  <div className="flex flex-col items-center gap-2">
+                    <Package className={`h-5 w-5 ${rapportType === 'cas' ? 'text-[hsl(var(--accent-success))]' : 'text-muted-foreground'}`} />
+                    <div className="text-center">
+                      <div className="font-semibold">Rapport Cas</div>
+                      <div className="text-xs text-muted-foreground">Sélection spécifique</div>
+                    </div>
+                  </div>
                 </Button>
               </div>
             </div>
@@ -2042,17 +2074,40 @@ export default function AdminDashboard() {
             {rapportType === 'global' ? (
               <div className="space-y-4">
                 {/* Période de suivi */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Période de suivi</Label>
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                    Période de suivi
+                  </Label>
                   <Select value={periodeSuivi} onValueChange={(value: any) => setPeriodeSuivi(value)}>
-                    <SelectTrigger className="glass-effect border-none">
+                    <SelectTrigger className="glass-effect border-none bg-gradient-to-r from-muted/30 to-muted/10 hover:from-muted/40 hover:to-muted/20 transition-all">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hebdomadaire">Hebdomadaire</SelectItem>
-                      <SelectItem value="mensuel">Mensuel</SelectItem>
-                      <SelectItem value="trimestriel">Trimestriel</SelectItem>
-                      <SelectItem value="annuel">Annuel</SelectItem>
+                    <SelectContent className="glass-effect border-none">
+                      <SelectItem value="hebdomadaire" className="hover:bg-muted/50">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-3 w-3" />
+                          Hebdomadaire
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="mensuel" className="hover:bg-muted/50">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3 w-3" />
+                          Mensuel
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="trimestriel" className="hover:bg-muted/50">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3 w-3" />
+                          Trimestriel
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="annuel" className="hover:bg-muted/50">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3 w-3" />
+                          Annuel
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -2060,56 +2115,82 @@ export default function AdminDashboard() {
                 {/* Dates */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Date de début</Label>
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Calendar className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                      Date de début
+                    </Label>
                     <Input
                       type="date"
                       value={dateDebut}
                       onChange={(e) => setDateDebut(e.target.value)}
-                      className="glass-effect border-none"
+                      className="glass-effect border-none bg-gradient-to-r from-muted/30 to-muted/10 hover:from-muted/40 hover:to-muted/20 transition-all"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Date de fin</Label>
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Calendar className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                      Date de fin
+                    </Label>
                     <Input
                       type="date"
                       value={dateFin}
                       onChange={(e) => setDateFin(e.target.value)}
-                      className="glass-effect border-none"
+                      className="glass-effect border-none bg-gradient-to-r from-muted/30 to-muted/10 hover:from-muted/40 hover:to-muted/20 transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Résumé du rapport global */}
-                <Card className="glass-effect border-none">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Contenu du rapport global</CardTitle>
+                <Card className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 via-transparent to-[hsl(var(--accent-success))]/5">
+                  <CardHeader className="pb-3 border-b border-muted/10">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                      Contenu du rapport global
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2 text-xs">
+                  <CardContent className="space-y-3 pt-4 text-xs">
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-muted-foreground">Administration:</span>
-                        <div className="font-medium">{selectedAdmin?.organization}</div>
+                      <div className="p-2 rounded-lg bg-muted/30">
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          Administration
+                        </span>
+                        <div className="font-semibold mt-1">{selectedAdmin?.organization}</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Responsable:</span>
-                        <div className="font-medium">{selectedAdmin?.nom}</div>
+                      <div className="p-2 rounded-lg bg-muted/30">
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          Responsable
+                        </span>
+                        <div className="font-semibold mt-1">{selectedAdmin?.nom}</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Total cas:</span>
-                        <div className="font-medium">{adminCases.length}</div>
+                      <div className="p-2 rounded-lg bg-muted/30">
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Package className="h-3 w-3" />
+                          Total cas
+                        </span>
+                        <div className="font-semibold mt-1 text-[hsl(var(--accent-intel))]">{adminCases.length}</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Problématiques:</span>
-                        <div className="font-medium">{adminProblematiques.length}</div>
+                      <div className="p-2 rounded-lg bg-muted/30">
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" />
+                          Problématiques
+                        </span>
+                        <div className="font-semibold mt-1 text-[hsl(var(--accent-warning))]">{adminProblematiques.length}</div>
                       </div>
                     </div>
-                    <div className="pt-2 border-t border-muted/20">
-                      <span className="text-muted-foreground">Impact financier total:</span>
-                      <div className="text-[hsl(var(--accent-success))] font-semibold">
-                        {adminProblematiques.reduce((sum, p) => {
-                          const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
-                          return sum + montant;
-                        }, 0).toLocaleString()} FCFA
+                    <div className="pt-3 border-t border-muted/20">
+                      <div className="p-3 rounded-lg bg-gradient-to-r from-[hsl(var(--accent-success))]/10 to-transparent">
+                        <span className="text-muted-foreground flex items-center gap-1 mb-2">
+                          <DollarSign className="h-3 w-3" />
+                          Impact financier total
+                        </span>
+                        <div className="text-base font-bold text-[hsl(var(--accent-success))]">
+                          {adminProblematiques.reduce((sum, p) => {
+                            const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                            return sum + montant;
+                          }, 0).toLocaleString()} FCFA
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -2213,35 +2294,56 @@ export default function AdminDashboard() {
             )}
 
             {/* Options de format */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Format du rapport</Label>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold flex items-center gap-2">
+                <Download className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+                Format du rapport
+              </Label>
+              <div className="grid grid-cols-3 gap-3">
                 <Button
                   variant={formatRapport === 'pdf' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFormatRapport('pdf')}
-                  className="glass-effect border-none"
+                  className={`glass-effect border-none h-auto py-3 transition-all ${
+                    formatRapport === 'pdf' 
+                      ? 'bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 shadow-lg' 
+                      : 'hover:bg-muted/50'
+                  }`}
                 >
-                  <FileText className="h-3 w-3 mr-1" />
-                  PDF
+                  <div className="flex flex-col items-center gap-1">
+                    <FileText className={`h-4 w-4 ${formatRapport === 'pdf' ? 'text-red-500' : 'text-muted-foreground'}`} />
+                    <span className="text-xs font-semibold">PDF</span>
+                  </div>
                 </Button>
                 <Button
                   variant={formatRapport === 'excel' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFormatRapport('excel')}
-                  className="glass-effect border-none"
+                  className={`glass-effect border-none h-auto py-3 transition-all ${
+                    formatRapport === 'excel' 
+                      ? 'bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 shadow-lg' 
+                      : 'hover:bg-muted/50'
+                  }`}
                 >
-                  <FileText className="h-3 w-3 mr-1" />
-                  Excel
+                  <div className="flex flex-col items-center gap-1">
+                    <FileText className={`h-4 w-4 ${formatRapport === 'excel' ? 'text-green-500' : 'text-muted-foreground'}`} />
+                    <span className="text-xs font-semibold">Excel</span>
+                  </div>
                 </Button>
                 <Button
                   variant={formatRapport === 'word' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFormatRapport('word')}
-                  className="glass-effect border-none"
+                  className={`glass-effect border-none h-auto py-3 transition-all ${
+                    formatRapport === 'word' 
+                      ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 shadow-lg' 
+                      : 'hover:bg-muted/50'
+                  }`}
                 >
-                  <FileText className="h-3 w-3 mr-1" />
-                  Word
+                  <div className="flex flex-col items-center gap-1">
+                    <FileText className={`h-4 w-4 ${formatRapport === 'word' ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                    <span className="text-xs font-semibold">Word</span>
+                  </div>
                 </Button>
               </div>
             </div>
@@ -2257,28 +2359,29 @@ export default function AdminDashboard() {
             </Alert>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="border-t border-muted/10 pt-4">
             <Button
               variant="outline"
               onClick={() => setIsRapportModalOpen(false)}
               disabled={isLoadingAction}
-              className="glass-effect border-none"
+              className="glass-effect border-none hover:bg-muted/50 transition-all"
             >
+              <XCircle className="h-4 w-4 mr-2" />
               Annuler
             </Button>
             <Button
               onClick={handleGenererRapportInstitution}
               disabled={isLoadingAction}
-              className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
+              className="bg-gradient-to-r from-[hsl(var(--accent-success))] to-[hsl(var(--accent-intel))] hover:from-[hsl(var(--accent-success))]/90 hover:to-[hsl(var(--accent-intel))]/90 text-white shadow-lg transition-all"
             >
               {isLoadingAction ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Génération...
+                  Génération en cours...
                 </>
               ) : (
                 <>
-                  <FileText className="h-4 w-4 mr-2" />
+                  <Download className="h-4 w-4 mr-2" />
                   Générer le Rapport
                 </>
               )}
