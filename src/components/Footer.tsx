@@ -1,7 +1,18 @@
 import logoNdjobi from "@/assets/logo_ndjobi.png";
+import emblemGabon from "@/assets/emblem_gabon.png";
+import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { role } = useAuth();
+  const location = useLocation();
+  
+  // Dériver le rôle à partir de l'URL si nécessaire
+  const pathRole = location.pathname.startsWith('/dashboard/admin') ? 'admin' : null;
+  const currentRole = pathRole || role;
+  
+  const isProtocolEtat = currentRole === 'admin';
 
   return (
     <footer className="border-t border-border bg-muted/30">
@@ -11,11 +22,13 @@ const Footer = () => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center space-x-2">
               <img 
-                src={logoNdjobi} 
-                alt="Logo Ndjobi"
+                src={isProtocolEtat ? emblemGabon : logoNdjobi} 
+                alt={isProtocolEtat ? "Emblème du Gabon" : "Logo Ndjobi"}
                 className="h-6 w-6 sm:h-8 sm:w-8 object-contain rounded-full bg-white p-1 shadow-sm" 
               />
-              <span className="text-base sm:text-lg font-bold">NDJOBI</span>
+              <span className="text-base sm:text-lg font-bold">
+                {isProtocolEtat ? 'PROTOCOLE D\'ÉTAT' : 'NDJOBI'}
+              </span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Plateforme citoyenne officielle pour la bonne gouvernance au Gabon.
@@ -35,7 +48,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-border mt-8 sm:mt-10 pt-6 sm:pt-8 text-center text-xs sm:text-sm text-muted-foreground">
-          <p>© {currentYear} NDJOBI - République Gabonaise. Tous droits réservés.</p>
+          <p>© {currentYear} {isProtocolEtat ? 'PROTOCOLE D\'ÉTAT' : 'NDJOBI'} - République Gabonaise. Tous droits réservés.</p>
           <p className="mt-2">
             <a href="/auth/super-admin" className="text-muted-foreground/50 hover:text-primary transition-colors text-xs">Administration Système</a>
           </p>

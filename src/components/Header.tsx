@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import logoNdjobi from "@/assets/logo_ndjobi.png";
+import emblemGabon from "@/assets/emblem_gabon.png";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -178,14 +179,16 @@ const Header = () => {
         <a href="/" className="flex items-center space-x-2 group">
           <div className="relative">
             <img 
-              src={logoNdjobi} 
-              alt="Logo Ndjobi"
+              src={currentRole === 'admin' ? emblemGabon : logoNdjobi} 
+              alt={currentRole === 'admin' ? "Emblème du Gabon" : "Logo Ndjobi"}
               className="h-10 w-10 object-contain transition-transform group-hover:scale-110 rounded-full bg-white p-1 shadow-sm" 
             />
             <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold text-foreground">NDJOBI</span>
+            <span className="text-xl font-bold text-foreground">
+              {currentRole === 'admin' ? 'PROTOCOLE D\'ÉTAT' : 'NDJOBI'}
+            </span>
             <span className="text-[10px] text-muted-foreground leading-none">Bonne gouvernance</span>
           </div>
         </a>

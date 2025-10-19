@@ -886,7 +886,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground flex-wrap gap-2 md:gap-3">
             <div className="flex items-center gap-2">
               <Shield className="h-3.5 w-3.5 md:h-4 md:w-4" />
-              <span className="text-xs md:text-sm">Plateforme NDJOBI</span>
+              <span className="text-xs md:text-sm">PROTOCOLE D'ÉTAT</span>
               </div>
             <div className="flex items-center gap-2 md:gap-4">
               <span className="flex items-center gap-1.5 md:gap-2">
