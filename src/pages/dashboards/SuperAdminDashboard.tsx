@@ -4888,10 +4888,10 @@ const SuperAdminDashboard = () => {
             </Button>
           </div>
 
-          <Alert>
+          <Alert className="p-3 sm:p-4">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Comptes Démo Migrés</AlertTitle>
-            <AlertDescription>
+            <AlertTitle className="text-sm sm:text-base">Comptes Démo Migrés</AlertTitle>
+            <AlertDescription className="text-xs sm:text-sm">
               Les comptes démo ont été migrés vers la base de données Supabase. 
               Consultez la section "Comptes Démo de la Base de Données" ci-dessous pour accéder aux comptes configurés.
             </AlertDescription>
