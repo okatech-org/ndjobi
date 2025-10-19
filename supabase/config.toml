@@ -10,7 +10,7 @@ double_confirm_changes = false
 enable_confirmations = false
 
 [functions.iasted-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.iasted-stt]
 verify_jwt = true

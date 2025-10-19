@@ -17,67 +17,91 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // Récupérer le token d'authentification
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    // Initialiser Supabase pour récupérer le contexte
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!;
+    const authHeader = req.headers.get('Authorization')!;
+    
+    // Créer un client Supabase avec l'authentification de l'utilisateur
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: {
+        headers: { Authorization: authHeader }
+      }
+    });
+
+    // Récupérer l'utilisateur depuis le token JWT
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('❌ Erreur authentification:', userError);
       throw new Error("Non authentifié");
     }
 
-    // Initialiser Supabase pour récupérer le contexte
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    console.log('✅ Utilisateur authentifié:', user.id);
 
-    // Récupérer l'utilisateur depuis le token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    // Créer un client avec service_role pour les requêtes privilégiées
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
+    // Récupérer le rôle de l'utilisateur avec logs de débogage
+    console.log('🔍 Récupération du rôle pour user_id:', user.id);
     
-    if (userError || !user) {
-      throw new Error("Utilisateur non authentifié");
-    }
-
-    // Récupérer le rôle de l'utilisateur
-    const { data: userRoles } = await supabase
+    const { data: userRoles, error: roleError } = await supabaseAdmin
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
+    if (roleError) {
+      console.error('❌ Erreur récupération rôle:', roleError);
+    }
+    
     const userRole = userRoles?.role || 'user';
+    console.log('✅ Rôle détecté:', userRole);
 
     // Récupérer le profil pour le nom complet
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('full_name, metadata')
       .eq('id', user.id)
       .single();
 
+    console.log('👤 Profil récupéré:', profile?.full_name);
+
     // Récupérer le contexte adapté au rôle
-    const presidentialContext = await getPresidentialContext(supabase, userRole);
+    const presidentialContext = await getPresidentialContext(supabaseAdmin, userRole);
 
     // Construire le salut personnalisé selon le rôle
     let greeting = "";
     let roleDescription = "";
     
+    console.log('🎭 Construction du prompt pour le rôle:', userRole);
+    
     switch(userRole) {
       case 'admin':
         greeting = "Excellence Monsieur le Président";
         roleDescription = "Tu es le conseiller virtuel personnel du Président de la République Gabonaise dans le cadre de la lutte anticorruption et de la mise en œuvre de la Vision Gabon 2025.";
+        console.log('👑 Mode Président activé');
         break;
       case 'sub_admin':
         const department = profile?.metadata?.department || profile?.metadata?.role_type || 'DGSS';
         greeting = department.toUpperCase();
         roleDescription = `Tu es l'assistant IA du ${department.toUpperCase()} (${getDepartmentFullName(department)}), responsable de l'analyse et du suivi des cas dans ton secteur.`;
+        console.log('📊 Mode Sous-Admin activé:', department);
         break;
       case 'super_admin':
         greeting = "Asted";
         roleDescription = "Tu es l'assistant IA du Super Administrateur système, responsable de la supervision technique et de la gestion globale de la plateforme NDJOBI.";
+        console.log('🔧 Mode Super Admin activé');
         break;
       default:
         greeting = "Excellence";
         roleDescription = "Tu es iAsted, l'Assistant IA de la plateforme NDJOBI au Gabon.";
+        console.log('⚠️ Mode par défaut activé');
     }
 
     // Construire le prompt système pour iAsted
