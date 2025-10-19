@@ -124,40 +124,40 @@ export const IAstedChat = ({ isOpen = false }: IAstedChatProps) => {
         
         {/* Panneau de contrôle */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Contrôles</CardTitle>
-            <CardDescription>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Contrôles</CardTitle>
+            <CardDescription className="text-sm">
               Gérez votre session vocale avec iAsted
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             
             {!sessionStarted ? (
-              <div className="text-center py-8">
-                <Bot className="w-16 h-16 mx-auto mb-4 text-purple-500 opacity-70" />
-                <h3 className="text-lg font-semibold mb-2">
+              <div className="text-center py-6">
+                <Bot className="w-12 h-12 mx-auto mb-3 text-purple-500 opacity-70" />
+                <h3 className="text-base font-semibold mb-2">
                   Démarrer une session vocale
                 </h3>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-sm text-muted-foreground mb-4">
                   iAsted est prêt à vous assister dans vos tâches administratives
                 </p>
                 <Button 
                   onClick={handleStartSession} 
-                  size="lg" 
+                  size="default" 
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                   disabled={!token}
                 >
-                  <Zap className="mr-2" />
+                  <Zap className="mr-2 h-4 w-4" />
                   Activer iAsted
                 </Button>
               </div>
             ) : (
               <>
                 {/* Bouton microphone principal */}
-                <div className="flex justify-center">
+                <div className="flex justify-center py-4">
                   <Button
                     size="lg"
-                    className={`w-40 h-40 rounded-full transition-all duration-300 shadow-2xl ${
+                    className={`w-32 h-32 rounded-full transition-all duration-300 shadow-2xl ${
                       isRecording
                         ? 'bg-red-600 hover:bg-red-700 animate-pulse scale-110'
                         : isProcessing
@@ -168,18 +168,18 @@ export const IAstedChat = ({ isOpen = false }: IAstedChatProps) => {
                     disabled={isProcessing}
                   >
                     {isProcessing ? (
-                      <Loader2 className="w-16 h-16 animate-spin" />
+                      <Loader2 className="w-12 h-12 animate-spin" />
                     ) : isRecording ? (
-                      <MicOff className="w-16 h-16" />
+                      <MicOff className="w-12 h-12" />
                     ) : (
-                      <Mic className="w-16 h-16" />
+                      <Mic className="w-12 h-12" />
                     )}
                   </Button>
                 </div>
 
                 {/* Statut */}
                 <div className="text-center space-y-2">
-                  <p className="text-lg font-semibold">
+                  <p className="text-base font-semibold">
                     {isRecording
                       ? '🔴 Enregistrement en cours...'
                       : isProcessing
@@ -187,15 +187,15 @@ export const IAstedChat = ({ isOpen = false }: IAstedChatProps) => {
                       : '✅ Prêt à vous écouter'}
                   </p>
                   {currentTranscript && (
-                    <div className="p-4 rounded-lg bg-muted/50 border">
-                      <p className="text-sm text-muted-foreground mb-1">Transcription :</p>
-                      <p className="italic">"{currentTranscript}"</p>
+                    <div className="p-3 rounded-lg bg-muted/50 border">
+                      <p className="text-xs text-muted-foreground mb-1">Transcription :</p>
+                      <p className="text-sm italic">"{currentTranscript}"</p>
                     </div>
                   )}
                 </div>
 
                 {/* Contrôles additionnels */}
-                <div className="flex gap-3 justify-center">
+                <div className="flex gap-2 justify-center flex-wrap">
                   <Button
                     onClick={handleStopSession}
                     variant="outline"
@@ -217,7 +217,7 @@ export const IAstedChat = ({ isOpen = false }: IAstedChatProps) => {
                 </div>
 
                 {/* Info session */}
-                <div className="pt-4 border-t space-y-2">
+                <div className="pt-3 border-t space-y-1.5">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Rôle :</span>
                     <Badge variant="default" className="capitalize">{role}</Badge>
