@@ -33,6 +33,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { accountSwitchingService } from "@/services/accountSwitching";
 import emblemGabon from "@/assets/emblem_gabon.png";
+import { demoAccountService } from "@/services/demoAccountService";
 
 const menuItems = [
   {
@@ -110,13 +111,14 @@ export function AdminSidebar() {
         description: "Veuillez patienter",
       });
 
-      // Si on est dans un compte basculé, nettoyer les données locales
+      // Nettoyer les données locales (bascule + session démo)
       if (isInSwitchedAccount) {
         accountSwitchingService.clearAll();
         console.log('✅ Données de compte basculé nettoyées');
       }
+      demoAccountService.clearLocalSession();
 
-      // Déconnexion Supabase
+      // Déconnexion backend
       await signOut();
       
       toast({
@@ -124,10 +126,8 @@ export function AdminSidebar() {
         description: "À bientôt sur NDJOBI !",
       });
 
-      // Forcer le rechargement pour nettoyer complètement l'état
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 500);
+      // Redirection immédiate vers l'accueil avec reload propre
+      window.location.replace('/');
     } catch (error) {
       console.error('Error signing out:', error);
       toast({
