@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Crown, BarChart3, CheckCircle, Users, Package, 
   FileText, TrendingUp, Shield, AlertTriangle, Eye, Filter,
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
-  AlertCircle, XCircle, RefreshCw, Search, UserPlus
+  AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
@@ -25,12 +25,15 @@ import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
+import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default function AdminDashboard() {
   const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const {
     kpis,
     casSensibles,
@@ -45,7 +48,8 @@ export default function AdminDashboard() {
     reloadData
   } = useProtocolEtat();
 
-  const [activeView, setActiveView] = useState<string>('dashboard');
+  // Déterminer la vue active depuis les paramètres URL
+  const activeView = searchParams.get('view') || 'dashboard';
   const [timeRange, setTimeRange] = useState<string>('30days');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   
@@ -749,156 +753,122 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5">
-        <div className="container py-4 md:py-6">
-          <div className="flex items-center justify-between flex-wrap gap-3 md:gap-4">
-            <div className="flex items-center gap-3 md:gap-4">
-              <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <Crown className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen flex w-full">
+        {/* Sidebar */}
+        <AdminSidebar />
+
+        {/* Contenu principal */}
+        <div className="flex-1 flex flex-col w-full">
+          <Header />
+          
+          {/* En-tête du dashboard avec contrôle sidebar */}
+          <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 sticky top-16 z-30">
+            <div className="container py-3 md:py-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  {/* Bouton menu mobile */}
+                  <SidebarTrigger className="lg:hidden">
+                    <Button variant="outline" size="sm">
+                      <Menu className="h-4 w-4" />
+                    </Button>
+                  </SidebarTrigger>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Crown className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+                    </div>
+                    <div>
+                      <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
+                        Protocole d'État
+                        <Badge variant="default" className="text-xs">
+                          <Shield className="h-3 w-3 mr-1" />
+                          Admin
+                        </Badge>
+                      </h1>
+                      <p className="text-muted-foreground text-xs hidden sm:block">
+                        Interface de Commandement National
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="hidden md:flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">Gabon - Deuxième République</div>
+                    <div className="text-xs font-medium">Vision 2025</div>
+                  </div>
+                </div>
               </div>
-            <div>
-                <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2 flex-wrap">
-                Protocole d'État
-                  <Badge variant="default" className="text-xs">
-                    <Shield className="h-3 w-3 mr-1" />
-                    Admin
-                  </Badge>
-              </h1>
-                <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">
-                  Interface de Commandement National
-              </p>
             </div>
-            </div>
-            <div className="hidden md:flex items-center gap-3">
-              <div className="text-right">
-                <div className="text-xs md:text-sm text-muted-foreground">Gabon - Deuxième République</div>
-                <div className="text-xs font-medium">Vision 2025</div>
-              </div>
-            </div>
-          </div>
-        </div>
           </div>
 
-      <div className="border-b overflow-x-auto scrollbar-hide">
-        <div className="container">
-          <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-            <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-0 flex flex-nowrap md:flex-wrap min-w-max md:min-w-0">
-              <TabsTrigger 
-                value="dashboard" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
-              >
-                <BarChart3 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
-                <span className="hidden sm:inline">Dashboard Global</span>
-                <span className="sm:hidden">Dashboard</span>
-                  </TabsTrigger>
-              <TabsTrigger 
-                value="validation"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
-              >
-                <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
-                Validation
-                  </TabsTrigger>
-              <TabsTrigger 
-                value="enquetes"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
-              >
-                <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
-                <span className="hidden sm:inline">Suivi Enquêtes</span>
-                <span className="sm:hidden">Enquêtes</span>
-                  </TabsTrigger>
-              <TabsTrigger 
-                value="sousadmins"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
-              >
-                <Users className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
-                <span className="hidden sm:inline">Sous-Admins</span>
-                <span className="sm:hidden">Admins</span>
-                  </TabsTrigger>
-              <TabsTrigger 
-                value="rapports"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
-              >
-                <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
-                Rapports
-                  </TabsTrigger>
-              <TabsTrigger 
-                value="xr7"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-red-500 rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
-              >
-                <Shield className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-red-600" />
-                <span className="hidden sm:inline">Module XR-7</span>
-                <span className="sm:hidden">XR-7</span>
-                  </TabsTrigger>
-              <TabsTrigger 
-                value="iasted"
-                className="data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none px-3 sm:px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm whitespace-nowrap"
-              >
-                <Brain className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-purple-600" />
-                <span className="hidden sm:inline">iAsted IA</span>
-                <span className="sm:hidden">iAsted</span>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+          {/* Contenu principal avec scroll */}
+          <main className="flex-1 overflow-y-auto">
+            <div className="container py-4 md:py-6">
+              {/* Indicateur de vue actuelle - mobile */}
+              <div className="mb-4 md:hidden">
+                <Badge variant="outline" className="text-xs">
+                  {activeView === 'dashboard' && 'Vue d\'ensemble'}
+                  {activeView === 'cas-sensibles' && 'Cas Sensibles'}
+                  {activeView === 'agents' && 'Performance Agents'}
+                  {activeView === 'regional' && 'Distribution Régionale'}
+                  {activeView === 'ministeres' && 'Ministères'}
+                  {activeView === 'iasted' && 'iAsted AI'}
+                  {activeView === 'xr7' && 'Module XR-7'}
+                  {activeView === 'rapports' && 'Rapports'}
+                </Badge>
+              </div>
+
+              {/* Rendu des vues selon activeView */}
+              {activeView === 'dashboard' && renderDashboardGlobal()}
+              {activeView === 'validation' && renderValidation()}
+              {activeView === 'enquetes' && renderSuiviEnquetes()}
+              {activeView === 'sousadmins' && renderGestionSousAdmins()}
+              {activeView === 'rapports' && renderRapportsStrategiques()}
+              {activeView === 'xr7' && <ModuleXR7 />}
+              {activeView === 'iasted' && <IAstedChat isOpen={true} />}
+              
+              {/* Vues supplémentaires basées sur les items de la sidebar */}
+              {activeView === 'cas-sensibles' && renderValidation()}
+              {activeView === 'agents' && renderGestionSousAdmins()}
+              {activeView === 'regional' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold">Distribution Régionale</h2>
+                  {renderDashboardGlobal()}
+                </div>
+              )}
+              {activeView === 'ministeres' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold">Performance des Ministères</h2>
+                  {renderDashboardGlobal()}
+                </div>
+              )}
+            </div>
+          </main>
+          
+          {/* Bouton flottant iAsted - masqué si vue iasted active */}
+          {activeView !== 'iasted' && <IAstedFloatingButton />}
+
+          {/* Footer */}
+          <div className="border-t mt-auto">
+            <div className="container py-4">
+              <div className="flex items-center justify-between text-xs text-muted-foreground flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-3.5 w-3.5" />
+                  <span>PROTOCOLE D'ÉTAT</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span>Système Opérationnel</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Footer />
         </div>
       </div>
-
-      <main className="container py-4 md:py-8 flex-1">
-        {/* Boutons d'accès rapide pour mobile */}
-        <div className="md:hidden mb-4">
-          <div className="flex gap-3 justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setActiveView('xr7')}
-              className="flex items-center gap-2 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950/30 text-xs h-9 px-3 touch-manipulation"
-            >
-              <Shield className="h-3.5 w-3.5 text-red-600" />
-              XR-7
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setActiveView('iasted')}
-              className="flex items-center gap-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:border-purple-900 dark:hover:bg-purple-950/30 text-xs h-9 px-3 touch-manipulation"
-            >
-              <Brain className="h-3.5 w-3.5 text-purple-600" />
-              iAsted
-            </Button>
-          </div>
-        </div>
-
-        {activeView === 'dashboard' && renderDashboardGlobal()}
-        {activeView === 'validation' && renderValidation()}
-        {activeView === 'enquetes' && renderSuiviEnquetes()}
-        {activeView === 'sousadmins' && renderGestionSousAdmins()}
-        {activeView === 'rapports' && renderRapportsStrategiques()}
-        {activeView === 'xr7' && <ModuleXR7 />}
-        {activeView === 'iasted' && <IAstedChat isOpen={true} />}
-      </main>
-      
-      {activeView !== 'iasted' && <IAstedFloatingButton />}
-
-      <div className="border-t mt-8 md:mt-12">
-        <div className="container py-4 md:py-6">
-          <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground flex-wrap gap-2 md:gap-3">
-            <div className="flex items-center gap-2">
-              <Shield className="h-3.5 w-3.5 md:h-4 md:w-4" />
-              <span className="text-xs md:text-sm">PROTOCOLE D'ÉTAT</span>
-              </div>
-            <div className="flex items-center gap-2 md:gap-4">
-              <span className="flex items-center gap-1.5 md:gap-2">
-                <Activity className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-500" />
-                <span className="text-xs md:text-sm">Opérationnel</span>
-              </span>
-              </div>
-              </div>
-                </div>
-                    </div>
-      
-      <Footer />
-    </div>
+    </SidebarProvider>
   );
 }
