@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { accountSwitchingService } from "@/services/accountSwitching";
+import { demoAccountService } from "@/services/demoAccountService";
 import { UserRole } from "@/types/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -105,6 +106,13 @@ const Header = () => {
         description: "Veuillez patienter",
       });
 
+      // Nettoyer les sessions locales (compte basculé + session démo)
+      if (accountSwitchingService.isInSwitchedAccount()) {
+        accountSwitchingService.clearAll();
+      }
+      demoAccountService.clearLocalSession();
+
+      // Déconnexion backend
       await signOut();
       
       toast({
@@ -112,9 +120,9 @@ const Header = () => {
         description: "À bientôt sur NDJOBI !",
       });
 
-      // Redirection vers la page d'accueil
+      // Redirection vers la page d'accueil (reload pour état propre)
       setTimeout(() => {
-        navigate('/', { replace: true });
+        window.location.href = '/';
       }, 500);
     } catch (error) {
       console.error('Error signing out:', error);
