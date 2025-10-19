@@ -11,3 +11,9 @@ enable_confirmations = false
 
 [functions.iasted-chat]
 verify_jwt = false
+
+[functions.iasted-stt]
+verify_jwt = true
+
+[functions.iasted-tts]
+verify_jwt = true
