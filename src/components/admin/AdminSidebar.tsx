@@ -110,6 +110,13 @@ export function AdminSidebar() {
         description: "Veuillez patienter",
       });
 
+      // Si on est dans un compte basculé, nettoyer les données locales
+      if (isInSwitchedAccount) {
+        accountSwitchingService.clearAll();
+        console.log('✅ Données de compte basculé nettoyées');
+      }
+
+      // Déconnexion Supabase
       await signOut();
       
       toast({
@@ -117,8 +124,9 @@ export function AdminSidebar() {
         description: "À bientôt sur NDJOBI !",
       });
 
+      // Forcer le rechargement pour nettoyer complètement l'état
       setTimeout(() => {
-        navigate('/', { replace: true });
+        window.location.href = '/';
       }, 500);
     } catch (error) {
       console.error('Error signing out:', error);
