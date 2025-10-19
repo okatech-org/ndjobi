@@ -55,6 +55,7 @@ const Header = () => {
     { label: "Utilisateurs", path: `${dashboardPath}?view=users`, icon: User },
     { label: "Projet", path: `${dashboardPath}?view=project`, icon: FileText },
     { label: "Module XR-7", path: `${dashboardPath}?view=xr7`, icon: AlertCircle },
+    { label: "Démo", path: `${dashboardPath}?view=demo`, icon: Bot },
     { label: "Configuration", path: `${dashboardPath}?view=config`, icon: Key },
   ] : currentRole === 'admin' ? [
     { label: "Dashboard", path: dashboardPath, icon: User },
