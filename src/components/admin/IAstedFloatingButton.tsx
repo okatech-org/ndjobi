@@ -728,18 +728,7 @@ export const IAstedFloatingButton = () => {
           unlockAudioIfNeeded();
         }}
       >
-        {/* Indicateurs visuels animés */}
-        {isListening && (
-          <div className="absolute -inset-4 rounded-full ring-4 ring-purple-500 animate-ping pointer-events-none opacity-75" />
-        )}
-        {isSpeaking && (
-          <div className="absolute -inset-4 rounded-full ring-4 ring-blue-500 animate-pulse pointer-events-none" />
-        )}
-        {isProcessing && (
-          <div className="absolute -inset-4 rounded-full ring-4 ring-muted-foreground/50 animate-pulse pointer-events-none" />
-        )}
-        
-        <IAstedButton 
+        <IAstedButton
           onClick={handleButtonClick}
           size="md"
         />
