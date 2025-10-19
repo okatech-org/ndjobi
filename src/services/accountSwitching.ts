@@ -146,16 +146,19 @@ class AccountSwitchingService {
       // Nettoyer les données de la session démo
       userPersistence.clearStoredUser();
 
-      // Recréer la session Super Admin locale
-      if (this.originalAccount.email) {
-        const created = demoAccountService.createLocalSession(this.originalAccount.email);
-        
-        if (!created) {
-          console.error('❌ Échec recréation session Super Admin');
-          return { success: false, error: 'Impossible de recréer la session Super Admin' };
-        }
-        console.log('✅ Session Super Admin recréée');
+      // Recréer la session Super Admin locale avec le bon rôle
+      const created = demoAccountService.createLocalSessionFor({
+        email: this.originalAccount.email || '',
+        role: 'super_admin',
+        fullName: 'Super Administrateur',
+        phone: ''
+      });
+      
+      if (!created) {
+        console.error('❌ Échec recréation session Super Admin');
+        return { success: false, error: 'Impossible de recréer la session Super Admin' };
       }
+      console.log('✅ Session Super Admin recréée avec rôle super_admin');
       
       // Nettoyer le marqueur de compte basculé
       localStorage.removeItem(this.STORAGE_KEY);
