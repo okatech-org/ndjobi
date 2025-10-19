@@ -2062,10 +2062,11 @@ const SuperAdminDashboard = () => {
             </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="architecture">Architecture</TabsTrigger>
           <TabsTrigger value="features">Fonctionnalités</TabsTrigger>
+          <TabsTrigger value="iasted">🤖 iAsted</TabsTrigger>
           <TabsTrigger value="database">Base de Données</TabsTrigger>
           <TabsTrigger value="security">Sécurité</TabsTrigger>
           <TabsTrigger value="audit">🔍 Audit</TabsTrigger>
@@ -3058,6 +3059,443 @@ const SuperAdminDashboard = () => {
             </CardContent>
           </Card>
                 </TabsContent>
+
+        <TabsContent value="iasted" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bot className="h-6 w-6 text-primary" />
+                iAsted - Assistant IA Présidentiel
+              </CardTitle>
+              <CardDescription>
+                Interface conversationnelle intelligente pour l'analyse stratégique et la prise de décision
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Alert className="border-primary/50 bg-primary/5">
+                <Brain className="h-4 w-4" />
+                <AlertTitle>Module d'Intelligence Artificielle Avancé</AlertTitle>
+                <AlertDescription>
+                  iAsted est un assistant IA conversationnel spécialement conçu pour le Président de la République. 
+                  Il fournit des analyses en temps réel, des recommandations stratégiques et une aide à la décision 
+                  basée sur l'ensemble des données de la plateforme NDJOBI.
+                </AlertDescription>
+              </Alert>
+
+              <div>
+                <h4 className="font-semibold mb-3">🎯 Objectifs Principaux :</h4>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <BarChart3 className="h-8 w-8 mx-auto text-blue-500 mb-2" />
+                      <CardTitle className="text-sm text-center">Analyse Stratégique</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Analyse approfondie des signalements, identification de patterns et tendances nationales
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <Activity className="h-8 w-8 mx-auto text-green-500 mb-2" />
+                      <CardTitle className="text-sm text-center">Monitoring Temps Réel</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Suivi des performances des agents, alertes sur cas critiques et métriques nationales
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <Brain className="h-8 w-8 mx-auto text-purple-500 mb-2" />
+                      <CardTitle className="text-sm text-center">Aide à la Décision</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Recommandations basées sur l'IA, priorisation intelligente et scénarios d'action
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-orange-500" />
+                  Contrôle d'Accès Sécurisé
+                </h4>
+                <div className="p-4 rounded-lg border bg-orange-50/10">
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-3">
+                      <Badge variant="destructive">CRITIQUE</Badge>
+                      <p className="text-muted-foreground flex-1">
+                        Accès exclusif réservé aux rôles <strong>admin</strong> et <strong>super_admin</strong>. 
+                        Vérification stricte du rôle utilisateur à chaque interaction.
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Badge variant="outline">RLS</Badge>
+                      <p className="text-muted-foreground flex-1">
+                        Toutes les requêtes base de données sont filtrées par les politiques RLS pour garantir 
+                        que seules les données autorisées sont accessibles.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Cpu className="h-5 w-5 text-cyan-500" />
+                  Interface Utilisateur
+                </h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg border">
+                    <h5 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <Radio className="h-4 w-4 text-primary" />
+                      Bouton Flottant Organique
+                    </h5>
+                    <ul className="text-xs text-muted-foreground space-y-1 ml-6">
+                      <li>• <strong>Position</strong> : Coin inférieur droit, toujours accessible</li>
+                      <li>• <strong>Animation</strong> : Pulsation lumineuse continue, effet de respiration</li>
+                      <li>• <strong>Gradients dynamiques</strong> : Cyan/bleu avec lueur animée</li>
+                      <li>• <strong>Taille</strong> : 64px, optimisé pour interaction tactile</li>
+                      <li>• <strong>États visuels</strong> : Idle, Écoute, Traitement, Parole</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-4 rounded-lg border">
+                    <h5 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-green-500" />
+                      États Visuels Détectables
+                    </h5>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 animate-pulse" />
+                        <span><strong>Repos</strong> : Pulsation cyan/bleu douce</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse" />
+                        <span><strong>Écoute</strong> : Pulsation verte + icône micro</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 animate-spin" />
+                        <span><strong>Traitement</strong> : Animation rotation orange</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" />
+                        <span><strong>Parole</strong> : Pulsation violette + texte "iAsted"</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Terminal className="h-5 w-5 text-indigo-500" />
+                  Modes d'Interaction
+                </h4>
+                <div className="space-y-3">
+                  <Card className="border-2 border-primary/20">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <Radio className="h-5 w-5 text-primary" />
+                        <CardTitle className="text-base">1. Mode Voix (Voice Interaction)</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-semibold mb-2">Activation :</p>
+                        <p className="text-xs text-muted-foreground">
+                          Double-clic sur le bouton flottant → Démarre l'écoute continue via le microphone
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-semibold mb-2">Détection Vocale Avancée (VAD) :</p>
+                        <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                          <li>• <strong>RMS Adaptatif</strong> : Seuils dynamiques de silence (0.005) et parole (0.02)</li>
+                          <li>• <strong>Durée minimale</strong> : 500ms de parole continue requis</li>
+                          <li>• <strong>Détection fin</strong> : 800ms de silence post-parole</li>
+                          <li>• <strong>Gestion bruit</strong> : Filtrage zones grises entre silence et parole</li>
+                        </ul>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-semibold mb-2">Flux Complet :</p>
+                        <div className="flex items-center gap-2 text-xs flex-wrap mt-2">
+                          <Badge>Double-clic</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Écoute Active</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Détection Fin Parole</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Transcription</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Traitement IA</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="secondary">Réponse Vocale</Badge>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-semibold mb-2">Message de Transition :</p>
+                        <p className="text-xs text-muted-foreground">
+                          Lorsque la parole est détectée complète, iAsted prononce automatiquement 
+                          <span className="font-mono bg-muted px-1 mx-1 rounded">"Laissez-moi réfléchir..."</span> 
+                          avant de traiter la demande et de fournir la réponse complète vocalement.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-2 border-green-500/20">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-green-500" />
+                        <CardTitle className="text-base">2. Mode Texte (Text Interaction)</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-semibold mb-2">Activation :</p>
+                        <p className="text-xs text-muted-foreground">
+                          Simple clic sur le bouton flottant → Ouvre le panneau de conversation textuelle
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-semibold mb-2">Interface de Chat :</p>
+                        <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                          <li>• <strong>Panneau latéral</strong> : Zone de conversation complète avec historique</li>
+                          <li>• <strong>Champ de saisie</strong> : Input multilignes avec bouton d'envoi</li>
+                          <li>• <strong>Historique</strong> : Messages utilisateur et réponses IA conservés</li>
+                          <li>• <strong>Bouton Fermer</strong> : Masque le panneau sans perdre la session</li>
+                        </ul>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-semibold mb-2">Flux Complet :</p>
+                        <div className="flex items-center gap-2 text-xs flex-wrap mt-2">
+                          <Badge>Simple clic</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Ouverture Panneau</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Saisie Texte</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Envoi</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="outline">Traitement IA</Badge>
+                          <ChevronRight className="h-3 w-3" />
+                          <Badge variant="secondary">Réponse Texte</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Server className="h-5 w-5 text-purple-500" />
+                  Architecture Technique
+                </h4>
+                <div className="space-y-3">
+                  <div className="p-4 rounded-lg border">
+                    <h5 className="font-semibold text-sm mb-2">🔧 Services Backend</h5>
+                    <div className="grid md:grid-cols-2 gap-3 mt-2">
+                      <div className="text-xs">
+                        <strong>IAstedVoiceService</strong>
+                        <ul className="text-muted-foreground mt-1 ml-4 space-y-0.5">
+                          <li>• Transcription Speech-to-Text (Web Speech API)</li>
+                          <li>• Synthèse Text-to-Speech (ElevenLabs)</li>
+                          <li>• Gestion états audio (lecture, pause, fin)</li>
+                        </ul>
+                      </div>
+                      <div className="text-xs">
+                        <strong>IAstedService</strong>
+                        <ul className="text-muted-foreground mt-1 ml-4 space-y-0.5">
+                          <li>• Communication avec Edge Function</li>
+                          <li>• Injection contexte présidentiel</li>
+                          <li>• Analyse performance agents</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg border">
+                    <h5 className="font-semibold text-sm mb-2">☁️ Edge Functions Supabase</h5>
+                    <div className="text-xs space-y-2">
+                      <div className="p-2 bg-muted/50 rounded">
+                        <strong className="flex items-center gap-1">
+                          <Terminal className="h-3 w-3" />
+                          /functions/iasted-chat
+                        </strong>
+                        <p className="text-muted-foreground mt-1">
+                          Traitement requêtes conversationnelles via Google Gemini. Injection contexte métier 
+                          (KPIs, cas sensibles, performances). Génération réponses adaptées au rôle.
+                        </p>
+                      </div>
+                      <div className="p-2 bg-muted/50 rounded">
+                        <strong className="flex items-center gap-1">
+                          <Terminal className="h-3 w-3" />
+                          /functions/iasted-tts
+                        </strong>
+                        <p className="text-muted-foreground mt-1">
+                          Synthèse vocale ElevenLabs (voix Brian). Retourne audio base64 pour lecture immédiate.
+                        </p>
+                      </div>
+                      <div className="p-2 bg-muted/50 rounded">
+                        <strong className="flex items-center gap-1">
+                          <Terminal className="h-3 w-3" />
+                          /functions/iasted-stt
+                        </strong>
+                        <p className="text-muted-foreground mt-1">
+                          Transcription audio vers texte (si nécessaire pour backup Web Speech API).
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg border">
+                    <h5 className="font-semibold text-sm mb-2">🗄️ Tables Supabase</h5>
+                    <div className="grid md:grid-cols-2 gap-3 mt-2 text-xs">
+                      <div>
+                        <strong>iasted_conversations</strong>
+                        <p className="text-muted-foreground mt-1">
+                          Stockage historique conversations (user_message, assistant_message, context_data, mode).
+                        </p>
+                      </div>
+                      <div>
+                        <strong>iasted_knowledge_base</strong>
+                        <p className="text-muted-foreground mt-1">
+                          Base de connaissances enrichie automatiquement (patterns détectés, insights, recommandations).
+                        </p>
+                      </div>
+                      <div>
+                        <strong>iasted_analytics</strong>
+                        <p className="text-muted-foreground mt-1">
+                          Métriques d'utilisation (interactions totales, temps réponse moyen, utilisateurs uniques).
+                        </p>
+                      </div>
+                      <div>
+                        <strong>national_kpis</strong>
+                        <p className="text-muted-foreground mt-1">
+                          KPIs nationaux injectés dans le contexte IA (signalements critiques, taux résolution, impact économique).
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-pink-500" />
+                  Capacités IA & Contexte Présidentiel
+                </h4>
+                <div className="p-4 rounded-lg border bg-gradient-to-r from-primary/5 to-purple-500/5">
+                  <div className="space-y-4">
+                    <div>
+                      <h5 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-blue-500" />
+                        Analyse de Performance des Agents
+                      </h5>
+                      <p className="text-xs text-muted-foreground">
+                        Évaluation automatique des agents DGSS : nombre de cas traités, taux de succès, 
+                        délai moyen de résolution. Recommandations d'assignation basées sur les performances historiques.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h5 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                        Identification de Patterns
+                      </h5>
+                      <p className="text-xs text-muted-foreground">
+                        Détection automatique des types de corruption récurrents, zones géographiques sensibles, 
+                        périodes à risque. Suggestions d'actions préventives ciblées.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h5 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 text-orange-500" />
+                        Recommandations Stratégiques
+                      </h5>
+                      <p className="text-xs text-muted-foreground">
+                        Sur demande pour un cas spécifique, iAsted fournit une analyse approfondie et des recommandations 
+                        d'action (enquête prioritaire, protection témoins, saisine judiciaire, médiation).
+                      </p>
+                    </div>
+
+                    <div>
+                      <h5 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4 text-purple-500" />
+                        KPIs Nationaux en Temps Réel
+                      </h5>
+                      <p className="text-xs text-muted-foreground">
+                        Accès immédiat aux métriques nationales : total signalements, cas critiques, taux de résolution, 
+                        impact économique estimé, score de transparence.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-gray-500" />
+                  Configuration & Debug
+                </h4>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg border">
+                    <h5 className="font-semibold text-sm mb-2">Variables d'Environnement</h5>
+                    <div className="space-y-1 text-xs font-mono">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">GEMINI_API_KEY</span>
+                        <Badge variant="outline" className="text-xs">Requis</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">ELEVENLABS_API_KEY</span>
+                        <Badge variant="outline" className="text-xs">Requis</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">ELEVENLABS_VOICE_ID</span>
+                        <Badge variant="secondary" className="text-xs">Optionnel</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-lg border">
+                    <h5 className="font-semibold text-sm mb-2">Logs de Debug</h5>
+                    <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                      <li>• 🎤 <strong>[VAD]</strong> : Progression détection vocale (RMS, silence/speech)</li>
+                      <li>• 🔊 <strong>[AUDIO]</strong> : États lecture audio (démarrage, fin)</li>
+                      <li>• 🤖 <strong>[IA]</strong> : Requêtes/réponses Gemini, contexte injecté</li>
+                      <li>• 📊 <strong>[ANALYTICS]</strong> : Métriques interactions, temps réponse</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <Alert className="border-green-500/50 bg-green-50/10">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertTitle>Module Opérationnel ✅</AlertTitle>
+                <AlertDescription>
+                  iAsted est pleinement fonctionnel et déployé. Il est accessible uniquement depuis les dashboards 
+                  Admin et Super Admin. Toutes les fonctionnalités (voix, texte, analyses, recommandations) sont actives 
+                  et peuvent être testées immédiatement via le bouton flottant en bas à droite.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="database" className="space-y-4 mt-4">
           <Card>
