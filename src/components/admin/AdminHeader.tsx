@@ -1,8 +1,8 @@
-import { Bell, Shield, Menu, Activity, Flag } from "lucide-react";
+import { Bell, Shield, Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface AdminHeaderProps {
   unreadNotifications: number;
@@ -10,79 +10,51 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ unreadNotifications }: AdminHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 glass-effect border-b border-border/50 h-16">
-      <div className="h-full px-4 md:px-6 flex items-center justify-between gap-4">
-        {/* Gauche: Logo et titre */}
+    <header className="sticky top-0 z-40 glass-effect border-b border-border/50 h-20">
+      <div className="h-full px-6 flex items-center justify-between gap-6">
+        {/* Gauche: Bouton menu mobile uniquement */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          {/* Bouton menu mobile avec meilleur style */}
           <SidebarTrigger className="lg:hidden">
-            <Button variant="ghost" size="icon" className="hover:bg-muted/50 transition-all glass-effect">
+            <Button variant="ghost" size="icon" className="hover:bg-muted/50 transition-all">
               <Menu className="h-5 w-5" />
             </Button>
           </SidebarTrigger>
-          
-          {/* Logo et titre animés - compact */}
-          <div className="flex items-center gap-2">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--accent-intel))]/30 to-[hsl(var(--accent-warning))]/30 rounded-lg blur-lg animate-pulse-glow" />
-              <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center shadow-xl">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
-            </div>
-            <div className="hidden md:flex flex-col">
-              <h1 className="text-sm font-bold tracking-wide">
-                PROTOCOLE D'ÉTAT
-              </h1>
-              <p className="text-[9px] text-muted-foreground font-medium">Intelligence • Vision 2025</p>
-            </div>
-          </div>
         </div>
         
-        {/* Centre: Indicateurs en temps réel - design amélioré */}
-        <div className="hidden lg:flex items-center gap-3 flex-1 justify-center">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-effect border border-red-500/30 hover:border-red-500/50 transition-all shadow-lg shadow-red-500/10">
-            <div className="relative">
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-live-pulse" />
-              <div className="absolute inset-0 w-2 h-2 rounded-full bg-red-500/30 animate-ping" />
-            </div>
-            <span className="text-xs font-bold text-red-500 tracking-wide">LIVE</span>
-          </div>
-          
-          <div className="h-5 w-px bg-border/30" />
-          
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-effect border border-[hsl(var(--accent-success))]/30 hover:border-[hsl(var(--accent-success))]/50 transition-all">
-            <Activity className="h-3.5 w-3.5 text-[hsl(var(--accent-success))] animate-pulse" />
-            <span className="text-xs text-muted-foreground font-medium">Surveillance Active</span>
-          </div>
+        {/* Centre: Titre principal */}
+        <div className="flex-1 flex flex-col items-center justify-center text-center">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight leading-tight">
+            Centre de Commandement Intelligence
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+            <span>Surveillance en temps réel</span>
+            <span className="text-muted-foreground/50">•</span>
+            <span>Niveau d'alerte : <span className="text-[hsl(var(--accent-danger))] font-semibold">ÉLEVÉ</span></span>
+          </p>
         </div>
         
-        {/* Droite: Actions et indicateurs - alignement amélioré */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Notification badge avec meilleur style */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative glass-effect hover:bg-muted/50 transition-all h-9 w-9 rounded-lg hover-lift"
-          >
-            <Bell className="h-4 w-4" />
-            {unreadNotifications > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-              </span>
-            )}
-          </Button>
+        {/* Droite: Badge LIVE + Profil utilisateur */}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {/* Badge LIVE */}
+          <Badge className="bg-[hsl(var(--accent-danger))]/10 text-[hsl(var(--accent-danger))] border-[hsl(var(--accent-danger))]/30 px-3 py-1.5 text-xs font-bold">
+            <div className="relative mr-2">
+              <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-danger))] animate-live-pulse" />
+              <div className="absolute inset-0 w-2 h-2 rounded-full bg-[hsl(var(--accent-danger))]/30 animate-ping" />
+            </div>
+            LIVE
+          </Badge>
           
-          <ThemeToggle />
-          
-          <div className="h-6 w-px bg-border/30 hidden lg:block mx-1" />
-          
-          {/* Badge Vision 2025 avec animation */}
-          <div className="hidden lg:flex items-center">
-            <Badge className="text-[10px] px-2.5 py-1.5 bg-[hsl(var(--accent-success))]/10 text-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]/30 hover:bg-[hsl(var(--accent-success))]/20 transition-all cursor-default">
-              <Flag className="h-3 w-3 mr-1.5 animate-bounce-subtle" />
-              <span className="font-semibold">Gabon • Vision 2025</span>
-            </Badge>
+          {/* Profil utilisateur */}
+          <div className="hidden md:flex items-center gap-3 px-3 py-2 rounded-lg glass-effect border border-border/50">
+            <Avatar className="h-8 w-8 bg-[hsl(var(--accent-intel))]/20">
+              <AvatarFallback className="bg-[hsl(var(--accent-intel))]/20 text-[hsl(var(--accent-intel))] font-bold text-sm">
+                AD
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold leading-tight">Agent Dubois</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">INTEL_AGENT</span>
+            </div>
           </div>
         </div>
       </div>
