@@ -5,6 +5,9 @@ interface IAstedButtonProps {
   onClick?: () => void;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  voiceListening?: boolean;
+  voiceSpeaking?: boolean;
+  voiceProcessing?: boolean;
 }
 
 interface Shockwave {
@@ -867,7 +870,7 @@ const styles = `
 }
 `;
 
-export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className = '', size = 'md' }) => {
+export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className = '', size = 'md', voiceListening = false, voiceSpeaking = false, voiceProcessing = false }) => {
   const [shockwaves, setShockwaves] = useState<Shockwave[]>([]);
   const [isClicked, setIsClicked] = useState(false);
   const [isActive, setIsActive] = useState(false);
@@ -1000,12 +1003,22 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
             {/* Conteneur des icônes au centre - À l'intérieur du bouton */}
             <div className="fixed-icons-container">
               <div className="icon-container">
-                <span className="alternating-element text-element text-white iasted-text">
-                  iAsted
-                </span>
-                <Mic className="alternating-element mic-element text-white icon-svg" />
-                <MessageCircle className="alternating-element chat-element text-white icon-svg" />
-                <Brain className="alternating-element brain-element text-white icon-svg" />
+                {voiceListening ? (
+                  <Mic className="text-white icon-svg animate-pulse" style={{ opacity: 1, transform: 'scale(1.3)' }} />
+                ) : voiceSpeaking ? (
+                  <MessageCircle className="text-white icon-svg animate-pulse" style={{ opacity: 1, transform: 'scale(1.2)' }} />
+                ) : voiceProcessing ? (
+                  <Brain className="text-white icon-svg animate-spin" style={{ opacity: 1, transform: 'scale(1.2)' }} />
+                ) : (
+                  <>
+                    <span className="alternating-element text-element text-white iasted-text">
+                      iAsted
+                    </span>
+                    <Mic className="alternating-element mic-element text-white icon-svg" />
+                    <MessageCircle className="alternating-element chat-element text-white icon-svg" />
+                    <Brain className="alternating-element brain-element text-white icon-svg" />
+                  </>
+                )}
               </div>
             </div>
           </button>

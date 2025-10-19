@@ -728,20 +728,13 @@ export const IAstedFloatingButton = () => {
           unlockAudioIfNeeded();
         }}
       >
-        <IAstedButton
+        <IAstedButton 
           onClick={handleButtonClick}
           size="md"
+          voiceListening={isListening}
+          voiceSpeaking={isSpeaking}
+          voiceProcessing={isProcessing}
         />
-        
-        {/* Badge d'état */}
-        {(isListening || isSpeaking || isProcessing) && (
-          <div className="absolute -top-2 -right-2 bg-background border-2 border-primary rounded-full px-3 py-1 text-xs font-medium shadow-lg">
-            {isListening && '🎙️ Écoute...'}
-            {isSpeaking && '🔊 Parle...'}
-            {isProcessing && '⚙️ Analyse...'}
-          </div>
-        )}
-        
       </div>
 
       {/* INTERFACE CHAT */}
