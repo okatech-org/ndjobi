@@ -37,6 +37,11 @@ export default function AdminDashboard() {
   const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  
+  // États pour la recherche et filtres
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRole, setSelectedRole] = useState<string>('all');
+  const [selectedOrganization, setSelectedOrganization] = useState<string>('all');
   const {
     kpis,
     casSensibles,
@@ -90,6 +95,24 @@ export default function AdminDashboard() {
   const handleGenererRapport = async (type: 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel') => {
     await genererRapport(type);
   };
+
+  // Logique de filtrage et recherche
+  const filteredSousAdmins = sousAdmins.filter(admin => {
+    const matchesSearch = searchQuery === '' || 
+      admin.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      admin.secteur.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      admin.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      admin.phone.includes(searchQuery) ||
+      admin.organization.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesRole = selectedRole === 'all' || admin.role === selectedRole;
+    const matchesOrganization = selectedOrganization === 'all' || admin.organization === selectedOrganization;
+    
+    return matchesSearch && matchesRole && matchesOrganization;
+  });
+
+  // Obtenir les organisations uniques
+  const uniqueOrganizations = Array.from(new Set(sousAdmins.map(admin => admin.organization))).filter(Boolean);
 
   if (authLoading) {
     return (
@@ -651,8 +674,113 @@ export default function AdminDashboard() {
               </Button>
             </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {sousAdmins.map((admin, idx) => (
+      {/* Barre de recherche intelligente */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Recherche textuelle */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Rechercher par nom, secteur, email, téléphone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 glass-effect border-none"
+            />
+          </div>
+          
+          {/* Filtre par rôle */}
+          <Select value={selectedRole} onValueChange={setSelectedRole}>
+            <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
+              <SelectValue placeholder="Filtrer par rôle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les rôles</SelectItem>
+              <SelectItem value="sub_admin">Sub-Admin</SelectItem>
+              <SelectItem value="agent">Agent</SelectItem>
+              <SelectItem value="user">Citoyen</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {/* Filtre par organisation */}
+          <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
+            <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
+              <SelectValue placeholder="Filtrer par organisation" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les organisations</SelectItem>
+              {uniqueOrganizations.map(org => (
+                <SelectItem key={org} value={org}>{org}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* Statistiques de recherche */}
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span>
+              {filteredSousAdmins.length} compte{filteredSousAdmins.length > 1 ? 's' : ''} trouvé{filteredSousAdmins.length > 1 ? 's' : ''}
+              {searchQuery && ` pour "${searchQuery}"`}
+            </span>
+            {(searchQuery || selectedRole !== 'all' || selectedOrganization !== 'all') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedRole('all');
+                  setSelectedOrganization('all');
+                }}
+                className="text-xs h-6 px-2"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Effacer filtres
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {sousAdmins.filter(a => a.role === 'sub_admin').length} Sub-Admin
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {sousAdmins.filter(a => a.role === 'agent').length} Agent
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {sousAdmins.filter(a => a.role === 'user').length} Citoyen
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Résultats de recherche */}
+      {filteredSousAdmins.length === 0 ? (
+        <div className="text-center py-12">
+          <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+            Aucun compte trouvé
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {searchQuery 
+              ? `Aucun résultat pour "${searchQuery}". Essayez avec d'autres termes.`
+              : "Aucun compte ne correspond aux filtres sélectionnés."
+            }
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedRole('all');
+              setSelectedOrganization('all');
+            }}
+            className="glass-effect border-none"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Effacer tous les filtres
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredSousAdmins.map((admin, idx) => (
           <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
             admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
           }`}>
@@ -833,7 +961,8 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         ))}
-          </div>
+        </div>
+      )}
 
       <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-success))]/10 to-transparent">
         <Target className="h-4 w-4 text-[hsl(var(--accent-success))]" />
