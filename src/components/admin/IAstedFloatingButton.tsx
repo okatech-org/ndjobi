@@ -152,34 +152,47 @@ export const IAstedFloatingButton = () => {
     }
     
     const greetingText = `${greeting} Excellence. Je suis iAsted, votre assistant présidentiel. Comment puis-je vous aider aujourd'hui ?`;
-    
     addAssistantMessage(greetingText, 'voice');
-    
+
+    // 1) Essayer TTS local pour être instantané (plus fiable pour la salutation)
+    if ('speechSynthesis' in window) {
+      try {
+        // Petite annulation pour s'assurer que la file est propre
+        speechSynthesis.cancel();
+        const ensureVoices = () => new Promise<void>((res) => {
+          const v = speechSynthesis.getVoices();
+          if (v && v.length) return res();
+          const onVoices = () => { speechSynthesis.removeEventListener('voiceschanged', onVoices); res(); };
+          speechSynthesis.addEventListener('voiceschanged', onVoices);
+          setTimeout(() => { speechSynthesis.removeEventListener('voiceschanged', onVoices); res(); }, 800);
+        });
+        await ensureVoices();
+
+        const u = new SpeechSynthesisUtterance(greetingText);
+        u.lang = 'fr-FR';
+        u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
+        const voices = speechSynthesis.getVoices();
+        const fr = voices.find(v => v.lang?.toLowerCase().startsWith('fr')) || voices.find(v => /fr|french/i.test(v.name));
+        if (fr) u.voice = fr;
+        await new Promise<void>((resolve) => { u.onend = () => resolve(); speechSynthesis.speak(u); });
+        return; // Salutation OK, on sort
+      } catch (e) {
+        console.warn('Local TTS failed, fallback to ElevenLabs:', e);
+      }
+    }
+
+    // 2) Fallback sur ElevenLabs via edge function
     setIsSpeaking(true);
-    console.log('🔊 Lecture du message de salutation:', greetingText);
     const result = await IAstedVoiceService.speakText(greetingText);
     setIsSpeaking(false);
 
     if (!result?.success) {
-      console.error('❌ Échec de la lecture audio');
       toast({
         title: 'Audio bloqué',
         description: "Le son a été bloqué. Activez le son du navigateur.",
         variant: 'destructive'
       });
       return;
-    }
-
-    console.log('✅ Message de salutation lu avec succès');
-
-    if (result.audioUrl) {
-      setMessages(prev => {
-        const updated = [...prev];
-        if (updated.length > 0) {
-          updated[updated.length - 1].audioUrl = result.audioUrl;
-        }
-        return updated;
-      });
     }
   };
 

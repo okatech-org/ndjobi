@@ -247,7 +247,7 @@ export class IAstedVoiceService {
   }
 
   /**
-   * TTS Fallback avec Web Speech API
+   * TTS Fallback avec Web Speech API (avec attente des voix)
    */
   private static speakWithWebSpeech(text: string): Promise<any> {
     return new Promise((resolve) => {
@@ -259,31 +259,50 @@ export class IAstedVoiceService {
         return;
       }
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'fr-FR';
-      utterance.rate = this.VOICE_CONFIG.rate;
-      utterance.pitch = this.VOICE_CONFIG.pitch;
-      utterance.volume = this.VOICE_CONFIG.volume;
-
-      // Sélectionner une voix française
-      const voices = speechSynthesis.getVoices();
-      const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
-      if (frenchVoice) {
-        utterance.voice = frenchVoice;
-      }
-
-      utterance.onend = () => {
-        resolve({ success: true });
-      };
-
-      utterance.onerror = (error) => {
-        resolve({ 
-          success: false, 
-          error: error.error 
+      const ensureVoices = (): Promise<SpeechSynthesisVoice[]> => {
+        return new Promise((res) => {
+          let voices = speechSynthesis.getVoices();
+          if (voices && voices.length > 0) return res(voices);
+          const onVoices = () => {
+            voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+              speechSynthesis.removeEventListener('voiceschanged', onVoices);
+              res(voices);
+            }
+          };
+          speechSynthesis.addEventListener('voiceschanged', onVoices);
+          // Timeout fallback
+          setTimeout(() => {
+            speechSynthesis.removeEventListener('voiceschanged', onVoices);
+            res(speechSynthesis.getVoices());
+          }, 1000);
         });
       };
 
-      speechSynthesis.speak(utterance);
+      ensureVoices().then((voices) => {
+        try {
+          // Cancel any ongoing speech to avoid queueing
+          speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'fr-FR';
+          utterance.rate = this.VOICE_CONFIG.rate;
+          utterance.pitch = this.VOICE_CONFIG.pitch;
+          utterance.volume = this.VOICE_CONFIG.volume;
+
+          // Sélectionner une voix française si disponible
+          const frenchVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('fr'))
+            || voices.find(v => /fr|french/i.test(v.name));
+          if (frenchVoice) utterance.voice = frenchVoice;
+
+          utterance.onend = () => resolve({ success: true });
+          utterance.onerror = (error) => resolve({ success: false, error: (error as any).error || 'speech error' });
+
+          speechSynthesis.speak(utterance);
+        } catch (e: any) {
+          resolve({ success: false, error: e?.message || 'tts error' });
+        }
+      });
     });
   }
 
