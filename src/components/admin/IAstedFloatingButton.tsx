@@ -734,6 +734,7 @@ export const IAstedFloatingButton = () => {
           voiceListening={isListening}
           voiceSpeaking={isSpeaking}
           voiceProcessing={isProcessing}
+          isInterfaceOpen={isOpen}
         />
       </div>
 

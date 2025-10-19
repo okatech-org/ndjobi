@@ -8,6 +8,7 @@ interface IAstedButtonProps {
   voiceListening?: boolean;
   voiceSpeaking?: boolean;
   voiceProcessing?: boolean;
+  isInterfaceOpen?: boolean;
 }
 
 interface Shockwave {
@@ -962,7 +963,7 @@ const styles = `
 }
 `;
 
-export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className = '', size = 'md', voiceListening = false, voiceSpeaking = false, voiceProcessing = false }) => {
+export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className = '', size = 'md', voiceListening = false, voiceSpeaking = false, voiceProcessing = false, isInterfaceOpen = false }) => {
   const [shockwaves, setShockwaves] = useState<Shockwave[]>([]);
   const [isClicked, setIsClicked] = useState(false);
   const [isActive, setIsActive] = useState(false);
@@ -970,6 +971,9 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
 
   // Déterminer les classes d'état vocal
   const voiceStateClass = voiceListening ? 'voice-listening' : voiceSpeaking ? 'voice-speaking' : '';
+
+  // Debug: afficher l'état actuel
+  console.log('🎭 iAsted Button State:', { voiceListening, voiceSpeaking, voiceProcessing, isInterfaceOpen, voiceStateClass });
 
   const handleClick = () => {
     const shockwaveId = Date.now();
@@ -1099,13 +1103,15 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
             <div className="fixed-icons-container">
               <div className="icon-container">
                 {voiceListening ? (
-                  <Mic className="text-white icon-svg animate-pulse" style={{ opacity: 1, transform: 'scale(1.3)' }} />
+                  <Mic className="text-white icon-svg" style={{ opacity: 1, transform: 'scale(1.3)' }} />
                 ) : voiceSpeaking ? (
-                  <span className="text-white iasted-text animate-pulse" style={{ opacity: 1, transform: 'scale(1.2)', fontSize: 'var(--iasted-text-size)' }}>
+                  <span className="text-white iasted-text" style={{ opacity: 1, transform: 'scale(1.2)', fontSize: 'var(--iasted-text-size)' }}>
                     iAsted
                   </span>
                 ) : voiceProcessing ? (
-                  <Brain className="text-white icon-svg animate-spin" style={{ opacity: 1, transform: 'scale(1.2)' }} />
+                  <Brain className="text-white icon-svg" style={{ opacity: 1, transform: 'scale(1.2)' }} />
+                ) : isInterfaceOpen ? (
+                  <MessageCircle className="text-white icon-svg" style={{ opacity: 1 }} />
                 ) : (
                   <>
                     <span className="alternating-element text-element text-white iasted-text">
