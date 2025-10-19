@@ -1006,18 +1006,13 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
                 {voiceListening ? (
                   <Mic className="text-white icon-svg animate-pulse" style={{ opacity: 1, transform: 'scale(1.3)' }} />
                 ) : voiceSpeaking ? (
-                  <MessageCircle className="text-white icon-svg animate-pulse" style={{ opacity: 1, transform: 'scale(1.2)' }} />
+                  <span className="text-white iasted-text animate-pulse" style={{ opacity: 1, transform: 'scale(1.2)', fontSize: 'var(--iasted-text-size)' }}>
+                    iAsted
+                  </span>
                 ) : voiceProcessing ? (
                   <Brain className="text-white icon-svg animate-spin" style={{ opacity: 1, transform: 'scale(1.2)' }} />
                 ) : (
-                  <>
-                    <span className="alternating-element text-element text-white iasted-text">
-                      iAsted
-                    </span>
-                    <Mic className="alternating-element mic-element text-white icon-svg" />
-                    <MessageCircle className="alternating-element chat-element text-white icon-svg" />
-                    <Brain className="alternating-element brain-element text-white icon-svg" />
-                  </>
+                  <MessageCircle className="text-white icon-svg" style={{ opacity: 1 }} />
                 )}
               </div>
             </div>
