@@ -759,9 +759,9 @@ export default function AdminDashboard() {
         <AdminSidebar />
 
         {/* Contenu principal */}
-        <div className="flex-1 flex flex-col w-full">
+        <div className="flex-1 flex flex-col w-full bg-background">
           {/* En-tête moderne et épuré */}
-          <header className="h-16 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
+          <header className="h-16 border-b bg-background backdrop-blur-sm sticky top-0 z-40">
             <div className="h-full px-4 md:px-6 flex items-center justify-between">
               {/* Gauche: Titre et badge */}
               <div className="flex items-center gap-3">
@@ -773,16 +773,16 @@ export default function AdminDashboard() {
                 </SidebarTrigger>
                 
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                  <div className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="hidden md:block">
-                    <h1 className="text-base font-bold flex items-center gap-2">
-                      PROTOCOLE D'ÉTAT
-                    </h1>
-                    <p className="text-[10px] text-muted-foreground">
-                      Bonne gouvernance
-                    </p>
+                    <div className="hidden md:block">
+                      <h1 className="text-base font-bold">
+                        PROTOCOLE D'ÉTAT
+                      </h1>
+                      <p className="text-[10px] text-muted-foreground">
+                        Bonne gouvernance
+                      </p>
+                    </div>
                   </div>
                   <Badge variant="default" className="text-[10px] px-2 py-0.5">
                     <Shield className="h-2.5 w-2.5 mr-1" />
@@ -810,7 +810,7 @@ export default function AdminDashboard() {
           </header>
 
           {/* Contenu principal avec scroll */}
-          <main className="flex-1 overflow-y-auto bg-muted/30">
+          <main className="flex-1 overflow-y-auto bg-background">
             <div className="container py-6 md:py-8 space-y-6">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}

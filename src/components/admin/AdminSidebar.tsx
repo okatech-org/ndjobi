@@ -116,11 +116,11 @@ export function AdminSidebar() {
 
   return (
     <Sidebar
-      className="border-r bg-gradient-to-b from-card to-card/80 transition-all duration-300"
+      className="border-r bg-background transition-all duration-300"
       collapsible="icon"
     >
       <SidebarContent className="pt-4">
-        {/* Header avec logo - design moderne */}
+        {/* Header avec logo - design moderne sans couronne */}
         <div
           className={`flex items-center gap-3 px-4 mb-6 transition-all ${
             collapsed ? "justify-center px-2" : ""
@@ -133,9 +133,6 @@ export function AdminSidebar() {
               alt="Emblème du Gabon"
               className="relative h-10 w-10 object-contain rounded-full bg-white p-1.5 shadow-xl ring-2 ring-primary/20 transition-all group-hover:scale-105 group-hover:ring-primary/40"
             />
-            <div className="absolute -top-1 -right-1 transition-transform group-hover:scale-110">
-              <Crown className="h-4 w-4 text-yellow-500 drop-shadow-lg" />
-            </div>
           </div>
           {!collapsed && (
             <div className="flex flex-col animate-fade-in">
@@ -157,7 +154,7 @@ export function AdminSidebar() {
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5 px-2">
+            <SidebarMenu className="space-y-1 px-2">
               {menuItems.map((item, index) => {
                 const Icon = item.icon;
                 const active = isActive(item.url);
@@ -169,49 +166,41 @@ export function AdminSidebar() {
                         active
                           ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
                           : "hover:bg-muted/70 hover:shadow-sm"
-                      } ${collapsed ? "justify-center px-3 py-2.5" : "px-3 py-2.5"}`}
+                      } ${collapsed ? "justify-center px-3 py-3" : "px-3 py-3"}`}
                       tooltip={collapsed ? item.title : undefined}
                     >
-                      <div className="flex items-center gap-3 w-full">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-md transition-all ${
-                          active 
-                            ? "bg-primary-foreground/10" 
-                            : "bg-muted/30 group-hover:bg-muted/50"
-                        }`}>
-                          <Icon
-                            className={`h-4 w-4 transition-all duration-200 ${
-                              active
-                                ? "text-primary-foreground"
-                                : "text-muted-foreground group-hover:text-foreground"
-                            }`}
-                          />
-                        </div>
+                      <div className="flex items-center gap-3 w-full min-w-0">
+                        <Icon
+                          className={`h-5 w-5 flex-shrink-0 transition-all duration-200 ${
+                            active
+                              ? "text-primary-foreground"
+                              : "text-muted-foreground group-hover:text-foreground"
+                          }`}
+                        />
                         {!collapsed && (
-                          <div className="flex items-center justify-between flex-1 animate-fade-in">
-                            <div className="flex flex-col">
+                          <div className="flex items-center justify-between flex-1 gap-2 min-w-0 animate-fade-in">
+                            <div className="flex flex-col min-w-0 flex-1">
                               <span
-                                className={`font-semibold text-[13px] leading-tight ${
+                                className={`font-semibold text-sm leading-tight truncate ${
                                   active ? "text-primary-foreground" : "text-foreground"
                                 }`}
                               >
                                 {item.title}
                               </span>
                               {!active && (
-                                <span className="text-[9px] text-muted-foreground leading-tight mt-0.5">
+                                <span className="text-[10px] text-muted-foreground leading-tight mt-0.5 truncate">
                                   {item.description}
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              {item.badge && (
-                                <Badge
-                                  variant={getBadgeVariant(item.badge)}
-                                  className="text-[9px] px-1.5 py-0 font-bold uppercase"
-                                >
-                                  {item.badge}
-                                </Badge>
-                              )}
-                            </div>
+                            {item.badge && (
+                              <Badge
+                                variant={getBadgeVariant(item.badge)}
+                                className="text-[9px] px-1.5 py-0.5 font-bold uppercase flex-shrink-0"
+                              >
+                                {item.badge}
+                              </Badge>
+                            )}
                           </div>
                         )}
                       </div>
