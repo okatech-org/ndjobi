@@ -399,11 +399,11 @@ export default function AdminDashboard() {
   );
 
   const renderValidation = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="space-y-3 md:space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2 md:gap-4">
         <div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Cas Sensibles - Validation Présidentielle</h3>
-          <p className="text-muted-foreground mt-1">
+          <h3 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Cas Sensibles - Validation Présidentielle</h3>
+          <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">
             Dossiers critiques nécessitant votre décision stratégique
           </p>
         </div>
@@ -861,7 +861,7 @@ export default function AdminDashboard() {
 
           {/* Contenu principal avec scroll */}
           <main className="flex-1 overflow-y-auto">
-            <div className="container py-6 md:py-8 space-y-6">
+            <div className="container py-3 md:py-8 space-y-3 md:space-y-6">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
