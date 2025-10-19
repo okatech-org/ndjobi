@@ -249,6 +249,16 @@ export const IAstedFloatingButton = () => {
 
       console.log('✅ Enregistrement démarré avec détection automatique');
 
+      // Sécurité: arrêt auto après 15s si aucune fin détectée
+      if (silenceTimer) clearTimeout(silenceTimer as any);
+      const t = setTimeout(() => {
+        if (isListening) {
+          console.log('⏱️ Sécurité: arrêt automatique après 15s');
+          stopVoiceInteraction();
+        }
+      }, 15000);
+      setSilenceTimer(t as any);
+
       // Démarrer la détection de silence
       startSilenceDetection();
 
@@ -282,35 +292,44 @@ export const IAstedFloatingButton = () => {
       source.connect(analyser);
       setAudioAnalyser(analyser);
 
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
+      // Utiliser données en float et calculer le RMS pour une VAD robuste
+      const bufferLength = analyser.fftSize;
+      const floatData = new Float32Array(bufferLength);
       
       let silenceDuration = 0;
-      const SILENCE_THRESHOLD = 8; // plus sensible
-      const SILENCE_DURATION = 1200; // 1.2s de silence
+      let hadSpeech = false;
+      const RMS_SILENCE = 0.012; // seuil de silence
+      const RMS_SPEECH = 0.02;   // seuil d'activation de la parole
+      const SILENCE_DURATION = 1200; // 1.2s
 
-      const checkAudioLevel = () => {
+      // Smoother
+      analyser.smoothingTimeConstant = 0.1;
+
+      const checkAudioLevel = async () => {
         if (!isListening) return;
 
-        analyser.getByteTimeDomainData(dataArray);
-        
-        // Calculer le niveau audio
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-          const value = Math.abs(dataArray[i] - 128);
-          sum += value;
-        }
-        const average = sum / bufferLength;
+        try { await audioCtxRef.current?.resume(); } catch {}
 
-        if (average < SILENCE_THRESHOLD) {
+        analyser.getFloatTimeDomainData(floatData);
+
+        let sumSquares = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          const s = floatData[i];
+          sumSquares += s * s;
+        }
+        const rms = Math.sqrt(sumSquares / bufferLength);
+
+        if (rms > RMS_SPEECH) {
+          if (!hadSpeech) console.log('🗣️ Parole détectée');
+          hadSpeech = true;
+          silenceDuration = 0;
+        } else if (hadSpeech && rms < RMS_SILENCE) {
           silenceDuration += 100;
           if (silenceDuration >= SILENCE_DURATION) {
-            console.log('🔇 Silence détecté - Fin de parole');
+            console.log('🔇 Silence détecté (RMS) - Fin de parole');
             stopVoiceInteraction();
             return;
           }
-        } else {
-          silenceDuration = 0;
         }
 
         setTimeout(checkAudioLevel, 100);
@@ -338,6 +357,10 @@ export const IAstedFloatingButton = () => {
     if (audioCtxRef.current) {
       try { await audioCtxRef.current.close(); } catch {}
       audioCtxRef.current = null;
+    }
+    if (silenceTimer) {
+      clearTimeout(silenceTimer as any);
+      setSilenceTimer(null);
     }
 
     try {
