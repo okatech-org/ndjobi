@@ -809,12 +809,60 @@ const styles = `
 .thick-matter-button.md { width: 128px; height: 128px; }
 .thick-matter-button.lg { width: 160px; height: 160px; }
 
-/* Responsive mobile - centrage */
+/* Responsive mobile - adaptation des tailles et optimisations */
 @media (max-width: 640px) {
   .perspective-container {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  
+  /* Tailles réduites pour mobile */
+  .thick-matter-button.sm { width: 64px; height: 64px; }
+  .thick-matter-button.md { width: 96px; height: 96px; }
+  .thick-matter-button.lg { width: 120px; height: 120px; }
+  
+  /* Optimisation des animations pour mobile */
+  .thick-matter-button {
+    animation-duration: 3s, 3s, 20s, 5s, 25s;
+  }
+  
+  .thick-matter-button:hover {
+    animation-duration: 1.6s, 1.6s, 20s, 1.6s, 2.5s;
+  }
+  
+  /* Réduction de l'intensité des effets pour performance */
+  .wave-layer-1, .wave-layer-2, .wave-layer-3 {
+    opacity: 0.3;
+  }
+  
+  .organic-membrane, .organic-membrane-secondary {
+    opacity: 0.5;
+  }
+  
+  .satellite-particle {
+    width: 6px;
+    height: 6px;
+  }
+  
+  /* Simplification des gradients et ombres */
+  .morphing-bg {
+    filter: saturate(1.8) brightness(1.1);
+  }
+  
+  .thick-matter-button:hover .morphing-bg {
+    filter: saturate(2.5) brightness(1.3) contrast(1.2);
+  }
+}
+
+/* Adaptation pour très petits écrans */
+@media (max-width: 380px) {
+  .thick-matter-button.sm { width: 56px; height: 56px; }
+  .thick-matter-button.md { width: 80px; height: 80px; }
+  .thick-matter-button.lg { width: 100px; height: 100px; }
+  
+  .satellite-particle {
+    display: none;
   }
 }
 `;
@@ -866,8 +914,8 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
             onMouseLeave={handleMouseLeave}
             className={`thick-matter-button living-matter ${size} ${isClicked ? 'color-shift' : ''} ${isActive ? 'active' : ''} ${isProcessing ? 'processing' : ''} relative cursor-pointer focus:outline-none overflow-hidden border-0 ${className}`}
             style={{
-              '--iasted-icon-size': size === 'sm' ? '32px' : size === 'lg' ? '64px' : '48px',
-              '--iasted-text-size': size === 'sm' ? '14px' : size === 'lg' ? '28px' : '20px',
+              '--iasted-icon-size': size === 'sm' ? 'clamp(24px, 5vw, 32px)' : size === 'lg' ? 'clamp(48px, 10vw, 64px)' : 'clamp(36px, 7vw, 48px)',
+              '--iasted-text-size': size === 'sm' ? 'clamp(12px, 2.5vw, 14px)' : size === 'lg' ? 'clamp(20px, 4vw, 28px)' : 'clamp(16px, 3vw, 20px)',
             } as React.CSSProperties}
           >
             {/* Couche de profondeur */}
