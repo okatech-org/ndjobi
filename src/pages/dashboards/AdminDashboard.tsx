@@ -344,12 +344,12 @@ export default function AdminDashboard() {
       </Alert>
 
         <Card className="glass-effect border-none">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+          <CardHeader className="pb-2 md:pb-6 pt-3 md:pt-6 px-3 md:px-6">
+            <CardTitle className="flex items-center gap-1.5 md:gap-2 text-sm md:text-lg">
               <MapPin className="h-4 w-4 md:h-5 md:w-5" />
               Distribution Régionale
             </CardTitle>
-            <CardDescription className="text-xs md:text-sm">
+            <CardDescription className="text-xs md:text-sm mt-0.5 md:mt-1.5">
               Performance par région
             </CardDescription>
           </CardHeader>
