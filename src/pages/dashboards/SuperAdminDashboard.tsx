@@ -4599,70 +4599,72 @@ const SuperAdminDashboard = () => {
             </AlertDescription>
           </Alert>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-4">
             {demoAccountsList.map((account, index) => (
               <Card key={account.id} className="border-2 hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        {getRoleIcon(account.role)}
-                        <div>
-                          <CardTitle className="text-base">{account.full_name}</CardTitle>
-                          <Badge className={`mt-1 ${getRoleBadgeColor(account.role)}`}>
+                <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <div className="flex items-start justify-between gap-1 sm:gap-2">
+                      <div className="flex items-start gap-1 sm:gap-2 flex-1 min-w-0">
+                        <div className="mt-0.5 flex-shrink-0">
+                          {getRoleIcon(account.role)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-xs sm:text-base truncate">{account.full_name}</CardTitle>
+                          <Badge className={`mt-0.5 sm:mt-1 text-[10px] sm:text-xs ${getRoleBadgeColor(account.role)}`}>
                             {demoAccountsFromDatabaseService.getRoleDisplayName(account.role)}
                           </Badge>
                         </div>
                       </div>
-                    <Badge variant="outline" className="text-lg font-bold">
+                    <Badge variant="outline" className="text-xs sm:text-lg font-bold flex-shrink-0">
                       #{index + 1}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Mail className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="font-medium text-xs text-muted-foreground">Email</p>
-                        <p className="text-xs break-all">{account.email}</p>
+                <CardContent className="space-y-2 sm:space-y-3 px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="space-y-1.5 sm:space-y-2 text-sm">
+                    <div className="flex items-start gap-1.5 sm:gap-2">
+                      <Mail className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[10px] sm:text-xs text-muted-foreground">Email</p>
+                        <p className="text-[10px] sm:text-xs break-all">{account.email}</p>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-2">
-                      <Phone className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="font-medium text-xs text-muted-foreground">Téléphone</p>
-                        <p className="text-xs">{account.phone}</p>
+                    <div className="flex items-start gap-1.5 sm:gap-2">
+                      <Phone className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[10px] sm:text-xs text-muted-foreground">Tél.</p>
+                        <p className="text-[10px] sm:text-xs">{account.phone}</p>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-2">
-                      <Key className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="font-medium text-xs text-muted-foreground">Code PIN</p>
-                        <p className="text-base font-mono font-bold">{account.pin}</p>
+                    <div className="flex items-start gap-1.5 sm:gap-2">
+                      <Key className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[10px] sm:text-xs text-muted-foreground">PIN</p>
+                        <p className="text-sm sm:text-base font-mono font-bold">{account.pin}</p>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-2">
-                      <Globe className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="font-medium text-xs text-muted-foreground">Organisation</p>
-                        <p className="text-xs">{account.organization}</p>
+                    <div className="flex items-start gap-1.5 sm:gap-2">
+                      <Globe className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[10px] sm:text-xs text-muted-foreground">Org.</p>
+                        <p className="text-[10px] sm:text-xs line-clamp-2">{account.organization}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t">
+                  <div className="pt-1.5 sm:pt-2 border-t hidden sm:block">
                     <p className="text-xs text-muted-foreground italic">
                       {demoAccountsFromDatabaseService.getRoleDescription(account.role)}
                     </p>
                   </div>
 
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-1.5 sm:gap-2 pt-1.5 sm:pt-2">
                     <Button
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 text-[10px] sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
                       onClick={() => handleSwitchToDemo({
                         id: account.id,
                         email: account.email,
@@ -4673,15 +4675,17 @@ const SuperAdminDashboard = () => {
                       })}
                       disabled={switchingAccount}
                     >
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      {switchingAccount ? 'Basculement...' : 'Tester'}
+                      <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                      <span className="hidden sm:inline">{switchingAccount ? 'Basculement...' : 'Tester'}</span>
+                      <span className="sm:hidden">{switchingAccount ? '...' : 'Test'}</span>
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
+                      className="h-7 sm:h-9 w-7 sm:w-9 p-0"
                       onClick={() => handleCopyCredentials(account.email, account.pin)}
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                     </Button>
                   </div>
                 </CardContent>
