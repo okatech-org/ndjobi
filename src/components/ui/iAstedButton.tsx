@@ -911,6 +911,10 @@ const styles = `
     display: flex;
     justify-content: center;
     align-items: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
   }
   
   /* Tailles réduites pour mobile */
@@ -951,8 +955,41 @@ const styles = `
   }
 }
 
+/* Adaptation pour tablette */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .perspective-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+  }
+  
+  /* Tailles intermédiaires pour tablette */
+  .thick-matter-button.sm { width: 72px; height: 72px; }
+  .thick-matter-button.md { width: 112px; height: 112px; }
+  .thick-matter-button.lg { width: 140px; height: 140px; }
+}
+
+/* Desktop - position par défaut */
+@media (min-width: 1025px) {
+  .perspective-container {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    z-index: 9999;
+  }
+}
+
 /* Adaptation pour très petits écrans */
 @media (max-width: 380px) {
+  .perspective-container {
+    bottom: 15px;
+    right: 15px;
+  }
+  
   .thick-matter-button.sm { width: 56px; height: 56px; }
   .thick-matter-button.md { width: 80px; height: 80px; }
   .thick-matter-button.lg { width: 100px; height: 100px; }
