@@ -30,6 +30,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import emblemGabon from '@/assets/emblem_gabon.png';
 
 export default function AdminDashboard() {
   const { user, role, isLoading: authLoading } = useAuth();
@@ -829,9 +830,11 @@ export default function AdminDashboard() {
                 </SidebarTrigger>
                 
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center animate-pulse-glow">
-                    <Shield className="h-4 w-4 text-white" />
-                  </div>
+                  <img 
+                    src={emblemGabon} 
+                    alt="Emblème du Gabon"
+                    className="h-8 w-8 object-contain rounded-full bg-white p-1 shadow-sm"
+                  />
                   <div className="hidden md:block">
                     <h1 className="text-base font-bold">PROTOCOLE D'ÉTAT</h1>
                     <p className="text-[9px] text-muted-foreground">Intelligence • Vision 2025</p>
