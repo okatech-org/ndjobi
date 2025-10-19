@@ -84,11 +84,37 @@ export const IAstedFloatingButton = () => {
     }
   };
 
+  // Débloquer la lecture audio via un court bip (politique d'autoplay)
+  const primeAudio = async () => {
+    try {
+      const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      await ctx.resume();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.01);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.05);
+      setTimeout(() => ctx.close(), 120);
+    } catch (e) {
+      console.warn('Prime audio failed:', e);
+    }
+  };
+
   /**
    * Double clic : Mode vocal
    */
   const handleDoubleClick = async () => {
     console.log('🎙️ Mode vocal activé - Double clic détecté');
+
+    // Débloquer l'audio immédiatement (user gesture)
+    await primeAudio();
     
     // Si déjà ouvert en mode texte, basculer vers vocal
     if (isOpen && mode === 'text') {
@@ -125,6 +151,16 @@ export const IAstedFloatingButton = () => {
     setIsSpeaking(true);
     const result = await IAstedVoiceService.speakText(welcomeText);
     setIsSpeaking(false);
+
+    if (!result?.success) {
+      console.warn('Aucune sortie audio détectée pour le message de bienvenue');
+      toast({
+        title: 'Audio bloqué',
+        description: "Activez le son du navigateur puis réessayez (double-clic).",
+        variant: 'destructive'
+      });
+      return;
+    }
 
     if (result.audioUrl) {
       setMessages(prev => {

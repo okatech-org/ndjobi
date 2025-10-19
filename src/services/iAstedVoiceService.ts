@@ -198,7 +198,7 @@ export class IAstedVoiceService {
     try {
       // Call ElevenLabs via edge function
       const { data, error } = await supabase.functions.invoke('iasted-tts', {
-        body: { text }
+        body: { text, voice: 'XB0fDUnXU5powFXDhCwa' } // Charlotte (FR) par défaut
       });
 
       if (error) throw error;
