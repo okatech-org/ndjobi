@@ -4854,19 +4854,19 @@ const SuperAdminDashboard = () => {
 
     return (
       <div className="space-y-6">
-        <Alert className="border-blue-500/50 bg-blue-50/10">
+        <Alert className="border-blue-500/50 bg-blue-50/10 p-3 sm:p-4">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Information</AlertTitle>
-          <AlertDescription>
+          <AlertTitle className="text-sm sm:text-base">Information</AlertTitle>
+          <AlertDescription className="text-xs sm:text-sm">
             Les comptes démo permettent aux visiteurs de tester la plateforme avec des données fictives.
             Chaque compte a un rôle spécifique (Citoyen, Agent, Admin) et des données de test.
           </AlertDescription>
         </Alert>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="flex-1">
-              <Label htmlFor="demo-role">Rôle du nouveau compte</Label>
+              <Label htmlFor="demo-role" className="text-sm sm:text-base">Rôle du nouveau compte</Label>
               <Select value={newAccountRole} onValueChange={setNewAccountRole}>
                 <SelectTrigger id="demo-role">
                   <SelectValue />
@@ -4881,7 +4881,7 @@ const SuperAdminDashboard = () => {
             <Button 
               onClick={handleCreateDemoAccount} 
               disabled={creatingAccount}
-              className="mt-6"
+              className="mt-4 sm:mt-6 text-sm"
             >
               <UserPlus className="h-4 w-4 mr-2" />
               {creatingAccount ? "Création..." : "Créer un compte"}
