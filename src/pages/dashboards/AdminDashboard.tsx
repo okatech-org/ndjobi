@@ -6,7 +6,7 @@ import {
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
   AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu,
-  Mail, Phone, X
+  Mail, Phone, X, Check
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
