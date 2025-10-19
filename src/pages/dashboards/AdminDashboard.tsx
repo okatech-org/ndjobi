@@ -728,11 +728,11 @@ export default function AdminDashboard() {
   );
 
   const renderRapportsStrategiques = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="space-y-3 md:space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2 md:gap-4">
               <div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Rapports Stratégiques</h3>
-          <p className="text-muted-foreground mt-1">
+          <h3 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Rapports Stratégiques</h3>
+          <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">
             Analytics avancés et indicateurs Vision Gabon 2025
           </p>
               </div>
