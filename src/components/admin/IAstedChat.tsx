@@ -262,44 +262,44 @@ export const IAstedChat = ({ isOpen = false }: IAstedChatProps) => {
             Capacités de iAsted
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg border">
-              <div className="flex items-center gap-2 mb-2">
-                <Mic className="w-5 h-5 text-purple-600" />
-                <h4 className="font-semibold">Reconnaissance Vocale</h4>
+        <CardContent className="px-3 md:px-6 pb-3 md:pb-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+            <div className="p-2 md:p-4 rounded-lg border">
+              <div className="flex items-center gap-1.5 md:gap-2 mb-1 md:mb-2">
+                <Mic className="w-4 h-4 md:w-5 md:h-5 text-purple-600 flex-shrink-0" />
+                <h4 className="font-semibold text-xs md:text-sm truncate">Reconnaissance Vocale</h4>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[10px] md:text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">
                 Transcription temps réel optimisée pour le français gabonais (Deepgram Nova-3)
               </p>
             </div>
 
-            <div className="p-4 rounded-lg border">
-              <div className="flex items-center gap-2 mb-2">
-                <Brain className="w-5 h-5 text-blue-600" />
-                <h4 className="font-semibold">Multi-LLM Router</h4>
+            <div className="p-2 md:p-4 rounded-lg border">
+              <div className="flex items-center gap-1.5 md:gap-2 mb-1 md:mb-2">
+                <Brain className="w-4 h-4 md:w-5 md:h-5 text-blue-600 flex-shrink-0" />
+                <h4 className="font-semibold text-xs md:text-sm truncate">Multi-LLM Router</h4>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[10px] md:text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">
                 Intelligence distribuée (Gemini Flash, GPT-4o-mini, Claude Haiku) avec optimisation coûts
               </p>
             </div>
 
-            <div className="p-4 rounded-lg border">
-              <div className="flex items-center gap-2 mb-2">
-                <Volume2 className="w-5 h-5 text-green-600" />
-                <h4 className="font-semibold">Synthèse Vocale</h4>
+            <div className="p-2 md:p-4 rounded-lg border col-span-2 md:col-span-1">
+              <div className="flex items-center gap-1.5 md:gap-2 mb-1 md:mb-2">
+                <Volume2 className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
+                <h4 className="font-semibold text-xs md:text-sm truncate">Synthèse Vocale</h4>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[10px] md:text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">
                 Voix française naturelle avec Google Cloud TTS Neural2
               </p>
             </div>
           </div>
 
-          <Alert className="mt-4 border-purple-200 bg-purple-50/50 dark:bg-purple-950/20">
-            <Brain className="h-4 w-4 text-purple-600" />
-            <AlertDescription className="text-sm">
+          <Alert className="mt-2 md:mt-4 border-purple-200 bg-purple-50/50 dark:bg-purple-950/20 p-2 md:p-4">
+            <Brain className="h-3 w-3 md:h-4 md:w-4 text-purple-600" />
+            <AlertDescription className="text-[10px] md:text-sm">
               <strong>Respect du RBAC :</strong> iAsted adapte automatiquement ses réponses et permissions selon votre rôle {' '}
-              <Badge variant="outline" className="ml-1 capitalize">{role}</Badge>. 
+              <Badge variant="outline" className="ml-1 capitalize text-[9px] md:text-xs">{role}</Badge>. 
               Toutes les conversations sont chiffrées et auditées selon les normes CNPDCP.
             </AlertDescription>
           </Alert>
