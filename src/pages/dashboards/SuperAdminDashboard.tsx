@@ -4947,60 +4947,6 @@ const SuperAdminDashboard = () => {
             </div>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-            <Button
-              variant={activeView === 'dashboard' ? 'default' : 'outline'}
-              onClick={() => handleNavigateToView('dashboard')}
-              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
-            >
-              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden xs:inline">Dashboard</span>
-              <span className="xs:hidden">Dash</span>
-            </Button>
-            <Button
-              variant={activeView === 'system' ? 'default' : 'outline'}
-              onClick={() => handleNavigateToView('system')}
-              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
-            >
-              <Server className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden xs:inline">Gestion Système</span>
-              <span className="xs:hidden">Système</span>
-            </Button>
-            <Button
-              variant={activeView === 'users' ? 'default' : 'outline'}
-              onClick={() => handleNavigateToView('users')}
-              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
-            >
-              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Utilisateurs
-            </Button>
-            <Button
-              variant={activeView === 'project' ? 'default' : 'outline'}
-              onClick={() => handleNavigateToView('project')}
-              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
-            >
-              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Projet
-            </Button>
-            <Button
-              variant={activeView === 'xr7' ? 'default' : 'outline'}
-              onClick={() => handleNavigateToView('xr7')}
-              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
-            >
-              <Lock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden xs:inline">Module XR-7</span>
-              <span className="xs:hidden">XR-7</span>
-            </Button>
-            <Button
-              variant={activeView === 'demo' ? 'default' : 'outline'}
-              onClick={() => handleNavigateToView('demo')}
-              className="whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4"
-            >
-              <PlayCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Démo
-            </Button>
-          </div>
-
           {isLoading && (
             <Alert>
               <RefreshCcw className="h-4 w-4 animate-spin" />
