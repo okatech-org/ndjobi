@@ -29,15 +29,7 @@ interface Message {
 export const IAstedFloatingButton = () => {
   const { role } = useAuth();
   
-  // Vérifier si l'utilisateur a accès à iAsted (super_admin, admin, sub_admin uniquement)
-  const hasIAstedAccess = role && ['super_admin', 'admin', 'sub_admin'].includes(role);
-  
-  // Ne pas afficher le bouton si l'utilisateur n'a pas accès
-  if (!hasIAstedAccess) {
-    return null;
-  }
-  
-  // États
+  // États - TOUS les hooks doivent être appelés avant tout return conditionnel
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<'voice' | 'text'>('text');
   const [isListening, setIsListening] = useState(false);
@@ -605,6 +597,15 @@ export const IAstedFloatingButton = () => {
     
     await startVoiceInteraction();
   };
+
+  // Vérifier si l'utilisateur a accès à iAsted (super_admin, admin, sub_admin uniquement)
+  // Cette vérification doit être APRÈS tous les hooks
+  const hasIAstedAccess = role && ['super_admin', 'admin', 'sub_admin'].includes(role);
+  
+  // Ne pas afficher le bouton si l'utilisateur n'a pas accès
+  if (!hasIAstedAccess) {
+    return null;
+  }
 
   return (
     <>
