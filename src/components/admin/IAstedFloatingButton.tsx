@@ -427,7 +427,7 @@ export const IAstedFloatingButton = () => {
   };
 
   /**
-   * Détection automatique de silence
+   * Détection automatique de silence avec VAD amélioré
    */
   const startSilenceDetection = () => {
     try {
@@ -445,18 +445,24 @@ export const IAstedFloatingButton = () => {
       source.connect(analyser);
       setAudioAnalyser(analyser);
 
-      // Utiliser données en float et calculer le RMS pour une VAD robuste
+      // VAD amélioré avec seuils adaptatifs
       const bufferLength = analyser.fftSize;
       const floatData = new Float32Array(bufferLength);
       
       let silenceDuration = 0;
       let hadSpeech = false;
-      const RMS_SILENCE = 0.012; // seuil de silence
-      const RMS_SPEECH = 0.02;   // seuil d'activation de la parole
-      const SILENCE_DURATION = 1200; // 1.2s
+      let speechStartTime = 0;
+      let maxRMS = 0; // Niveau maximal détecté pour s'adapter au volume
+      
+      // Seuils adaptatifs
+      let RMS_SILENCE = 0.01;   // Seuil initial de silence
+      let RMS_SPEECH = 0.018;    // Seuil initial d'activation
+      const MIN_SPEECH_DURATION = 500; // Minimum 500ms de parole avant de considérer la fin
+      const SILENCE_DURATION = 800; // 800ms de silence pour terminer (plus réactif)
+      const ADAPTIVE_FACTOR = 0.15; // Facteur d'adaptation
 
-      // Smoother
-      analyser.smoothingTimeConstant = 0.1;
+      // Smoother pour éviter les faux positifs
+      analyser.smoothingTimeConstant = 0.2;
 
       const checkAudioLevel = async () => {
         if (!isListening) return;
@@ -465,6 +471,7 @@ export const IAstedFloatingButton = () => {
 
         analyser.getFloatTimeDomainData(floatData);
 
+        // Calculer RMS (Root Mean Square)
         let sumSquares = 0;
         for (let i = 0; i < bufferLength; i++) {
           const s = floatData[i];
@@ -472,16 +479,49 @@ export const IAstedFloatingButton = () => {
         }
         const rms = Math.sqrt(sumSquares / bufferLength);
 
+        // Adapter les seuils selon le niveau maximal détecté
+        if (rms > maxRMS) {
+          maxRMS = rms;
+          RMS_SPEECH = Math.max(0.015, maxRMS * ADAPTIVE_FACTOR);
+          RMS_SILENCE = RMS_SPEECH * 0.5;
+          console.log(`📊 Seuils adaptés: Parole=${RMS_SPEECH.toFixed(4)}, Silence=${RMS_SILENCE.toFixed(4)}`);
+        }
+
+        // Détection de parole
         if (rms > RMS_SPEECH) {
-          if (!hadSpeech) console.log('🗣️ Parole détectée');
-          hadSpeech = true;
+          if (!hadSpeech) {
+            console.log('🗣️ Parole détectée - Début d\'énoncé');
+            hadSpeech = true;
+            speechStartTime = Date.now();
+          }
           silenceDuration = 0;
-        } else if (hadSpeech && rms < RMS_SILENCE) {
-          silenceDuration += 100;
-          if (silenceDuration >= SILENCE_DURATION) {
-            console.log('🔇 Silence détecté (RMS) - Fin de parole');
-            stopVoiceInteraction();
-            return;
+        } 
+        // Détection de silence après parole
+        else if (hadSpeech && rms < RMS_SILENCE) {
+          const speechDuration = Date.now() - speechStartTime;
+          
+          // Ne compter le silence que si on a eu assez de parole
+          if (speechDuration >= MIN_SPEECH_DURATION) {
+            silenceDuration += 100;
+            
+            // Afficher progression du silence
+            if (silenceDuration % 200 === 0) {
+              console.log(`🔇 Silence: ${silenceDuration}ms / ${SILENCE_DURATION}ms`);
+            }
+            
+            if (silenceDuration >= SILENCE_DURATION) {
+              console.log('✅ Fin de parole détectée - Traitement...');
+              stopVoiceInteraction();
+              return;
+            }
+          }
+        }
+        // Bruit ambiant (ni parole ni silence)
+        else if (hadSpeech && rms >= RMS_SILENCE && rms <= RMS_SPEECH) {
+          // Zone grise : ne pas incrémenter le silence si c'est juste après la parole
+          const timeSinceSpeech = Date.now() - speechStartTime;
+          if (timeSinceSpeech > MIN_SPEECH_DURATION) {
+            silenceDuration += 50; // Incrément plus lent dans la zone grise
           }
         }
 
@@ -495,7 +535,7 @@ export const IAstedFloatingButton = () => {
   };
 
   /**
-   * Arrêter interaction vocale
+   * Arrêter interaction vocale et traiter la réponse
    */
   const stopVoiceInteraction = async () => {
     console.log('🛑 Arrêt de l\'enregistrement...');
@@ -527,27 +567,22 @@ export const IAstedFloatingButton = () => {
 
       console.log('📝 Transcription reçue:', result.transcription);
 
-      // Message de transition immédiat
-      const transitionMessage = "Bien Excellence, laissez-moi analyser votre demande...";
+      // Message de transition immédiat avec parole
+      const transitionMessage = "Bien Excellence, laissez-moi réfléchir...";
       addAssistantMessage(transitionMessage, 'voice');
       
-      // Parler pendant le traitement
+      // Parler le message de transition et attendre la fin
       setIsSpeaking(true);
-      IAstedVoiceService.speakText(transitionMessage);
-      
-      // Timeout de 3 secondes
-      const processingTimeout = setTimeout(() => {
-        if (isProcessing) {
-          const delayMessage = "Cela nécessite un peu plus de temps, Excellence. Je traite votre demande...";
-          addAssistantMessage(delayMessage, 'voice');
-          IAstedVoiceService.speakText(delayMessage);
-        }
-      }, 3000);
-
-      await getAIResponse(result.transcription, 'voice');
-      
-      clearTimeout(processingTimeout);
+      console.log('💬 iAsted parle (transition)...');
+      await IAstedVoiceService.speakText(transitionMessage);
       setIsSpeaking(false);
+      
+      // Passer au traitement (cerveau)
+      console.log('🧠 iAsted réfléchit...');
+      setIsProcessing(true);
+
+      // Obtenir la réponse IA
+      await getAIResponse(result.transcription, 'voice');
 
     } catch (error: any) {
       console.error('❌ Erreur traitement vocal:', error);
@@ -556,8 +591,8 @@ export const IAstedFloatingButton = () => {
         description: 'Impossible de traiter votre message vocal',
         variant: 'destructive'
       });
-    } finally {
       setIsProcessing(false);
+      setIsSpeaking(false);
     }
   };
 
@@ -576,8 +611,10 @@ export const IAstedFloatingButton = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
-
+    
+    setIsProcessing(true);
     await getAIResponse(inputText, 'text');
+    setIsProcessing(false);
   };
 
   /**
@@ -587,7 +624,7 @@ export const IAstedFloatingButton = () => {
     userQuestion: string,
     interactionMode: 'voice' | 'text'
   ) => {
-    setIsProcessing(true);
+    console.log('🤖 Demande à l\'IA...', { userQuestion, interactionMode });
     const startTime = Date.now();
 
     try {
@@ -605,12 +642,19 @@ export const IAstedFloatingButton = () => {
       }
 
       const responseTime = Date.now() - startTime;
+      console.log(`✅ Réponse IA reçue en ${responseTime}ms`);
 
       let assistantAudioUrl: string | undefined;
 
       if (interactionMode === 'voice') {
+        // Terminer le traitement et passer à la parole
+        setIsProcessing(false);
         setIsSpeaking(true);
+        console.log('💬 iAsted parle (réponse finale)...');
+        
         const ttsResult = await IAstedVoiceService.speakText(result.response || '');
+        
+        console.log('✅ Réponse vocale terminée');
         setIsSpeaking(false);
 
         if (ttsResult.audioUrl && ttsResult.audioBlob) {
@@ -649,14 +693,14 @@ export const IAstedFloatingButton = () => {
       });
 
     } catch (error: any) {
-      console.error('Erreur réponse IA:', error);
+      console.error('❌ Erreur réponse IA:', error);
+      setIsProcessing(false);
+      setIsSpeaking(false);
       toast({
         title: 'Erreur',
         description: error.message,
         variant: 'destructive'
       });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
