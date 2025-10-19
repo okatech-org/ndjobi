@@ -15,6 +15,7 @@ import { IAstedService } from '@/services/iAstedService';
 import { IAstedVoiceService } from '@/services/iAstedVoiceService';
 import { IAstedStorageService } from '@/services/iAstedStorageService';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Message {
@@ -26,6 +27,16 @@ interface Message {
 }
 
 export const IAstedFloatingButton = () => {
+  const { role } = useAuth();
+  
+  // Vérifier si l'utilisateur a accès à iAsted (super_admin, admin, sub_admin uniquement)
+  const hasIAstedAccess = role && ['super_admin', 'admin', 'sub_admin'].includes(role);
+  
+  // Ne pas afficher le bouton si l'utilisateur n'a pas accès
+  if (!hasIAstedAccess) {
+    return null;
+  }
+  
   // États
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<'voice' | 'text'>('text');

@@ -11,7 +11,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1341,8 +1340,6 @@ const AgentDashboard = () => {
           )}
         </div>
       </main>
-      
-      <IAstedFloatingButton />
       
       <Footer />
     </div>
