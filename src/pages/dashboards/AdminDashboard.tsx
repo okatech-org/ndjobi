@@ -811,7 +811,7 @@ export default function AdminDashboard() {
 
           {/* Contenu principal avec scroll */}
           <main className="flex-1 overflow-y-auto bg-background">
-            <div className="container py-6 md:py-8 space-y-6">
+            <div className="container py-6 md:py-8 space-y-6 bg-background">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
