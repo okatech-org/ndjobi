@@ -610,7 +610,7 @@ export const IAstedFloatingButton = () => {
   return (
     <>
       {/* BOUTON SPHÉRIQUE */}
-      <div className="fixed bottom-6 right-6 z-50 relative" onTouchStart={unlockAudioIfNeeded} onMouseDown={unlockAudioIfNeeded}>
+      <div className="fixed top-1/2 -translate-y-1/2 right-6 z-50" onTouchStart={unlockAudioIfNeeded} onMouseDown={unlockAudioIfNeeded}>
         {/* Indicateurs visuels animés */}
         {isListening && (
           <div className="absolute -inset-4 rounded-full ring-4 ring-purple-500 animate-ping pointer-events-none opacity-75" />
@@ -640,7 +640,7 @@ export const IAstedFloatingButton = () => {
 
       {/* INTERFACE CHAT */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 w-[400px] h-[600px] shadow-2xl z-50 flex flex-col">
+        <Card className="fixed top-1/2 -translate-y-1/2 right-24 w-[400px] h-[600px] shadow-2xl z-50 flex flex-col max-w-[calc(100vw-2rem)] md:w-[400px]">
           {/* En-tête */}
           <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-600 to-blue-600">
             <div className="flex items-center gap-3">
