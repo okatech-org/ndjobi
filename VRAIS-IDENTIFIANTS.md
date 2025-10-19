@@ -35,10 +35,10 @@ Le script d'import **met uniquement à jour** leurs profils et rôles dans les t
 **Téléphone :** `+24177888001`  
 **Code PIN :** `111111`  
 
-**Rôle :** Super Admin (Protocole d'État)  
+**Rôle :** Admin (Vue globale, Validation)  
 **Fonction :** Président / Administrateur  
 **Organisation :** Présidence de la République  
-**Dashboard :** `/dashboard/super-admin`
+**Dashboard :** `/dashboard/admin`
 
 **Privilèges :**
 - ✅ Vue nationale complète
@@ -47,6 +47,7 @@ Le script d'import **met uniquement à jour** leurs profils et rôles dans les t
 - ✅ Accès à tous les signalements (toutes catégories)
 - ✅ Décisions stratégiques nationales
 - ✅ Supervision générale anti-corruption
+- 🔒 Pas d'accès configuration système (réservé au Super Admin)
 
 ---
 
@@ -56,7 +57,7 @@ Le script d'import **met uniquement à jour** leurs profils et rôles dans les t
 **Téléphone :** `+24177888002`  
 **Code PIN :** `222222`  
 
-**Rôle :** Sous-Administrateur  
+**Rôle :** Sub-Admin (Vue sectorielle)  
 **Fonction :** Sous-Administrateur DGSS  
 **Organisation :** DGSS (Direction Générale de la Sécurité d'État)  
 **Dashboard :** `/dashboard/admin`
@@ -68,6 +69,8 @@ Le script d'import **met uniquement à jour** leurs profils et rôles dans les t
 - ✅ Rapports ministériels
 - ✅ Coordination enquêtes sécuritaires
 - 🔒 Accès limité aux signalements de son secteur
+- 🔒 Pas de validation cas critiques
+- 🔒 Pas d'accès Protocole XR-7
 
 ---
 
@@ -77,7 +80,7 @@ Le script d'import **met uniquement à jour** leurs profils et rôles dans les t
 **Téléphone :** `+24177888003`  
 **Code PIN :** `333333`  
 
-**Rôle :** Sous-Administrateur  
+**Rôle :** Sub-Admin (Vue sectorielle)  
 **Fonction :** Sous-Administrateur DGR  
 **Organisation :** DGR (Direction Générale du Renseignement)  
 **Dashboard :** `/dashboard/admin`
@@ -89,6 +92,8 @@ Le script d'import **met uniquement à jour** leurs profils et rôles dans les t
 - ✅ Intelligence anticorruption
 - ✅ Rapports de renseignement
 - 🔒 Accès limité aux signalements de son secteur
+- 🔒 Pas de validation cas critiques
+- 🔒 Pas d'accès Protocole XR-7
 
 ---
 
@@ -117,9 +122,9 @@ Le script d'import **met uniquement à jour** leurs profils et rôles dans les t
 | Compte | Téléphone | PIN | Rôle | Organisation |
 |--------|-----------|-----|------|--------------|
 | **Super Admin Système** | +33661002616 | 999999 | super_admin | Système |
-| **Président** | +24177888001 | 111111 | super_admin | Présidence |
-| **Sous-Admin DGSS** | +24177888002 | 222222 | admin | DGSS |
-| **Sous-Admin DGR** | +24177888003 | 333333 | admin | DGR |
+| **Président** | +24177888001 | 111111 | admin | Présidence |
+| **Sous-Admin DGSS** | +24177888002 | 222222 | sub_admin | DGSS |
+| **Sous-Admin DGR** | +24177888003 | 333333 | sub_admin | DGR |
 | **Agent Pêche** | +24177888010 | 000000 | agent | Ministère Pêche |
 
 ---

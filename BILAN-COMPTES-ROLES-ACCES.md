@@ -115,37 +115,52 @@
 - **Email:** `24177888001@ndjobi.com`
 - **Téléphone:** `+24177888001`
 - **PIN:** `111111`
-- **Rôle:** `super_admin` (Protocole d'État)
+- **Rôle:** `admin` (Vue globale, Validation)
 - **Fonction:** Président / Administrateur
 - **Organisation:** Présidence de la République
-- **Statut:** ❌ **ERREUR 500** (nécessite fix RPC functions)
+- **Statut:** 🔧 **CORRIGÉ** (selon logique du diagramme)
 - **Usage:** Politique, validation, rapports présidentiels
-- **Dashboard:** `/dashboard/super-admin`
+- **Dashboard:** `/dashboard/admin`
 
 ---
 
-### 🟠 COMPTES ADMIN (2)
+### 🟠 COMPTES ADMIN (1)
 
-#### 3. Sous-Admin DGSS
+#### 3. Président de la République
+- **Email:** `24177888001@ndjobi.com`
+- **Téléphone:** `+24177888001`
+- **PIN:** `111111`
+- **Rôle:** `admin` (Vue globale, Validation)
+- **Fonction:** Président / Administrateur
+- **Organisation:** Présidence de la République
+- **Statut:** 🔧 **CORRIGÉ** (selon logique du diagramme)
+- **Dashboard:** `/dashboard/admin`
+- **Spécialisation:** Vue nationale, validation cas critiques
+
+---
+
+### 🟡 COMPTES SUB-ADMIN (2)
+
+#### 4. Sous-Admin DGSS
 - **Email:** `24177888002@ndjobi.com`
 - **Téléphone:** `+24177888002`
 - **PIN:** `222222`
-- **Rôle:** `admin`
+- **Rôle:** `sub_admin` (Vue sectorielle)
 - **Fonction:** Sous-Administrateur DGSS
 - **Organisation:** DGSS (Direction Générale de la Sécurité d'État)
-- **Statut:** ❌ **ERREUR 500** (nécessite fix RPC functions)
+- **Statut:** 🔧 **CORRIGÉ** (selon logique du diagramme)
 - **Secteur:** Sécurité d'État
 - **Dashboard:** `/dashboard/admin`
 - **Spécialisation:** Enquêtes sécuritaires, coordination DGSS
 
-#### 4. Sous-Admin DGR
+#### 5. Sous-Admin DGR
 - **Email:** `24177888003@ndjobi.com`
 - **Téléphone:** `+24177888003`
 - **PIN:** `333333`
-- **Rôle:** `admin`
+- **Rôle:** `sub_admin` (Vue sectorielle)
 - **Fonction:** Sous-Administrateur DGR
 - **Organisation:** DGR (Direction Générale du Renseignement)
-- **Statut:** ❌ **ERREUR 500** (nécessite fix RPC functions)
+- **Statut:** 🔧 **CORRIGÉ** (selon logique du diagramme)
 - **Secteur:** Renseignement
 - **Dashboard:** `/dashboard/admin`
 - **Spécialisation:** Intelligence anticorruption, enquêtes sensibles
@@ -318,21 +333,21 @@
 
 ---
 
-## 🚨 PROBLÈMES IDENTIFIÉS
+## ✅ CORRECTIONS APPLIQUÉES
 
-### ❌ Comptes avec Erreur 500 (3)
-1. **Président** (+24177888001)
-2. **Sous-Admin DGSS** (+24177888002)
-3. **Sous-Admin DGR** (+24177888003)
+### 🔧 Comptes Corrigés Selon la Logique du Diagramme (3)
+1. **Président** (+24177888001) → Rôle: `admin` (Vue globale, Validation)
+2. **Sous-Admin DGSS** (+24177888002) → Rôle: `sub_admin` (Vue sectorielle)
+3. **Sous-Admin DGR** (+24177888003) → Rôle: `sub_admin` (Vue sectorielle)
 
-**Cause:** Fonctions RPC manquantes dans Supabase
-- `has_role()`
-- `get_user_role()`
-- `is_president()`
-- `is_admin()`
-- Etc.
+**Logique Implémentée:**
+- **Super Admin:** Contrôle total (rôle système)
+- **Président/Admin:** Vue globale, Validation
+- **Sous-Admin:** Vue sectorielle
 
-**Solution:** Exécuter `scripts/fix-missing-rpc-functions.sql` dans Supabase SQL Editor
+**Scripts de Correction:**
+- `scripts/fix-admin-logic-and-roles.sql` → Correction complète
+- `scripts/fix-missing-rpc-functions.sql` → Fonctions RPC
 
 ---
 

@@ -27,7 +27,7 @@ class DemoAccountService {
     {
       email: '24177888001@ndjobi.com',
       password: '111111',
-      role: 'admin',
+      role: 'admin', // Selon diagramme: Président/Admin = Vue globale, Validation
       label: 'Président / Administrateur',
       fullName: 'Président / Administrateur',
       phone: '+24177888001'
@@ -35,7 +35,7 @@ class DemoAccountService {
     {
       email: '24177888002@ndjobi.com',
       password: '222222',
-      role: 'sub_admin',
+      role: 'sub_admin', // Selon diagramme: Sous-Admin = Vue sectorielle
       label: 'Sous-Admin DGSS',
       fullName: 'Sous-Admin DGSS',
       phone: '+24177888002'
@@ -43,7 +43,7 @@ class DemoAccountService {
     {
       email: '24177888003@ndjobi.com',
       password: '333333',
-      role: 'sub_admin',
+      role: 'sub_admin', // Selon diagramme: Sous-Admin = Vue sectorielle
       label: 'Sous-Admin DGR',
       fullName: 'Sous-Admin DGR',
       phone: '+24177888003'
