@@ -1356,50 +1356,115 @@ export default function AdminDashboard() {
                   <CardHeader>
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
                       <Package className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-                      Cas Pêche-Gab en cours
+                      Dossier Pêche-Gab - Signalements critiques
                     </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Enquêtes en cours sur les activités de pêche illégales et détournements de fonds
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    {adminCases.slice(0, 2).map((cas: any) => (
-                      <div key={cas.id} className="border border-muted/20 rounded-lg p-3 space-y-2">
+                  <CardContent className="space-y-4">
+                    {adminCases.slice(0, 3).map((cas: any) => (
+                      <div key={cas.id} className="border border-muted/20 rounded-lg p-4 space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs font-mono">
                               {cas.id}
                             </Badge>
-                            <Badge className={`text-xs ${
-                              cas.priorite === 'Critique' ? 'bg-red-500/20 text-red-500' :
-                              cas.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500' :
-                              'bg-blue-500/20 text-blue-500'
+                            <Badge className={`text-xs font-medium ${
+                              cas.priorite === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                              cas.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                              'bg-blue-500/20 text-blue-500 border-blue-500/30'
                             }`}>
                               {cas.priorite}
                             </Badge>
                           </div>
-                          <Badge className={`text-xs ${
-                            cas.statut === 'En cours' ? 'bg-yellow-500/20 text-yellow-500' :
-                            cas.statut === 'Résolu' ? 'bg-green-500/20 text-green-500' :
-                            'bg-gray-500/20 text-gray-500'
+                          <Badge className={`text-xs font-medium ${
+                            cas.statut === 'En cours' ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
+                            cas.statut === 'Résolu' ? 'bg-green-500/20 text-green-500 border-green-500/30' :
+                            'bg-gray-500/20 text-gray-500 border-gray-500/30'
                           }`}>
                             {cas.statut}
                           </Badge>
                         </div>
-                        <div className="text-sm font-medium">{cas.titre}</div>
-                        <div className="text-xs text-muted-foreground">{cas.description}</div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-[hsl(var(--accent-success))] font-medium">
-                            {cas.montant}
-                          </span>
-                          <span className="text-muted-foreground">{cas.localisation}</span>
+                        
+                        <div className="space-y-2">
+                          <div className="text-sm font-semibold text-foreground">{cas.titre}</div>
+                          <div className="text-xs text-muted-foreground leading-relaxed">{cas.description}</div>
                         </div>
+
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                          <div className="space-y-1">
+                            <div className="font-medium text-muted-foreground">Montant concerné</div>
+                            <div className="text-[hsl(var(--accent-success))] font-semibold text-sm">
+                              {cas.montant}
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="font-medium text-muted-foreground">Zone géographique</div>
+                            <div className="text-foreground font-medium">{cas.localisation}</div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                          <div className="space-y-1">
+                            <div className="font-medium text-muted-foreground">Secteur d'activité</div>
+                            <div className="text-foreground">{cas.secteur}</div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="font-medium text-muted-foreground">Date de signalement</div>
+                            <div className="text-foreground">{cas.dateCreation}</div>
+                          </div>
+                        </div>
+
+                        {/* Actions recommandées */}
+                        {cas.priorite === 'Critique' && (
+                          <Alert className="glass-effect border-none bg-gradient-to-br from-red-500/10 to-transparent">
+                            <AlertTriangle className="h-4 w-4 text-red-500" />
+                            <AlertTitle className="text-red-500 text-xs">Action immédiate requise</AlertTitle>
+                            <AlertDescription className="text-xs text-muted-foreground">
+                              Ce dossier nécessite une intervention urgente du Président. 
+                              Impact financier majeur sur l'économie bleue gabonaise.
+                            </AlertDescription>
+                          </Alert>
+                        )}
                       </div>
                     ))}
-                    {adminCases.length > 2 && (
-                      <div className="text-center">
+                    
+                    {adminCases.length > 3 && (
+                      <div className="text-center pt-2">
                         <Button variant="ghost" size="sm" className="text-xs">
-                          Voir {adminCases.length - 2} autres cas
+                          <Eye className="h-3 w-3 mr-1" />
+                          Consulter {adminCases.length - 3} autres dossiers
                         </Button>
                       </div>
                     )}
+
+                    {/* Résumé financier */}
+                    <div className="border-t border-muted/20 pt-3">
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <div className="text-xs text-muted-foreground">Total concerné</div>
+                          <div className="text-sm font-semibold text-[hsl(var(--accent-success))]">
+                            {adminCases.reduce((sum, cas) => {
+                              const montant = parseInt(cas.montant.replace(/[^\d]/g, ''));
+                              return sum + montant;
+                            }, 0).toLocaleString()} FCFA
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground">Dossiers actifs</div>
+                          <div className="text-sm font-semibold text-[hsl(var(--accent-intel))]">
+                            {adminCases.filter(cas => cas.statut === 'En cours').length}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground">Résolus</div>
+                          <div className="text-sm font-semibold text-[hsl(var(--accent-success))]">
+                            {adminCases.filter(cas => cas.statut === 'Résolu').length}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -1410,38 +1475,141 @@ export default function AdminDashboard() {
                   <CardHeader>
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
                       <Activity className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-                      Historique des activités récentes
+                      Chronologie des interventions - Agent Pêche
                     </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Suivi détaillé des actions menées sur le dossier Pêche-Gab
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      {adminHistory.slice(0, 4).map((activity: any) => (
-                        <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg border border-muted/10">
-                          <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-intel))] mt-2 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium">{activity.action}</span>
-                              <span className="text-xs text-muted-foreground">{activity.date}</span>
+                    <div className="space-y-4">
+                      {adminHistory.slice(0, 4).map((activity: any, index: number) => (
+                        <div key={activity.id} className="relative">
+                          {/* Timeline line */}
+                          {index < adminHistory.slice(0, 4).length - 1 && (
+                            <div className="absolute left-3 top-8 w-px h-8 bg-gradient-to-b from-[hsl(var(--accent-intel))] to-transparent" />
+                          )}
+                          
+                          <div className="flex items-start gap-4 p-3 rounded-lg border border-muted/10 bg-gradient-to-r from-muted/5 to-transparent">
+                            <div className="w-6 h-6 rounded-full bg-[hsl(var(--accent-intel))] flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <div className="w-2 h-2 rounded-full bg-white" />
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">{activity.description}</div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge className={`text-xs ${
-                                activity.status === 'En cours' ? 'bg-yellow-500/20 text-yellow-500' :
-                                activity.status === 'Résolu' ? 'bg-green-500/20 text-green-500' :
-                                'bg-gray-500/20 text-gray-500'
-                              }`}>
-                                {activity.status}
-                              </Badge>
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-foreground">{activity.action}</span>
+                                <span className="text-xs text-muted-foreground font-mono">{activity.date}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground leading-relaxed">
+                                {activity.description}
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge className={`text-xs font-medium ${
+                                  activity.status === 'En cours' ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
+                                  activity.status === 'Résolu' ? 'bg-green-500/20 text-green-500 border-green-500/30' :
+                                  'bg-gray-500/20 text-gray-500 border-gray-500/30'
+                                }`}>
+                                  {activity.status}
+                                </Badge>
+                                {activity.montant !== '0 FCFA' && (
+                                  <div className="flex items-center gap-1">
+                                    <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                    <span className="text-xs text-[hsl(var(--accent-success))] font-semibold">
+                                      {activity.montant}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Détails supplémentaires pour les cas critiques */}
                               {activity.montant !== '0 FCFA' && (
-                                <span className="text-xs text-[hsl(var(--accent-success))] font-medium">
-                                  {activity.montant}
-                                </span>
+                                <div className="text-xs text-muted-foreground bg-muted/10 p-2 rounded border-l-2 border-[hsl(var(--accent-intel))]">
+                                  <strong>Impact financier:</strong> Cette intervention concerne un montant significatif 
+                                  nécessitant un suivi rapproché et une validation présidentielle.
+                                </div>
                               )}
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
+                    
+                    {/* Résumé des actions */}
+                    <div className="border-t border-muted/20 pt-3 mt-4">
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div className="space-y-1">
+                          <div className="font-medium text-muted-foreground">Total des montants traités</div>
+                          <div className="text-sm font-semibold text-[hsl(var(--accent-success))]">
+                            {adminHistory
+                              .filter(activity => activity.montant !== '0 FCFA')
+                              .reduce((sum, activity) => {
+                                const montant = parseInt(activity.montant.replace(/[^\d]/g, ''));
+                                return sum + montant;
+                              }, 0).toLocaleString()} FCFA
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="font-medium text-muted-foreground">Actions en cours</div>
+                          <div className="text-sm font-semibold text-[hsl(var(--accent-warning))]">
+                            {adminHistory.filter(activity => activity.status === 'En cours').length}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Analyse et recommandations pour le Président */}
+              {selectedAdmin.nom === 'Agent Pêche' && (
+                <Card className="glass-effect border-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                      Analyse et recommandations présidentielles
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Évaluation stratégique du dossier Pêche-Gab pour décision présidentielle
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Impact économique */}
+                    <div className="space-y-2">
+                      <div className="text-xs font-semibold text-foreground">Impact économique national</div>
+                      <div className="text-xs text-muted-foreground leading-relaxed">
+                        Le dossier Pêche-Gab représente un enjeu majeur pour l'économie bleue gabonaise. 
+                        Les montants concernés (8,7 milliards FCFA) représentent une part significative 
+                        du budget alloué au secteur de la pêche maritime.
+                      </div>
+                    </div>
+
+                    {/* Recommandations */}
+                    <div className="space-y-2">
+                      <div className="text-xs font-semibold text-foreground">Recommandations stratégiques</div>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-intel))] mt-1.5 flex-shrink-0" />
+                          <span>Renforcer la surveillance des coopératives de pêche et leur processus d'agrément</span>
+                        </div>
+                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-intel))] mt-1.5 flex-shrink-0" />
+                          <span>Mettre en place un système de contrôle renforcé des navires étrangers</span>
+                        </div>
+                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-intel))] mt-1.5 flex-shrink-0" />
+                          <span>Établir un protocole d'urgence pour les signalements critiques</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions immédiates */}
+                    <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
+                      <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                      <AlertTitle className="text-[hsl(var(--accent-warning))] text-xs">Actions immédiates requises</AlertTitle>
+                      <AlertDescription className="text-xs text-muted-foreground">
+                        Le dossier SIG-2025-014 (Coopératives fantômes) nécessite une intervention présidentielle 
+                        urgente. Impact financier critique sur l'économie bleue gabonaise.
+                      </AlertDescription>
+                    </Alert>
                   </CardContent>
                 </Card>
               )}
