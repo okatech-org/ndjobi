@@ -58,6 +58,11 @@ export default function AdminDashboard() {
   const [adminRecommandations, setAdminRecommandations] = useState<any[]>([]);
   const [rapportType, setRapportType] = useState<'cas' | 'global'>('global');
   const [selectedCas, setSelectedCas] = useState<any>(null);
+  const [selectedCasIds, setSelectedCasIds] = useState<string[]>([]);
+  const [periodeSuivi, setPeriodeSuivi] = useState<'hebdomadaire' | 'mensuel' | 'trimestriel' | 'annuel'>('mensuel');
+  const [dateDebut, setDateDebut] = useState<string>('');
+  const [dateFin, setDateFin] = useState<string>('');
+  const [formatRapport, setFormatRapport] = useState<'pdf' | 'excel' | 'word'>('pdf');
   
   // États pour le formulaire de nomination
   const [nomForm, setNomForm] = useState({
@@ -417,26 +422,84 @@ export default function AdminDashboard() {
     if (cas) {
       setRapportType('cas');
       setSelectedCas(cas);
+      setSelectedCasIds([cas.id]);
     } else {
       setRapportType('global');
       setSelectedCas(null);
+      setSelectedCasIds([]);
     }
+    // Initialiser les dates par défaut
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    setDateDebut(firstDayOfMonth.toISOString().split('T')[0]);
+    setDateFin(today.toISOString().split('T')[0]);
+    setPeriodeSuivi('mensuel');
+    setFormatRapport('pdf');
     setIsRapportModalOpen(true);
+  };
+
+  // Fonction pour basculer la sélection d'un cas
+  const handleToggleCasSelection = (casId: string) => {
+    setSelectedCasIds(prev => {
+      if (prev.includes(casId)) {
+        return prev.filter(id => id !== casId);
+      } else {
+        return [...prev, casId];
+      }
+    });
+  };
+
+  // Fonction pour sélectionner/désélectionner tous les cas
+  const handleToggleAllCas = () => {
+    if (selectedCasIds.length === adminCases.length) {
+      setSelectedCasIds([]);
+    } else {
+      setSelectedCasIds(adminCases.map(cas => cas.id));
+    }
   };
 
   // Fonction pour générer le rapport institution/cas
   const handleGenererRapportInstitution = async () => {
+    // Validation
+    if (rapportType === 'cas' && selectedCasIds.length === 0) {
+      toast({
+        title: "Sélection requise",
+        description: "Veuillez sélectionner au moins un cas pour générer le rapport.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (rapportType === 'global' && (!dateDebut || !dateFin)) {
+      toast({
+        title: "Dates requises",
+        description: "Veuillez sélectionner une période pour le rapport global.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoadingAction(true);
     try {
       // Simulation de génération de rapport
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const typeRapport = rapportType === 'cas' ? 'du cas spécifique' : 'global du ministère';
-      const nomCas = selectedCas ? selectedCas.titre : '';
+      let description = '';
+      if (rapportType === 'cas') {
+        const nombreCas = selectedCasIds.length;
+        const casSelectionnes = adminCases.filter(cas => selectedCasIds.includes(cas.id));
+        const montantTotal = casSelectionnes.reduce((sum, cas) => {
+          const montant = parseInt(cas.montant.replace(/[^\d]/g, ''));
+          return sum + montant;
+        }, 0);
+        description = `Rapport ${nombreCas} cas - Montant total: ${montantTotal.toLocaleString()} FCFA - Format: ${formatRapport.toUpperCase()}`;
+      } else {
+        description = `Rapport ${periodeSuivi} - Période: ${dateDebut} au ${dateFin} - Format: ${formatRapport.toUpperCase()}`;
+      }
       
       toast({
         title: "Rapport généré avec succès",
-        description: `Rapport ${typeRapport}${nomCas ? ` - ${nomCas}` : ''} de ${selectedAdmin.nom} généré.`,
+        description: description,
       });
 
       setIsRapportModalOpen(false);
@@ -1878,28 +1941,31 @@ export default function AdminDashboard() {
 
       {/* Modal Génération de Rapport */}
       <Dialog open={isRapportModalOpen} onOpenChange={setIsRapportModalOpen}>
-        <DialogContent className="glass-effect border-none max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-[hsl(var(--accent-success))]" />
-              Génération de Rapport
+              Génération de Rapport - {selectedAdmin?.organization}
             </DialogTitle>
             <DialogDescription>
               {rapportType === 'cas' 
-                ? `Rapport détaillé du cas spécifique - ${selectedCas?.titre}`
-                : `Rapport global du ministère - ${selectedAdmin?.organization}`
+                ? `Sélection des cas à inclure dans le rapport`
+                : `Configuration du rapport global pour la période sélectionnée`
               }
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
             {/* Type de rapport */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Type de rapport</Label>
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   variant={rapportType === 'global' ? 'default' : 'outline'}
-                  onClick={() => setRapportType('global')}
+                  onClick={() => {
+                    setRapportType('global');
+                    setSelectedCasIds([]);
+                  }}
                   className="glass-effect border-none"
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
@@ -1909,7 +1975,6 @@ export default function AdminDashboard() {
                   variant={rapportType === 'cas' ? 'default' : 'outline'}
                   onClick={() => setRapportType('cas')}
                   className="glass-effect border-none"
-                  disabled={!selectedCas}
                 >
                   <Package className="h-4 w-4 mr-2" />
                   Rapport Cas
@@ -1917,101 +1982,208 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Informations du rapport */}
-            <div className="space-y-3">
-              <div className="text-sm font-medium">Informations du rapport</div>
-              
-              {rapportType === 'global' ? (
-                <div className="space-y-3">
+            {/* Contenu selon le type */}
+            {rapportType === 'global' ? (
+              <div className="space-y-4">
+                {/* Période de suivi */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Période de suivi</Label>
+                  <Select value={periodeSuivi} onValueChange={(value: any) => setPeriodeSuivi(value)}>
+                    <SelectTrigger className="glass-effect border-none">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hebdomadaire">Hebdomadaire</SelectItem>
+                      <SelectItem value="mensuel">Mensuel</SelectItem>
+                      <SelectItem value="trimestriel">Trimestriel</SelectItem>
+                      <SelectItem value="annuel">Annuel</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Dates */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Date de début</Label>
+                    <Input
+                      type="date"
+                      value={dateDebut}
+                      onChange={(e) => setDateDebut(e.target.value)}
+                      className="glass-effect border-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Date de fin</Label>
+                    <Input
+                      type="date"
+                      value={dateFin}
+                      onChange={(e) => setDateFin(e.target.value)}
+                      className="glass-effect border-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Résumé du rapport global */}
+                <Card className="glass-effect border-none">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Contenu du rapport global</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-xs">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-muted-foreground">Administration:</span>
+                        <div className="font-medium">{selectedAdmin?.organization}</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Responsable:</span>
+                        <div className="font-medium">{selectedAdmin?.nom}</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Total cas:</span>
+                        <div className="font-medium">{adminCases.length}</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Problématiques:</span>
+                        <div className="font-medium">{adminProblematiques.length}</div>
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t border-muted/20">
+                      <span className="text-muted-foreground">Impact financier total:</span>
+                      <div className="text-[hsl(var(--accent-success))] font-semibold">
+                        {adminProblematiques.reduce((sum, p) => {
+                          const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                          return sum + montant;
+                        }, 0).toLocaleString()} FCFA
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Sélection des cas */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">
+                      Sélection des cas ({selectedCasIds.length}/{adminCases.length})
+                    </Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleToggleAllCas}
+                      className="h-7 text-xs"
+                    >
+                      {selectedCasIds.length === adminCases.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto border border-muted/20 rounded-lg p-3">
+                    {adminCases.map((cas: any) => (
+                      <div
+                        key={cas.id}
+                        onClick={() => handleToggleCasSelection(cas.id)}
+                        className={`cursor-pointer p-3 rounded-lg border transition-all ${
+                          selectedCasIds.includes(cas.id)
+                            ? 'border-[hsl(var(--accent-success))] bg-[hsl(var(--accent-success))]/10'
+                            : 'border-muted/20 hover:border-muted/40'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-4 h-4 rounded border flex items-center justify-center mt-0.5 ${
+                            selectedCasIds.includes(cas.id)
+                              ? 'bg-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]'
+                              : 'border-muted-foreground'
+                          }`}>
+                            {selectedCasIds.includes(cas.id) && (
+                              <Check className="h-3 w-3 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant="outline" className="text-xs font-mono">
+                                {cas.id}
+                              </Badge>
+                              <Badge className={`text-xs ${
+                                cas.priorite === 'Critique' ? 'bg-red-500/20 text-red-500' :
+                                cas.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500' :
+                                'bg-blue-500/20 text-blue-500'
+                              }`}>
+                                {cas.priorite}
+                              </Badge>
+                            </div>
+                            <div className="text-sm font-medium mb-1">{cas.titre}</div>
+                            <div className="text-xs text-muted-foreground mb-2">{cas.description}</div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-[hsl(var(--accent-success))] font-medium">
+                                {cas.montant}
+                              </span>
+                              <span className="text-muted-foreground">{cas.localisation}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Résumé des cas sélectionnés */}
+                {selectedCasIds.length > 0 && (
                   <Card className="glass-effect border-none">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm">Rapport Global - {selectedAdmin?.organization}</CardTitle>
+                      <CardTitle className="text-sm">Résumé de la sélection</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2 text-xs">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-muted-foreground">Administration:</span>
-                          <div className="font-medium">{selectedAdmin?.organization}</div>
+                          <span className="text-muted-foreground">Cas sélectionnés:</span>
+                          <div className="font-medium">{selectedCasIds.length}</div>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Responsable:</span>
-                          <div className="font-medium">{selectedAdmin?.nom}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Cas traités:</span>
-                          <div className="font-medium">{adminCases.length}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Problématiques:</span>
-                          <div className="font-medium">{adminProblematiques.length}</div>
-                        </div>
-                      </div>
-                      <div className="pt-2 border-t border-muted/20">
-                        <span className="text-muted-foreground">Impact financier total:</span>
-                        <div className="text-[hsl(var(--accent-success))] font-semibold">
-                          {adminProblematiques.reduce((sum, p) => {
-                            const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
-                            return sum + montant;
-                          }, 0).toLocaleString()} FCFA
+                          <span className="text-muted-foreground">Montant total:</span>
+                          <div className="text-[hsl(var(--accent-success))] font-semibold">
+                            {adminCases
+                              .filter(cas => selectedCasIds.includes(cas.id))
+                              .reduce((sum, cas) => {
+                                const montant = parseInt(cas.montant.replace(/[^\d]/g, ''));
+                                return sum + montant;
+                              }, 0).toLocaleString()} FCFA
+                          </div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <Card className="glass-effect border-none">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm">Rapport Cas - {selectedCas?.titre}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-xs">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <span className="text-muted-foreground">ID Cas:</span>
-                          <div className="font-medium">{selectedCas?.id}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Priorité:</span>
-                          <div className="font-medium">{selectedCas?.priorite}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Statut:</span>
-                          <div className="font-medium">{selectedCas?.statut}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Localisation:</span>
-                          <div className="font-medium">{selectedCas?.localisation}</div>
-                        </div>
-                      </div>
-                      <div className="pt-2 border-t border-muted/20">
-                        <span className="text-muted-foreground">Montant concerné:</span>
-                        <div className="text-[hsl(var(--accent-success))] font-semibold">
-                          {selectedCas?.montant}
-                        </div>
-                      </div>
-                      <div className="pt-2">
-                        <span className="text-muted-foreground">Description:</span>
-                        <div className="text-muted-foreground mt-1">{selectedCas?.description}</div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Options de format */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Format du rapport</Label>
               <div className="grid grid-cols-3 gap-2">
-                <Button variant="outline" size="sm" className="glass-effect border-none">
+                <Button
+                  variant={formatRapport === 'pdf' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormatRapport('pdf')}
+                  className="glass-effect border-none"
+                >
                   <FileText className="h-3 w-3 mr-1" />
                   PDF
                 </Button>
-                <Button variant="outline" size="sm" className="glass-effect border-none">
+                <Button
+                  variant={formatRapport === 'excel' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormatRapport('excel')}
+                  className="glass-effect border-none"
+                >
                   <FileText className="h-3 w-3 mr-1" />
                   Excel
                 </Button>
-                <Button variant="outline" size="sm" className="glass-effect border-none">
+                <Button
+                  variant={formatRapport === 'word' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormatRapport('word')}
+                  className="glass-effect border-none"
+                >
                   <FileText className="h-3 w-3 mr-1" />
                   Word
                 </Button>
