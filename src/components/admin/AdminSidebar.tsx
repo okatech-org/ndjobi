@@ -120,10 +120,10 @@ export function AdminSidebar() {
       collapsible="icon"
     >
       <div className="absolute inset-0 glass-effect rounded-r-2xl" />
-      <SidebarContent className="pt-4 relative z-10">
-        {/* Header avec logo - design glassmorphism */}
+      <SidebarContent className="relative z-10">
+        {/* Header avec logo - design glassmorphism - aligné en haut */}
         <div
-          className={`flex items-center gap-3 px-4 mb-6 pb-4 border-b border-border/50 transition-all ${
+          className={`flex items-center gap-3 px-4 py-4 mb-4 border-b border-border/50 transition-all ${
             collapsed ? "justify-center px-2" : ""
           }`}
         >

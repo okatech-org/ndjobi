@@ -130,8 +130,9 @@ export default function AdminDashboard() {
   console.log('✅ [AdminDashboard] Accès autorisé, rendu du dashboard');
 
   const renderDashboardGlobal = () => (
-    <div className="space-y-4 md:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+    <div className="space-y-8">
+      {/* KPIs Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card className="glass-effect border-none relative overflow-hidden group hover-lift stat-card-interactive animate-slide-up cursor-pointer">
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent animate-scan" />
           <CardHeader className="pb-2 md:pb-3">
@@ -239,7 +240,8 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Grid avec espacement uniforme */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         <Card className="glass-effect border-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -400,7 +402,7 @@ export default function AdminDashboard() {
   );
 
   const renderValidation = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Cas Sensibles - Validation Présidentielle</h3>
@@ -524,7 +526,7 @@ export default function AdminDashboard() {
     );
 
   const renderSuiviEnquetes = () => (
-      <div className="space-y-6">
+      <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Suivi des Enquêtes Nationales</h3>
@@ -635,7 +637,7 @@ export default function AdminDashboard() {
   );
 
   const renderGestionSousAdmins = () => (
-      <div className="space-y-6">
+      <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion des Sous-Administrateurs</h3>
@@ -729,7 +731,7 @@ export default function AdminDashboard() {
   );
 
   const renderRapportsStrategiques = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Rapports Stratégiques</h3>
@@ -817,60 +819,64 @@ export default function AdminDashboard() {
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col w-full relative z-10">
-          {/* En-tête glassmorphism avec animations */}
-          <header className="sticky top-0 z-40 glass-effect border-b border-border/50">
-            <div className="h-full px-4 md:px-6 flex items-center justify-between">
+          {/* En-tête glassmorphism avec animations - hauteur fixe pour cohérence */}
+          <header className="sticky top-0 z-40 glass-effect border-b border-border/50 h-16">
+            <div className="h-full px-4 md:px-6 flex items-center justify-between gap-4">
               {/* Gauche: Logo et titre */}
-              <div className="flex items-center gap-4">
-                {/* Bouton menu mobile */}
+              <div className="flex items-center gap-3 flex-shrink-0">
+                {/* Bouton menu mobile avec meilleur style */}
                 <SidebarTrigger className="lg:hidden">
-                  <Button variant="ghost" size="icon" className="hover:bg-muted/50 transition-colors">
+                  <Button variant="ghost" size="icon" className="hover:bg-muted/50 transition-all glass-effect">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SidebarTrigger>
                 
-                {/* Logo et titre animés */}
-                <div className="flex items-center gap-3">
+                {/* Logo et titre animés - compact */}
+                <div className="flex items-center gap-2">
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-warning))]/20 rounded-lg blur-md group-hover:blur-lg transition-all animate-pulse-glow" />
-                    <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center shadow-lg animate-pulse-glow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--accent-intel))]/30 to-[hsl(var(--accent-warning))]/30 rounded-lg blur-lg animate-pulse-glow" />
+                    <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center shadow-xl">
                       <Shield className="h-5 w-5 text-white" />
                     </div>
                   </div>
                   <div className="hidden md:flex flex-col">
-                    <h1 className="text-base font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
+                    <h1 className="text-sm font-bold tracking-wide">
                       PROTOCOLE D'ÉTAT
                     </h1>
-                    <p className="text-[9px] text-muted-foreground">Intelligence • Vision 2025</p>
+                    <p className="text-[9px] text-muted-foreground font-medium">Intelligence • Vision 2025</p>
                   </div>
                 </div>
               </div>
               
-              {/* Centre: Indicateurs en temps réel */}
-              <div className="hidden lg:flex items-center gap-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-effect border border-border/50">
+              {/* Centre: Indicateurs en temps réel - design amélioré */}
+              <div className="hidden lg:flex items-center gap-3 flex-1 justify-center">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-effect border border-red-500/30 hover:border-red-500/50 transition-all shadow-lg shadow-red-500/10">
                   <div className="relative">
                     <div className="w-2 h-2 rounded-full bg-red-500 animate-live-pulse" />
                     <div className="absolute inset-0 w-2 h-2 rounded-full bg-red-500/30 animate-ping" />
                   </div>
-                  <span className="text-xs font-medium text-red-500">LIVE</span>
+                  <span className="text-xs font-bold text-red-500 tracking-wide">LIVE</span>
                 </div>
                 
-                <div className="h-6 w-px bg-border/50" />
+                <div className="h-5 w-px bg-border/30" />
                 
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-effect border border-border/50">
-                  <Activity className="h-4 w-4 text-[hsl(var(--accent-success))] animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Surveillance Active</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-effect border border-[hsl(var(--accent-success))]/30 hover:border-[hsl(var(--accent-success))]/50 transition-all">
+                  <Activity className="h-3.5 w-3.5 text-[hsl(var(--accent-success))] animate-pulse" />
+                  <span className="text-xs text-muted-foreground font-medium">Surveillance Active</span>
                 </div>
               </div>
               
-              {/* Droite: Actions et indicateurs */}
-              <div className="flex items-center gap-3">
-                {/* Notification badge */}
-                <Button variant="ghost" size="icon" className="relative glass-effect hover:bg-muted/50 transition-all">
+              {/* Droite: Actions et indicateurs - alignement amélioré */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Notification badge avec meilleur style */}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="relative glass-effect hover:bg-muted/50 transition-all h-9 w-9 rounded-lg hover-lift"
+                >
                   <Bell className="h-4 w-4" />
                   {unreadNotifications > 0 && (
-                    <span className="absolute top-1 right-1 flex h-2 w-2">
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
                     </span>
@@ -879,22 +885,22 @@ export default function AdminDashboard() {
                 
                 <ThemeToggle />
                 
-                <div className="h-8 w-px bg-border/50 hidden lg:block" />
+                <div className="h-6 w-px bg-border/30 hidden lg:block mx-1" />
                 
-                {/* Badge Vision 2025 */}
-                <div className="hidden lg:flex items-center gap-2">
-                  <Badge className="text-[10px] px-2.5 py-1 bg-[hsl(var(--accent-success))]/10 text-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]/30 animate-fade-in">
-                    <Flag className="h-3 w-3 mr-1" />
-                    Gabon • Vision 2025
+                {/* Badge Vision 2025 avec animation */}
+                <div className="hidden lg:flex items-center">
+                  <Badge className="text-[10px] px-2.5 py-1.5 bg-[hsl(var(--accent-success))]/10 text-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]/30 hover:bg-[hsl(var(--accent-success))]/20 transition-all cursor-default">
+                    <Flag className="h-3 w-3 mr-1.5 animate-bounce-subtle" />
+                    <span className="font-semibold">Gabon • Vision 2025</span>
                   </Badge>
                 </div>
               </div>
             </div>
           </header>
 
-          {/* Contenu principal avec scroll */}
+          {/* Contenu principal avec scroll - espacements uniformes */}
           <main className="flex-1 overflow-y-auto">
-            <div className="container py-6 md:py-8 space-y-6">
+            <div className="container max-w-[1600px] mx-auto px-4 md:px-6 py-6 space-y-8">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
