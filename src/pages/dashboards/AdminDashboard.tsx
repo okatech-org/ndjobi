@@ -523,16 +523,16 @@ export default function AdminDashboard() {
     );
 
   const renderSuiviEnquetes = () => (
-      <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="space-y-3 md:space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2 md:gap-4">
         <div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Suivi des Enquêtes Nationales</h3>
-          <p className="text-muted-foreground mt-1">
+          <h3 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Suivi des Enquêtes Nationales</h3>
+          <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">
             État d'avancement des investigations en cours
           </p>
         </div>
-        <Button variant="outline" className="glass-effect border-none" onClick={reloadData} disabled={isLoading}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+        <Button variant="outline" className="glass-effect border-none text-xs md:text-sm h-8 md:h-10 px-2 md:px-4" onClick={reloadData} disabled={isLoading}>
+          <RefreshCw className={`h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           Actualiser
                           </Button>
                         </div>
