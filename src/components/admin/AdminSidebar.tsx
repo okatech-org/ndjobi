@@ -155,7 +155,7 @@ export function AdminSidebar() {
 
         // Rediriger vers le dashboard Super Admin
         setTimeout(() => {
-          navigate('/dashboard/admin', { replace: true });
+          navigate('/dashboard/super-admin', { replace: true });
           window.location.reload();
         }, 500);
       } else {
