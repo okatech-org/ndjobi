@@ -65,7 +65,7 @@ export const IAstedFloatingButton = () => {
         handleDoubleClick();
       }
       clickCountRef.current = 0;
-    }, 250); // Réduit à 250ms pour une meilleure réactivité
+    }, 350); // Fenêtre élargie pour détecter le double-clic
   };
 
   /**
@@ -136,7 +136,6 @@ export const IAstedFloatingButton = () => {
       return;
     }
 
-    await speakWelcomeMessage();
     await startVoiceInteraction();
   };
 
