@@ -778,13 +778,10 @@ export default function AdminDashboard() {
                     <Shield className="h-2.5 w-2.5 mr-1" />
                     Admin
                   </Badge>
-                  <div className="hidden md:flex flex-col items-center">
+                  <div className="hidden md:block">
                     <h1 className="text-base font-bold">
                       PROTOCOLE D'ÉTAT
                     </h1>
-                    <p className="text-[10px] text-muted-foreground">
-                      Bonne gouvernance
-                    </p>
                   </div>
                 </div>
               </div>
