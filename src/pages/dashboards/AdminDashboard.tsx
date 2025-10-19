@@ -651,7 +651,7 @@ export default function AdminDashboard() {
               </Button>
             </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sousAdmins.map((admin, idx) => (
           <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
             admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
