@@ -497,7 +497,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      iasted_analytics: {
+        Row: {
+          avg_response_time_ms: number | null
+          date: string | null
+          interactions_with_artifacts: number | null
+          mode: string | null
+          total_interactions: number | null
+          unique_sessions: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_old_pin_attempts: {
