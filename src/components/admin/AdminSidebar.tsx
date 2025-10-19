@@ -44,11 +44,11 @@ const menuItems = [
     description: "Vue d'ensemble",
   },
   {
-    title: "Gestion Agents",
-    url: "/dashboard/admin?view=sousadmins",
+    title: "Gestion Institutions",
+    url: "/dashboard/admin?view=gestion",
     icon: Users,
     badge: null,
-    description: "Performance des agents",
+    description: "Performance des institutions",
   },
   {
     title: "Validation Cas",

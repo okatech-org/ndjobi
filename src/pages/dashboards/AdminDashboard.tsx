@@ -639,7 +639,7 @@ export default function AdminDashboard() {
       <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion des Sous-Administrateurs</h3>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion Institutions</h3>
           <p className="text-muted-foreground mt-1">
             Supervision des directeurs sectoriels et performance
           </p>
@@ -870,7 +870,7 @@ export default function AdminDashboard() {
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
               {activeView === 'enquetes' && renderSuiviEnquetes()}
-              {activeView === 'sousadmins' && renderGestionSousAdmins()}
+              {activeView === 'gestion' && renderGestionSousAdmins()}
               {activeView === 'rapports' && renderRapportsStrategiques()}
               {activeView === 'xr7' && <ModuleXR7 />}
               {activeView === 'iasted' && <IAstedChat isOpen={true} />}
