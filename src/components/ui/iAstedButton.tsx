@@ -180,6 +180,98 @@ const styles = `
   100% { transform: translateZ(20px) rotate(360deg) translateX(30px) rotate(-360deg); }
 }
 
+/* Animations intensifiées pour l'écoute */
+.thick-matter-button.voice-listening .organic-membrane {
+  animation: membrane-palpitation-listening 0.6s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite;
+}
+
+.thick-matter-button.voice-listening .organic-membrane-secondary {
+  animation: membrane-palpitation-listening-secondary 0.6s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite;
+  animation-delay: 0.1s;
+}
+
+.thick-matter-button.voice-listening .wave-emission {
+  animation: wave-emission-listening 1s cubic-bezier(0.215, 0.61, 0.355, 1) infinite !important;
+}
+
+@keyframes membrane-palpitation-listening {
+  0%, 100% { opacity: 0.8; transform: scale(1.2) translateZ(15px); filter: blur(2px); }
+  50% { opacity: 1; transform: scale(1.5) translateZ(30px); filter: blur(5px); }
+}
+
+@keyframes membrane-palpitation-listening-secondary {
+  0%, 100% { opacity: 0.6; transform: scale(1.3) translateZ(20px) rotate(0deg); filter: blur(3px); }
+  50% { opacity: 0.9; transform: scale(1.6) translateZ(35px) rotate(10deg); filter: blur(6px); }
+}
+
+@keyframes wave-emission-listening {
+  0% { transform: scale3d(0.9, 0.9, 1) translateZ(0px); opacity: 0.8; filter: blur(0px); }
+  100% { transform: scale3d(2.5, 2.5, 1.5) translateZ(20px); opacity: 0; filter: blur(15px); }
+}
+
+/* Animations intensifiées pour la parole */
+.thick-matter-button.voice-speaking .organic-membrane {
+  animation: membrane-palpitation-speaking 0.4s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite;
+}
+
+.thick-matter-button.voice-speaking .organic-membrane-secondary {
+  animation: membrane-palpitation-speaking-secondary 0.4s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite;
+  animation-delay: 0.05s;
+}
+
+.thick-matter-button.voice-speaking .wave-emission {
+  animation: wave-emission-speaking 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite !important;
+}
+
+@keyframes membrane-palpitation-speaking {
+  0%, 100% { opacity: 0.9; transform: scale(1.1) translateZ(10px); filter: blur(1px); }
+  25% { opacity: 1; transform: scale(1.35) translateZ(25px); filter: blur(4px); }
+  50% { opacity: 0.95; transform: scale(1.25) translateZ(20px); filter: blur(3px); }
+  75% { opacity: 1; transform: scale(1.4) translateZ(28px); filter: blur(5px); }
+}
+
+@keyframes membrane-palpitation-speaking-secondary {
+  0%, 100% { opacity: 0.7; transform: scale(1.2) translateZ(15px) rotate(0deg); filter: blur(2px); }
+  25% { opacity: 0.95; transform: scale(1.45) translateZ(30px) rotate(8deg); filter: blur(5px); }
+  50% { opacity: 0.85; transform: scale(1.35) translateZ(25px) rotate(-5deg); filter: blur(4px); }
+  75% { opacity: 1; transform: scale(1.5) translateZ(32px) rotate(12deg); filter: blur(6px); }
+}
+
+@keyframes wave-emission-speaking {
+  0% { transform: scale3d(1, 1, 1) translateZ(0px); opacity: 0.7; filter: blur(0px); }
+  100% { transform: scale3d(2.2, 2.2, 1.4) translateZ(15px); opacity: 0; filter: blur(12px); }
+}
+
+/* Intensification du heartbeat pendant l'écoute */
+.thick-matter-button.voice-listening {
+  animation: 
+    global-heartbeat-listening 0.8s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite,
+    shadow-pulse-intense 0.8s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite;
+}
+
+@keyframes global-heartbeat-listening {
+  0%, 100% { transform: scale3d(1, 1, 1) rotate(0deg); border-radius: 50%; filter: brightness(1.2) saturate(2); }
+  25% { transform: scale3d(1.15, 1.18, 1.12) rotate(3deg); border-radius: 35% 65% 62% 38% / 58% 42% 60% 40%; filter: brightness(1.5) saturate(2.8); }
+  50% { transform: scale3d(1.08, 1.05, 1.1) rotate(-2deg); border-radius: 45% 55% 52% 48% / 48% 52% 46% 54%; filter: brightness(1.3) saturate(2.3); }
+  75% { transform: scale3d(1.12, 1.15, 1.1) rotate(2deg); border-radius: 40% 60% 58% 42% / 54% 46% 56% 44%; filter: brightness(1.4) saturate(2.5); }
+}
+
+/* Intensification du heartbeat pendant la parole */
+.thick-matter-button.voice-speaking {
+  animation: 
+    global-heartbeat-speaking 0.5s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite,
+    shadow-pulse-intense 0.5s cubic-bezier(0.68, -0.2, 0.265, 1.55) infinite;
+}
+
+@keyframes global-heartbeat-speaking {
+  0% { transform: scale3d(1, 1, 1) rotate(0deg); border-radius: 50%; filter: brightness(1.1) saturate(1.9); }
+  20% { transform: scale3d(1.2, 1.22, 1.18) rotate(4deg); border-radius: 32% 68% 65% 35% / 62% 38% 64% 36%; filter: brightness(1.6) saturate(3); }
+  40% { transform: scale3d(1.1, 1.08, 1.12) rotate(-3deg); border-radius: 42% 58% 55% 45% / 52% 48% 54% 46%; filter: brightness(1.3) saturate(2.4); }
+  60% { transform: scale3d(1.15, 1.18, 1.14) rotate(3deg); border-radius: 38% 62% 58% 42% / 56% 44% 58% 42%; filter: brightness(1.5) saturate(2.7); }
+  80% { transform: scale3d(1.05, 1.03, 1.08) rotate(-2deg); border-radius: 46% 54% 48% 52% / 48% 52% 47% 53%; filter: brightness(1.2) saturate(2.1); }
+  100% { transform: scale3d(1, 1, 1) rotate(0deg); border-radius: 50%; filter: brightness(1.1) saturate(1.9); }
+}
+
 .organic-membrane {
   position: absolute; inset: -5%; border-radius: 50%;
   background: radial-gradient(circle at center, transparent 20%, rgba(0, 170, 255, 0.03) 40%, rgba(0, 170, 255, 0.08) 60%, rgba(0, 170, 255, 0.04) 80%, transparent 95%);
@@ -876,6 +968,9 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
   const [isActive, setIsActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Déterminer les classes d'état vocal
+  const voiceStateClass = voiceListening ? 'voice-listening' : voiceSpeaking ? 'voice-speaking' : '';
+
   const handleClick = () => {
     const shockwaveId = Date.now();
     setShockwaves([...shockwaves, { id: shockwaveId }]);
@@ -915,7 +1010,7 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
-            className={`thick-matter-button living-matter ${size} ${isClicked ? 'color-shift' : ''} ${isActive ? 'active' : ''} ${isProcessing ? 'processing' : ''} relative cursor-pointer focus:outline-none overflow-hidden border-0 ${className}`}
+            className={`thick-matter-button living-matter ${size} ${isClicked ? 'color-shift' : ''} ${isActive ? 'active' : ''} ${isProcessing ? 'processing' : ''} ${voiceStateClass} relative cursor-pointer focus:outline-none overflow-hidden border-0 ${className}`}
             style={{
               '--iasted-icon-size': size === 'sm' ? 'clamp(24px, 5vw, 32px)' : size === 'lg' ? 'clamp(48px, 10vw, 64px)' : 'clamp(36px, 7vw, 48px)',
               '--iasted-text-size': size === 'sm' ? 'clamp(12px, 2.5vw, 14px)' : size === 'lg' ? 'clamp(20px, 4vw, 28px)' : 'clamp(16px, 3vw, 20px)',
@@ -1012,7 +1107,14 @@ export const IAstedButton: React.FC<IAstedButtonProps> = ({ onClick, className =
                 ) : voiceProcessing ? (
                   <Brain className="text-white icon-svg animate-spin" style={{ opacity: 1, transform: 'scale(1.2)' }} />
                 ) : (
-                  <MessageCircle className="text-white icon-svg" style={{ opacity: 1 }} />
+                  <>
+                    <span className="alternating-element text-element text-white iasted-text">
+                      iAsted
+                    </span>
+                    <Mic className="alternating-element mic-element text-white icon-svg" />
+                    <MessageCircle className="alternating-element chat-element text-white icon-svg" />
+                    <Brain className="alternating-element brain-element text-white icon-svg" />
+                  </>
                 )}
               </div>
             </div>
