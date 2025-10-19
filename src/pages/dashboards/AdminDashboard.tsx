@@ -246,34 +246,37 @@ export default function AdminDashboard() {
               Tendances nationales - Signalements vs Résolutions
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="pb-3 md:pb-6 px-3 md:px-6">
+            <ResponsiveContainer width="100%" height={200} className="md:!h-[300px]">
               <LineChart data={evolutionMensuelle}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis dataKey="mois" />
-                <YAxis />
+                <XAxis dataKey="mois" tick={{ fontSize: 10 }} className="md:text-sm" />
+                <YAxis tick={{ fontSize: 10 }} className="md:text-sm" />
                 <Tooltip 
                   contentStyle={{ 
                     background: 'var(--glass-bg)', 
                     border: '1px solid var(--glass-border)',
                     borderRadius: '0.5rem',
-                    backdropFilter: 'blur(10px)'
+                    backdropFilter: 'blur(10px)',
+                    fontSize: '12px'
                   }} 
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: '11px' }} className="md:text-sm" />
                 <Line 
                   type="monotone" 
                   dataKey="signalements" 
                   stroke="hsl(var(--accent-intel))" 
                   name="Signalements"
-                  strokeWidth={3}
+                  strokeWidth={2}
+                  className="md:stroke-[3px]"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="resolutions" 
                   stroke="hsl(var(--accent-success))" 
                   name="Cas résolus"
-                  strokeWidth={3}
+                  strokeWidth={2}
+                  className="md:stroke-[3px]"
                 />
               </LineChart>
             </ResponsiveContainer>
