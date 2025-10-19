@@ -12,6 +12,8 @@ import {
   Clock,
   Crown,
   ChevronRight,
+  LogOut,
+  ArrowLeft,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -26,6 +28,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { accountSwitchingService } from "@/services/accountSwitching";
 import emblemGabon from "@/assets/emblem_gabon.png";
 
 const menuItems = [
@@ -92,6 +98,68 @@ export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const collapsed = sidebarState === "collapsed";
+  const { signOut } = useAuth();
+  const { toast } = useToast();
+  
+  const isInSwitchedAccount = accountSwitchingService.isInSwitchedAccount();
+  
+  const handleSignOut = async () => {
+    try {
+      toast({
+        title: "Déconnexion en cours...",
+        description: "Veuillez patienter",
+      });
+
+      await signOut();
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "À bientôt sur NDJOBI !",
+      });
+
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 500);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Erreur de déconnexion",
+        description: "Une erreur s'est produite. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReturnToSuperAdmin = async () => {
+    try {
+      toast({
+        title: "Retour au Super Admin...",
+        description: "Veuillez patienter",
+      });
+
+      const result = await accountSwitchingService.switchBackToOriginal();
+      
+      if (result.success) {
+        toast({
+          title: "Retour réussi",
+          description: "Vous êtes maintenant déconnecté. Veuillez vous reconnecter en tant que Super Admin.",
+        });
+
+        setTimeout(() => {
+          navigate('/auth', { replace: true });
+        }, 1000);
+      } else {
+        throw new Error(result.error || 'Erreur de retour');
+      }
+    } catch (error: any) {
+      console.error('Error returning to Super Admin:', error);
+      toast({
+        title: "Erreur de retour",
+        description: error.message || "Impossible de retourner au compte Super Admin",
+        variant: "destructive",
+      });
+    }
+  };
 
   const isActive = (url: string) => {
     if (url === "/dashboard/admin") {
@@ -216,10 +284,57 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Footer de la sidebar - design amélioré */}
-        <div className="mt-auto border-t pt-4 bg-gradient-to-t from-muted/20 to-transparent">
+        {/* Actions - Déconnexion et Retour */}
+        <div className="mt-auto border-t pt-3 bg-gradient-to-t from-muted/20 to-transparent">
           {!collapsed ? (
-            <div className="px-4 pb-4 space-y-2.5 animate-fade-in">
+            <div className="px-3 pb-3 space-y-2 animate-fade-in">
+              {isInSwitchedAccount && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleReturnToSuperAdmin}
+                  className="w-full justify-start gap-2 text-xs"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Retour Super Admin
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="w-full justify-start gap-2 text-xs hover:bg-destructive hover:text-destructive-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+                Déconnexion
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center pb-3 gap-2">
+              {isInSwitchedAccount && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleReturnToSuperAdmin}
+                  className="h-8 w-8"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSignOut}
+                className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          
+          {/* Footer système */}
+          {!collapsed ? (
+            <div className="px-4 pb-4 pt-3 space-y-2.5 border-t">
               <div className="flex items-center gap-2 text-xs">
                 <div className="relative">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -238,7 +353,7 @@ export function AdminSidebar() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center pb-4 gap-2">
+            <div className="flex flex-col items-center pb-4 pt-3 gap-2 border-t">
               <div className="relative">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-500/30 animate-ping" />
