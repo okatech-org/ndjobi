@@ -135,7 +135,52 @@ export const IAstedFloatingButton = () => {
       return;
     }
 
+    // Saluer selon l'heure puis lancer l'écoute
+    await speakGreeting();
     await startVoiceInteraction();
+  };
+
+  /**
+   * Message de salutation selon l'heure
+   */
+  const speakGreeting = async () => {
+    const hour = new Date().getHours();
+    let greeting = 'Bonjour';
+    
+    if (hour >= 18 || hour < 6) {
+      greeting = 'Bonsoir';
+    }
+    
+    const greetingText = `${greeting} Excellence. Je suis iAsted, votre assistant présidentiel. Comment puis-je vous aider aujourd'hui ?`;
+    
+    addAssistantMessage(greetingText, 'voice');
+    
+    setIsSpeaking(true);
+    console.log('🔊 Lecture du message de salutation:', greetingText);
+    const result = await IAstedVoiceService.speakText(greetingText);
+    setIsSpeaking(false);
+
+    if (!result?.success) {
+      console.error('❌ Échec de la lecture audio');
+      toast({
+        title: 'Audio bloqué',
+        description: "Le son a été bloqué. Activez le son du navigateur.",
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    console.log('✅ Message de salutation lu avec succès');
+
+    if (result.audioUrl) {
+      setMessages(prev => {
+        const updated = [...prev];
+        if (updated.length > 0) {
+          updated[updated.length - 1].audioUrl = result.audioUrl;
+        }
+        return updated;
+      });
+    }
   };
 
   /**
@@ -178,9 +223,11 @@ export const IAstedFloatingButton = () => {
     try {
       setIsListening(true);
       
+      console.log('🎙️ Démarrage de l\'enregistrement...');
+      
       toast({
         title: '🎙️ En écoute...',
-        description: 'Parlez maintenant'
+        description: 'Parlez maintenant, je vous écoute'
       });
 
       const startResult = await IAstedVoiceService.startRecording();
@@ -189,14 +236,18 @@ export const IAstedFloatingButton = () => {
         throw new Error(startResult.error);
       }
 
+      console.log('✅ Enregistrement démarré avec succès');
+
+      // Timeout de 30 secondes
       setTimeout(async () => {
         if (isListening) {
+          console.log('⏱️ Timeout - Arrêt automatique de l\'enregistrement');
           await stopVoiceInteraction();
         }
       }, 30000);
 
     } catch (error: any) {
-      console.error('Erreur interaction vocale:', error);
+      console.error('❌ Erreur interaction vocale:', error);
       toast({
         title: 'Erreur',
         description: error.message,
@@ -210,6 +261,7 @@ export const IAstedFloatingButton = () => {
    * Arrêter interaction vocale
    */
   const stopVoiceInteraction = async () => {
+    console.log('🛑 Arrêt de l\'enregistrement...');
     setIsListening(false);
     setIsProcessing(true);
 
@@ -217,16 +269,17 @@ export const IAstedFloatingButton = () => {
       const result = await IAstedVoiceService.stopRecordingAndTranscribe();
 
       if (!result || !result.transcription) {
+        console.warn('⚠️ Aucune transcription détectée');
         toast({
           title: 'Aucun audio détecté',
-          description: 'Veuillez réessayer',
+          description: 'Veuillez réessayer en parlant plus fort',
           variant: 'destructive'
         });
         setIsProcessing(false);
         return;
       }
 
-      console.log('📝 Transcription:', result.transcription);
+      console.log('📝 Transcription reçue:', result.transcription);
 
       const audioUpload = await IAstedStorageService.uploadAudio(
         result.audioBlob,
@@ -246,7 +299,7 @@ export const IAstedFloatingButton = () => {
       await getAIResponse(result.transcription, 'voice', audioUpload?.url || '');
 
     } catch (error: any) {
-      console.error('Erreur traitement vocal:', error);
+      console.error('❌ Erreur traitement vocal:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de traiter votre message vocal',
@@ -400,19 +453,41 @@ export const IAstedFloatingButton = () => {
     <>
       {/* BOUTON SPHÉRIQUE */}
       <div className="fixed bottom-6 right-6 z-50 relative">
+        {/* Indicateurs visuels animés */}
         {isListening && (
-          <div className="absolute -inset-2 rounded-full ring-2 ring-purple-500 animate-pulse pointer-events-none" />
+          <div className="absolute -inset-4 rounded-full ring-4 ring-purple-500 animate-ping pointer-events-none opacity-75" />
         )}
         {isSpeaking && (
-          <div className="absolute -inset-2 rounded-full ring-2 ring-blue-500 animate-pulse pointer-events-none" />
+          <div className="absolute -inset-4 rounded-full ring-4 ring-blue-500 animate-pulse pointer-events-none" />
         )}
         {isProcessing && (
-          <div className="absolute -inset-2 rounded-full ring-2 ring-muted-foreground/50 animate-pulse pointer-events-none" />
+          <div className="absolute -inset-4 rounded-full ring-4 ring-muted-foreground/50 animate-pulse pointer-events-none" />
         )}
+        
         <IAstedButton 
           onClick={handleButtonClick}
           size="md"
         />
+        
+        {/* Badge d'état */}
+        {(isListening || isSpeaking || isProcessing) && (
+          <div className="absolute -top-2 -right-2 bg-background border-2 border-primary rounded-full px-3 py-1 text-xs font-medium shadow-lg">
+            {isListening && '🎙️ Écoute...'}
+            {isSpeaking && '🔊 Parle...'}
+            {isProcessing && '⚙️ Analyse...'}
+          </div>
+        )}
+        
+        {/* Bouton stop pour arrêter manuellement */}
+        {isListening && (
+          <button
+            onClick={stopVoiceInteraction}
+            className="absolute -bottom-16 left-1/2 -translate-x-1/2 bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-2 text-sm font-medium shadow-lg transition-colors flex items-center gap-2"
+          >
+            <MicOff className="h-4 w-4" />
+            Arrêter
+          </button>
+        )}
       </div>
 
       {/* INTERFACE CHAT */}

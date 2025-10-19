@@ -84,25 +84,42 @@ export class IAstedVoiceService {
     
     return new Promise((resolve) => {
       if (!this.mediaRecorder) {
+        console.error('❌ MediaRecorder non initialisé');
         resolve(null);
         return;
       }
 
       this.mediaRecorder.onstop = async () => {
         try {
+          console.log('🎵 Création du blob audio...');
+          
           // Créer le blob audio
           const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
           const audioUrl = URL.createObjectURL(audioBlob);
+
+          console.log(`📦 Blob créé: ${audioBlob.size} bytes`);
 
           // Arrêter le stream
           if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
           }
 
-          // Transcrire l'audio avec Whisper API
+          if (audioBlob.size < 1000) {
+            console.warn('⚠️ Audio trop court, probablement vide');
+            resolve({
+              transcription: '',
+              audioBlob,
+              audioUrl,
+              error: 'Audio trop court'
+            });
+            return;
+          }
+
+          // Transcrire l'audio avec Deepgram API
+          console.log('🔄 Envoi à Deepgram pour transcription...');
           const transcription = await this.transcribeAudio(audioBlob);
 
-          console.log('📝 Transcription:', transcription);
+          console.log('✅ Transcription reçue:', transcription);
 
           resolve({
             transcription,
@@ -111,7 +128,7 @@ export class IAstedVoiceService {
           });
 
         } catch (error: any) {
-          console.error('Erreur transcription:', error);
+          console.error('❌ Erreur transcription:', error);
           resolve({
             transcription: '',
             audioBlob: new Blob([]),
@@ -121,6 +138,7 @@ export class IAstedVoiceService {
         }
       };
 
+      console.log('🛑 Arrêt du MediaRecorder...');
       this.mediaRecorder.stop();
     });
   }
