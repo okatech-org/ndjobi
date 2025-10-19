@@ -481,32 +481,88 @@ export default function AdminDashboard() {
 
     setIsLoadingAction(true);
     try {
-      // Simulation de génération de rapport
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Notification de début de génération
+      toast({
+        title: "Génération en cours",
+        description: "Préparation du rapport, veuillez patienter...",
+      });
+
+      // Délai pour montrer le feedback
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      let description = '';
       if (rapportType === 'cas') {
+        // Rapport cas spécifiques
         const nombreCas = selectedCasIds.length;
         const casSelectionnes = adminCases.filter(cas => selectedCasIds.includes(cas.id));
         const montantTotal = casSelectionnes.reduce((sum, cas) => {
           const montant = parseInt(cas.montant.replace(/[^\d]/g, ''));
           return sum + montant;
         }, 0);
-        description = `Rapport ${nombreCas} cas - Montant total: ${montantTotal.toLocaleString()} FCFA - Format: ${formatRapport.toUpperCase()}`;
+
+        const rapportData = {
+          admin: selectedAdmin,
+          casSelectionnes: casSelectionnes,
+          montantTotal: montantTotal
+        };
+
+        // Génération selon le format
+        if (formatRapport === 'pdf') {
+          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
+          rapportGenerationService.generatePDFCas(rapportData);
+        } else if (formatRapport === 'excel') {
+          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
+          rapportGenerationService.generateExcelCas(rapportData);
+        } else if (formatRapport === 'word') {
+          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
+          rapportGenerationService.generateWordCas(rapportData);
+        }
+
+        toast({
+          title: "Rapport généré avec succès",
+          description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: ${formatRapport.toUpperCase()}`,
+        });
       } else {
-        description = `Rapport ${periodeSuivi} - Période: ${dateDebut} au ${dateFin} - Format: ${formatRapport.toUpperCase()}`;
+        // Rapport global
+        const rapportData = {
+          admin: selectedAdmin,
+          periode: periodeSuivi,
+          dateDebut: dateDebut,
+          dateFin: dateFin,
+          totalCas: adminCases.length,
+          totalProblematiques: adminProblematiques.length,
+          impactFinancier: adminProblematiques.reduce((sum, p) => {
+            const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+            return sum + montant;
+          }, 0),
+          casData: adminCases,
+          problematiques: adminProblematiques,
+          recommandations: adminRecommandations
+        };
+
+        // Génération selon le format
+        if (formatRapport === 'pdf') {
+          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
+          rapportGenerationService.generatePDFGlobal(rapportData);
+        } else if (formatRapport === 'excel') {
+          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
+          rapportGenerationService.generateExcelGlobal(rapportData);
+        } else if (formatRapport === 'word') {
+          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
+          rapportGenerationService.generateWordGlobal(rapportData);
+        }
+
+        toast({
+          title: "Rapport généré avec succès",
+          description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: ${formatRapport.toUpperCase()}`,
+        });
       }
-      
-      toast({
-        title: "Rapport généré avec succès",
-        description: description,
-      });
 
       setIsRapportModalOpen(false);
     } catch (error) {
+      console.error('Erreur génération rapport:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de générer le rapport.",
+        description: `Impossible de générer le rapport: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
         variant: "destructive"
       });
     } finally {
