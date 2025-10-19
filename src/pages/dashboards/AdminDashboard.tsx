@@ -131,7 +131,8 @@ export default function AdminDashboard() {
   const renderDashboardGlobal = () => (
     <div className="space-y-4 md:space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <Card className="border-2 border-primary transition-all hover:shadow-lg">
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Signalements Nationaux
@@ -140,18 +141,24 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl md:text-3xl font-bold">{kpis?.total_signalements?.toLocaleString() || 0}</div>
-                <Badge variant="default" className="mt-1 md:mt-2 text-xs">{kpis?.tendance || '+0%'}</Badge>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.total_signalements?.toLocaleString() || 0}</div>
+                <Badge className="mt-1 md:mt-2 text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]">{kpis?.tendance || '+0%'}</Badge>
             </div>
-              <AlertTriangle className="h-8 w-8 md:h-10 md:w-10 text-orange-500 opacity-70" />
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-[hsl(var(--accent-warning))]" />
+              </div>
             </div>
-            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[67%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
               {kpis?.signalements_critiques || 0} cas critiques
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-green-500 transition-all hover:shadow-lg">
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-success))] to-transparent" />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Impact Économique
@@ -160,20 +167,26 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl md:text-3xl font-bold">
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">
                   {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
                 </div>
-                <div className="text-xs md:text-sm text-green-600 mt-1 md:mt-2">FCFA récupérés</div>
+                <div className="text-xs md:text-sm text-[hsl(var(--accent-success))] mt-1 md:mt-2">FCFA récupérés</div>
               </div>
-              <DollarSign className="h-8 w-8 md:h-10 md:w-10 text-green-500 opacity-70" />
-                </div>
-            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-success))]/20 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[hsl(var(--accent-success))]" />
+              </div>
+            </div>
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[85%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-success))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
               Fonds restitués
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-blue-500 transition-all hover:shadow-lg">
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-intel))] to-transparent" />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Taux de Résolution
@@ -182,18 +195,21 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="w-full">
-                <div className="text-2xl md:text-3xl font-bold mb-2">{kpis?.taux_resolution || 0}%</div>
+                <div className="text-2xl md:text-3xl font-bold mb-3 tabular-nums">{kpis?.taux_resolution || 0}%</div>
                 <Progress value={kpis?.taux_resolution || 0} className="h-2" />
               </div>
-              <Target className="h-8 w-8 md:h-10 md:w-10 text-blue-500 opacity-70 ml-3" />
+              <div className="w-10 h-10 rounded-lg bg-[hsl(var(--accent-intel))]/20 flex items-center justify-center ml-3">
+                <Target className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
+              </div>
             </div>
-            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+            <div className="mt-2 text-xs text-muted-foreground">
               Objectif: 85%
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-purple-500 transition-all hover:shadow-lg">
+        <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
           <CardHeader className="pb-2 md:pb-3">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Score Transparence
@@ -202,12 +218,17 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl md:text-3xl font-bold">{kpis?.score_transparence || 0}/100</div>
+                <div className="text-2xl md:text-3xl font-bold tabular-nums">{kpis?.score_transparence || 0}/100</div>
                 <Badge variant="outline" className="mt-1 md:mt-2 text-xs">Deuxième République</Badge>
               </div>
-              <Shield className="h-8 w-8 md:h-10 md:w-10 text-purple-500 opacity-70" />
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-purple-500" />
+              </div>
             </div>
-            <div className="mt-2 md:mt-3 text-xs md:text-sm text-muted-foreground">
+            <div className="mt-3 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[{kpis?.score_transparence || 0}%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-purple-500 rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
               Indice national
             </div>
           </CardContent>
@@ -215,7 +236,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="glass-effect border-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -228,31 +249,38 @@ export default function AdminDashboard() {
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={evolutionMensuelle}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="mois" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'var(--glass-bg)', 
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: '0.5rem',
+                    backdropFilter: 'blur(10px)'
+                  }} 
+                />
                 <Legend />
                 <Line 
                   type="monotone" 
                   dataKey="signalements" 
-                  stroke="#2D5F1E" 
+                  stroke="hsl(var(--accent-intel))" 
                   name="Signalements"
-                  strokeWidth={2}
+                  strokeWidth={3}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="resolutions" 
-                  stroke="#4A8B3A" 
+                  stroke="hsl(var(--accent-success))" 
                   name="Cas résolus"
-                  strokeWidth={2}
+                  strokeWidth={3}
                 />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-effect border-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Flag className="h-5 w-5" />
@@ -295,24 +323,24 @@ export default function AdminDashboard() {
       </Card>
       </div>
 
-      <Alert className="border-orange-500 bg-orange-50/50 dark:bg-orange-950/20">
-        <AlertTriangle className="h-4 w-4 text-orange-600" />
-        <AlertTitle className="text-orange-900 dark:text-orange-100">
+      <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-[hsl(var(--accent-warning))]/5 border-[hsl(var(--accent-warning))]/30">
+        <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+        <AlertTitle className="text-[hsl(var(--accent-warning))]">
           Attention Requise
         </AlertTitle>
-        <AlertDescription className="text-orange-800 dark:text-orange-200">
+        <AlertDescription className="text-muted-foreground">
           {kpis?.signalements_critiques || 0} cas critiques nécessitent une validation 
           présidentielle immédiate. Consulter l'onglet "Validation" pour prendre les décisions.
           {isSubscribed && (
             <div className="mt-2 flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+              <div className="h-2 w-2 rounded-full bg-[hsl(var(--accent-success))] animate-live-pulse"></div>
               <span className="text-sm">Notifications temps réel actives</span>
             </div>
           )}
         </AlertDescription>
       </Alert>
 
-        <Card>
+        <Card className="glass-effect border-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base md:text-lg">
               <MapPin className="h-4 w-4 md:h-5 md:w-5" />
@@ -371,17 +399,17 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h3 className="text-2xl font-bold">Cas Sensibles - Validation Présidentielle</h3>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Cas Sensibles - Validation Présidentielle</h3>
           <p className="text-muted-foreground mt-1">
             Dossiers critiques nécessitant votre décision stratégique
           </p>
         </div>
         <div className="flex gap-2">
           <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] glass-effect border-none">
               <SelectValue placeholder="Toutes régions" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="glass-effect border-none">
               <SelectItem value="all">Toutes régions</SelectItem>
               <SelectItem value="estuaire">Estuaire</SelectItem>
               <SelectItem value="haut-ogooue">Haut-Ogooué</SelectItem>
@@ -392,18 +420,19 @@ export default function AdminDashboard() {
             </div>
 
       {casSensibles.map((cas, idx) => (
-        <Card key={idx} className="border-2 border-orange-200 bg-orange-50/10 dark:bg-orange-950/10">
+        <Card key={idx} className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
           <CardHeader>
             <div className="flex items-start justify-between flex-wrap gap-3">
               <div className="space-y-1 flex-1 min-w-[200px]">
                 <CardTitle className="text-lg">{cas.title || cas.titre}</CardTitle>
                 <CardDescription>Référence: {cas.id} • {new Date(cas.created_at).toLocaleDateString('fr-FR')}</CardDescription>
               </div>
-                            <Badge variant={
-                cas.priority === 'critique' || cas.urgence === 'Critique' ? 'destructive' :
-                cas.priority === 'haute' || cas.urgence === 'Haute' ? 'default' :
-                'secondary'
-              } className="text-sm">
+                            <Badge className={`text-sm ${
+                cas.priority === 'critique' || cas.urgence === 'Critique' ? 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]' :
+                cas.priority === 'haute' || cas.urgence === 'Haute' ? 'bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]' :
+                'bg-muted/50 text-muted-foreground'
+              }`}>
                 {cas.urgence || cas.priority || 'Moyenne'}
                             </Badge>
                           </div>
@@ -428,18 +457,17 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <Alert className="border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20">
-              <Brain className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-900 dark:text-blue-100">
-                <strong>Analyse IA:</strong> Score de priorité {cas.ai_priority_score || 0}%. 
+            <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
+              <Brain className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+              <AlertDescription className="text-muted-foreground">
+                <strong className="text-foreground">Analyse IA:</strong> Score de priorité {cas.ai_priority_score || 0}%. 
                 {cas.ai_analysis_summary || 'Analyse en cours...'}
               </AlertDescription>
             </Alert>
 
             <div className="flex gap-2 flex-wrap">
                             <Button 
-                variant="default"
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
                 onClick={() => handleValiderCas(cas.id, 'approuver')}
                 disabled={isLoading}
               >
@@ -448,6 +476,7 @@ export default function AdminDashboard() {
                             </Button>
                           <Button 
                             variant="outline" 
+                            className="glass-effect border-none"
                 onClick={() => handleValiderCas(cas.id, 'enquete')}
                 disabled={isLoading}
                           >
@@ -456,6 +485,7 @@ export default function AdminDashboard() {
                           </Button>
                               <Button 
                 variant="destructive"
+                className="bg-[hsl(var(--accent-danger))] hover:bg-[hsl(var(--accent-danger))]/90"
                 onClick={() => handleValiderCas(cas.id, 'rejeter')}
                 disabled={isLoading}
               >
@@ -464,6 +494,7 @@ export default function AdminDashboard() {
                               </Button>
                               <Button 
                 variant="ghost"
+                className="glass-effect border-none"
                 onClick={() => handleGenererRapport('executif')}
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -475,9 +506,9 @@ export default function AdminDashboard() {
                 ))}
 
       {casSensibles.length === 0 && (
-        <Card>
+        <Card className="glass-effect border-none">
           <CardContent className="text-center py-12">
-            <CheckCircle className="h-16 w-16 mx-auto mb-4 text-green-500 opacity-50" />
+            <CheckCircle className="h-16 w-16 mx-auto mb-4 text-[hsl(var(--accent-success))] opacity-50" />
             <h3 className="text-lg font-semibold mb-2">Aucun cas sensible en attente</h3>
             <p className="text-muted-foreground">
               Tous les dossiers critiques ont été traités. Continuez la supervision via le dashboard.
@@ -492,18 +523,18 @@ export default function AdminDashboard() {
       <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h3 className="text-2xl font-bold">Suivi des Enquêtes Nationales</h3>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Suivi des Enquêtes Nationales</h3>
           <p className="text-muted-foreground mt-1">
             État d'avancement des investigations en cours
           </p>
         </div>
-        <Button variant="outline" onClick={reloadData} disabled={isLoading}>
+        <Button variant="outline" className="glass-effect border-none" onClick={reloadData} disabled={isLoading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           Actualiser
                           </Button>
                         </div>
 
-      <Card>
+      <Card className="glass-effect border-none">
         <CardHeader>
           <CardTitle>Performance par Ministère</CardTitle>
           <CardDescription>
@@ -562,7 +593,7 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="glass-effect border-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
@@ -575,14 +606,21 @@ export default function AdminDashboard() {
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={evolutionMensuelle}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
               <XAxis dataKey="mois" />
               <YAxis />
-              <Tooltip />
+              <Tooltip 
+                contentStyle={{ 
+                  background: 'var(--glass-bg)', 
+                  border: '1px solid var(--glass-border)',
+                  borderRadius: '0.5rem',
+                  backdropFilter: 'blur(10px)'
+                }} 
+              />
               <Legend />
               <Bar 
                 dataKey="budget" 
-                fill="#2D5F1E" 
+                fill="hsl(var(--accent-success))" 
                 name="Fonds récupérés (M FCFA)"
               />
             </BarChart>
@@ -596,12 +634,12 @@ export default function AdminDashboard() {
       <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h3 className="text-2xl font-bold">Gestion des Sous-Administrateurs</h3>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion des Sous-Administrateurs</h3>
           <p className="text-muted-foreground mt-1">
             Supervision des directeurs sectoriels et performance
           </p>
             </div>
-        <Button variant="default">
+        <Button className="bg-[hsl(var(--accent-intel))] hover:bg-[hsl(var(--accent-intel))]/90 text-white">
           <UserPlus className="h-4 w-4 mr-2" />
           Nommer Sous-Admin
               </Button>
@@ -609,18 +647,23 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sousAdmins.map((admin, idx) => (
-          <Card key={idx} className={
-            admin.statut === 'Attention' ? 'border-orange-200 bg-orange-50/10 dark:bg-orange-950/10' : ''
-          }>
+          <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
+            admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
+          }`}>
+            {admin.statut === 'Attention' && (
+              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+            )}
             <CardHeader>
               <div className="flex items-center justify-between">
             <div>
                   <CardTitle className="text-lg">{admin.nom}</CardTitle>
                   <CardDescription>{admin.secteur}</CardDescription>
                 </div>
-                <Badge variant={
-                  admin.statut === 'Actif' ? 'default' : 'destructive'
-                }>
+                <Badge className={`${
+                  admin.statut === 'Actif' 
+                    ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]' 
+                    : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
+                }`}>
                   {admin.statut}
                             </Badge>
             </div>
@@ -629,35 +672,35 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                   <div className="text-muted-foreground mb-1">Cas traités</div>
-                  <div className="text-2xl font-bold">{admin.casTraites}</div>
+                  <div className="text-2xl font-bold tabular-nums">{admin.casTraites}</div>
               </div>
                 <div>
                   <div className="text-muted-foreground mb-1">Taux succès</div>
-                  <div className="text-2xl font-bold text-green-600">{admin.taux}%</div>
+                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux}%</div>
             </div>
               <div>
                   <div className="text-muted-foreground mb-1">Délai moyen</div>
-                  <div className="text-2xl font-bold text-blue-600">{admin.delai}</div>
+                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai}</div>
               </div>
               </div>
 
               <Progress value={admin.taux} className="h-2" />
 
               {admin.statut === 'Attention' && (
-                <Alert className="border-orange-500/50 bg-orange-50/50 dark:bg-orange-950/20">
-                  <AlertTriangle className="h-4 w-4 text-orange-600" />
-                  <AlertDescription className="text-orange-900 dark:text-orange-100">
+                <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
+                  <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                  <AlertDescription className="text-muted-foreground">
                     Performance en baisse. Délai de traitement supérieur à la norme nationale.
                   </AlertDescription>
                 </Alert>
               )}
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1 glass-effect border-none">
                   <Eye className="h-4 w-4 mr-2" />
                   Voir Détails
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1 glass-effect border-none">
                   <FileText className="h-4 w-4 mr-2" />
                   Rapport
               </Button>
@@ -667,12 +710,12 @@ export default function AdminDashboard() {
         ))}
               </div>
 
-      <Alert className="border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20">
-        <Users className="h-4 w-4 text-blue-600" />
-        <AlertTitle className="text-blue-900 dark:text-blue-100">
+      <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
+        <Users className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+        <AlertTitle className="text-foreground">
           Coordination Nationale
         </AlertTitle>
-        <AlertDescription className="text-blue-800 dark:text-blue-200">
+        <AlertDescription className="text-muted-foreground">
           {sousAdmins.length} Sous-Administrateurs actifs coordonnent les agents 
           opérationnels sur l'ensemble du territoire national. 
           Performance globale: {Math.round(sousAdmins.reduce((acc, a) => acc + a.taux, 0) / sousAdmins.length)}%
@@ -685,24 +728,24 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-          <h3 className="text-2xl font-bold">Rapports Stratégiques</h3>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Rapports Stratégiques</h3>
           <p className="text-muted-foreground mt-1">
             Analytics avancés et indicateurs Vision Gabon 2025
           </p>
               </div>
         <div className="flex gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] glass-effect border-none">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="glass-effect border-none">
               <SelectItem value="7days">7 derniers jours</SelectItem>
               <SelectItem value="30days">30 derniers jours</SelectItem>
               <SelectItem value="3months">3 derniers mois</SelectItem>
               <SelectItem value="1year">Dernière année</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button variant="outline" className="glass-effect border-none">
             <Download className="h-4 w-4 mr-2" />
             Exporter
               </Button>
@@ -711,12 +754,13 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { type: 'executif', titre: 'Rapport Exécutif', icon: Crown, desc: 'Synthèse présidentielle', color: 'border-purple-200 hover:border-purple-400' },
-          { type: 'hebdomadaire', titre: 'Rapport Hebdo', icon: Calendar, desc: 'Évolution 7 jours', color: 'border-blue-200 hover:border-blue-400' },
-          { type: 'mensuel', titre: 'Rapport Mensuel', icon: BarChart3, desc: 'Performance mensuelle', color: 'border-green-200 hover:border-green-400' },
-          { type: 'annuel', titre: 'Rapport Annuel', icon: TrendingUp, desc: 'Vision 2025', color: 'border-orange-200 hover:border-orange-400' }
+          { type: 'executif', titre: 'Rapport Exécutif', icon: Crown, desc: 'Synthèse présidentielle', color: 'purple' },
+          { type: 'hebdomadaire', titre: 'Rapport Hebdo', icon: Calendar, desc: 'Évolution 7 jours', color: 'intel' },
+          { type: 'mensuel', titre: 'Rapport Mensuel', icon: BarChart3, desc: 'Performance mensuelle', color: 'success' },
+          { type: 'annuel', titre: 'Rapport Annuel', icon: TrendingUp, desc: 'Vision 2025', color: 'warning' }
         ].map((rapport, idx) => (
-          <Card key={idx} className={`${rapport.color} cursor-pointer transition-all`}>
+          <Card key={idx} className="glass-effect border-none cursor-pointer transition-all hover:translate-y-[-4px] relative overflow-hidden group">
+            <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-${rapport.color === 'intel' ? '[hsl(var(--accent-intel))]' : rapport.color === 'success' ? '[hsl(var(--accent-success))]' : rapport.color === 'warning' ? '[hsl(var(--accent-warning))]' : 'purple-500'} to-transparent`} />
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <rapport.icon className="h-5 w-5" />
@@ -728,7 +772,7 @@ export default function AdminDashboard() {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="w-full"
+                className="w-full glass-effect border-none"
                 onClick={() => handleGenererRapport(rapport.type as any)}
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -739,12 +783,12 @@ export default function AdminDashboard() {
         ))}
           </div>
 
-      <Alert className="border-green-500 bg-green-50/50 dark:bg-green-950/20">
-        <Target className="h-4 w-4 text-green-600" />
-        <AlertTitle className="text-green-900 dark:text-green-100">
+      <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-success))]/10 to-transparent">
+        <Target className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+        <AlertTitle className="text-foreground">
           Vision Gabon Émergent 2025
         </AlertTitle>
-        <AlertDescription className="text-green-800 dark:text-green-200">
+        <AlertDescription className="text-muted-foreground">
           La lutte anticorruption contribue directement aux objectifs de la Deuxième République. 
           Impact mesuré: réduction de 34% des cas de corruption vs 2023, récupération de {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)} milliards FCFA, 
           amélioration de 18 points du score de transparence nationale.
@@ -755,14 +799,22 @@ export default function AdminDashboard() {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="fixed inset-0 bg-pattern-grid pointer-events-none z-0" />
+        
+        {/* Animated Orbs */}
+        <div className="fixed w-[400px] h-[400px] rounded-full opacity-[var(--orb-opacity)] blur-[100px] -top-[200px] -left-[200px] bg-gradient-to-br from-[hsl(var(--accent-intel))] via-[hsl(var(--accent-intel))] to-transparent animate-float-orb pointer-events-none" style={{ animationDuration: '25s' }} />
+        <div className="fixed w-[300px] h-[300px] rounded-full opacity-[var(--orb-opacity)] blur-[100px] -bottom-[150px] -right-[150px] bg-gradient-to-br from-[hsl(var(--accent-warning))] via-[hsl(var(--accent-warning))] to-transparent animate-float-orb pointer-events-none" style={{ animationDuration: '30s', animationDelay: '-5s' }} />
+        <div className="fixed w-[350px] h-[350px] rounded-full opacity-[var(--orb-opacity)] blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-[hsl(var(--accent-success))] via-[hsl(var(--accent-success))] to-transparent animate-float-orb pointer-events-none" style={{ animationDuration: '35s', animationDelay: '-10s' }} />
+
         {/* Sidebar */}
         <AdminSidebar />
 
         {/* Contenu principal */}
-        <div className="flex-1 flex flex-col w-full bg-background">
-          {/* En-tête moderne et épuré */}
-          <header className="h-16 border-b bg-background backdrop-blur-sm sticky top-0 z-40">
+        <div className="flex-1 flex flex-col w-full relative z-10">
+          {/* En-tête glassmorphism */}
+          <header className="h-16 glass-effect sticky top-0 z-40">
             <div className="h-full px-4 md:px-6 flex items-center justify-between">
               {/* Gauche: Titre et badge */}
               <div className="flex items-center gap-3">
@@ -774,27 +826,30 @@ export default function AdminDashboard() {
                 </SidebarTrigger>
                 
                 <div className="flex items-center gap-3">
-                  <Badge variant="default" className="text-[10px] px-2 py-0.5">
-                    <Shield className="h-2.5 w-2.5 mr-1" />
-                    Admin
-                  </Badge>
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center animate-pulse-glow">
+                    <Shield className="h-4 w-4 text-white" />
+                  </div>
                   <div className="hidden md:block">
-                    <h1 className="text-base font-bold">
-                      PROTOCOLE D'ÉTAT
-                    </h1>
+                    <h1 className="text-base font-bold">PROTOCOLE D'ÉTAT</h1>
+                    <p className="text-[9px] text-muted-foreground">Intelligence • Vision 2025</p>
                   </div>
                 </div>
               </div>
               
               {/* Droite: Actions et infos */}
               <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-live-pulse" />
+                  <span className="text-xs font-medium text-red-500">LIVE</span>
+                </div>
+                
                 <ThemeToggle />
                 
-                <div className="h-8 w-px bg-border hidden lg:block" />
+                <div className="h-8 w-px bg-border/50 hidden lg:block" />
                 
-                <div className="hidden lg:flex items-center gap-2 text-xs">
-                  <Badge variant="outline" className="text-[10px] px-2">
-                    Gabon - Vision 2025
+                <div className="hidden lg:flex items-center gap-2">
+                  <Badge variant="outline" className="text-[10px] px-2 bg-[hsl(var(--accent-success))]/10 border-[hsl(var(--accent-success))]/30">
+                    Gabon • Vision 2025
                   </Badge>
                 </div>
               </div>
@@ -802,8 +857,8 @@ export default function AdminDashboard() {
           </header>
 
           {/* Contenu principal avec scroll */}
-          <main className="flex-1 overflow-y-auto bg-background">
-            <div className="container py-6 md:py-8 space-y-6 bg-background">
+          <main className="flex-1 overflow-y-auto">
+            <div className="container py-6 md:py-8 space-y-6">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
