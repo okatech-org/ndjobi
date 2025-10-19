@@ -130,28 +130,28 @@ export default function AdminDashboard() {
 
   const renderDashboardGlobal = () => (
     <div className="space-y-4 md:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2 md:gap-3">
         <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
+          <CardHeader className="pb-1 md:pb-2 pt-2 md:pt-4 px-3 md:px-6">
+            <CardTitle className="text-[10px] md:text-xs font-medium text-muted-foreground">
               Signalements Nationaux
             </CardTitle>
           </CardHeader>
-          <CardContent className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold tabular-nums">{kpis?.total_signalements?.toLocaleString() || 0}</div>
-                <Badge className="mt-1 text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]">{kpis?.tendance || '+0%'}</Badge>
+          <CardContent className="pb-2 md:pb-3 px-3 md:px-6">
+            <div className="flex items-center justify-between gap-1">
+              <div className="min-w-0 flex-1">
+                <div className="text-lg md:text-2xl font-bold tabular-nums truncate">{kpis?.total_signalements?.toLocaleString() || 0}</div>
+                <Badge className="mt-0.5 md:mt-1 text-[10px] md:text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]">{kpis?.tendance || '+0%'}</Badge>
             </div>
-              <div className="w-9 h-9 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center">
-                <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+              <div className="w-7 h-7 md:w-9 md:h-9 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="h-3 w-3 md:h-4 md:w-4 text-[hsl(var(--accent-warning))]" />
               </div>
             </div>
-            <div className="mt-2 h-1 bg-muted/50 rounded-full overflow-hidden">
+            <div className="mt-1.5 md:mt-2 h-0.5 md:h-1 bg-muted/50 rounded-full overflow-hidden">
               <div className="h-full w-[67%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
-            <div className="mt-1.5 text-xs text-muted-foreground">
+            <div className="mt-1 md:mt-1.5 text-[9px] md:text-xs text-muted-foreground truncate">
               {kpis?.signalements_critiques || 0} cas critiques
             </div>
           </CardContent>
@@ -159,27 +159,27 @@ export default function AdminDashboard() {
 
         <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-success))] to-transparent" />
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
+          <CardHeader className="pb-1 md:pb-2 pt-2 md:pt-4 px-3 md:px-6">
+            <CardTitle className="text-[10px] md:text-xs font-medium text-muted-foreground">
               Impact Économique
             </CardTitle>
           </CardHeader>
-          <CardContent className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold tabular-nums">
+          <CardContent className="pb-2 md:pb-3 px-3 md:px-6">
+            <div className="flex items-center justify-between gap-1">
+              <div className="min-w-0 flex-1">
+                <div className="text-lg md:text-2xl font-bold tabular-nums truncate">
                   {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)}Mrd
                 </div>
-                <div className="text-xs text-[hsl(var(--accent-success))] mt-1">FCFA récupérés</div>
+                <div className="text-[9px] md:text-xs text-[hsl(var(--accent-success))] mt-0.5 md:mt-1 truncate">FCFA récupérés</div>
               </div>
-              <div className="w-9 h-9 rounded-lg bg-[hsl(var(--accent-success))]/20 flex items-center justify-center">
-                <DollarSign className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+              <div className="w-7 h-7 md:w-9 md:h-9 rounded-lg bg-[hsl(var(--accent-success))]/20 flex items-center justify-center flex-shrink-0">
+                <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-[hsl(var(--accent-success))]" />
               </div>
             </div>
-            <div className="mt-2 h-1 bg-muted/50 rounded-full overflow-hidden">
+            <div className="mt-1.5 md:mt-2 h-0.5 md:h-1 bg-muted/50 rounded-full overflow-hidden">
               <div className="h-full w-[85%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-success))] rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
-            <div className="mt-1.5 text-xs text-muted-foreground">
+            <div className="mt-1 md:mt-1.5 text-[9px] md:text-xs text-muted-foreground truncate">
               Fonds restitués
             </div>
           </CardContent>
@@ -187,22 +187,22 @@ export default function AdminDashboard() {
 
         <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-intel))] to-transparent" />
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
+          <CardHeader className="pb-1 md:pb-2 pt-2 md:pt-4 px-3 md:px-6">
+            <CardTitle className="text-[10px] md:text-xs font-medium text-muted-foreground">
               Taux de Résolution
             </CardTitle>
           </CardHeader>
-          <CardContent className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-full">
-                <div className="text-2xl font-bold mb-2 tabular-nums">{kpis?.taux_resolution || 0}%</div>
-                <Progress value={kpis?.taux_resolution || 0} className="h-1.5" />
+          <CardContent className="pb-2 md:pb-3 px-3 md:px-6">
+            <div className="flex items-center justify-between gap-1">
+              <div className="w-full min-w-0 flex-1">
+                <div className="text-lg md:text-2xl font-bold mb-1.5 md:mb-2 tabular-nums">{kpis?.taux_resolution || 0}%</div>
+                <Progress value={kpis?.taux_resolution || 0} className="h-1 md:h-1.5" />
               </div>
-              <div className="w-9 h-9 rounded-lg bg-[hsl(var(--accent-intel))]/20 flex items-center justify-center ml-3">
-                <Target className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+              <div className="w-7 h-7 md:w-9 md:h-9 rounded-lg bg-[hsl(var(--accent-intel))]/20 flex items-center justify-center ml-2 flex-shrink-0">
+                <Target className="h-3 w-3 md:h-4 md:w-4 text-[hsl(var(--accent-intel))]" />
               </div>
             </div>
-            <div className="mt-1.5 text-xs text-muted-foreground">
+            <div className="mt-1 md:mt-1.5 text-[9px] md:text-xs text-muted-foreground truncate">
               Objectif: 85%
             </div>
           </CardContent>
@@ -210,25 +210,25 @@ export default function AdminDashboard() {
 
         <Card className="glass-effect border-none relative overflow-hidden group hover:translate-y-[-4px] transition-transform">
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
+          <CardHeader className="pb-1 md:pb-2 pt-2 md:pt-4 px-3 md:px-6">
+            <CardTitle className="text-[10px] md:text-xs font-medium text-muted-foreground">
               Score Transparence
             </CardTitle>
           </CardHeader>
-          <CardContent className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold tabular-nums">{kpis?.score_transparence || 0}/100</div>
-                <Badge variant="outline" className="mt-1 text-xs">Deuxième République</Badge>
+          <CardContent className="pb-2 md:pb-3 px-3 md:px-6">
+            <div className="flex items-center justify-between gap-1">
+              <div className="min-w-0 flex-1">
+                <div className="text-lg md:text-2xl font-bold tabular-nums truncate">{kpis?.score_transparence || 0}/100</div>
+                <Badge variant="outline" className="mt-0.5 md:mt-1 text-[9px] md:text-xs truncate">2e République</Badge>
               </div>
-              <div className="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Shield className="h-4 w-4 text-purple-500" />
+              <div className="w-7 h-7 md:w-9 md:h-9 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                <Shield className="h-3 w-3 md:h-4 md:w-4 text-purple-500" />
               </div>
             </div>
-            <div className="mt-2 h-1 bg-muted/50 rounded-full overflow-hidden">
+            <div className="mt-1.5 md:mt-2 h-0.5 md:h-1 bg-muted/50 rounded-full overflow-hidden">
               <div className="h-full w-[{kpis?.score_transparence || 0}%] bg-gradient-to-r from-[hsl(var(--accent-intel))] to-purple-500 rounded-full" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             </div>
-            <div className="mt-1.5 text-xs text-muted-foreground">
+            <div className="mt-1 md:mt-1.5 text-[9px] md:text-xs text-muted-foreground truncate">
               Indice national
             </div>
           </CardContent>
