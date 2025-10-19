@@ -65,7 +65,7 @@ export const IAstedFloatingButton = () => {
         handleDoubleClick();
       }
       clickCountRef.current = 0;
-    }, 300);
+    }, 250); // Réduit à 250ms pour une meilleure réactivité
   };
 
   /**
@@ -88,7 +88,15 @@ export const IAstedFloatingButton = () => {
    * Double clic : Mode vocal
    */
   const handleDoubleClick = async () => {
-    console.log('🎙️ Mode vocal activé');
+    console.log('🎙️ Mode vocal activé - Double clic détecté');
+    
+    // Si déjà ouvert en mode texte, basculer vers vocal
+    if (isOpen && mode === 'text') {
+      await switchToVoice();
+      return;
+    }
+
+    // Sinon ouvrir directement en mode vocal
     setIsOpen(true);
     setMode('voice');
 
@@ -333,7 +341,24 @@ export const IAstedFloatingButton = () => {
    * Basculer vers vocal
    */
   const switchToVoice = async () => {
+    console.log('🔄 Basculement vers mode vocal');
     setMode('voice');
+    
+    const hasMic = await IAstedVoiceService.checkMicrophonePermission();
+    if (!hasMic) {
+      toast({
+        title: 'Microphone requis',
+        description: 'Veuillez autoriser l\'accès au microphone',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Message de transition si déjà des messages
+    if (messages.length > 0) {
+      await speakWelcomeMessage();
+    }
+    
     await startVoiceInteraction();
   };
 
