@@ -49,7 +49,14 @@ export const IAstedFloatingButton = () => {
     if (saved) {
       return JSON.parse(saved);
     }
-    return { x: window.innerWidth - 80, y: window.innerHeight / 2 };
+    // Position responsive : en bas à droite avec marges adaptées à l'écran
+    const isMobile = window.innerWidth < 768;
+    const buttonSize = 60; // taille approximative du bouton
+    const margin = isMobile ? 20 : 40;
+    return { 
+      x: window.innerWidth - margin - buttonSize/2, 
+      y: window.innerHeight - margin - buttonSize/2 
+    };
   });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
@@ -144,6 +151,31 @@ export const IAstedFloatingButton = () => {
       document.removeEventListener('touchend', handleTouchEnd);
     };
   }, [isDragging, dragStart, position]);
+
+  // Gérer le redimensionnement de la fenêtre pour garder le bouton visible
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768;
+      const buttonSize = 60;
+      const margin = isMobile ? 20 : 40;
+      
+      // Vérifier si le bouton est hors de l'écran
+      const maxX = window.innerWidth - margin;
+      const maxY = window.innerHeight - margin;
+      
+      setPosition(prev => ({
+        x: Math.min(prev.x, maxX),
+        y: Math.min(prev.y, maxY)
+      }));
+    };
+
+    window.addEventListener('resize', handleResize);
+    // Vérifier aussi au montage
+    handleResize();
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   /**
    * GESTION DES CLICS
@@ -753,7 +785,7 @@ export const IAstedFloatingButton = () => {
       {/* BOUTON SPHÉRIQUE DÉPLAÇABLE */}
       <div 
         ref={buttonRef}
-        className="fixed z-50 cursor-move"
+        className="fixed z-[9999] cursor-move"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -785,7 +817,7 @@ export const IAstedFloatingButton = () => {
       {/* INTERFACE CHAT */}
       {isOpen && (
         <Card 
-          className="fixed w-[400px] h-[600px] shadow-2xl z-50 flex flex-col max-w-[calc(100vw-2rem)] md:w-[400px]"
+          className="fixed w-[400px] h-[600px] shadow-2xl z-[9998] flex flex-col max-w-[calc(100vw-2rem)] md:w-[400px]"
           style={{
             // Positionner le chat à gauche du bouton si possible, sinon à droite
             left: position.x > window.innerWidth / 2 
