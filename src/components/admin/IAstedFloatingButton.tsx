@@ -122,8 +122,7 @@ export const IAstedFloatingButton = () => {
       return;
     }
 
-    // Sinon ouvrir directement en mode vocal
-    setIsOpen(true);
+    // Démarrer en mode vocal sans ouvrir l'interface
     setMode('voice');
 
     const hasMic = await IAstedVoiceService.checkMicrophonePermission();
@@ -400,7 +399,16 @@ export const IAstedFloatingButton = () => {
   return (
     <>
       {/* BOUTON SPHÉRIQUE */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50 relative">
+        {isListening && (
+          <div className="absolute -inset-2 rounded-full ring-2 ring-purple-500 animate-pulse pointer-events-none" />
+        )}
+        {isSpeaking && (
+          <div className="absolute -inset-2 rounded-full ring-2 ring-blue-500 animate-pulse pointer-events-none" />
+        )}
+        {isProcessing && (
+          <div className="absolute -inset-2 rounded-full ring-2 ring-muted-foreground/50 animate-pulse pointer-events-none" />
+        )}
         <IAstedButton 
           onClick={handleButtonClick}
           size="md"
