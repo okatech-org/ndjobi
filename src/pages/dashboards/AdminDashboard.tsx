@@ -5,7 +5,7 @@ import {
   FileText, TrendingUp, Shield, AlertTriangle, Eye, Filter,
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
-  AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu
+  AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu, Bell
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,7 @@ export default function AdminDashboard() {
   const activeView = searchParams.get('view') || 'dashboard';
   const [timeRange, setTimeRange] = useState<string>('30days');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
+  const [unreadNotifications, setUnreadNotifications] = useState(3);
   
   const {
     notifications: realtimeNotifications,
@@ -813,42 +814,74 @@ export default function AdminDashboard() {
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col w-full relative z-10">
-          {/* En-tête glassmorphism */}
-          <header className="h-16 glass-effect sticky top-0 z-40">
+          {/* En-tête glassmorphism avec animations */}
+          <header className="sticky top-0 z-40 glass-effect border-b border-border/50">
             <div className="h-full px-4 md:px-6 flex items-center justify-between">
-              {/* Gauche: Titre et badge */}
-              <div className="flex items-center gap-3">
+              {/* Gauche: Logo et titre */}
+              <div className="flex items-center gap-4">
                 {/* Bouton menu mobile */}
                 <SidebarTrigger className="lg:hidden">
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="hover:bg-muted/50 transition-colors">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SidebarTrigger>
                 
+                {/* Logo et titre animés */}
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center animate-pulse-glow">
-                    <Shield className="h-4 w-4 text-white" />
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-warning))]/20 rounded-lg blur-md group-hover:blur-lg transition-all animate-pulse-glow" />
+                    <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-warning))] flex items-center justify-center shadow-lg animate-pulse-glow">
+                      <Shield className="h-5 w-5 text-white" />
+                    </div>
                   </div>
-                  <div className="hidden md:block">
-                    <h1 className="text-base font-bold">PROTOCOLE D'ÉTAT</h1>
+                  <div className="hidden md:flex flex-col">
+                    <h1 className="text-base font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
+                      PROTOCOLE D'ÉTAT
+                    </h1>
                     <p className="text-[9px] text-muted-foreground">Intelligence • Vision 2025</p>
                   </div>
                 </div>
               </div>
               
-              {/* Droite: Actions et infos */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-live-pulse" />
+              {/* Centre: Indicateurs en temps réel */}
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-effect border border-border/50">
+                  <div className="relative">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-live-pulse" />
+                    <div className="absolute inset-0 w-2 h-2 rounded-full bg-red-500/30 animate-ping" />
+                  </div>
                   <span className="text-xs font-medium text-red-500">LIVE</span>
                 </div>
+                
+                <div className="h-6 w-px bg-border/50" />
+                
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-effect border border-border/50">
+                  <Activity className="h-4 w-4 text-[hsl(var(--accent-success))] animate-pulse" />
+                  <span className="text-xs text-muted-foreground">Surveillance Active</span>
+                </div>
+              </div>
+              
+              {/* Droite: Actions et indicateurs */}
+              <div className="flex items-center gap-3">
+                {/* Notification badge */}
+                <Button variant="ghost" size="icon" className="relative glass-effect hover:bg-muted/50 transition-all">
+                  <Bell className="h-4 w-4" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute top-1 right-1 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                  )}
+                </Button>
                 
                 <ThemeToggle />
                 
                 <div className="h-8 w-px bg-border/50 hidden lg:block" />
                 
+                {/* Badge Vision 2025 */}
                 <div className="hidden lg:flex items-center gap-2">
-                  <Badge variant="outline" className="text-[10px] px-2 bg-[hsl(var(--accent-success))]/10 border-[hsl(var(--accent-success))]/30">
+                  <Badge className="text-[10px] px-2.5 py-1 bg-[hsl(var(--accent-success))]/10 text-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]/30 animate-fade-in">
+                    <Flag className="h-3 w-3 mr-1" />
                     Gabon • Vision 2025
                   </Badge>
                 </div>
