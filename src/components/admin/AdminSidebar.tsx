@@ -120,10 +120,10 @@ export function AdminSidebar() {
       collapsible="icon"
     >
       <div className="absolute inset-0 glass-effect rounded-r-2xl" />
-      <SidebarContent className="relative z-10">
-        {/* Header avec logo - design glassmorphism - aligné en haut */}
+      <SidebarContent className="relative z-10 flex flex-col h-full">
+        {/* Header avec logo - design glassmorphism - alignement parfait */}
         <div
-          className={`flex items-center gap-3 px-4 py-4 mb-4 border-b border-border/50 transition-all ${
+          className={`flex items-center gap-3 px-4 py-3 mb-0 border-b border-border/50 transition-all flex-shrink-0 ${
             collapsed ? "justify-center px-2" : ""
           }`}
         >
@@ -145,15 +145,15 @@ export function AdminSidebar() {
           )}
         </div>
 
-        {/* Menu Principal - Design glassmorphism */}
-        <SidebarGroup>
+        {/* Menu Principal - Design glassmorphism - espacement uniforme */}
+        <SidebarGroup className="flex-1 py-4">
           {!collapsed && (
-            <SidebarGroupLabel className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
+            <SidebarGroupLabel className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
               Navigation
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1 px-2">
+            <SidebarMenu className="space-y-1 px-4">
               {menuItems.map((item, index) => {
                 const Icon = item.icon;
                 const active = isActive(item.url);
@@ -161,11 +161,11 @@ export function AdminSidebar() {
                   <SidebarMenuItem key={item.title} style={{ animationDelay: `${index * 50}ms` }} className="animate-fade-in">
                     <SidebarMenuButton
                       onClick={() => navigate(item.url)}
-                      className={`group relative transition-all duration-300 rounded-xl overflow-hidden hover:translate-x-1 ${
+                      className={`group relative transition-all duration-300 rounded-xl overflow-hidden ${
                         active
-                          ? "bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-intel))]/80 text-white shadow-lg hover:shadow-xl scale-105"
+                          ? "bg-gradient-to-r from-[hsl(var(--accent-intel))] to-[hsl(var(--accent-intel))]/80 text-white shadow-lg hover:shadow-xl"
                           : "hover:bg-muted/50"
-                      } ${collapsed ? "justify-center px-3 py-3" : "px-3 py-3"}`}
+                      } ${collapsed ? "justify-center px-2 py-2.5" : "px-0 py-2.5"}`}
                       tooltip={collapsed ? item.title : undefined}
                     >
                       {/* Shimmer effect on hover */}
@@ -178,16 +178,16 @@ export function AdminSidebar() {
                         <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--accent-intel))]/50 to-[hsl(var(--accent-warning))]/30 blur-xl animate-pulse" />
                       )}
                       
-                      <div className="flex items-center gap-3 w-full min-w-0 relative z-10">
-                        <div className={`p-1.5 rounded-lg transition-all duration-300 ${
+                      <div className="flex items-center gap-3 w-full min-w-0 relative z-10 px-3">
+                        <div className={`p-1.5 rounded-lg transition-all duration-300 flex-shrink-0 ${
                           active 
-                            ? "bg-white/20 shadow-inner animate-bounce-subtle" 
+                            ? "bg-white/20 shadow-inner" 
                             : "bg-muted/30 group-hover:bg-[hsl(var(--accent-intel))]/10 group-hover:scale-110"
                         }`}>
                           <Icon
-                            className={`h-4 w-4 flex-shrink-0 transition-all duration-300 group-hover:rotate-3 ${
+                            className={`h-4 w-4 transition-all duration-300 ${
                               active
-                                ? "text-white animate-pulse"
+                                ? "text-white"
                                 : "text-muted-foreground group-hover:text-[hsl(var(--accent-intel))]"
                             }`}
                           />
@@ -197,7 +197,7 @@ export function AdminSidebar() {
                             <div className="flex flex-col min-w-0 flex-1">
                               <span
                                 className={`font-semibold text-sm leading-tight truncate transition-all duration-300 ${
-                                  active ? "text-white" : "text-foreground group-hover:text-[hsl(var(--accent-intel))] group-hover:translate-x-0.5"
+                                  active ? "text-white" : "text-foreground group-hover:text-[hsl(var(--accent-intel))]"
                                 }`}
                               >
                                 {item.title}
@@ -240,10 +240,10 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Footer de la sidebar - design glassmorphism */}
-        <div className="mt-auto border-t border-border/50 pt-4 glass-effect rounded-br-2xl">
+        {/* Footer de la sidebar - design glassmorphism - alignement cohérent */}
+        <div className="flex-shrink-0 border-t border-border/50 glass-effect">
           {!collapsed ? (
-            <div className="px-4 pb-4 space-y-2.5 animate-fade-in glass-effect rounded-lg p-3 hover:bg-muted/30 transition-all duration-300 cursor-pointer group">
+            <div className="px-4 py-3 space-y-2 animate-fade-in hover:bg-muted/20 transition-all duration-300 cursor-pointer group">
               <div className="flex items-center gap-2 text-xs p-2 rounded-lg bg-[hsl(var(--accent-success))]/10 group-hover:bg-[hsl(var(--accent-success))]/15 transition-colors">
                 <div className="relative">
                   <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-success))] animate-live-pulse" />
@@ -262,7 +262,7 @@ export function AdminSidebar() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center pb-4 gap-2 glass-effect rounded-lg p-2 mx-2 hover:bg-muted/30 transition-all duration-300 cursor-pointer group">
+            <div className="flex flex-col items-center py-3 gap-2 hover:bg-muted/20 transition-all duration-300 cursor-pointer group">
               <div className="relative">
                 <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-success))] animate-live-pulse" />
                 <div className="absolute inset-0 w-2 h-2 rounded-full bg-[hsl(var(--accent-success))]/30 animate-ping" />
