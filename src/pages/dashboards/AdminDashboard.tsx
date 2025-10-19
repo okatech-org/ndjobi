@@ -774,7 +774,11 @@ export default function AdminDashboard() {
                 </SidebarTrigger>
                 
                 <div className="flex items-center gap-3">
-                  <div className="hidden md:block">
+                  <Badge variant="default" className="text-[10px] px-2 py-0.5">
+                    <Shield className="h-2.5 w-2.5 mr-1" />
+                    Admin
+                  </Badge>
+                  <div className="hidden md:flex flex-col items-center">
                     <h1 className="text-base font-bold">
                       PROTOCOLE D'ÉTAT
                     </h1>
@@ -782,10 +786,6 @@ export default function AdminDashboard() {
                       Bonne gouvernance
                     </p>
                   </div>
-                  <Badge variant="default" className="text-[10px] px-2 py-0.5">
-                    <Shield className="h-2.5 w-2.5 mr-1" />
-                    Admin
-                  </Badge>
                 </div>
               </div>
               
