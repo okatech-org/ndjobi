@@ -23,6 +23,11 @@ export class IAstedVoiceService {
   private static audioChunks: Blob[] = [];
   private static stream: MediaStream | null = null;
 
+  // Expose current mic stream for UI-level audio analysis (read-only)
+  static getCurrentStream(): MediaStream | null {
+    return this.stream;
+  }
+
   /**
    * PARTIE 1 : RECONNAISSANCE VOCALE (Speech-to-Text)
    * 
@@ -176,26 +181,8 @@ export class IAstedVoiceService {
    * Fallback : Transcription avec Web Speech API
    */
   private static transcribeWithWebSpeech(audioBlob: Blob): Promise<string> {
-    return new Promise((resolve) => {
-      const recognition = new (window as any).webkitSpeechRecognition();
-      recognition.lang = 'fr-FR';
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      recognition.onresult = (event: any) => {
-        const transcription = event.results[0][0].transcript;
-        resolve(transcription);
-      };
-
-      recognition.onerror = () => {
-        resolve('');
-      };
-
-      // Jouer l'audio pour la reconnaissance
-      const audio = new Audio(URL.createObjectURL(audioBlob));
-      audio.play();
-      recognition.start();
-    });
+    // Désactivé pour éviter la lecture de l'audio utilisateur en fallback
+    return Promise.resolve('');
   }
 
   /**

@@ -42,6 +42,7 @@ export const IAstedFloatingButton = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Auto-scroll
   useEffect(() => {
@@ -267,10 +268,14 @@ export const IAstedFloatingButton = () => {
    */
   const startSilenceDetection = () => {
     try {
-      const stream = (IAstedVoiceService as any).mediaStream;
-      if (!stream) return;
+      const stream = IAstedVoiceService.getCurrentStream?.() ?? (IAstedVoiceService as any).stream;
+      if (!stream) {
+        console.warn('SilenceDetection: aucun stream micro disponible');
+        return;
+      }
 
-      const audioContext = new AudioContext();
+      const audioContext = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+      audioCtxRef.current = audioContext;
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 2048;
@@ -281,8 +286,8 @@ export const IAstedFloatingButton = () => {
       const dataArray = new Uint8Array(bufferLength);
       
       let silenceDuration = 0;
-      const SILENCE_THRESHOLD = 30; // Seuil de volume
-      const SILENCE_DURATION = 1500; // 1.5 secondes de silence
+      const SILENCE_THRESHOLD = 8; // plus sensible
+      const SILENCE_DURATION = 1200; // 1.2s de silence
 
       const checkAudioLevel = () => {
         if (!isListening) return;
@@ -329,6 +334,10 @@ export const IAstedFloatingButton = () => {
     if (audioAnalyser) {
       audioAnalyser.disconnect();
       setAudioAnalyser(null);
+    }
+    if (audioCtxRef.current) {
+      try { await audioCtxRef.current.close(); } catch {}
+      audioCtxRef.current = null;
     }
 
     try {
