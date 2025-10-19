@@ -49,12 +49,15 @@ export default function AdminDashboard() {
   // États pour les modals et actions
   const [isNommerModalOpen, setIsNommerModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isRapportModalOpen, setIsRapportModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<any>(null);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
   const [adminHistory, setAdminHistory] = useState<any[]>([]);
   const [adminCases, setAdminCases] = useState<any[]>([]);
   const [adminProblematiques, setAdminProblematiques] = useState<any[]>([]);
   const [adminRecommandations, setAdminRecommandations] = useState<any[]>([]);
+  const [rapportType, setRapportType] = useState<'cas' | 'global'>('global');
+  const [selectedCas, setSelectedCas] = useState<any>(null);
   
   // États pour le formulaire de nomination
   const [nomForm, setNomForm] = useState({
@@ -408,16 +411,35 @@ export default function AdminDashboard() {
     }
   };
 
-  // Fonction pour générer le rapport d'un admin
-  const handleGenererRapportAdmin = async (admin: any) => {
+  // Fonction pour ouvrir le modal de génération de rapport
+  const handleOuvrirRapportModal = (admin: any, cas?: any) => {
+    setSelectedAdmin(admin);
+    if (cas) {
+      setRapportType('cas');
+      setSelectedCas(cas);
+    } else {
+      setRapportType('global');
+      setSelectedCas(null);
+    }
+    setIsRapportModalOpen(true);
+  };
+
+  // Fonction pour générer le rapport
+  const handleGenererRapport = async () => {
     setIsLoadingAction(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulation de génération de rapport
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const typeRapport = rapportType === 'cas' ? 'du cas spécifique' : 'global du ministère';
+      const nomCas = selectedCas ? selectedCas.titre : '';
       
       toast({
-        title: "Rapport généré",
-        description: `Le rapport de ${admin.nom} a été généré avec succès.`,
+        title: "Rapport généré avec succès",
+        description: `Rapport ${typeRapport}${nomCas ? ` - ${nomCas}` : ''} de ${selectedAdmin.nom} généré.`,
       });
+
+      setIsRapportModalOpen(false);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -427,6 +449,11 @@ export default function AdminDashboard() {
     } finally {
       setIsLoadingAction(false);
     }
+  };
+
+  // Fonction pour générer le rapport d'un admin (ancienne fonction)
+  const handleGenererRapportAdmin = async (admin: any) => {
+    handleOuvrirRapportModal(admin);
   };
 
   if (authLoading) {
@@ -1659,6 +1686,20 @@ export default function AdminDashboard() {
                             </AlertDescription>
                           </Alert>
                         )}
+
+                        {/* Bouton rapport cas spécifique */}
+                        <div className="flex gap-2 pt-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                            onClick={() => handleOuvrirRapportModal(selectedAdmin, cas)}
+                            disabled={isLoadingAction}
+                          >
+                            <FileText className="h-3 w-3 mr-1" />
+                            Rapport cas
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     
@@ -1824,12 +1865,195 @@ export default function AdminDashboard() {
             <Button
               onClick={() => {
                 setIsDetailsModalOpen(false);
-                if (selectedAdmin) handleGenererRapportAdmin(selectedAdmin);
+                if (selectedAdmin) handleOuvrirRapportModal(selectedAdmin);
               }}
               className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
             >
               <FileText className="h-4 w-4 mr-2" />
-              Générer Rapport
+              Rapport Global
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Génération de Rapport */}
+      <Dialog open={isRapportModalOpen} onOpenChange={setIsRapportModalOpen}>
+        <DialogContent className="glass-effect border-none max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-[hsl(var(--accent-success))]" />
+              Génération de Rapport
+            </DialogTitle>
+            <DialogDescription>
+              {rapportType === 'cas' 
+                ? `Rapport détaillé du cas spécifique - ${selectedCas?.titre}`
+                : `Rapport global du ministère - ${selectedAdmin?.organization}`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Type de rapport */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Type de rapport</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  variant={rapportType === 'global' ? 'default' : 'outline'}
+                  onClick={() => setRapportType('global')}
+                  className="glass-effect border-none"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Rapport Global
+                </Button>
+                <Button
+                  variant={rapportType === 'cas' ? 'default' : 'outline'}
+                  onClick={() => setRapportType('cas')}
+                  className="glass-effect border-none"
+                  disabled={!selectedCas}
+                >
+                  <Package className="h-4 w-4 mr-2" />
+                  Rapport Cas
+                </Button>
+              </div>
+            </div>
+
+            {/* Informations du rapport */}
+            <div className="space-y-3">
+              <div className="text-sm font-medium">Informations du rapport</div>
+              
+              {rapportType === 'global' ? (
+                <div className="space-y-3">
+                  <Card className="glass-effect border-none">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">Rapport Global - {selectedAdmin?.organization}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-xs">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-muted-foreground">Administration:</span>
+                          <div className="font-medium">{selectedAdmin?.organization}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Responsable:</span>
+                          <div className="font-medium">{selectedAdmin?.nom}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Cas traités:</span>
+                          <div className="font-medium">{adminCases.length}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Problématiques:</span>
+                          <div className="font-medium">{adminProblematiques.length}</div>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-muted/20">
+                        <span className="text-muted-foreground">Impact financier total:</span>
+                        <div className="text-[hsl(var(--accent-success))] font-semibold">
+                          {adminProblematiques.reduce((sum, p) => {
+                            const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                            return sum + montant;
+                          }, 0).toLocaleString()} FCFA
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Card className="glass-effect border-none">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">Rapport Cas - {selectedCas?.titre}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-xs">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-muted-foreground">ID Cas:</span>
+                          <div className="font-medium">{selectedCas?.id}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Priorité:</span>
+                          <div className="font-medium">{selectedCas?.priorite}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Statut:</span>
+                          <div className="font-medium">{selectedCas?.statut}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Localisation:</span>
+                          <div className="font-medium">{selectedCas?.localisation}</div>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-muted/20">
+                        <span className="text-muted-foreground">Montant concerné:</span>
+                        <div className="text-[hsl(var(--accent-success))] font-semibold">
+                          {selectedCas?.montant}
+                        </div>
+                      </div>
+                      <div className="pt-2">
+                        <span className="text-muted-foreground">Description:</span>
+                        <div className="text-muted-foreground mt-1">{selectedCas?.description}</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+
+            {/* Options de format */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Format du rapport</Label>
+              <div className="grid grid-cols-3 gap-2">
+                <Button variant="outline" size="sm" className="glass-effect border-none">
+                  <FileText className="h-3 w-3 mr-1" />
+                  PDF
+                </Button>
+                <Button variant="outline" size="sm" className="glass-effect border-none">
+                  <FileText className="h-3 w-3 mr-1" />
+                  Excel
+                </Button>
+                <Button variant="outline" size="sm" className="glass-effect border-none">
+                  <FileText className="h-3 w-3 mr-1" />
+                  Word
+                </Button>
+              </div>
+            </div>
+
+            {/* Informations de livraison */}
+            <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
+              <FileText className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+              <AlertTitle className="text-[hsl(var(--accent-intel))] text-xs">Information</AlertTitle>
+              <AlertDescription className="text-xs text-muted-foreground">
+                Le rapport sera généré et disponible au téléchargement dans quelques instants. 
+                Une notification sera envoyée une fois le processus terminé.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsRapportModalOpen(false)}
+              disabled={isLoadingAction}
+              className="glass-effect border-none"
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleGenererRapport}
+              disabled={isLoadingAction}
+              className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
+            >
+              {isLoadingAction ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Génération...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Générer le Rapport
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
