@@ -275,35 +275,50 @@ export default function AdminDashboard() {
           {
             id: 'PROB-001',
             titre: 'Détournement de fonds coopératives',
-            description: '12 coopératives fictives détectées avec détournement de 5 milliards FCFA',
+            description: 'Suite à une enquête approfondie menée par la Direction Générale des Ressources Halieutiques et de l\'Aquaculture (DGRHA) en collaboration avec la Cour des Comptes, 12 coopératives de pêche fictives ont été formellement identifiées dans les régions de l\'Ogooué-Maritime et de la Nyanga. Ces entités frauduleuses, enregistrées officiellement entre 2022 et 2024, ont bénéficié indûment de subventions publiques et de prêts bonifiés destinés au développement du secteur halieutique. L\'analyse des flux financiers révèle un détournement total estimé à 5 milliards de FCFA. Le mode opératoire identifié implique la création de structures juridiques avec des documents falsifiés, l\'utilisation de prête-noms issus de communautés de pêcheurs réelles pour crédibiliser les dossiers, et la complicité présumée de certains agents administratifs qui ont validé les demandes de financement sans vérification terrain. Les fonds détournés devaient initialement servir à l\'acquisition d\'équipements de pêche moderne, à la construction d\'infrastructures portuaires communautaires, et au financement de programmes de formation pour 450 pêcheurs. L\'impact sur les véritables coopératives légitimes est considérable : retards dans l\'attribution des subventions, perte de confiance des pêcheurs envers les institutions, et fragilisation de l\'économie bleue nationale. Cette fraude systématique met en péril la stratégie gouvernementale de développement du secteur maritime et compromet les objectifs de souveraineté alimentaire fixés dans le Plan National de Développement 2025-2030.',
             impact: 'Critique',
             montant: '5 000 000 000 FCFA',
-            statut: 'En cours',
+            statut: 'En cours d\'analyse',
             classification: 'Pas urgent',
+            dateCreation: '2025-01-15',
             dateDetection: '2025-01-15',
-            secteur: 'Pêche maritime'
+            secteur: 'Pêche maritime',
+            localisation: 'Port-Gentil, Ogooué-Maritime',
+            tendance: 'En aggravation - Risque de réplication',
+            actionsRecommandees: 'PHASE 1 - URGENCE IMMÉDIATE (0-15 jours) : Gel immédiat de tous les comptes bancaires associés aux 12 coopératives identifiées. Suspension provisoire de toutes les nouvelles demandes de subvention dans les zones concernées. Constitution d\'une cellule de crise interministérielle (Pêche, Justice, Finances, Intérieur) sous coordination présidentielle. Convocation et audition des responsables présumés et des agents administratifs impliqués. Sécurisation de l\'ensemble des pièces comptables et documents juridiques. PHASE 2 - ENQUÊTE APPROFONDIE (15-45 jours) : Audit forensique complet des 156 coopératives enregistrées depuis 2020. Vérification terrain systématique avec géolocalisation des installations. Analyse des circuits financiers et identification des bénéficiaires finaux. Évaluation du préjudice subi par les coopératives légitimes. Constitution des dossiers judiciaires pour poursuites pénales. PHASE 3 - RÉCUPÉRATION ET SANCTION (45-90 jours) : Procédures de recouvrement des fonds détournés via saisies conservatoires. Poursuites judiciaires contre tous les auteurs et complices identifiés. Sanctions administratives contre les agents défaillants. Réaffectation des fonds récupérés aux coopératives légitimes lésées. Publication d\'un rapport d\'étape public pour restaurer la confiance. PHASE 4 - RÉFORME STRUCTURELLE (90-180 jours) : Refonte complète du système d\'agrément avec procédure de validation renforcée. Mise en place d\'une plateforme numérique de traçabilité des subventions. Création d\'un registre national biométrique des coopérateurs. Formation spécialisée des agents instructeurs. Instauration de contrôles surprises trimestriels.',
+            derniereMAJ: 'Aujourd\'hui - 19h00'
           },
           {
             id: 'PROB-002',
             titre: 'Surveillance maritime insuffisante',
-            description: 'Lacunes dans le contrôle des navires étrangers en zone économique',
+            description: 'L\'analyse des données satellitaires et des rapports de patrouilles maritimes sur les 18 derniers mois révèle des lacunes critiques dans le dispositif de surveillance de la Zone Économique Exclusive (ZEE) gabonaise, s\'étendant sur 213 000 km². Les moyens actuels (3 patrouilleurs opérationnels sur 7 programmés, 2 avions de surveillance avec disponibilité à 40%, système radar côtier obsolète) ne permettent qu\'une couverture de 35% de la zone, laissant 65% du territoire maritime sans surveillance effective. Cette défaillance favorise la pêche illicite, non déclarée et non réglementée (INN) estimée à 2,5 milliards FCFA de pertes annuelles en ressources halieutiques. Des navires-usines étrangers opèrent impunément dans les zones nord et sud, avec des pratiques de pêche dévastatrices (chalutage profond, capture d\'espèces protégées, rejet massif de prises accessoires). Les équipages sont sous-dimensionnés (120 agents pour couvrir 956 km de côtes), mal équipés (absence de moyens de communication sécurisés, GPS défectueux) et insuffisamment formés aux techniques modernes de surveillance maritime. Le manque de coordination entre la Marine nationale, la Gendarmerie maritime, et la Direction de la Pêche aggrave l\'inefficacité du dispositif. Cette situation compromet non seulement la préservation des stocks halieutiques, mais aussi la souveraineté nationale sur l\'espace maritime, un enjeu stratégique majeur dans le contexte de la valorisation de l\'économie bleue.',
             impact: 'Élevé',
             montant: '2 500 000 000 FCFA',
-            statut: 'Résolu',
+            statut: 'Résolu - Plan d\'action validé',
             classification: 'Résolu',
+            dateCreation: '2025-01-14',
             dateDetection: '2025-01-14',
-            secteur: 'Surveillance maritime'
+            secteur: 'Surveillance maritime',
+            localisation: 'Cap Lopez, Ogooué-Maritime',
+            tendance: 'Stabilisée - Mesures correctives en cours',
+            actionsRecommandees: 'SOLUTION MISE EN ŒUVRE : Acquisition de 4 nouveaux patrouilleurs rapides (livraison Q2-2025). Installation d\'un système radar nouvelle génération sur 12 points stratégiques. Recrutement et formation de 80 agents supplémentaires (programme AFOP maritime). Déploiement d\'un système de surveillance par drones maritimes (portée 200 km). Création d\'un centre de commandement unifié inter-services opérationnel depuis février 2025. Convention de coopération régionale signée avec 5 pays pour surveillance conjointe. Budget alloué : 12 milliards FCFA sur 3 ans. Résultats attendus : couverture à 85% d\'ici fin 2025.',
+            derniereMAJ: '2025-01-18 - 14h30'
           },
           {
             id: 'PROB-003',
             titre: 'Processus d\'agrément défaillant',
-            description: 'Failles dans le système d\'agrément des coopératives de pêche',
+            description: 'L\'audit interne conduit par l\'Inspection Générale des Services du Ministère de la Pêche a mis en évidence des dysfonctionnements structurels majeurs dans le processus d\'agrément des coopératives de pêche. Le système actuel, hérité de procédures datant de 2008, repose sur une approche entièrement manuelle, papier et décentralisée qui favorise les zones grises. Les dossiers de demande d\'agrément sont incomplets dans 68% des cas acceptés, avec absence récurrente de pièces essentielles (statuts juridiques visés par le notaire, listes nominatives des coopérateurs avec identité vérifiée, plans d\'affaires réalistes, attestations de dépôt de capital social). Le délai moyen de traitement d\'une demande est de 8 mois, mais certaines sont approuvées en 3 semaines sans justification du circuit accéléré. L\'absence de vérification terrain systématique (seulement 12% des dossiers font l\'objet d\'une visite de validation) permet l\'enregistrement d\'entités fantômes. Le personnel affecté à l\'instruction des dossiers (9 agents pour traiter 180 demandes annuelles) est surchargé, insuffisamment formé aux techniques d\'analyse de risque, et vulnérable à la corruption (salaires moyens de 350 000 FCFA pour des décisions engageant des millions). L\'inexistence d\'un registre national centralisé et numérisé empêche la détection des doublons et des incohérences. Cette défaillance systémique a facilité la création des 12 coopératives fictives identifiées et représente un risque permanent pour l\'intégrité du secteur. La perte de crédibilité du processus d\'agrément décourage les opérateurs sérieux et alimente une économie informelle estimée à 1,2 milliards FCFA.',
             impact: 'Moyen',
             montant: '1 200 000 000 FCFA',
-            statut: 'En cours',
+            statut: 'Évaluation approfondie requise',
             classification: 'Supprimer',
+            dateCreation: '2025-01-12',
             dateDetection: '2025-01-12',
-            secteur: 'Administration'
+            secteur: 'Administration',
+            localisation: 'Direction Générale - Libreville',
+            tendance: 'Chronique - Défaillance systémique',
+            actionsRecommandees: 'ACTION 1 - DIAGNOSTIC COMPLET (0-30 jours) : Cartographie exhaustive du circuit actuel d\'agrément avec identification de tous les points de blocage et de vulnérabilité. Audit des 450 agréments délivrés depuis 2020 avec notation de conformité. Benchmark international des meilleures pratiques (Sénégal, Maurice, Seychelles). Consultation des parties prenantes (coopérateurs, administration, partenaires techniques). ACTION 2 - SUSPENSION TEMPORAIRE (dès validation présidentielle) : Moratoire de 60 jours sur les nouvelles demandes d\'agrément pour mise à niveau du système. Gel des renouvellements automatiques sans contrôle préalable. Vérification obligatoire des agréments en cours avant tout décaissement de fonds publics. ACTION 3 - RÉFORME STRUCTURELLE (30-120 jours) : Conception et déploiement d\'une plateforme numérique intégrée de gestion des agréments (dématérialisation complète, workflow automatisé, traçabilité totale). Définition d\'un nouveau cahier des charges avec critères objectifs et vérifiables. Création d\'une Commission nationale d\'agrément (Pêche, Justice, Finances, Société civile) pour décisions collégi ales. Renforcement des effectifs (recrutement de 15 instructeurs qualifiés). Programme de formation obligatoire anti-fraude pour tous les agents. Mise en place d\'un dispositif de lanceurs d\'alerte protégé. Budget estimé : 800 millions FCFA. Délai : opérationnel d\'ici juillet 2025.',
+            derniereMAJ: '2025-01-16 - 10h15'
           }
         ]);
 
