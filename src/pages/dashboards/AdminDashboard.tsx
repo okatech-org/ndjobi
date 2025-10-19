@@ -884,7 +884,8 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         ))}
-              </div>
+        </div>
+      )}
 
       <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
         <Users className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
