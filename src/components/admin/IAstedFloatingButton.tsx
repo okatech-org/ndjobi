@@ -35,6 +35,8 @@ export const IAstedFloatingButton = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [sessionId] = useState(uuidv4());
+  const [silenceTimer, setSilenceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [audioAnalyser, setAudioAnalyser] = useState<AnalyserNode | null>(null);
 
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -230,18 +232,13 @@ export const IAstedFloatingButton = () => {
   };
 
   /**
-   * Démarrer interaction vocale
+   * Démarrer interaction vocale avec détection de silence
    */
   const startVoiceInteraction = async () => {
     try {
       setIsListening(true);
       
-      console.log('🎙️ Démarrage de l\'enregistrement...');
-      
-      toast({
-        title: '🎙️ En écoute...',
-        description: 'Parlez maintenant, je vous écoute'
-      });
+      console.log('🎙️ Démarrage de l\'enregistrement avec détection de silence...');
 
       const startResult = await IAstedVoiceService.startRecording();
       
@@ -249,15 +246,10 @@ export const IAstedFloatingButton = () => {
         throw new Error(startResult.error);
       }
 
-      console.log('✅ Enregistrement démarré avec succès');
+      console.log('✅ Enregistrement démarré avec détection automatique');
 
-      // Timeout de 30 secondes
-      setTimeout(async () => {
-        if (isListening) {
-          console.log('⏱️ Timeout - Arrêt automatique de l\'enregistrement');
-          await stopVoiceInteraction();
-        }
-      }, 30000);
+      // Démarrer la détection de silence
+      startSilenceDetection();
 
     } catch (error: any) {
       console.error('❌ Erreur interaction vocale:', error);
@@ -271,6 +263,61 @@ export const IAstedFloatingButton = () => {
   };
 
   /**
+   * Détection automatique de silence
+   */
+  const startSilenceDetection = () => {
+    try {
+      const stream = (IAstedVoiceService as any).mediaStream;
+      if (!stream) return;
+
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      source.connect(analyser);
+      setAudioAnalyser(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      let silenceDuration = 0;
+      const SILENCE_THRESHOLD = 30; // Seuil de volume
+      const SILENCE_DURATION = 1500; // 1.5 secondes de silence
+
+      const checkAudioLevel = () => {
+        if (!isListening) return;
+
+        analyser.getByteTimeDomainData(dataArray);
+        
+        // Calculer le niveau audio
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          const value = Math.abs(dataArray[i] - 128);
+          sum += value;
+        }
+        const average = sum / bufferLength;
+
+        if (average < SILENCE_THRESHOLD) {
+          silenceDuration += 100;
+          if (silenceDuration >= SILENCE_DURATION) {
+            console.log('🔇 Silence détecté - Fin de parole');
+            stopVoiceInteraction();
+            return;
+          }
+        } else {
+          silenceDuration = 0;
+        }
+
+        setTimeout(checkAudioLevel, 100);
+      };
+
+      checkAudioLevel();
+    } catch (error) {
+      console.error('Erreur détection silence:', error);
+    }
+  };
+
+  /**
    * Arrêter interaction vocale
    */
   const stopVoiceInteraction = async () => {
@@ -278,38 +325,44 @@ export const IAstedFloatingButton = () => {
     setIsListening(false);
     setIsProcessing(true);
 
+    // Nettoyage de l'analyseur audio
+    if (audioAnalyser) {
+      audioAnalyser.disconnect();
+      setAudioAnalyser(null);
+    }
+
     try {
       const result = await IAstedVoiceService.stopRecordingAndTranscribe();
 
       if (!result || !result.transcription) {
         console.warn('⚠️ Aucune transcription détectée');
-        toast({
-          title: 'Aucun audio détecté',
-          description: 'Veuillez réessayer en parlant plus fort',
-          variant: 'destructive'
-        });
         setIsProcessing(false);
         return;
       }
 
       console.log('📝 Transcription reçue:', result.transcription);
 
-      const audioUpload = await IAstedStorageService.uploadAudio(
-        result.audioBlob,
-        'user-question.webm'
-      );
+      // Message de transition immédiat
+      const transitionMessage = "Bien Excellence, laissez-moi analyser votre demande...";
+      addAssistantMessage(transitionMessage, 'voice');
+      
+      // Parler pendant le traitement
+      setIsSpeaking(true);
+      IAstedVoiceService.speakText(transitionMessage);
+      
+      // Timeout de 3 secondes
+      const processingTimeout = setTimeout(() => {
+        if (isProcessing) {
+          const delayMessage = "Cela nécessite un peu plus de temps, Excellence. Je traite votre demande...";
+          addAssistantMessage(delayMessage, 'voice');
+          IAstedVoiceService.speakText(delayMessage);
+        }
+      }, 3000);
 
-      const userMessage: Message = {
-        role: 'user',
-        content: result.transcription,
-        timestamp: new Date(),
-        mode: 'voice',
-        audioUrl: audioUpload?.url
-      };
-
-      setMessages(prev => [...prev, userMessage]);
-
-      await getAIResponse(result.transcription, 'voice', audioUpload?.url || '');
+      await getAIResponse(result.transcription, 'voice');
+      
+      clearTimeout(processingTimeout);
+      setIsSpeaking(false);
 
     } catch (error: any) {
       console.error('❌ Erreur traitement vocal:', error);
@@ -347,8 +400,7 @@ export const IAstedFloatingButton = () => {
    */
   const getAIResponse = async (
     userQuestion: string,
-    interactionMode: 'voice' | 'text',
-    userAudioUrl?: string
+    interactionMode: 'voice' | 'text'
   ) => {
     setIsProcessing(true);
     const startTime = Date.now();
@@ -404,7 +456,6 @@ export const IAstedFloatingButton = () => {
         session_id: sessionId,
         mode: interactionMode,
         user_message: userQuestion,
-        user_message_audio_url: userAudioUrl,
         user_message_transcription: interactionMode === 'voice' ? userQuestion : undefined,
         assistant_message: result.response || '',
         assistant_audio_url: assistantAudioUrl,
@@ -491,16 +542,6 @@ export const IAstedFloatingButton = () => {
           </div>
         )}
         
-        {/* Bouton stop pour arrêter manuellement */}
-        {isListening && (
-          <button
-            onClick={stopVoiceInteraction}
-            className="absolute -bottom-16 left-1/2 -translate-x-1/2 bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-2 text-sm font-medium shadow-lg transition-colors flex items-center gap-2"
-          >
-            <MicOff className="h-4 w-4" />
-            Arrêter
-          </button>
-        )}
       </div>
 
       {/* INTERFACE CHAT */}
@@ -547,7 +588,8 @@ export const IAstedFloatingButton = () => {
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  {msg.audioUrl && (
+                  {/* Masquer l'audio de l'utilisateur pour plus de fluidité */}
+                  {msg.audioUrl && msg.role === 'assistant' && (
                     <audio controls className="mt-2 w-full" src={msg.audioUrl} />
                   )}
                   <p className="text-xs opacity-70 mt-1">
