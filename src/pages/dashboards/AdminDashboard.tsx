@@ -1542,13 +1542,32 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Problématiques identifiées */}
-                  <div className="space-y-3">
-                    <div className="text-xs font-semibold text-foreground">Problématiques identifiées</div>
-                    <div className="space-y-2">
-                      {adminProblematiques.map((problematique: any) => (
-                        <div key={problematique.id} className="border border-muted/20 rounded-lg p-3 space-y-2">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                        <div className="text-sm font-semibold text-foreground">Problématiques identifiées</div>
+                        <Badge variant="outline" className="text-xs">
+                          {adminProblematiques.length} problème{adminProblematiques.length > 1 ? 's' : ''}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-foreground/70">
+                        Impact financier total: {adminProblematiques.reduce((sum, p) => {
+                          const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                          return sum + montant;
+                        }, 0).toLocaleString()} FCFA
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {adminProblematiques.map((problematique: any, index: number) => (
+                        <div key={problematique.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
+                          {/* En-tête avec métadonnées */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[hsl(var(--accent-warning))]/20 to-[hsl(var(--accent-warning))]/10 flex items-center justify-center">
+                                <span className="text-xs font-bold text-[hsl(var(--accent-warning))]">{index + 1}</span>
+                              </div>
                               <Badge variant="outline" className="text-xs font-mono">
                                 {problematique.id}
                               </Badge>
@@ -1559,27 +1578,96 @@ export default function AdminDashboard() {
                               }`}>
                                 {problematique.impact}
                               </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {problematique.secteur}
+                              </Badge>
                             </div>
                             <div className="flex items-center gap-2">
                               <Select defaultValue={problematique.classification}>
-                                <SelectTrigger className="w-24 h-6 text-xs">
+                                <SelectTrigger className="w-28 h-7 text-xs">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="Résolu">Résolu</SelectItem>
-                                  <SelectItem value="Pas urgent">Pas urgent</SelectItem>
-                                  <SelectItem value="Supprimer">Supprimer</SelectItem>
+                                  <SelectItem value="Résolu">✅ Résolu</SelectItem>
+                                  <SelectItem value="Pas urgent">⏳ Pas urgent</SelectItem>
+                                  <SelectItem value="Supprimer">🗑️ Supprimer</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
                           </div>
-                          <div className="text-sm font-medium">{problematique.titre}</div>
-                          <div className="text-xs text-muted-foreground">{problematique.description}</div>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-[hsl(var(--accent-success))] font-medium">
-                              {problematique.montant}
-                            </span>
-                            <span className="text-muted-foreground">{problematique.secteur}</span>
+
+                          {/* Titre et description détaillée */}
+                          <div className="space-y-2">
+                            <div className="text-sm font-semibold text-foreground">{problematique.titre}</div>
+                            <div className="text-xs text-foreground/80 leading-relaxed">{problematique.description}</div>
+                          </div>
+
+                          {/* Métriques détaillées */}
+                          <div className="grid grid-cols-2 gap-4 p-3 rounded-lg bg-muted/20">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                <span className="text-xs text-foreground/70">Impact financier</span>
+                              </div>
+                              <div className="text-sm font-bold text-[hsl(var(--accent-success))]">
+                                {problematique.montant}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                <span className="text-xs text-foreground/70">Localisation</span>
+                              </div>
+                              <div className="text-sm font-medium text-foreground">
+                                {problematique.localisation}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                <span className="text-xs text-foreground/70">Détecté le</span>
+                              </div>
+                              <div className="text-sm font-medium text-foreground">
+                                {problematique.dateCreation}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <TrendingUp className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                <span className="text-xs text-foreground/70">Tendance</span>
+                              </div>
+                              <div className="text-sm font-medium text-foreground">
+                                {problematique.tendance || 'En aggravation'}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Actions recommandées */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Target className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                              <span className="text-xs font-medium text-foreground">Actions recommandées</span>
+                            </div>
+                            <div className="text-xs text-foreground/70 pl-5">
+                              {problematique.actionsRecommandees || 'Intervention immédiate requise. Coordination avec les services compétents pour mise en place d\'un plan d\'action d\'urgence.'}
+                            </div>
+                          </div>
+
+                          {/* Statut et suivi */}
+                          <div className="flex items-center justify-between pt-2 border-t border-muted/20">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                problematique.impact === 'Critique' ? 'bg-red-500' :
+                                problematique.impact === 'Élevé' ? 'bg-orange-500' :
+                                'bg-blue-500'
+                              }`}></div>
+                              <span className="text-xs text-foreground/70">
+                                Statut: {problematique.statut || 'En cours d\'analyse'}
+                              </span>
+                            </div>
+                            <div className="text-xs text-foreground/60">
+                              Dernière mise à jour: {problematique.derniereMAJ || 'Aujourd\'hui'}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -1587,13 +1675,29 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Recommandations présidentielles */}
-                  <div className="space-y-3">
-                    <div className="text-xs font-semibold text-foreground">Recommandations présidentielles</div>
-                    <div className="space-y-2">
-                      {adminRecommandations.map((recommandation: any) => (
-                        <div key={recommandation.id} className="border border-muted/20 rounded-lg p-3 space-y-2">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                        <div className="text-sm font-semibold text-foreground">Recommandations présidentielles</div>
+                        <Badge variant="outline" className="text-xs">
+                          {adminRecommandations.length} recommandation{adminRecommandations.length > 1 ? 's' : ''}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-foreground/70">
+                        Priorité critique: {adminRecommandations.filter(r => r.priorite === 'Critique').length}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {adminRecommandations.map((recommandation: any, index: number) => (
+                        <div key={recommandation.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-[hsl(var(--accent-warning))]/5 to-transparent">
+                          {/* En-tête avec métadonnées */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[hsl(var(--accent-warning))]/20 to-[hsl(var(--accent-warning))]/10 flex items-center justify-center">
+                                <Crown className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                              </div>
                               <Badge variant="outline" className="text-xs font-mono">
                                 {recommandation.id}
                               </Badge>
@@ -1604,34 +1708,131 @@ export default function AdminDashboard() {
                               }`}>
                                 {recommandation.priorite}
                               </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {recommandation.categorie || 'Stratégique'}
+                              </Badge>
                             </div>
                             <div className="flex items-center gap-2">
                               <Select defaultValue={recommandation.classification}>
-                                <SelectTrigger className="w-24 h-6 text-xs">
+                                <SelectTrigger className="w-28 h-7 text-xs">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="Résolu">Résolu</SelectItem>
-                                  <SelectItem value="Pas urgent">Pas urgent</SelectItem>
-                                  <SelectItem value="Supprimer">Supprimer</SelectItem>
+                                  <SelectItem value="Résolu">✅ Résolu</SelectItem>
+                                  <SelectItem value="Pas urgent">⏳ Pas urgent</SelectItem>
+                                  <SelectItem value="Supprimer">🗑️ Supprimer</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
                           </div>
-                          <div className="text-sm font-medium">{recommandation.titre}</div>
-                          <div className="text-xs text-muted-foreground">{recommandation.description}</div>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                              <span className="text-muted-foreground">Impact:</span> {recommandation.impact}
+
+                          {/* Titre et description détaillée */}
+                          <div className="space-y-2">
+                            <div className="text-sm font-semibold text-foreground">{recommandation.titre}</div>
+                            <div className="text-xs text-foreground/80 leading-relaxed">{recommandation.description}</div>
+                          </div>
+
+                          {/* Justification et contexte */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                              <span className="text-xs font-medium text-foreground">Justification présidentielle</span>
                             </div>
-                            <div>
-                              <span className="text-muted-foreground">Délai:</span> {recommandation.delai}
+                            <div className="text-xs text-foreground/70 pl-5 p-2 rounded bg-muted/20">
+                              {recommandation.justification || 'Cette recommandation s\'inscrit dans le cadre de la politique nationale de modernisation et d\'efficacité administrative. Elle vise à renforcer la transparence et l\'efficacité des services publics.'}
                             </div>
-                            <div>
-                              <span className="text-muted-foreground">Responsable:</span> {recommandation.responsable}
+                          </div>
+
+                          {/* Métriques et délais */}
+                          <div className="grid grid-cols-2 gap-4 p-3 rounded-lg bg-muted/20">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Target className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                <span className="text-xs text-foreground/70">Impact attendu</span>
+                              </div>
+                              <div className="text-sm font-medium text-foreground">
+                                {recommandation.impact}
+                              </div>
                             </div>
-                            <div>
-                              <span className="text-muted-foreground">Statut:</span> {recommandation.statut}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                <span className="text-xs text-foreground/70">Délai d'exécution</span>
+                              </div>
+                              <div className="text-sm font-medium text-foreground">
+                                {recommandation.delai}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                <span className="text-xs text-foreground/70">Budget requis</span>
+                              </div>
+                              <div className="text-sm font-medium text-foreground">
+                                {recommandation.budget || 'À définir'}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Users className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                <span className="text-xs text-foreground/70">Services concernés</span>
+                              </div>
+                              <div className="text-sm font-medium text-foreground">
+                                {recommandation.services || 'Multi-services'}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Plan d'action détaillé */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <CheckSquare className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                              <span className="text-xs font-medium text-foreground">Plan d'action</span>
+                            </div>
+                            <div className="space-y-1 pl-5">
+                              {recommandation.planAction ? (
+                                recommandation.planAction.map((action: string, idx: number) => (
+                                  <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
+                                    <div className="w-1 h-1 rounded-full bg-[hsl(var(--accent-success))] mt-2 flex-shrink-0"></div>
+                                    <span>{action}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-xs text-foreground/70 pl-2">
+                                  • Mise en place d'un comité de pilotage<br/>
+                                  • Définition des objectifs et indicateurs<br/>
+                                  • Allocation des ressources nécessaires<br/>
+                                  • Suivi et évaluation régulière
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Risques et mitigation */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <AlertTriangle className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                              <span className="text-xs font-medium text-foreground">Risques identifiés</span>
+                            </div>
+                            <div className="text-xs text-foreground/70 pl-5">
+                              {recommandation.risques || 'Résistance au changement, contraintes budgétaires, délais d\'exécution. Mitigation: communication renforcée, formation des équipes, suivi rapproché.'}
+                            </div>
+                          </div>
+
+                          {/* Statut et suivi */}
+                          <div className="flex items-center justify-between pt-2 border-t border-muted/20">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                recommandation.priorite === 'Critique' ? 'bg-red-500' :
+                                recommandation.priorite === 'Haute' ? 'bg-orange-500' :
+                                'bg-blue-500'
+                              }`}></div>
+                              <span className="text-xs text-foreground/70">
+                                Statut: {recommandation.statut || 'En attente de validation'}
+                              </span>
+                            </div>
+                            <div className="text-xs text-foreground/60">
+                              Prochaine échéance: {recommandation.prochaineEcheance || 'Sous 30 jours'}
                             </div>
                           </div>
                         </div>
