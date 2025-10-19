@@ -4857,72 +4857,51 @@ const SuperAdminDashboard = () => {
 
     return (
       <div className="space-y-6">
-        <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <PlayCircle className="h-6 w-6" />
-                  Gestion des Comptes Démo
-                </CardTitle>
-                <CardDescription>
-                  Créez et gérez les comptes de démonstration pour les visiteurs et partenaires
-                </CardDescription>
-              </div>
-              <Badge variant="outline" className="text-lg px-4 py-2">
-                <Users className="h-4 w-4 mr-2" />
-                {demoAccounts.length} comptes
-              </Badge>
+        <Alert className="border-blue-500/50 bg-blue-50/10">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Information</AlertTitle>
+          <AlertDescription>
+            Les comptes démo permettent aux visiteurs de tester la plateforme avec des données fictives.
+            Chaque compte a un rôle spécifique (Citoyen, Agent, Admin) et des données de test.
+          </AlertDescription>
+        </Alert>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Label htmlFor="demo-role">Rôle du nouveau compte</Label>
+              <Select value={newAccountRole} onValueChange={setNewAccountRole}>
+                <SelectTrigger id="demo-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">Citoyen</SelectItem>
+                  <SelectItem value="agent">Agent DGSS</SelectItem>
+                  <SelectItem value="admin">Protocole d'État</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <Alert className="border-blue-500/50 bg-blue-50/10">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Information</AlertTitle>
-              <AlertDescription>
-                Les comptes démo permettent aux visiteurs de tester la plateforme avec des données fictives.
-                Chaque compte a un rôle spécifique (Citoyen, Agent, Admin) et des données de test.
-              </AlertDescription>
-            </Alert>
+            <Button 
+              onClick={handleCreateDemoAccount} 
+              disabled={creatingAccount}
+              className="mt-6"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              {creatingAccount ? "Création..." : "Créer un compte"}
+            </Button>
+          </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <Label htmlFor="demo-role">Rôle du nouveau compte</Label>
-                  <Select value={newAccountRole} onValueChange={setNewAccountRole}>
-                    <SelectTrigger id="demo-role">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">Citoyen</SelectItem>
-                      <SelectItem value="agent">Agent DGSS</SelectItem>
-                      <SelectItem value="admin">Protocole d'État</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button 
-                  onClick={handleCreateDemoAccount} 
-                  disabled={creatingAccount}
-                  className="mt-6"
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  {creatingAccount ? "Création..." : "Créer un compte"}
-                </Button>
-                </div>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Comptes Démo Migrés</AlertTitle>
+            <AlertDescription>
+              Les comptes démo ont été migrés vers la base de données Supabase. 
+              Consultez la section "Comptes Démo de la Base de Données" ci-dessous pour accéder aux comptes configurés.
+            </AlertDescription>
+          </Alert>
+        </div>
 
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Comptes Démo Migrés</AlertTitle>
-                  <AlertDescription>
-                  Les comptes démo ont été migrés vers la base de données Supabase. 
-                  Consultez la section "Comptes Démo de la Base de Données" ci-dessous pour accéder aux comptes configurés.
-                  </AlertDescription>
-                </Alert>
-            </div>
-
-            <DatabaseDemoAccountsCards />
-          </CardContent>
-        </Card>
+        <DatabaseDemoAccountsCards />
       </div>
     );
   };
