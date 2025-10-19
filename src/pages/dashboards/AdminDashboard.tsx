@@ -53,6 +53,8 @@ export default function AdminDashboard() {
   const [isLoadingAction, setIsLoadingAction] = useState(false);
   const [adminHistory, setAdminHistory] = useState<any[]>([]);
   const [adminCases, setAdminCases] = useState<any[]>([]);
+  const [adminProblematiques, setAdminProblematiques] = useState<any[]>([]);
+  const [adminRecommandations, setAdminRecommandations] = useState<any[]>([]);
   
   // États pour le formulaire de nomination
   const [nomForm, setNomForm] = useState({
@@ -259,6 +261,80 @@ export default function AdminDashboard() {
             localisation: 'Mayumba, Nyanga'
           }
         ]);
+
+        // Problématiques spécifiques à l'Agent Pêche
+        setAdminProblematiques([
+          {
+            id: 'PROB-001',
+            titre: 'Détournement de fonds coopératives',
+            description: '12 coopératives fictives détectées avec détournement de 5 milliards FCFA',
+            impact: 'Critique',
+            montant: '5 000 000 000 FCFA',
+            statut: 'En cours',
+            classification: 'Pas urgent',
+            dateDetection: '2025-01-15',
+            secteur: 'Pêche maritime'
+          },
+          {
+            id: 'PROB-002',
+            titre: 'Surveillance maritime insuffisante',
+            description: 'Lacunes dans le contrôle des navires étrangers en zone économique',
+            impact: 'Élevé',
+            montant: '2 500 000 000 FCFA',
+            statut: 'Résolu',
+            classification: 'Résolu',
+            dateDetection: '2025-01-14',
+            secteur: 'Surveillance maritime'
+          },
+          {
+            id: 'PROB-003',
+            titre: 'Processus d\'agrément défaillant',
+            description: 'Failles dans le système d\'agrément des coopératives de pêche',
+            impact: 'Moyen',
+            montant: '1 200 000 000 FCFA',
+            statut: 'En cours',
+            classification: 'Supprimer',
+            dateDetection: '2025-01-12',
+            secteur: 'Administration'
+          }
+        ]);
+
+        // Recommandations présidentielles
+        setAdminRecommandations([
+          {
+            id: 'REC-001',
+            titre: 'Réforme du système d\'agrément',
+            description: 'Mettre en place un système de vérification renforcé pour les coopératives',
+            priorite: 'Critique',
+            statut: 'En attente',
+            classification: 'Pas urgent',
+            impact: 'Prévention des détournements futurs',
+            delai: '30 jours',
+            responsable: 'Ministère de la Pêche'
+          },
+          {
+            id: 'REC-002',
+            titre: 'Renforcement surveillance maritime',
+            description: 'Déployer des moyens de contrôle renforcés en zone économique',
+            priorite: 'Haute',
+            statut: 'En cours',
+            classification: 'Résolu',
+            impact: 'Réduction pêche illégale',
+            delai: '15 jours',
+            responsable: 'Marine Nationale'
+          },
+          {
+            id: 'REC-003',
+            titre: 'Protocole d\'urgence',
+            description: 'Établir un protocole d\'intervention rapide pour signalements critiques',
+            priorite: 'Moyenne',
+            statut: 'Proposé',
+            classification: 'Supprimer',
+            impact: 'Amélioration réactivité',
+            delai: '45 jours',
+            responsable: 'Présidence'
+          }
+        ]);
       } else {
         // Données génériques pour les autres agents
         setAdminHistory([
@@ -291,6 +367,36 @@ export default function AdminDashboard() {
             dateCreation: '2025-01-15',
             secteur: admin.organization,
             localisation: 'Gabon'
+          }
+        ]);
+
+        // Problématiques génériques
+        setAdminProblematiques([
+          {
+            id: 'PROB-GEN-001',
+            titre: 'Problématique sectorielle',
+            description: 'Enjeu identifié dans le secteur d\'activité',
+            impact: 'Moyen',
+            montant: '500 000 000 FCFA',
+            statut: 'En cours',
+            classification: 'Pas urgent',
+            dateDetection: '2025-01-15',
+            secteur: admin.organization
+          }
+        ]);
+
+        // Recommandations génériques
+        setAdminRecommandations([
+          {
+            id: 'REC-GEN-001',
+            titre: 'Recommandation sectorielle',
+            description: 'Amélioration des processus dans le secteur',
+            priorite: 'Moyenne',
+            statut: 'Proposé',
+            classification: 'Pas urgent',
+            impact: 'Optimisation des performances',
+            delai: '60 jours',
+            responsable: admin.organization
           }
         ]);
       }
@@ -1272,6 +1378,132 @@ export default function AdminDashboard() {
           
           {selectedAdmin && (
             <div className="space-y-6 py-4">
+              {/* Analyse et recommandations présidentielles - EN HAUT */}
+              <Card className="glass-effect border-none">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                    Analyse et recommandations présidentielles
+                  </CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground">
+                    Évaluation stratégique et recommandations pour décision présidentielle
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Problématiques identifiées */}
+                  <div className="space-y-3">
+                    <div className="text-xs font-semibold text-foreground">Problématiques identifiées</div>
+                    <div className="space-y-2">
+                      {adminProblematiques.map((problematique: any) => (
+                        <div key={problematique.id} className="border border-muted/20 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs font-mono">
+                                {problematique.id}
+                              </Badge>
+                              <Badge className={`text-xs font-medium ${
+                                problematique.impact === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                problematique.impact === 'Élevé' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                              }`}>
+                                {problematique.impact}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Select defaultValue={problematique.classification}>
+                                <SelectTrigger className="w-24 h-6 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Résolu">Résolu</SelectItem>
+                                  <SelectItem value="Pas urgent">Pas urgent</SelectItem>
+                                  <SelectItem value="Supprimer">Supprimer</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium">{problematique.titre}</div>
+                          <div className="text-xs text-muted-foreground">{problematique.description}</div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-[hsl(var(--accent-success))] font-medium">
+                              {problematique.montant}
+                            </span>
+                            <span className="text-muted-foreground">{problematique.secteur}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Recommandations présidentielles */}
+                  <div className="space-y-3">
+                    <div className="text-xs font-semibold text-foreground">Recommandations présidentielles</div>
+                    <div className="space-y-2">
+                      {adminRecommandations.map((recommandation: any) => (
+                        <div key={recommandation.id} className="border border-muted/20 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs font-mono">
+                                {recommandation.id}
+                              </Badge>
+                              <Badge className={`text-xs font-medium ${
+                                recommandation.priorite === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                recommandation.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                              }`}>
+                                {recommandation.priorite}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Select defaultValue={recommandation.classification}>
+                                <SelectTrigger className="w-24 h-6 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Résolu">Résolu</SelectItem>
+                                  <SelectItem value="Pas urgent">Pas urgent</SelectItem>
+                                  <SelectItem value="Supprimer">Supprimer</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium">{recommandation.titre}</div>
+                          <div className="text-xs text-muted-foreground">{recommandation.description}</div>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Impact:</span> {recommandation.impact}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Délai:</span> {recommandation.delai}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Responsable:</span> {recommandation.responsable}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Statut:</span> {recommandation.statut}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Résumé exécutif */}
+                  <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
+                    <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                    <AlertTitle className="text-[hsl(var(--accent-warning))] text-xs">Résumé exécutif</AlertTitle>
+                    <AlertDescription className="text-xs text-muted-foreground">
+                      {adminProblematiques.length} problématique{adminProblematiques.length > 1 ? 's' : ''} identifiée{adminProblematiques.length > 1 ? 's' : ''} 
+                      avec {adminRecommandations.length} recommandation{adminRecommandations.length > 1 ? 's' : ''} stratégique{adminRecommandations.length > 1 ? 's' : ''}. 
+                      Impact financier total: {adminProblematiques.reduce((sum, p) => {
+                        const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                        return sum + montant;
+                      }, 0).toLocaleString()} FCFA.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
+
               {/* Informations principales */}
               <div className="grid grid-cols-2 gap-4">
                 <Card className="glass-effect border-none">
@@ -1559,60 +1791,6 @@ export default function AdminDashboard() {
                 </Card>
               )}
 
-              {/* Analyse et recommandations pour le Président */}
-              {selectedAdmin.nom === 'Agent Pêche' && (
-                <Card className="glass-effect border-none">
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                      Analyse et recommandations présidentielles
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Évaluation stratégique du dossier Pêche-Gab pour décision présidentielle
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Impact économique */}
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold text-foreground">Impact économique national</div>
-                      <div className="text-xs text-muted-foreground leading-relaxed">
-                        Le dossier Pêche-Gab représente un enjeu majeur pour l'économie bleue gabonaise. 
-                        Les montants concernés (8,7 milliards FCFA) représentent une part significative 
-                        du budget alloué au secteur de la pêche maritime.
-                      </div>
-                    </div>
-
-                    {/* Recommandations */}
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold text-foreground">Recommandations stratégiques</div>
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-intel))] mt-1.5 flex-shrink-0" />
-                          <span>Renforcer la surveillance des coopératives de pêche et leur processus d'agrément</span>
-                        </div>
-                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-intel))] mt-1.5 flex-shrink-0" />
-                          <span>Mettre en place un système de contrôle renforcé des navires étrangers</span>
-                        </div>
-                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-intel))] mt-1.5 flex-shrink-0" />
-                          <span>Établir un protocole d'urgence pour les signalements critiques</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions immédiates */}
-                    <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
-                      <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                      <AlertTitle className="text-[hsl(var(--accent-warning))] text-xs">Actions immédiates requises</AlertTitle>
-                      <AlertDescription className="text-xs text-muted-foreground">
-                        Le dossier SIG-2025-014 (Coopératives fantômes) nécessite une intervention présidentielle 
-                        urgente. Impact financier critique sur l'économie bleue gabonaise.
-                      </AlertDescription>
-                    </Alert>
-                  </CardContent>
-                </Card>
-              )}
 
               {/* Statut */}
               <Alert className={`glass-effect border-none ${
