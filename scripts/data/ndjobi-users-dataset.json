@@ -1,0 +1,471 @@
+{
+  "metadata": {
+    "dataset_name": "NDJOBI Users Database",
+    "version": "1.0",
+    "generated_date": "2025-01-19",
+    "total_users": 112,
+    "distribution": {
+      "anonymes": 67,
+      "identifiés": 45
+    }
+  },
+  "utilisateurs_anonymes": [
+    {
+      "user_id": "ANON-2025-001",
+      "type": "anonyme",
+      "metadata": {
+        "device_fingerprint": "GA-MOB-892F3A1D",
+        "ip_address": "41.207.183.45",
+        "ip_geolocation": {
+          "pays": "Gabon",
+          "ville": "Libreville",
+          "region": "Estuaire",
+          "fai": "Gabon Telecom",
+          "latitude": 0.4162,
+          "longitude": 9.4673
+        },
+        "user_agent": "Mozilla/5.0 (Android 12; SM-A125F) AppleWebKit/537.36",
+        "device_type": "mobile",
+        "os": "Android 12",
+        "browser": "Chrome Mobile 120",
+        "language": "fr-GA",
+        "timezone": "Africa/Libreville",
+        "screen_resolution": "720x1600",
+        "anonymization_tools": null
+      },
+      "activite": {
+        "date_inscription": "2025-01-18T14:23:45Z",
+        "signalements_soumis": 1,
+        "dernier_acces": "2025-01-18T14:45:12Z",
+        "sessions_count": 1
+      },
+      "comportement": {
+        "niveau_detail": "élevé",
+        "qualite_preuves": "excellente",
+        "coherence_recit": "très_haute",
+        "score_credibilite_ia": 94
+      }
+    },
+    {
+      "user_id": "ANON-2025-002",
+      "type": "anonyme",
+      "metadata": {
+        "device_fingerprint": "GA-TOR-39F8E2BC",
+        "ip_address": "154.72.162.118",
+        "ip_geolocation": {
+          "pays": "Gabon",
+          "ville": "Port-Gentil",
+          "region": "Ogooué-Maritime",
+          "fai": "Airtel Gabon (via Tor Exit Node)",
+          "latitude": -0.7193,
+          "longitude": 8.7815
+        },
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",
+        "device_type": "desktop",
+        "os": "Windows 10",
+        "browser": "Tor Browser 13.0",
+        "language": "fr-GA",
+        "timezone": "Africa/Libreville",
+        "screen_resolution": "1366x768",
+        "anonymization_tools": ["Tor", "VPN_suspected"]
+      },
+      "activite": {
+        "date_inscription": "2025-01-17T09:15:22Z",
+        "signalements_soumis": 1,
+        "dernier_acces": "2025-01-17T09:32:18Z",
+        "sessions_count": 1
+      },
+      "comportement": {
+        "niveau_detail": "très_élevé",
+        "qualite_preuves": "excellente",
+        "coherence_recit": "haute",
+        "score_credibilite_ia": 91
+      }
+    },
+    {
+      "user_id": "ANON-2025-003",
+      "type": "anonyme",
+      "metadata": {
+        "device_fingerprint": "GA-MOB-VPN-892A3F",
+        "ip_address": "41.207.195.223",
+        "ip_geolocation": {
+          "pays": "Gabon",
+          "ville": "Libreville",
+          "region": "Estuaire",
+          "fai": "Gabon Telecom",
+          "latitude": 0.5123,
+          "longitude": 9.3892
+        },
+        "user_agent": "Mozilla/5.0 (Linux; Android 13; Pixel 6) AppleWebKit/537.36",
+        "device_type": "mobile",
+        "os": "Android 13",
+        "browser": "Chrome Mobile 121",
+        "language": "fr-GA",
+        "timezone": "Africa/Libreville",
+        "screen_resolution": "1080x2400",
+        "anonymization_tools": ["VPN_ProtonVPN"]
+      },
+      "activite": {
+        "date_inscription": "2025-01-14T19:23:47Z",
+        "signalements_soumis": 1,
+        "dernier_acces": "2025-01-14T19:28:33Z",
+        "sessions_count": 1
+      },
+      "comportement": {
+        "niveau_detail": "moyen",
+        "qualite_preuves": "bonne",
+        "coherence_recit": "moyenne",
+        "score_credibilite_ia": 86
+      }
+    },
+    {
+      "user_id": "ANON-2025-004",
+      "type": "anonyme",
+      "metadata": {
+        "device_fingerprint": "GA-MOB-TOR-8F3D2A",
+        "ip_address": "154.72.145.87",
+        "ip_geolocation": {
+          "pays": "Gabon",
+          "ville": "Port-Gentil",
+          "region": "Ogooué-Maritime",
+          "fai": "Airtel Gabon (via Tor)",
+          "latitude": -0.6946,
+          "longitude": 8.7978
+        },
+        "user_agent": "Mozilla/5.0 (Android 12; SM-G991B) Gecko/20100101 Firefox/115.0",
+        "device_type": "mobile",
+        "os": "Android 12",
+        "browser": "Tor Browser Mobile",
+        "language": "fr-GA",
+        "timezone": "Africa/Libreville",
+        "screen_resolution": "1080x2340",
+        "anonymization_tools": ["Tor", "Orbot"]
+      },
+      "activite": {
+        "date_inscription": "2025-01-12T22:14:56Z",
+        "signalements_soumis": 1,
+        "dernier_acces": "2025-01-12T22:23:45Z",
+        "sessions_count": 1
+      },
+      "comportement": {
+        "niveau_detail": "très_élevé",
+        "qualite_preuves": "excellente",
+        "coherence_recit": "très_haute",
+        "score_credibilite_ia": 92
+      }
+    },
+    {
+      "user_id": "ANON-2025-005",
+      "type": "anonyme",
+      "metadata": {
+        "device_fingerprint": "GA-PC-445F9C8D",
+        "ip_address": "154.72.178.234",
+        "ip_geolocation": {
+          "pays": "Gabon",
+          "ville": "Oyem",
+          "region": "Woleu-Ntem",
+          "fai": "Moov Africa Gabon",
+          "latitude": 1.5993,
+          "longitude": 11.5793
+        },
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "device_type": "desktop",
+        "os": "Windows 10",
+        "browser": "Chrome 120",
+        "language": "fr-GA",
+        "timezone": "Africa/Libreville",
+        "screen_resolution": "1920x1080",
+        "anonymization_tools": null
+      },
+      "activite": {
+        "date_inscription": "2025-01-13T14:56:33Z",
+        "signalements_soumis": 1,
+        "dernier_acces": "2025-01-13T15:12:45Z",
+        "sessions_count": 1
+      },
+      "comportement": {
+        "niveau_detail": "élevé",
+        "qualite_preuves": "bonne",
+        "coherence_recit": "haute",
+        "score_credibilite_ia": 79
+      }
+    }
+  ],
+  "utilisateurs_identifies": [
+    {
+      "user_id": "USR-245-GA",
+      "type": "identifie",
+      "profil": {
+        "nom_complet": "Anonymisé pour protection",
+        "pseudonyme_public": "Témoin Mer",
+        "telephone": "+241 77 XXX XX 01",
+        "telephone_hash": "sha256:8f3da9bc...",
+        "email": "temoin_peche@secure.ndjobi.ga",
+        "email_verifie": true,
+        "fonction": "Agent administratif - Ministère de la Mer",
+        "age_range": "30-40",
+        "genre": "M",
+        "niveau_education": "Licence"
+      },
+      "localisation": {
+        "region_residence": "Estuaire",
+        "ville": "Libreville",
+        "quartier": "Glass",
+        "coordonnees_approximatives": {
+          "latitude": 0.4162,
+          "longitude": 9.4673,
+          "precision": "quartier"
+        }
+      },
+      "metadata": {
+        "device_fingerprint": "GA-MOB-892F3A",
+        "ip_address": "41.207.183.45",
+        "user_agent": "Mozilla/5.0 (Android 12; Mobile)",
+        "device_type": "mobile",
+        "os": "Android 12",
+        "browser": "Chrome Mobile"
+      },
+      "activite": {
+        "date_inscription": "2025-01-18T14:23:45Z",
+        "signalements_soumis": 1,
+        "signalements_suivis": 1,
+        "dernier_acces": "2025-01-18T14:45:12Z",
+        "sessions_count": 3,
+        "statut_compte": "actif"
+      },
+      "verification": {
+        "identite_verifiee": false,
+        "telephone_verifie": true,
+        "email_verifie": true,
+        "document_identite_fourni": false,
+        "niveau_confiance": "moyen"
+      },
+      "protection": {
+        "mode_anonymat_partiel": true,
+        "masquage_identite_publique": true,
+        "alerte_securite": false,
+        "besoin_protection_physique": "potentiel"
+      }
+    },
+    {
+      "user_id": "USR-892-GA",
+      "type": "identifie",
+      "profil": {
+        "nom_complet": "Protégé",
+        "pseudonyme_public": "Ingénieur TP",
+        "telephone": "+241 66 XXX XX 89",
+        "telephone_hash": "sha256:2a9bc8f3...",
+        "email": "ingenieur.tp@ndjobi.ga",
+        "email_verifie": true,
+        "fonction": "Ingénieur BTP - Bureau d'études privé",
+        "age_range": "35-45",
+        "genre": "M",
+        "niveau_education": "Master Génie Civil"
+      },
+      "localisation": {
+        "region_residence": "Estuaire",
+        "ville": "Libreville",
+        "quartier": "Akébé",
+        "coordonnees_approximatives": {
+          "latitude": 0.3924,
+          "longitude": 9.4537,
+          "precision": "quartier"
+        }
+      },
+      "metadata": {
+        "device_fingerprint": "GA-PC-78A9D3",
+        "ip_address": "41.207.189.112",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0)",
+        "device_type": "desktop",
+        "os": "Windows 10",
+        "browser": "Edge"
+      },
+      "activite": {
+        "date_inscription": "2025-01-16T16:42:11Z",
+        "signalements_soumis": 1,
+        "signalements_suivis": 1,
+        "dernier_acces": "2025-01-17T09:23:34Z",
+        "sessions_count": 5,
+        "statut_compte": "actif"
+      },
+      "verification": {
+        "identite_verifiee": false,
+        "telephone_verifie": true,
+        "email_verifie": true,
+        "document_identite_fourni": false,
+        "niveau_confiance": "moyen"
+      },
+      "protection": {
+        "mode_anonymat_partiel": true,
+        "masquage_identite_publique": true,
+        "alerte_securite": false,
+        "besoin_protection_physique": "non"
+      }
+    },
+    {
+      "user_id": "USR-456-GA",
+      "type": "identifie",
+      "profil": {
+        "nom_complet": "Marie OBIANG",
+        "pseudonyme_public": "Marie O.",
+        "telephone": "+241 77 XXX XX 23",
+        "telephone_hash": "sha256:f3a892bc...",
+        "email": "m.obiang@gmail.com",
+        "email_verifie": true,
+        "fonction": "Citoyenne",
+        "age_range": "40-50",
+        "genre": "F",
+        "niveau_education": "Baccalauréat"
+      },
+      "localisation": {
+        "region_residence": "Haut-Ogooué",
+        "ville": "Franceville",
+        "quartier": "Potos",
+        "coordonnees_approximatives": {
+          "latitude": -1.6332,
+          "longitude": 13.5833,
+          "precision": "ville"
+        }
+      },
+      "metadata": {
+        "device_fingerprint": "GA-MOB-234F8B",
+        "ip_address": "154.72.201.67",
+        "user_agent": "Mozilla/5.0 (Android 11)",
+        "device_type": "mobile",
+        "os": "Android 11",
+        "browser": "Chrome Mobile"
+      },
+      "activite": {
+        "date_inscription": "2025-01-15T11:28:36Z",
+        "signalements_soumis": 1,
+        "signalements_suivis": 1,
+        "dernier_acces": "2025-01-15T11:45:23Z",
+        "sessions_count": 2,
+        "statut_compte": "actif"
+      },
+      "verification": {
+        "identite_verifiee": true,
+        "telephone_verifie": true,
+        "email_verifie": true,
+        "document_identite_fourni": true,
+        "niveau_confiance": "élevé"
+      },
+      "protection": {
+        "mode_anonymat_partiel": false,
+        "masquage_identite_publique": false,
+        "alerte_securite": false,
+        "besoin_protection_physique": "non"
+      }
+    },
+    {
+      "user_id": "USR-789-GA",
+      "type": "identifie",
+      "profil": {
+        "nom_complet": "Jean-Paul NGUEMA",
+        "pseudonyme_public": "JP Dev",
+        "telephone": "+241 06 XXX XX 45",
+        "telephone_hash": "sha256:bc89f3a2...",
+        "email": "jp.nguema@tech.ga",
+        "email_verifie": true,
+        "fonction": "Développeur - Entrepreneur Tech",
+        "age_range": "25-35",
+        "genre": "M",
+        "niveau_education": "Master Informatique"
+      },
+      "localisation": {
+        "region_residence": "Estuaire",
+        "ville": "Libreville",
+        "quartier": "Batterie IV",
+        "coordonnees_approximatives": {
+          "latitude": 0.4162,
+          "longitude": 9.4673,
+          "precision": "quartier"
+        }
+      },
+      "metadata": {
+        "device_fingerprint": "GA-PC-892E7F",
+        "ip_address": "41.207.176.89",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X)",
+        "device_type": "desktop",
+        "os": "macOS Sonoma",
+        "browser": "Safari"
+      },
+      "activite": {
+        "date_inscription": "2025-01-14T08:45:19Z",
+        "signalements_soumis": 1,
+        "signalements_suivis": 1,
+        "dernier_acces": "2025-01-16T14:23:12Z",
+        "sessions_count": 8,
+        "statut_compte": "actif"
+      },
+      "verification": {
+        "identite_verifiee": true,
+        "telephone_verifie": true,
+        "email_verifie": true,
+        "document_identite_fourni": true,
+        "niveau_confiance": "très_élevé"
+      },
+      "protection": {
+        "mode_anonymat_partiel": false,
+        "masquage_identite_publique": false,
+        "alerte_securite": false,
+        "besoin_protection_physique": "non"
+      }
+    },
+    {
+      "user_id": "USR-321-GA",
+      "type": "identifie",
+      "profil": {
+        "nom_complet": "Association des Parents d'Élèves Oyem",
+        "pseudonyme_public": "APE Oyem",
+        "telephone": "+241 77 XXX XX 67",
+        "telephone_hash": "sha256:3f892abc...",
+        "email": "ape.oyem@education.ga",
+        "email_verifie": true,
+        "fonction": "Représentant APE",
+        "age_range": null,
+        "genre": "Organisation",
+        "niveau_education": null
+      },
+      "localisation": {
+        "region_residence": "Woleu-Ntem",
+        "ville": "Oyem",
+        "quartier": "Centre-ville",
+        "coordonnees_approximatives": {
+          "latitude": 1.5993,
+          "longitude": 11.5793,
+          "precision": "ville"
+        }
+      },
+      "metadata": {
+        "device_fingerprint": "GA-PC-445F9C",
+        "ip_address": "154.72.178.234",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0)",
+        "device_type": "desktop",
+        "os": "Windows 10",
+        "browser": "Chrome"
+      },
+      "activite": {
+        "date_inscription": "2025-01-13T14:56:33Z",
+        "signalements_soumis": 1,
+        "signalements_suivis": 1,
+        "dernier_acces": "2025-01-14T10:12:45Z",
+        "sessions_count": 4,
+        "statut_compte": "actif"
+      },
+      "verification": {
+        "identite_verifiee": true,
+        "telephone_verifie": true,
+        "email_verifie": true,
+        "document_identite_fourni": true,
+        "niveau_confiance": "très_élevé"
+      },
+      "protection": {
+        "mode_anonymat_partiel": false,
+        "masquage_identite_publique": false,
+        "alerte_securite": false,
+        "besoin_protection_physique": "non"
+      }
+    }
+  ]
+}

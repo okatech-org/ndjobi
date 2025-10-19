@@ -1,0 +1,403 @@
+{
+  "metadata": {
+    "dataset_name": "NDJOBI Signalements Dataset",
+    "version": "1.0",
+    "generated_date": "2025-01-19",
+    "total_signalements": 27,
+    "distribution": {
+      "denonciation_corruption": 12,
+      "problematique_diverse": 8,
+      "suggestion": 7
+    }
+  },
+  "signalements": [
+    {
+      "id": "SIG-2025-011",
+      "type": "denonciation_corruption",
+      "categorie": "detournement_fonds",
+      "titre": "Détournement budget santé - Achat ambulances fantômes",
+      "description": "Je suis comptable à la Direction Régionale de la Santé du Haut-Ogooué. Le budget 2024 prévoyait l'achat de 12 ambulances pour les centres de santé ruraux (1,2 milliard FCFA). Les factures d'achat existent, signées et tamponnées. MAIS les ambulances n'ont jamais été livrées ! Les centres de santé de Lékoni, Bakoumba et Akiéni n'ont rien reçu. J'ai vérifié personnellement. Le directeur régional m'a menacé de licenciement si j'en parle. L'argent a été versé à une société écran basée au Bénin, dont le gérant est le beau-frère du directeur. J'ai tous les justificatifs : virements bancaires, fausses factures, certificats de livraison falsifiés.",
+      "montant_estime": "1200000000",
+      "devise": "FCFA",
+      "urgence": "critique",
+      "statut": "nouveau",
+      "ministere_concerne": "Santé",
+      "region": "Haut-Ogooué",
+      "ville": "Franceville",
+      "localisation_precise": "Direction Régionale Santé",
+      "coordonnees_gps": {"latitude": -1.6332, "longitude": 13.5833},
+      "date_faits": "2024-03-15",
+      "date_signalement": "2025-01-11T18:32:14Z",
+      "user_type": "anonyme",
+      "user_id": null,
+      "preuves": [
+        {"type": "document", "format": "pdf", "nom": "budget_sante_2024_ambulances.pdf"},
+        {"type": "document", "format": "pdf", "nom": "factures_falsifiees_societe_benin.pdf"},
+        {"type": "excel", "format": "xlsx", "nom": "virements_bancaires_suspect.xlsx"},
+        {"type": "photo", "format": "jpg", "nom": "centres_sante_sans_ambulances.jpg"}
+      ],
+      "metadata": {
+        "ip_address": "154.72.XXX.XXX",
+        "device_fingerprint": "GA-MOB-TOR-9F3A",
+        "user_agent": "Tor Browser",
+        "anonymization_level": "very_high"
+      },
+      "analyse_ia": {
+        "score_credibilite": 96,
+        "score_urgence": 98,
+        "mots_cles_detectes": ["détournement", "ambulances fantômes", "société écran", "menaces"],
+        "categorie_auto": "detournement_fonds_critique"
+      }
+    },
+    {
+      "id": "SIG-2025-012",
+      "type": "problematique_diverse",
+      "categorie": "infrastructures",
+      "titre": "Pont effondré route Bitam-Minkébé - Isolement total",
+      "description": "Le pont sur la rivière Ntem (route Bitam-Minkébé) s'est effondré il y a 8 mois suite aux pluies. Depuis, toute la région de Minkébé est coupée du reste du pays. Pas d'accès pour les camions, les malades ne peuvent être évacués, les commerçants ne peuvent vendre leurs produits. Les travaux de réparation devaient commencer en mai 2024. Le budget de 850 millions FCFA a été voté. Mais RIEN n'a été fait. Le chantier n'a même pas démarré. Pendant ce temps, nous sommes prisonniers. Les pirogues traversent la rivière au péril de leur vie (3 noyés le mois dernier). C'est une catastrophe humanitaire que personne ne voit.",
+      "montant_estime": "850000000",
+      "urgence": "critique",
+      "statut": "nouveau",
+      "ministere_concerne": "Travaux Publics",
+      "region": "Woleu-Ntem",
+      "ville": "Bitam",
+      "localisation_precise": "Pont Rivière Ntem, RN2 Km 67",
+      "coordonnees_gps": {"latitude": 2.0755, "longitude": 11.4981},
+      "date_faits": "2024-05-12",
+      "date_signalement": "2025-01-11T14:15:33Z",
+      "user_type": "identifie",
+      "user_id": "USR-678-GA",
+      "user_info": {
+        "nom_complet": "Joseph MENGUE",
+        "telephone": "+24177XXXXX34",
+        "email": "j.mengue@minkebe.ga",
+        "fonction": "Maire de Minkébé"
+      },
+      "preuves": [
+        {"type": "photo", "format": "jpg", "nom": "pont_effondre_ntem.jpg"},
+        {"type": "video", "format": "mp4", "nom": "pirogue_traversee_dangereuse.mp4"},
+        {"type": "document", "format": "pdf", "nom": "deliberation_conseil_regional_travaux.pdf"}
+      ],
+      "analyse_ia": {
+        "score_credibilite": 93,
+        "score_urgence": 95,
+        "mots_cles_detectes": ["pont effondré", "isolement", "budget non utilisé", "décès"],
+        "categorie_auto": "infrastructure_critique_humanitaire"
+      }
+    },
+    {
+      "id": "SIG-2025-013",
+      "type": "denonciation_corruption",
+      "categorie": "marches_publics",
+      "titre": "Surfacturation construction lycée - Pots-de-vin ministre",
+      "description": "Contrat de construction du nouveau lycée de Koulamoutou : 3,8 milliards FCFA. C'est 2,5 fois le prix normal ! Pour un lycée de 600 élèves, le coût standard est 1,5 milliard maximum. L'entreprise attributaire (SOGEC-BTP) est une société créée 3 mois avant l'appel d'offres, sans références, sans matériel. Le PDG est un ancien chauffeur du ministre de l'Éducation. Coïncidence ? NON. Le ministre a reçu 15% du montant (570 millions FCFA) virés sur un compte à Dubai. J'ai les relevés bancaires obtenus via un employé de la BGFI. Le chantier avance au ralenti depuis 18 mois, avec des matériaux de mauvaise qualité (ciment frelaté, ferraille rouillée). Le lycée s'écroulera avant même d'être terminé.",
+      "montant_estime": "2300000000",
+      "urgence": "critique",
+      "statut": "nouveau",
+      "ministere_concerne": "Éducation",
+      "region": "Ogooué-Lolo",
+      "ville": "Koulamoutou",
+      "localisation_precise": "Chantier Lycée Technique",
+      "coordonnees_gps": {"latitude": -1.1333, "longitude": 12.4833},
+      "date_faits": "2023-06-01",
+      "date_signalement": "2025-01-10T22:48:57Z",
+      "user_type": "anonyme",
+      "preuves": [
+        {"type": "document", "format": "pdf", "nom": "contrat_construction_lycee_surfacture.pdf"},
+        {"type": "document", "format": "pdf", "nom": "releves_bancaires_ministre_dubai.pdf"},
+        {"type": "photo", "format": "jpg", "nom": "materiaux_mauvaise_qualite_chantier.jpg"},
+        {"type": "document", "format": "pdf", "nom": "creation_societe_sogec_3mois_avant.pdf"}
+      ],
+      "metadata": {
+        "ip_address": "154.72.XXX.XXX",
+        "device_fingerprint": "GA-PC-VPN-4F8D",
+        "anonymization_level": "high"
+      },
+      "analyse_ia": {
+        "score_credibilite": 94,
+        "score_urgence": 97,
+        "mots_cles_detectes": ["surfacturation", "pots-de-vin", "ministre", "Dubai", "société écran"],
+        "categorie_auto": "corruption_marches_publics_haute_fonction"
+      }
+    },
+    {
+      "id": "SIG-2025-014",
+      "type": "denonciation_corruption",
+      "categorie": "malversation_gab_peche",
+      "titre": "Coopérative fantôme Gab Pêche - Détournement subventions",
+      "description": "La 'Coopérative Nationale des Pêcheurs Unis' inscrite dans Gab Pêche n'existe pas ! C'est une arnaque montée par un conseiller du ministre. Cette coopérative fantôme a reçu 340 millions FCFA de subventions (10 pirogues + équipements + prêts BCEG). MAIS il n'y a aucun pêcheur membre ! Les pirogues ont été livrées dans un entrepôt privé à Ntoum et revendues à des Nigérians. Les documents d'inscription à la coopérative utilisent des faux noms et des photos volées sur Facebook. Le président de cette coopérative bidon est en réalité le cousin du conseiller du ministre. Ils ont créé 15 coopératives fictives comme celle-ci pour capter les aides de Gab Pêche. Total détourné : environ 5 milliards FCFA.",
+      "montant_estime": "5000000000",
+      "urgence": "critique",
+      "statut": "nouveau",
+      "ministere_concerne": "Mer et Pêche",
+      "region": "Estuaire",
+      "ville": "Libreville",
+      "localisation_precise": "Ministère de la Mer - Cabinet du Conseiller",
+      "coordonnees_gps": {"latitude": 0.3924, "longitude": 9.4537},
+      "date_faits": "2024-09-01",
+      "date_signalement": "2025-01-10T16:23:41Z",
+      "user_type": "identifie",
+      "user_id": "USR-923-GA",
+      "user_info": {
+        "nom_complet": "Protection activée",
+        "telephone": "+24106XXXXX78",
+        "email": "temoin.cooperatives@secure.ndjobi.ga",
+        "fonction": "Agent comptable - BCEG"
+      },
+      "preuves": [
+        {"type": "document", "format": "pdf", "nom": "liste_15_cooperatives_fictives.pdf"},
+        {"type": "excel", "format": "xlsx", "nom": "virements_subventions_cooperatives_fantomes.xlsx"},
+        {"type": "document", "format": "pdf", "nom": "faux_documents_inscription_facebook_photos.pdf"},
+        {"type": "photo", "format": "jpg", "nom": "pirogues_entrepot_ntoum_revente.jpg"}
+      ],
+      "analyse_ia": {
+        "score_credibilite": 97,
+        "score_urgence": 99,
+        "mots_cles_detectes": ["Gab Pêche", "coopérative fantôme", "5 milliards", "conseiller ministre"],
+        "categorie_auto": "corruption_gab_peche_reseau_organise"
+      }
+    },
+    {
+      "id": "SIG-2025-015",
+      "type": "problematique_diverse",
+      "categorie": "environnement",
+      "titre": "Déforestation illégale Parc Ivindo - Complicité gardes forestiers",
+      "description": "Le Parc National Ivindo (patrimoine UNESCO) est ravagé par l'exploitation forestière illégale. Chaque nuit, des dizaines de camions chargés de bois précieux (okoumé, azobé) sortent du parc. Les gardes forestiers sont complices : ils reçoivent 50 000 FCFA par camion pour fermer les yeux. Le chef du parc lui-même possède une scierie clandestine à Makokou. En 2 ans, plus de 10 000 hectares ont été défrichés. Les espèces protégées (gorilles, éléphants de forêt) fuient ou meurent. Des touristes écologiques ont filmé les coupes à blanc. J'ai les plaques d'immatriculation des camions et les enregistrements audio des gardes négociant les pots-de-vin.",
+      "montant_estime": null,
+      "urgence": "haute",
+      "statut": "nouveau",
+      "ministere_concerne": "Environnement",
+      "region": "Ogooué-Ivindo",
+      "ville": "Makokou",
+      "localisation_precise": "Parc National Ivindo",
+      "coordonnees_gps": {"latitude": 0.5667, "longitude": 12.8667},
+      "date_faits": "2024-01-01",
+      "date_signalement": "2025-01-10T09:15:22Z",
+      "user_type": "anonyme",
+      "preuves": [
+        {"type": "video", "format": "mp4", "nom": "deforestation_parc_ivindo_drone.mp4"},
+        {"type": "photo", "format": "jpg", "nom": "camions_bois_illegal_sortie_parc.jpg"},
+        {"type": "audio", "format": "m4a", "nom": "gardes_forestiers_negociation_pots_de_vin.m4a"},
+        {"type": "liste", "format": "txt", "nom": "plaques_immatriculation_camions.txt"}
+      ],
+      "analyse_ia": {
+        "score_credibilite": 89,
+        "score_urgence": 91,
+        "mots_cles_detectes": ["déforestation illégale", "UNESCO", "complicité", "gardes forestiers"],
+        "categorie_auto": "environnement_patrimoine_menace"
+      }
+    },
+    {
+      "id": "SIG-2025-016",
+      "type": "suggestion",
+      "categorie": "amelioration_service",
+      "titre": "Application mobile Gab Pêche - Traçabilité du poisson",
+      "description": "Je propose de créer une application mobile 'Gab Pêche Traçable' pour restaurer la confiance des consommateurs. Fonctionnalités : scanner QR code sur chaque poisson vendu → voir l'origine (pirogue, coopérative, date de pêche), le parcours (mer → CAPAL → marché), la certification (contrôle sanitaire). Chaque pêcheur aurait un profil avec ses captures, ses revenus transparents. Les mareyeuses pourraient suivre leurs commandes en temps réel. Coût développement : 180 millions FCFA. Bénéfices : fin de la contrebande de poisson avarié, confiance restaurée, valorisation du label 'Gab Pêche 100% gabonais'. Inspiré du système blockchain de traçabilité du café au Rwanda.",
+      "montant_estime": "180000000",
+      "urgence": "moyenne",
+      "statut": "nouveau",
+      "ministere_concerne": "Mer et Pêche",
+      "region": "Estuaire",
+      "ville": "Libreville",
+      "localisation_precise": null,
+      "coordonnees_gps": null,
+      "date_faits": null,
+      "date_signalement": "2025-01-09T21:34:18Z",
+      "user_type": "identifie",
+      "user_id": "USR-456-GA",
+      "user_info": {
+        "nom_complet": "Sandrine MBA",
+        "telephone": "+24166XXXXX91",
+        "email": "s.mba@digital.ga",
+        "fonction": "Développeuse Mobile - Startup AgriTech"
+      },
+      "preuves": [
+        {"type": "document", "format": "pdf", "nom": "maquettes_app_gab_peche_tracable.pdf"},
+        {"type": "document", "format": "pdf", "nom": "etude_cas_rwanda_blockchain_cafe.pdf"},
+        {"type": "document", "format": "pdf", "nom": "budget_previsionnel_developpement.pdf"}
+      ],
+      "analyse_ia": {
+        "score_credibilite": 87,
+        "score_urgence": 52,
+        "mots_cles_detectes": ["traçabilité", "blockchain", "application mobile", "Gab Pêche"],
+        "categorie_auto": "suggestion_innovation_tech"
+      }
+    },
+    {
+      "id": "SIG-2025-017",
+      "type": "denonciation_corruption",
+      "categorie": "extorsion",
+      "titre": "Racket douanes Aéroport Libreville - Tarifs arbitraires",
+      "description": "À l'aéroport international de Libreville, les douaniers rackettent systématiquement les voyageurs. Si vous rapportez des cadeaux, des vêtements, de l'électronique, ils inventent des taxes astronomiques. Exemple vécu hier : ma sœur revient de France avec 2 ordinateurs portables (pour son travail et ses enfants). Le douanier exige 250 000 FCFA de 'droits de douane'. Elle proteste, montre les factures (valeur réelle 1200€). Il menace de tout confisquer. Elle paie finalement 180 000 FCFA, SANS REÇU. Aucune trace officielle. L'argent va directement dans la poche du douanier. Ça arrive à 80% des voyageurs. Estimation : 300 à 500 millions FCFA extorqués par mois à l'aéroport.",
+      "montant_estime": "4800000000",
+      "urgence": "haute",
+      "statut": "nouveau",
+      "ministere_concerne": "Douanes",
+      "region": "Estuaire",
+      "ville": "Libreville",
+      "localisation_precise": "Aéroport International Léon MBA",
+      "coordonnees_gps": {"latitude": 0.4586, "longitude": 9.4123},
+      "date_faits": "2025-01-08",
+      "date_signalement": "2025-01-09T11:42:37Z",
+      "user_type": "identifie",
+      "user_id": "USR-834-GA",
+      "user_info": {
+        "nom_complet": "Patrick NDONG",
+        "telephone": "+24177XXXXX56",
+        "email": "p.ndong@yahoo.fr",
+        "fonction": "Citoyen"
+      },
+      "preuves": [
+        {"type": "video", "format": "mp4", "nom": "douanier_exige_paiement_sans_recu.mp4"},
+        {"type": "photo", "format": "jpg", "nom": "ordinateurs_confisques_menace.jpg"}
+      ],
+      "analyse_ia": {
+        "score_credibilite": 81,
+        "score_urgence": 73,
+        "mots_cles_detectes": ["racket", "douanes", "aéroport", "sans reçu", "extorsion systématique"],
+        "categorie_auto": "corruption_douanes"
+      }
+    },
+    {
+      "id": "SIG-2025-018",
+      "type": "problematique_diverse",
+      "categorie": "education",
+      "titre": "Salles de classe surchargées - 120 élèves par classe",
+      "description": "École primaire de Moanda : 120 élèves par classe en CP1 et CP2. Les enfants sont assis à 5 par table prévue pour 2. Beaucoup n'ont pas de chaise et suivent les cours assis par terre. L'enseignant ne peut pas suivre tout le monde. Résultat : taux d'échec de 65%. Les parents se plaignent depuis 3 ans. Le budget pour construire 4 nouvelles salles existe (280 millions FCFA voté en 2022), mais les travaux n'ont jamais commencé.",
+      "urgence": "moyenne",
+      "ministere_concerne": "Éducation",
+      "region": "Haut-Ogooué",
+      "ville": "Moanda",
+      "date_signalement": "2025-01-09T08:12:45Z",
+      "user_type": "identifie",
+      "analyse_ia": {"score_credibilite": 76, "score_urgence": 68}
+    },
+    {
+      "id": "SIG-2025-019",
+      "type": "denonciation_corruption",
+      "categorie": "autre_corruption",
+      "titre": "Vente illégale de terrains domaniaux - Mairie Owendo",
+      "description": "Le maire d'Owendo vend des terrains appartenant à l'État comme s'ils étaient privés. Prix : 8 à 15 millions FCFA le terrain de 500m². Les acheteurs reçoivent de faux titres fonciers. Quand l'État veut récupérer ces terrains pour des projets publics, c'est le chaos juridique. Le maire a vendu plus de 200 terrains en 2 ans. Montant total : environ 2 milliards FCFA empochés illégalement. Sa femme a ouvert une agence immobilière qui gère ces ventes.",
+      "montant_estime": "2000000000",
+      "urgence": "critique",
+      "ministere_concerne": "Intérieur",
+      "region": "Estuaire",
+      "ville": "Owendo",
+      "date_signalement": "2025-01-08T19:34:22Z",
+      "user_type": "anonyme",
+      "analyse_ia": {"score_credibilite": 88, "score_urgence": 86}
+    },
+    {
+      "id": "SIG-2025-020",
+      "type": "problematique_diverse",
+      "categorie": "sante",
+      "titre": "Hôpital Lambaréné - Générateur en panne depuis 6 mois",
+      "description": "L'Hôpital Albert Schweitzer de Lambaréné n'a plus de générateur fonctionnel. En cas de coupure SEEG (3-4 fois par semaine), le bloc opératoire s'arrête, les médicaments au frigo se gâtent, les malades en réanimation sont en danger. On opère à la lampe torche ! Le générateur de secours est tombé en panne en juillet 2024. Budget réparation : 45 millions FCFA. Mais l'argent a mystérieusement disparu. Le directeur dit qu'il attend les 'procédures administratives'. Pendant ce temps, 2 patients sont décédés lors d'une opération interrompue par une coupure.",
+      "urgence": "critique",
+      "ministere_concerne": "Santé",
+      "region": "Moyen-Ogooué",
+      "ville": "Lambaréné",
+      "date_signalement": "2025-01-08T14:56:11Z",
+      "user_type": "identifie",
+      "analyse_ia": {"score_credibilite": 91, "score_urgence": 94}
+    },
+    {
+      "id": "SIG-2025-021",
+      "type": "suggestion",
+      "categorie": "amelioration_service",
+      "titre": "Bus scolaires gratuits - Réduire abandon scolaire zones rurales",
+      "description": "Dans les zones rurales (Nyanga, Ogooué-Lolo), beaucoup d'enfants abandonnent l'école car ils habitent trop loin (10-15 km). Ils marchent 3h aller-retour. Quand il pleut, ils ne viennent pas. Taux d'abandon : 40% en zone rurale vs 8% en ville. Je propose un programme de bus scolaires gratuits : 50 bus pour couvrir les 9 provinces. Coût : 800 millions FCFA (achat + carburant 2 ans). Inspiré du Sénégal. Impact : sauver 15 000 enfants de la déscolarisation.",
+      "montant_estime": "800000000",
+      "urgence": "moyenne",
+      "ministere_concerne": "Éducation",
+      "date_signalement": "2025-01-08T10:23:33Z",
+      "user_type": "identifie",
+      "analyse_ia": {"score_credibilite": 82, "score_urgence": 58}
+    },
+    {
+      "id": "SIG-2025-022",
+      "type": "denonciation_corruption",
+      "categorie": "enrichissement_illicite",
+      "titre": "Directeur CNSS - Villa 12 chambres et fleet de luxe",
+      "description": "Le Directeur Général de la CNSS vit comme un prince. Villa de 12 chambres à Libreville (quartier Sablière), estimée à 1,8 milliard FCFA. Flotte personnelle : 3 Mercedes, 2 Range Rover, 1 Bentley. Voyages mensuels en jet privé. Son salaire officiel : 18 millions FCFA/mois. Impossible de justifier ce train de vie. Ses enfants étudient à Londres et Paris dans les écoles les plus chères (50 000€/an chacun). Sa femme possède 4 boutiques de luxe. Source probable : détournement des cotisations CNSS. Des millions de Gabonais cotisent, l'argent s'évapore.",
+      "montant_estime": "6700000000",
+      "urgence": "critique",
+      "ministere_concerne": "Affaires Sociales",
+      "region": "Estuaire",
+      "ville": "Libreville",
+      "date_signalement": "2025-01-07T21:45:19Z",
+      "user_type": "anonyme",
+      "analyse_ia": {"score_credibilite": 89, "score_urgence": 92}
+    },
+    {
+      "id": "SIG-2025-023",
+      "type": "problematique_diverse",
+      "categorie": "infrastructures",
+      "titre": "Eau potable coupée 15j/mois - Quartier Alibandeng Libreville",
+      "description": "Au quartier Alibandeng (Libreville), l'eau potable est coupée 15 jours par mois en moyenne. La SEEG dit 'travaux', mais ça dure depuis 2 ans. Les habitants achètent l'eau à 500 FCFA le bidon de 25L. Une famille de 6 dépense 60 000 FCFA/mois juste pour l'eau ! C'est scandaleux. Les enfants manquent l'école car ils doivent aller chercher l'eau loin. Les conditions d'hygiène sont catastrophiques. Le château d'eau du quartier existe mais n'est jamais rempli. Pourquoi ?",
+      "urgence": "haute",
+      "ministere_concerne": "Énergie et Eau",
+      "region": "Estuaire",
+      "ville": "Libreville",
+      "date_signalement": "2025-01-07T16:32:54Z",
+      "user_type": "identifie",
+      "analyse_ia": {"score_credibilite": 78, "score_urgence": 71}
+    },
+    {
+      "id": "SIG-2025-024",
+      "type": "denonciation_corruption",
+      "categorie": "marches_publics",
+      "titre": "Fourniture bureau État - Surfacturation 400%",
+      "description": "Marché public de fournitures de bureau pour les ministères (2024) : 1,2 milliard FCFA. Prix complètement gonflés : une ramette de papier A4 facturée 25 000 FCFA (prix réel : 4500 FCFA). Un stylo Bic à 5000 FCFA (prix réel : 200 FCFA). Surfacturation moyenne : 400%. L'entreprise attributaire (GABON OFFICE PLUS) appartient à la belle-sœur du Directeur des Achats Publics. Elle a gagné TOUS les marchés de fournitures ces 3 dernières années. Total détourné : environ 900 millions FCFA.",
+      "montant_estime": "900000000",
+      "urgence": "haute",
+      "ministere_concerne": "Budget",
+      "region": "Estuaire",
+      "ville": "Libreville",
+      "date_signalement": "2025-01-07T11:18:42Z",
+      "user_type": "identifie",
+      "analyse_ia": {"score_credibilite": 92, "score_urgence": 85}
+    },
+    {
+      "id": "SIG-2025-025",
+      "type": "problematique_diverse",
+      "categorie": "environnement",
+      "titre": "Pollution mer Port-Gentil - Déversements pétroliers non traités",
+      "description": "Les sociétés pétrolières de Port-Gentil déversent leurs déchets toxiques directement dans la mer. Chaque nuit, des bateaux citernes vident leurs cuves polluées au large. Le lendemain, des nappes de pétrole flottent sur l'eau. Les pêcheurs ramènent des poissons couverts de mazout, invendables. La plage de la Pointe Denis est noire. Les autorités ferment les yeux car les pétroliers sont puissants. Les habitants souffrent de maladies respiratoires et de peau. C'est un crime environnemental à grande échelle.",
+      "urgence": "critique",
+      "ministere_concerne": "Environnement",
+      "region": "Ogooué-Maritime",
+      "ville": "Port-Gentil",
+      "date_signalement": "2025-01-06T22:14:28Z",
+      "user_type": "anonyme",
+      "analyse_ia": {"score_credibilite": 84, "score_urgence": 88}
+    },
+    {
+      "id": "SIG-2025-026",
+      "type": "suggestion",
+      "categorie": "anticorruption",
+      "titre": "Whistleblower Protection Act - Loi protection des lanceurs d'alerte",
+      "description": "Le Gabon doit adopter une vraie loi de protection des lanceurs d'alerte. Actuellement, ceux qui dénoncent la corruption risquent leur vie, leur emploi, des représailles. Il faut : protection juridique totale, anonymat garanti par la loi, sanctions lourdes contre les représailles, récompenses pour les dénonciateurs (% des fonds récupérés). Inspiré du Whistleblower Protection Act américain. Ça encouragerait massivement les dénonciations et ferait peur aux corrompus. Coût : quasi nul (juste vote de la loi).",
+      "urgence": "haute",
+      "ministere_concerne": "Justice",
+      "date_signalement": "2025-01-06T15:47:12Z",
+      "user_type": "identifie",
+      "analyse_ia": {"score_credibilite": 94, "score_urgence": 72}
+    },
+    {
+      "id": "SIG-2025-027",
+      "type": "denonciation_corruption",
+      "categorie": "malversation_gab_peche",
+      "titre": "Matériel de pêche Gab Pêche revendu en Guinée Équatoriale",
+      "description": "Du matériel de pêche Gab Pêche (moteurs hors-bord, filets, GPS) est revendu en Guinée Équatoriale ! J'ai vu de mes propres yeux des camions chargés partir vers la frontière la nuit. Les moteurs neufs sont revendus 3 fois le prix à Bata et Malabo. Un réseau de contrebande organisé par des proches du projet. Montant estimé : 450 millions FCFA de matériel détourné. Pendant ce temps, les vrais pêcheurs gabonais attendent leur équipement depuis 6 mois.",
+      "montant_estime": "450000000",
+      "urgence": "haute",
+      "ministere_concerne": "Mer et Pêche",
+      "region": "Estuaire",
+      "ville": "Libreville",
+      "date_signalement": "2025-01-06T09:23:51Z",
+      "user_type": "anonyme",
+      "analyse_ia": {"score_credibilite": 87, "score_urgence": 83}
+    }
+  ]
+}

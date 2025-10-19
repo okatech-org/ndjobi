@@ -2313,9 +2313,63 @@ const SuperAdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="features" className="space-y-4 mt-4">
+          {/* Vue d'ensemble des fonctionnalités */}
           <Card>
             <CardHeader>
-              <CardTitle>🤖 Agent IA "Taper le Ndjobi"</CardTitle>
+              <CardTitle>🎯 Vue d'ensemble des Fonctionnalités NDJOBI</CardTitle>
+              <CardDescription>
+                Plateforme complète de lutte anti-corruption avec protection d'innovations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900">
+                  <div className="flex items-center gap-3 mb-2">
+                    <AlertCircle className="h-6 w-6 text-red-600" />
+                    <h4 className="font-semibold text-red-900 dark:text-red-100">Signalement</h4>
+                  </div>
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    Signalement anonyme ou identifié de cas de corruption avec preuves
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Shield className="h-6 w-6 text-blue-600" />
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100">Protection</h4>
+                  </div>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Protection d'innovations avec horodatage blockchain infalsifiable
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Users className="h-6 w-6 text-green-600" />
+                    <h4 className="font-semibold text-green-900 dark:text-green-100">Gestion</h4>
+                  </div>
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    Dashboards multi-niveaux pour utilisateurs, agents, admins et super-admins
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Brain className="h-6 w-6 text-purple-600" />
+                    <h4 className="font-semibold text-purple-900 dark:text-purple-100">IA Avancée</h4>
+                  </div>
+                  <p className="text-sm text-purple-700 dark:text-purple-300">
+                    Assistant IA présidentiel iAsted avec analyse et recommandations
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Module de Signalement */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🚨 Module de Signalement Anti-Corruption</CardTitle>
+              <CardDescription>
+                Système complet de signalement avec anonymat garanti et traitement automatisé
+              </CardDescription>
               </CardHeader>
             <CardContent className="space-y-4">
               <Alert>
@@ -2326,20 +2380,89 @@ const SuperAdminDashboard = () => {
               </Alert>
 
               <div>
-                <h4 className="font-semibold mb-3">Flux Conversationnel :</h4>
+                <h4 className="font-semibold mb-3">🔄 Flux de Signalement (8 étapes) :</h4>
                 <div className="space-y-2">
                   {[
-                    { step: '1', label: 'Accueil', desc: 'Salutation et présentation' },
-                    { step: '2', label: 'Type', desc: 'Corruption, Fraude, Abus, Détournement' },
-                    { step: '3', label: 'Localisation', desc: 'GPS automatique ou saisie manuelle' },
-                    { step: '4', label: 'Description', desc: 'Texte ou reconnaissance vocale' },
-                    { step: '5', label: 'Preuves', desc: 'Upload photos/documents (optionnel)' },
-                    { step: '6', label: 'Témoin', desc: 'Accepte de témoigner (optionnel)' },
-                    { step: '7', label: 'Validation', desc: 'Relecture et confirmation' },
-                    { step: '8', label: 'Soumission', desc: 'Enregistrement et numéro de suivi' },
+                    { step: '1', label: 'Accueil', desc: 'Salutation et présentation de l\'assistant IA', icon: '👋' },
+                    { step: '2', label: 'Type de Corruption', desc: 'Corruption, Fraude, Abus, Détournement, Favoritisme', icon: '📋' },
+                    { step: '3', label: 'Localisation', desc: 'GPS automatique ou saisie manuelle avec carte', icon: '📍' },
+                    { step: '4', label: 'Description Détaillée', desc: 'Texte libre ou reconnaissance vocale (Speech-to-Text)', icon: '📝' },
+                    { step: '5', label: 'Preuves Numériques', desc: 'Upload photos, documents, enregistrements audio', icon: '📎' },
+                    { step: '6', label: 'Témoignage', desc: 'Accepte de témoigner (optionnel, avec protection)', icon: '👥' },
+                    { step: '7', label: 'Validation', desc: 'Relecture complète et confirmation des données', icon: '✅' },
+                    { step: '8', label: 'Soumission', desc: 'Enregistrement crypté et numéro de suivi unique', icon: '🔒' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                        {item.step}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{item.icon}</span>
+                          <div className="font-medium text-sm">{item.label}</div>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">{item.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4 mt-6">
+                <div className="p-4 rounded-lg border text-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                  <Activity className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+                  <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-100">Reconnaissance Vocale</h4>
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Speech Recognition API avec transcription automatique</p>
+                </div>
+                <div className="p-4 rounded-lg border text-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                  <MapPin className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                  <h4 className="font-semibold text-sm text-green-900 dark:text-green-100">Géolocalisation</h4>
+                  <p className="text-xs text-green-700 dark:text-green-300 mt-1">GPS précis avec carte interactive</p>
+                </div>
+                <div className="p-4 rounded-lg border text-center bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                  <FileText className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                  <h4 className="font-semibold text-sm text-purple-900 dark:text-purple-100">Anonymat Total</h4>
+                  <p className="text-xs text-purple-700 dark:text-purple-300 mt-1">Cryptage AES-256 bout en bout</p>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 rounded-lg border bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950">
+                <h4 className="font-semibold mb-2 text-red-900 dark:text-red-100">🔐 Sécurité et Anonymat</h4>
+                <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
+                  <li>• Cryptage AES-256 de toutes les données sensibles</li>
+                  <li>• Suppression automatique des métadonnées (GPS, appareil, etc.)</li>
+                  <li>• Serveurs hébergés au Gabon (souveraineté des données)</li>
+                  <li>• Aucune donnée personnelle collectée en mode anonyme</li>
+                  <li>• Audit de sécurité régulier par des experts indépendants</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Module de Protection d'Innovations */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🛡️ Module de Protection d'Innovations</CardTitle>
+              <CardDescription>
+                Protection d'idées et projets avec horodatage blockchain infalsifiable
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">📋 Processus de Protection :</h4>
+                  <div className="space-y-2">
+                    {[
+                      { step: '1', label: 'Authentification', desc: 'Connexion requise pour la protection' },
+                      { step: '2', label: 'Description Projet', desc: 'Titre, description détaillée, catégorie' },
+                      { step: '3', label: 'Documentation', desc: 'Upload de documents (business plan, maquettes, etc.)' },
+                      { step: '4', label: 'Équipe', desc: 'Ajout des membres de l\'équipe (optionnel)' },
+                      { step: '5', label: 'Validation', desc: 'Vérification et confirmation des données' },
+                      { step: '6', label: 'Blockchain', desc: 'Horodatage sur blockchain Ethereum' },
+                      { step: '7', label: 'Certificat', desc: 'Génération du certificat de protection' },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 p-2 rounded border">
-                      <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                        <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-sm font-bold">
                         {item.step}
                       </div>
                       <div className="flex-1">
@@ -2350,27 +2473,154 @@ const SuperAdminDashboard = () => {
                   ))}
                 </div>
           </div>
+                <div>
+                  <h4 className="font-semibold mb-3">🔗 Technologies Blockchain :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                      <h5 className="font-semibold text-blue-900 dark:text-blue-100">Smart Contract</h5>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">Contrat NdjobiProtection.sol sur Ethereum</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                      <h5 className="font-semibold text-green-900 dark:text-green-100">Horodatage</h5>
+                      <p className="text-sm text-green-700 dark:text-green-300">Timestamp infalsifiable sur blockchain</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                      <h5 className="font-semibold text-purple-900 dark:text-purple-100">Certificat NFT</h5>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">Token unique avec métadonnées complètes</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+                      <h5 className="font-semibold text-orange-900 dark:text-orange-100">Vérification</h5>
+                      <p className="text-sm text-orange-700 dark:text-orange-300">Vérification publique de l'antériorité</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-3 rounded-lg border text-center">
-                  <Activity className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <h4 className="font-semibold text-sm">Voix</h4>
-                  <p className="text-xs text-muted-foreground">Speech Recognition API</p>
+          {/* Dashboards Multi-Niveaux */}
+          <Card>
+            <CardHeader>
+              <CardTitle>👥 Système de Dashboards Multi-Niveaux</CardTitle>
+              <CardDescription>
+                Interfaces spécialisées pour chaque type d'utilisateur avec permissions granulaires
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                  <div className="flex items-center gap-3 mb-3">
+                    <User className="h-6 w-6 text-blue-600" />
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100">Dashboard Utilisateur</h4>
                 </div>
-                <div className="p-3 rounded-lg border text-center">
-                  <MapPin className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-                  <h4 className="font-semibold text-sm">GPS</h4>
-                  <p className="text-xs text-muted-foreground">Géolocalisation précise</p>
+                  <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                    <li>• Signalement de corruption</li>
+                    <li>• Protection de projets</li>
+                    <li>• Gestion des fichiers</li>
+                    <li>• Profil et paramètres</li>
+                    <li>• Suivi des dossiers</li>
+                  </ul>
                 </div>
-                <div className="p-3 rounded-lg border text-center">
-                  <FileText className="h-8 w-8 mx-auto mb-2 text-green-500" />
-                  <h4 className="font-semibold text-sm">Anonyme</h4>
-                  <p className="text-xs text-muted-foreground">Sans authentification</p>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Users className="h-6 w-6 text-green-600" />
+                    <h4 className="font-semibold text-green-900 dark:text-green-100">Dashboard Agent</h4>
+                  </div>
+                  <ul className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                    <li>• Traitement des signalements</li>
+                    <li>• Attribution de cas</li>
+                    <li>• Suivi des enquêtes</li>
+                    <li>• Rapports de performance</li>
+                    <li>• Communication avec admins</li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Shield className="h-6 w-6 text-orange-600" />
+                    <h4 className="font-semibold text-orange-900 dark:text-orange-100">Dashboard Admin</h4>
+                  </div>
+                  <ul className="text-sm text-orange-700 dark:text-orange-300 space-y-1">
+                    <li>• Supervision des agents</li>
+                    <li>• Validation des décisions</li>
+                    <li>• Statistiques régionales</li>
+                    <li>• Gestion des cas sensibles</li>
+                    <li>• Rapports ministériels</li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Crown className="h-6 w-6 text-purple-600" />
+                    <h4 className="font-semibold text-purple-900 dark:text-purple-100">Dashboard Super Admin</h4>
+                  </div>
+                  <ul className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
+                    <li>• Contrôle total du système</li>
+                    <li>• Gestion des utilisateurs</li>
+                    <li>• Configuration IA</li>
+                    <li>• Monitoring sécurité</li>
+                    <li>• Audit et logs</li>
+                  </ul>
                 </div>
               </div>
               </CardContent>
             </Card>
 
+          {/* Services et Intégrations */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🔧 Services et Intégrations Techniques</CardTitle>
+              <CardDescription>
+                Architecture technique complète avec services cloud et APIs externes
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">☁️ Services Cloud :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                      <h5 className="font-semibold text-green-900 dark:text-green-100">Supabase</h5>
+                      <p className="text-sm text-green-700 dark:text-green-300">Base de données PostgreSQL, authentification, stockage, fonctions Edge</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                      <h5 className="font-semibold text-blue-900 dark:text-blue-100">Netlify</h5>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">Hébergement frontend, déploiement automatique, CDN global</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                      <h5 className="font-semibold text-purple-900 dark:text-purple-100">Twilio</h5>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">SMS, vérification téléphone, notifications</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+                      <h5 className="font-semibold text-orange-900 dark:text-orange-100">Ethereum</h5>
+                      <p className="text-sm text-orange-700 dark:text-orange-300">Blockchain pour protection d'innovations</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3">🤖 Services IA :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900">
+                      <h5 className="font-semibold text-indigo-900 dark:text-indigo-100">OpenAI GPT-4</h5>
+                      <p className="text-sm text-indigo-700 dark:text-indigo-300">Assistant conversationnel principal</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900">
+                      <h5 className="font-semibold text-pink-900 dark:text-pink-100">Claude 3.5 Sonnet</h5>
+                      <p className="text-sm text-pink-700 dark:text-pink-300">Analyse avancée et recommandations</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-950 dark:to-teal-900">
+                      <h5 className="font-semibold text-teal-900 dark:text-teal-100">Google Gemini</h5>
+                      <p className="text-sm text-teal-700 dark:text-teal-300">Traitement multimodal (texte, image, audio)</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-cyan-50 to-cyan-100 dark:from-cyan-950 dark:to-cyan-900">
+                      <h5 className="font-semibold text-cyan-900 dark:text-cyan-100">Whisper API</h5>
+                      <p className="text-sm text-cyan-700 dark:text-cyan-300">Reconnaissance vocale et transcription</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Espace Super Admin */}
           <Card>
             <CardHeader>
               <CardTitle>⚡ Espace Super Admin - Centre de Contrôle Total</CardTitle>
@@ -3067,14 +3317,15 @@ const SuperAdminDashboard = () => {
                 </TabsContent>
 
         <TabsContent value="iasted" className="space-y-4 mt-4">
+          {/* Vue d'ensemble iAsted */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bot className="h-6 w-6 text-primary" />
-                iAsted - Assistant IA Présidentiel
+                🤖 iAsted - Assistant IA Présidentiel Intelligent
               </CardTitle>
               <CardDescription>
-                Interface conversationnelle intelligente pour l'analyse stratégique et la prise de décision
+                Interface conversationnelle avancée pour l'analyse stratégique et la prise de décision présidentielle
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -3122,13 +3373,210 @@ const SuperAdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <p className="text-xs text-muted-foreground text-center">
-                        Recommandations basées sur l'IA, priorisation intelligente et scénarios d'action
+                        Recommandations personnalisées, évaluation des risques et propositions d'actions
                       </p>
                     </CardContent>
                   </Card>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
+          {/* Fonctionnalités iAsted */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🚀 Fonctionnalités Avancées d'iAsted</CardTitle>
+              <CardDescription>
+                Capacités complètes de l'assistant IA présidentiel
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">💬 Modes d'Interaction :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                      <h5 className="font-semibold text-blue-900 dark:text-blue-100">Mode Texte</h5>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">Interface chat classique avec saisie clavier</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                      <h5 className="font-semibold text-green-900 dark:text-green-100">Mode Vocal</h5>
+                      <p className="text-sm text-green-700 dark:text-green-300">Reconnaissance vocale + synthèse vocale</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                      <h5 className="font-semibold text-purple-900 dark:text-purple-100">Bouton Flottant</h5>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">Accès rapide depuis n'importe quelle page</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3">🧠 Capacités d'Analyse :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+                      <h5 className="font-semibold text-orange-900 dark:text-orange-100">Analyse de Performance</h5>
+                      <p className="text-sm text-orange-700 dark:text-orange-300">Évaluation des agents et sous-admins</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950 dark:to-red-900">
+                      <h5 className="font-semibold text-red-900 dark:text-red-100">Recommandations Stratégiques</h5>
+                      <p className="text-sm text-red-700 dark:text-red-300">Conseils sur les cas sensibles</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-950 dark:to-teal-900">
+                      <h5 className="font-semibold text-teal-900 dark:text-teal-100">Identification de Patterns</h5>
+                      <p className="text-sm text-teal-700 dark:text-teal-300">Détection de tendances et corrélations</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Architecture Technique iAsted */}
+          <Card>
+            <CardHeader>
+              <CardTitle>⚙️ Architecture Technique d'iAsted</CardTitle>
+              <CardDescription>
+                Stack technologique et intégrations de l'assistant IA
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">🔧 Services Backend :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900">
+                      <h5 className="font-semibold text-indigo-900 dark:text-indigo-100">IAstedService</h5>
+                      <p className="text-sm text-indigo-700 dark:text-indigo-300">Service principal de communication avec l'IA</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900">
+                      <h5 className="font-semibold text-pink-900 dark:text-pink-100">IAstedVoiceService</h5>
+                      <p className="text-sm text-pink-700 dark:text-pink-300">Gestion de la reconnaissance et synthèse vocale</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-cyan-50 to-cyan-100 dark:from-cyan-950 dark:to-cyan-900">
+                      <h5 className="font-semibold text-cyan-900 dark:text-cyan-100">IAstedStorageService</h5>
+                      <p className="text-sm text-cyan-700 dark:text-cyan-300">Stockage des conversations et artefacts</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3">🗄️ Base de Connaissances :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900">
+                      <h5 className="font-semibold text-emerald-900 dark:text-emerald-100">Conversations</h5>
+                      <p className="text-sm text-emerald-700 dark:text-emerald-300">Historique complet des échanges</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-violet-50 to-violet-100 dark:from-violet-950 dark:to-violet-900">
+                      <h5 className="font-semibold text-violet-900 dark:text-violet-100">Base de Connaissances</h5>
+                      <p className="text-sm text-violet-700 dark:text-violet-300">Enrichissement automatique des données</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900">
+                      <h5 className="font-semibold text-amber-900 dark:text-amber-100">Artefacts</h5>
+                      <p className="text-sm text-amber-700 dark:text-amber-300">Génération de rapports et visualisations</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Interface Utilisateur iAsted */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🎨 Interface Utilisateur d'iAsted</CardTitle>
+              <CardDescription>
+                Design et expérience utilisateur de l'assistant IA
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">🎛️ Contrôles d'Interface :</h4>
+                  <div className="space-y-2">
+                    {[
+                      { feature: 'Bouton Flottant', desc: 'Accès rapide depuis n\'importe quelle page' },
+                      { feature: 'Simple Clic', desc: 'Ouvre le mode texte avec message de bienvenue' },
+                      { feature: 'Double Clic', desc: 'Lance directement le mode vocal' },
+                      { feature: 'Interface Chat', desc: 'Fenêtre flottante avec historique des messages' },
+                      { feature: 'Indicateurs Visuels', desc: 'États d\'écoute, de traitement et de synthèse' },
+                      { feature: 'Contrôles Audio', desc: 'Lecture des réponses vocales avec contrôles' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-3 p-2 rounded border">
+                        <div className="w-2 h-2 rounded-full bg-primary"></div>
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">{item.feature}</div>
+                          <div className="text-xs text-muted-foreground">{item.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3">🎨 Design et UX :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                      <h5 className="font-semibold text-purple-900 dark:text-purple-100">Thème Présidentiel</h5>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">Design élégant avec dégradés violet-bleu</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                      <h5 className="font-semibold text-blue-900 dark:text-blue-100">Responsive Design</h5>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">Adaptation automatique mobile/desktop</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                      <h5 className="font-semibold text-green-900 dark:text-green-100">Accessibilité</h5>
+                      <p className="text-sm text-green-700 dark:text-green-300">Support clavier et lecteurs d'écran</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Flux de Données iAsted */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🔄 Flux de Données et Traitement</CardTitle>
+              <CardDescription>
+                Processus de traitement des requêtes et génération de réponses
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <h4 className="font-semibold mb-3">📊 Processus de Traitement :</h4>
+                <div className="space-y-2">
+                  {[
+                    { step: '1', label: 'Réception', desc: 'Capture de la requête utilisateur (texte ou vocal)', icon: '📥' },
+                    { step: '2', label: 'Transcription', desc: 'Conversion audio en texte (si mode vocal)', icon: '🎙️' },
+                    { step: '3', label: 'Contexte', desc: 'Récupération du contexte présidentiel et historique', icon: '🧠' },
+                    { step: '4', label: 'Traitement IA', desc: 'Analyse par Lovable AI (Google Gemini)', icon: '⚡' },
+                    { step: '5', label: 'Enrichissement', desc: 'Ajout de données spécifiques au cas', icon: '📈' },
+                    { step: '6', label: 'Génération', desc: 'Création de la réponse personnalisée', icon: '✨' },
+                    { step: '7', label: 'Synthèse', desc: 'Conversion texte en audio (si mode vocal)', icon: '🔊' },
+                    { step: '8', label: 'Stockage', desc: 'Sauvegarde conversation et enrichissement base', icon: '💾' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center text-sm font-bold">
+                        {item.step}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{item.icon}</span>
+                          <div className="font-medium text-sm">{item.label}</div>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">{item.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="database" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>🗄️ Schéma Base de Données</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
                   <Shield className="h-5 w-5 text-orange-500" />

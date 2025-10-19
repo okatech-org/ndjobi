@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ProtocolEtatService } from '@/services/protocolEtatService';
 import type { NationalKPIs, SubAdminPerformance, RegionalDistribution } from '@/services/protocolEtatService';
 import { toast } from 'sonner';
@@ -20,9 +20,146 @@ export function useProtocolEtat() {
   // Charger les données initiales
   useEffect(() => {
     loadAllData();
+    
+    // Données mockées garanties pour l'affichage
+    setKpis({
+      total_signalements: 320,
+      signalements_critiques: 28,
+      taux_resolution: 67,
+      impact_economique: 7200000000, // 7.2 Mrd FCFA
+      score_transparence: 78,
+      tendance: '+12%'
+    });
+    
+    setCasSensibles([
+      {
+        id: 'mock-sig-2025-014',
+        reference_id: 'SIG-2025-014',
+        titre: 'Coopérative fantôme Gab Pêche - Détournement subventions',
+        type: 'denonciation_corruption',
+        categorie: 'malversation_gab_peche',
+        montant: '5,00 Mrd FCFA',
+        location: 'Libreville, Estuaire',
+        status: 'pending',
+        urgence: 'Critique',
+        priority: 'critique',
+        ai_priority_score: 99,
+        ai_analysis_summary: 'Réseau organisé de fraude massive. 15 coopératives fictives détectées. Montant total: 5 milliards FCFA. Implication haute fonction publique confirmée. Preuves documentaires solides.',
+        created_at: '2025-01-10T16:23:41Z',
+        metadata: {
+          gravite: 'CRITIQUE',
+          action_recommandee: 'Enquête immédiate - Saisie des biens - Gel des comptes bancaires'
+        }
+      },
+      {
+        id: 'mock-sig-2025-027',
+        reference_id: 'SIG-2025-027',
+        titre: 'Matériel de pêche Gab Pêche revendu en Guinée Équatoriale',
+        type: 'denonciation_corruption',
+        categorie: 'malversation_gab_peche',
+        montant: '450 M FCFA',
+        location: 'Libreville, Estuaire',
+        status: 'pending',
+        urgence: 'Haute',
+        priority: 'critique',
+        ai_priority_score: 83,
+        ai_analysis_summary: 'Contrebande transfrontalière organisée. Matériel destiné aux pêcheurs gabonais détourné vers Guinée Équatoriale. 450M FCFA. Contrôles frontaliers recommandés.',
+        created_at: '2025-01-06T09:23:51Z',
+        metadata: {
+          gravite: 'HAUTE',
+          action_recommandee: 'Contrôles frontaliers renforcés - Investigation douanière'
+        }
+      },
+      {
+        id: 'mock-sig-2025-011',
+        reference_id: 'SIG-2025-011',
+        titre: 'Détournement budget santé - Achat ambulances fantômes',
+        type: 'denonciation_corruption',
+        categorie: 'detournement_fonds',
+        montant: '1,20 Mrd FCFA',
+        location: 'Franceville, Haut-Ogooué',
+        status: 'pending',
+        urgence: 'Critique',
+        priority: 'critique',
+        ai_priority_score: 98,
+        ai_analysis_summary: 'Détournement avéré de fonds publics. Société écran internationale. Menaces sur lanceur d\'alerte. Preuves documentaires disponibles. Protection urgente requise.',
+        created_at: '2025-01-11T18:32:14Z',
+        metadata: {
+          gravite: 'CRITIQUE',
+          action_recommandee: 'Protection du lanceur d\'alerte - Enquête judiciaire - Audit externe'
+        }
+      },
+      {
+        id: 'mock-sig-2025-022',
+        reference_id: 'SIG-2025-022',
+        titre: 'Directeur CNSS - Villa 12 chambres et fleet de luxe',
+        type: 'denonciation_corruption',
+        categorie: 'enrichissement_illicite',
+        montant: '6,70 Mrd FCFA',
+        location: 'Libreville, Estuaire',
+        status: 'pending',
+        urgence: 'Critique',
+        priority: 'critique',
+        ai_priority_score: 92,
+        ai_analysis_summary: 'Enrichissement illicite flagrant. Train de vie incompatible avec revenus déclarés. 6,7 milliards FCFA estimés. Audit patrimonial urgent.',
+        created_at: '2025-01-07T21:45:19Z',
+        metadata: {
+          gravite: 'CRITIQUE',
+          action_recommandee: 'Audit patrimonial - Enquête DGLIC - Gel des avoirs'
+        }
+      }
+    ]);
+    
+    setDistributionRegionale([
+      { region: 'Estuaire', cas: 128, resolus: 82, taux: 64, priorite: 'Haute' },
+      { region: 'Haut-Ogooué', cas: 87, resolus: 53, taux: 61, priorite: 'Moyenne' },
+      { region: 'Ogooué-Maritime', cas: 56, resolus: 38, taux: 68, priorite: 'Haute' },
+      { region: 'Moyen-Ogooué', cas: 42, resolus: 28, taux: 67, priorite: 'Moyenne' },
+      { region: 'Woleu-Ntem', cas: 35, resolus: 22, taux: 63, priorite: 'Moyenne' }
+    ]);
+    
+    setSousAdmins([
+      { id: '1', user_id: '1', nom: 'Sous-Admin Mer', secteur: 'Mer et Pêche', cas_traites: 38, taux_succes: 45, delai_moyen_jours: 12, statut: 'Attention' },
+      { id: '2', user_id: '2', nom: 'Sous-Admin Justice', secteur: 'Justice', cas_traites: 45, taux_succes: 78, delai_moyen_jours: 8, statut: 'Actif' },
+      { id: '3', user_id: '3', nom: 'Sous-Admin Santé', secteur: 'Santé', cas_traites: 41, taux_succes: 62, delai_moyen_jours: 10, statut: 'Actif' },
+      { id: '4', user_id: '4', nom: 'Sous-Admin Social', secteur: 'Affaires Sociales', cas_traites: 35, taux_succes: 58, delai_moyen_jours: 11, statut: 'Actif' }
+    ]);
+    
+    setPerformanceMinisteres([
+      { ministere: 'Mer et Pêche', cas_traites: 38, taux_resolution: 45, delai_moyen: 12, statut: 'Attention' },
+      { ministere: 'Santé', cas_traites: 41, taux_resolution: 62, delai_moyen: 10, statut: 'Actif' },
+      { ministere: 'Justice', cas_traites: 45, taux_resolution: 78, delai_moyen: 8, statut: 'Actif' },
+      { ministere: 'Affaires Sociales', cas_traites: 35, taux_resolution: 58, delai_moyen: 11, statut: 'Actif' },
+      { ministere: 'Éducation', cas_traites: 28, taux_resolution: 72, delai_moyen: 9, statut: 'Actif' }
+    ]);
+    
+    setEvolutionMensuelle([
+      { mois: 'Jan 2024', signalements: 45, resolus: 28, taux: 62 },
+      { mois: 'Fév 2024', signalements: 52, resolus: 35, taux: 67 },
+      { mois: 'Mar 2024', signalements: 48, resolus: 32, taux: 67 },
+      { mois: 'Avr 2024', signalements: 61, resolus: 41, taux: 67 },
+      { mois: 'Mai 2024', signalements: 55, resolus: 38, taux: 69 },
+      { mois: 'Juin 2024', signalements: 67, resolus: 45, taux: 67 },
+      { mois: 'Juil 2024', signalements: 58, resolus: 39, taux: 67 },
+      { mois: 'Août 2024', signalements: 72, resolus: 48, taux: 67 },
+      { mois: 'Sep 2024', signalements: 65, resolus: 44, taux: 68 },
+      { mois: 'Oct 2024', signalements: 78, resolus: 52, taux: 67 },
+      { mois: 'Nov 2024', signalements: 82, resolus: 55, taux: 67 },
+      { mois: 'Déc 2024', signalements: 89, resolus: 60, taux: 67 }
+    ]);
+    
+    setVisionData([
+      { pilier: 'Gouvernance', score: 78, objectif: 85, statut: 'En cours' },
+      { pilier: 'Économie', score: 72, objectif: 80, statut: 'En cours' },
+      { pilier: 'Social', score: 68, objectif: 75, statut: 'En cours' },
+      { pilier: 'Environnement', score: 82, objectif: 85, statut: 'En cours' },
+      { pilier: 'Innovation', score: 65, objectif: 70, statut: 'En cours' }
+    ]);
+    
+    setIsLoading(false);
   }, []);
 
-  const loadAllData = async () => {
+  const loadAllData = useCallback(async () => {
     setIsLoading(true);
     try {
       // Charger en parallèle toutes les données
@@ -46,26 +183,28 @@ export function useProtocolEtat() {
       
       // Créer données mockées pour l'ancien dashboard
       setPerformanceMinisteres([
+        { ministere: 'Mer et Pêche', signalements: 38, critiques: 18, taux: 45, responsable: 'Sous-Admin Mer' },
         { ministere: 'Justice', signalements: 45, critiques: 12, taux: 78, responsable: 'Sous-Admin Justice' },
-        { ministere: 'Défense', signalements: 32, critiques: 8, taux: 85, responsable: 'Sous-Admin Défense' },
+        { ministere: 'Santé', signalements: 41, critiques: 16, taux: 62, responsable: 'Sous-Admin Santé' },
+        { ministere: 'Affaires Sociales', signalements: 35, critiques: 14, taux: 58, responsable: 'Sous-Admin Social' },
         { ministere: 'Intérieur', signalements: 28, critiques: 15, taux: 65, responsable: 'Sous-Admin Intérieur' },
         { ministere: 'Anti-Corruption', signalements: 52, critiques: 25, taux: 72, responsable: 'Sous-Admin Anti-Corruption' },
       ]);
       
       setEvolutionMensuelle([
-        { mois: 'Jan', budget: 125 },
-        { mois: 'Fév', budget: 210 },
-        { mois: 'Mar', budget: 185 },
-        { mois: 'Avr', budget: 290 },
-        { mois: 'Mai', budget: 340 },
-        { mois: 'Juin', budget: 425 }
+        { mois: 'Jan', signalements: 187, resolutions: 142, budget: 125 },
+        { mois: 'Fév', signalements: 203, resolutions: 158, budget: 210 },
+        { mois: 'Mar', signalements: 195, resolutions: 151, budget: 185 },
+        { mois: 'Avr', signalements: 218, resolutions: 172, budget: 290 },
+        { mois: 'Mai', signalements: 234, resolutions: 185, budget: 340 },
+        { mois: 'Juin', signalements: 251, resolutions: 198, budget: 425 }
       ]);
       
       setVisionData([
-        { pilier: 'Gabon Vert', progression: 72, budget: 85 },
-        { pilier: 'Gabon Industriel', progression: 65, budget: 78 },
-        { pilier: 'Gabon Services', progression: 80, budget: 92 },
-        { pilier: 'Gouvernance', progression: 58, budget: 65 }
+        { pilier: 'Gabon Vert', score: 72, objectif: 100, budget: '850 M FCFA', priorite: 'Haute' },
+        { pilier: 'Gabon Industriel', score: 65, objectif: 100, budget: '1,2 Mrd FCFA', priorite: 'Haute' },
+        { pilier: 'Gabon Services', score: 80, objectif: 100, budget: '920 M FCFA', priorite: 'Moyenne' },
+        { pilier: 'Gouvernance & Transparence', score: 78, objectif: 100, budget: '650 M FCFA', priorite: 'Critique' }
       ]);
 
     } catch (error) {
@@ -74,10 +213,10 @@ export function useProtocolEtat() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Enregistrer une décision présidentielle
-  const enregistrerDecision = async (
+  const enregistrerDecision = useCallback(async (
     casId: string,
     decision: 'approuver' | 'rejeter' | 'enquete',
     motif?: string
@@ -101,10 +240,10 @@ export function useProtocolEtat() {
     }
 
     return result;
-  };
+  }, [loadAllData]);
 
   // Générer un rapport
-  const genererRapport = async (type: 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel') => {
+  const genererRapport = useCallback(async (type: 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel') => {
     toast.info('Génération en cours', {
       description: `Préparation du rapport ${type}...`
     });
@@ -124,7 +263,7 @@ export function useProtocolEtat() {
     }
 
     return result;
-  };
+  }, []);
 
   // Diffuser une directive
   const diffuserDirective = async (

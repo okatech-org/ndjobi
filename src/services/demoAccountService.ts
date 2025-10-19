@@ -95,6 +95,14 @@ class DemoAccountService {
       label: 'Citoyen Anonyme',
       fullName: 'Citoyen Anonyme',
       phone: '+24177888009'
+    },
+    {
+      email: '24177888010@ndjobi.com',
+      password: '000000',
+      role: 'agent',
+      label: 'Agent Pêche',
+      fullName: 'Agent Pêche',
+      phone: '+24177888010'
     }
   ];
 

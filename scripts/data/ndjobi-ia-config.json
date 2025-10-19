@@ -1,0 +1,220 @@
+{
+  "metadata": {
+    "config_name": "NDJOBI AI Configuration",
+    "version": "2.0",
+    "generated_date": "2025-01-19",
+    "ai_providers": ["OpenAI GPT-4", "Anthropic Claude", "Google Gemini"]
+  },
+  
+  "chatbot_system_prompts": {
+    "citoyen_signalement": {
+      "role": "assistant",
+      "name": "Assistant NDJOBI",
+      "persona": "assistant bienveillant et professionnel de lutte anticorruption",
+      "language": "fr-GA",
+      "tone": "empathique, rassurant, confidentiel",
+      "system_prompt": "Tu es l'assistant virtuel NDJOBI, la plateforme nationale gabonaise de lutte contre la corruption. Ta mission est d'aider les citoyens à signaler des faits de corruption de manière claire, complète et sécurisée.\n\nPrincipes clés:\n1. CONFIDENTIALITÉ: Rappelle toujours que l'anonymat est garanti\n2. EMPATHIE: Montre de la compréhension face aux situations difficiles\n3. PRÉCISION: Guide pour obtenir des informations détaillées (qui, quoi, où, quand, combien, preuves)\n4. SÉCURITÉ: Rassure sur la protection des dénonciateurs\n5. SIMPLICITÉ: Utilise un langage clair, adapté au contexte gabonais\n\nQuestions à poser systématiquement:\n- Nature exacte des faits (détournement, pot-de-vin, enrichissement illicite, etc.)\n- Personnes impliquées (fonctions, pas forcément noms)\n- Lieu précis (ville, quartier, institution)\n- Date ou période des faits\n- Montants impliqués (si applicable)\n- Preuves disponibles (documents, photos, témoins)\n- Ministère ou organisme concerné\n\nContexte gabonais à connaître:\n- Projet Gab Pêche et ses enjeux\n- Ministères: Mer et Pêche, Intérieur, Justice, Économie, Santé, Éducation, etc.\n- Régions: Estuaire, Haut-Ogooué, Ogooué-Maritime, Woleu-Ntem, etc.\n- Villes principales: Libreville, Port-Gentil, Franceville, Oyem, etc.\n\nTu ne dois JAMAIS:\n- Juger ou critiquer le dénonciateur\n- Minimiser la gravité des faits\n- Demander l'identité si la personne souhaite rester anonyme\n- Promettre des résultats spécifiques\n- Divulguer des informations sur d'autres cas"
+    },
+    
+    "analyse_preliminaire": {
+      "role": "system",
+      "name": "Analyseur NDJOBI",
+      "system_prompt": "Tu es un système d'analyse automatisée des signalements anticorruption pour NDJOBI (Gabon).\n\nTâches à effectuer pour chaque signalement:\n\n1. EXTRACTION D'INFORMATIONS:\n   - Entités nommées: personnes, lieux, organisations, montants\n   - Dates et périodes\n   - Type de corruption (classification selon taxonomie)\n   - Ministère/organisme concerné\n\n2. CLASSIFICATION:\n   - Catégorie principale: détournement_fonds, enrichissement_illicite, marches_publics, extorsion, malversation_gab_peche, corruption_forces_ordre, autre_corruption\n   - Sous-catégories si applicable\n   - Ministère responsable du traitement\n\n3. ÉVALUATION:\n   - Score de crédibilité (0-100): cohérence du récit, précision des détails, qualité des preuves\n   - Score d'urgence (0-100): gravité, montants, danger immédiat, impact public\n   - Niveau d'urgence: basse, moyenne, haute, critique\n\n4. ANALYSE DE SENTIMENT:\n   - Émotion du dénonciateur: colère, peur, indignation, détresse, etc.\n   - Fiabilité perçue du témoignage\n\n5. RECOMMANDATIONS:\n   - Agent/service à assigner\n   - Actions prioritaires\n   - Preuves complémentaires à collecter\n\nContexte spécifique Gabon:\n- Affaire Gab Pêche (2024-2025): détournement pirogues, surfacturation, exclusion pêcheurs locaux\n- Secteurs sensibles: pêche, marchés publics, douanes, forces de l'ordre\n- Montants en FCFA\n\nFormat de sortie JSON structuré avec tous les champs d'analyse."
+    }
+  },
+  
+  "classification_rules": {
+    "corruption_types": [
+      {
+        "code": "detournement_fonds",
+        "label": "Détournement de fonds publics",
+        "keywords": ["détournement", "détourné", "fonds publics", "budget", "caisse", "argent public"],
+        "ministeres_frequents": ["Économie", "Finances", "Travaux Publics"],
+        "urgence_default": "haute"
+      },
+      {
+        "code": "enrichissement_illicite",
+        "label": "Enrichissement illicite",
+        "keywords": ["enrichissement", "patrimoine inexpliqué", "villa", "véhicules luxe", "comptes offshore"],
+        "ministeres_frequents": ["Justice", "Tous ministères"],
+        "urgence_default": "critique"
+      },
+      {
+        "code": "marches_publics",
+        "label": "Corruption dans marchés publics",
+        "keywords": ["marché public", "appel d'offres", "surfacturation", "commission occulte", "pot-de-vin"],
+        "ministeres_frequents": ["Travaux Publics", "Santé", "Éducation"],
+        "urgence_default": "haute"
+      },
+      {
+        "code": "extorsion",
+        "label": "Extorsion et racket",
+        "keywords": ["racket", "extorsion", "barrage", "police", "payer", "menaces"],
+        "ministeres_frequents": ["Intérieur", "Justice"],
+        "urgence_default": "moyenne"
+      },
+      {
+        "code": "malversation_gab_peche",
+        "label": "Malversations projet Gab Pêche",
+        "keywords": ["Gab Pêche", "pirogues", "pêcheurs", "CAPAL", "mareyeurs", "coopératives"],
+        "ministeres_frequents": ["Mer et Pêche"],
+        "urgence_default": "critique"
+      }
+    ],
+    
+    "ministeres_mapping": {
+      "keywords_to_ministere": {
+        "pêche|pirogues|poissons|pêcheurs|mer|maritime": "Mer et Pêche",
+        "route|pont|infrastructure|travaux|chantier": "Travaux Publics",
+        "hôpital|médicaments|santé|médecin|soins": "Santé",
+        "école|lycée|professeur|éducation|élèves": "Éducation",
+        "police|gendarmerie|barrage|forces de l'ordre": "Intérieur",
+        "tribunal|justice|juge|avocat|procès": "Justice",
+        "budget|finances|trésor|impôts|fiscalité": "Économie et Finances",
+        "pétrole|gaz|énergie|électricité": "Énergie",
+        "douane|frontière|importation|contrebande": "Douanes"
+      }
+    },
+    
+    "urgence_criteria": {
+      "critique": {
+        "conditions": [
+          "montant > 1000000000 FCFA",
+          "mots_cles CONTIENT 'danger immédiat|menace de mort|violence'",
+          "categorie = 'enrichissement_illicite' ET montant > 500000000",
+          "categorie = 'malversation_gab_peche' ET preuves_qualite = 'excellente'",
+          "entites_nommees CONTIENT 'haut fonctionnaire|ministre|directeur général'"
+        ]
+      },
+      "haute": {
+        "conditions": [
+          "montant ENTRE 100000000 ET 1000000000 FCFA",
+          "categorie IN ('detournement_fonds', 'marches_publics')",
+          "preuves_count >= 3",
+          "impact_public = 'élevé'"
+        ]
+      },
+      "moyenne": {
+        "conditions": [
+          "montant < 100000000 FCFA",
+          "categorie IN ('extorsion', 'autre_corruption')",
+          "preuves_count >= 1"
+        ]
+      },
+      "basse": {
+        "conditions": [
+          "type = 'suggestion'",
+          "categorie = 'amelioration_service'",
+          "pas de montant"
+        ]
+      }
+    }
+  },
+  
+  "dispatch_rules": {
+    "assignation_automatique": {
+      "rules": [
+        {
+          "condition": "categorie = 'malversation_gab_peche'",
+          "action": "assigner_agent",
+          "ministere": "Mer et Pêche",
+          "priorite": "immediate",
+          "notification_sous_admin": true
+        },
+        {
+          "condition": "urgence = 'critique' AND montant > 2000000000",
+          "action": "escalade_president",
+          "notification_protocole_etat": true,
+          "validation_requise": true
+        },
+        {
+          "condition": "categorie = 'enrichissement_illicite'",
+          "action": "assigner_agent",
+          "ministere": "Justice",
+          "sous_admin": "DGLIC",
+          "priorite": "haute"
+        },
+        {
+          "condition": "categorie = 'marches_publics'",
+          "action": "assigner_agent",
+          "ministere": "Travaux Publics",
+          "audit_externe": true
+        },
+        {
+          "condition": "categorie = 'extorsion' AND ministere_concerne = 'Intérieur'",
+          "action": "assigner_agent",
+          "ministere": "Intérieur",
+          "sous_admin": "DGR",
+          "enquete_interne": true
+        }
+      ],
+      
+      "load_balancing": {
+        "enabled": true,
+        "strategy": "least_loaded",
+        "max_cas_par_agent": 15,
+        "criteres": ["charge_actuelle", "competences", "localisation"]
+      }
+    }
+  },
+  
+  "nlp_analysis_config": {
+    "models": {
+      "primary": "gpt-4-turbo",
+      "fallback": ["claude-3-opus", "gemini-pro"],
+      "summarization": "gpt-4",
+      "classification": "fine-tuned-model-v1"
+    },
+    
+    "extraction_entities": {
+      "types": [
+        "PERSON",
+        "ORGANIZATION",
+        "LOCATION",
+        "DATE",
+        "MONEY",
+        "PHONE",
+        "EMAIL"
+      ],
+      "custom_entities": [
+        "MINISTERE_GABON",
+        "VILLE_GABON",
+        "REGION_GABON",
+        "FONCTION_PUBLIQUE"
+      ]
+    },
+    
+    "sentiment_analysis": {
+      "enabled": true,
+      "granularity": "sentence_level",
+      "emotions": ["colere", "peur", "indignation", "detresse", "espoir", "resignation"]
+    }
+  },
+  
+  "ocr_audio_config": {
+    "ocr": {
+      "engine": "tesseract-5.0",
+      "languages": ["fra", "eng"],
+      "preprocessing": ["deskew", "denoise", "contrast_enhancement"]
+    },
+    
+    "audio_transcription": {
+      "engine": "whisper-large-v3",
+      "language": "fr",
+      "detect_speakers": true,
+      "punctuation": true
+    }
+  },
+  
+  "templates_reponses": {
+    "confirmation_reception": {
+      "anonyme": "Votre signalement a été reçu avec succès. Référence: {reference_id}\n\nVos informations sont protégées par notre système sécurisé. L'analyse automatique est en cours.\n\n⏱️ Délai moyen de traitement: {delai_moyen} jours\n🔒 Anonymat garanti\n\nNous vous contacterons si des informations complémentaires sont nécessaires.",
+      
+      "identifie": "Bonjour {prenom},\n\nVotre signalement a été enregistré avec succès. Référence: {reference_id}\n\nVous pouvez suivre l'avancement de votre dossier dans votre espace personnel NDJOBI.\n\n⏱️ Délai estimé: {delai_estime} jours\n👤 Agent assigné: {agent_nom} ({agent_fonction})\n📧 Vous recevrez des notifications par email\n\nMerci de votre engagement citoyen pour la transparence."
+    },
+    
+    "assignation_agent": "Nouveau signalement assigné:\n\n📋 Référence: {reference_id}\n⚠️ Urgence: {urgence}\n📍 Lieu: {ville}, {region}\n💰 Montant: {montant}\n\n🔍 Preuves disponibles: {preuves_count}\n📅 Échéance: {date_echeance}\n\nConsultez le dossier complet sur votre dashboard NDJOBI.",
+    
+    "validation_president": "Cas critique nécessitant validation présidentielle:\n\n📋 {reference_id}\n🚨 {titre}\n💰 Montant: {montant}\n🏛️ Ministère: {ministere}\n\n🤖 Score IA: {score_ia}%\n💡 Recommandation: {recommandation}\n\nConsultez le Protocole d'État pour décision."
+  }
+}

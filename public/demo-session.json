@@ -1,0 +1,19 @@
+{
+  "user": {
+    "id": "demo-admin-001",
+    "email": "24177888001@ndjobi.com",
+    "phone": "+24177888001",
+    "full_name": "Président de la République",
+    "role": "super_admin",
+    "fonction": "Président / Administrateur",
+    "organisation": "Présidence de la République"
+  },
+  "session": {
+    "access_token": "demo-token-12345",
+    "refresh_token": "demo-refresh-67890",
+    "expires_at": 1760978809320,
+    "created_at": "2025-10-19T16:46:49.320Z"
+  },
+  "demo": true,
+  "message": "Mode démo activé - Accès temporaire au dashboard admin"
+}

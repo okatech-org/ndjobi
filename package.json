@@ -29,7 +29,11 @@
     "clean": "rm -rf node_modules/.vite .vite dist coverage",
     "fresh": "rm -rf node_modules/.vite .vite dist && bun install && vite",
     "blockchain:compile": "hardhat compile",
-    "blockchain:deploy": "hardhat run scripts/deploy.ts"
+    "blockchain:deploy": "hardhat run scripts/deploy.ts",
+    "simulation:check": "ts-node scripts/quick-import-check.ts",
+    "simulation:import": "node scripts/import-simulation-data.js",
+    "simulation:verify": "node scripts/verify-simulation-data.js",
+    "simulation:diagnostic": "node scripts/diagnostic-simulation.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",

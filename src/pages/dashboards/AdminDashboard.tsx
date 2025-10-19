@@ -73,6 +73,7 @@ export default function AdminDashboard() {
     return () => {
       unsubscribeNotifications();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, role]);
 
   const handleValiderCas = async (casId: string, decision: 'approuver' | 'rejeter' | 'enquete') => {
@@ -777,7 +778,7 @@ export default function AdminDashboard() {
                 variant="outline" 
                 size="sm"
                 className="w-full glass-effect border-none text-[10px] md:text-sm h-7 md:h-9"
-                onClick={() => handleGenererRapport(rapport.type as any)}
+                onClick={() => handleGenererRapport(rapport.type as 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel')}
               >
                 <Download className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                 Générer PDF
