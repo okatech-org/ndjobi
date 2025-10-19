@@ -962,8 +962,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         ))}
-        </div>
-      )}
+          </div>
 
       <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-success))]/10 to-transparent">
         <Target className="h-4 w-4 text-[hsl(var(--accent-success))]" />
