@@ -51,6 +51,8 @@ export default function AdminDashboard() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<any>(null);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
+  const [adminHistory, setAdminHistory] = useState<any[]>([]);
+  const [adminCases, setAdminCases] = useState<any[]>([]);
   
   // États pour le formulaire de nomination
   const [nomForm, setNomForm] = useState({
@@ -179,9 +181,125 @@ export default function AdminDashboard() {
   };
 
   // Fonction pour voir les détails d'un admin
-  const handleVoirDetails = (admin: any) => {
+  const handleVoirDetails = async (admin: any) => {
     setSelectedAdmin(admin);
-    setIsDetailsModalOpen(true);
+    setIsLoadingAction(true);
+    
+    try {
+      // Charger l'historique et les cas spécifiques à l'admin
+      if (admin.nom === 'Agent Pêche') {
+        // Données spécifiques pour l'Agent Pêche liées au cas Pêche-Gab
+        setAdminHistory([
+          {
+            id: 1,
+            date: '2025-01-15',
+            action: 'Signalement reçu',
+            description: 'Nouveau signalement Pêche-Gab - Coopératives fantômes',
+            status: 'En cours',
+            montant: '5 000 000 000 FCFA'
+          },
+          {
+            id: 2,
+            date: '2025-01-14',
+            action: 'Enquête lancée',
+            description: 'Investigation sur les activités de pêche illégales',
+            status: 'Résolu',
+            montant: '2 500 000 000 FCFA'
+          },
+          {
+            id: 3,
+            date: '2025-01-12',
+            action: 'Surveillance renforcée',
+            description: 'Contrôle des navires de pêche dans la zone économique',
+            status: 'En cours',
+            montant: '1 200 000 000 FCFA'
+          },
+          {
+            id: 4,
+            date: '2025-01-10',
+            action: 'Rapport mensuel',
+            description: 'Bilan des activités de surveillance maritime',
+            status: 'Terminé',
+            montant: '0 FCFA'
+          }
+        ]);
+
+        setAdminCases([
+          {
+            id: 'SIG-2025-014',
+            titre: 'Coopératives fantômes - Pêche-Gab',
+            description: 'Détection de 12 coopératives de pêche fictives',
+            montant: '5 000 000 000 FCFA',
+            statut: 'En cours',
+            priorite: 'Critique',
+            dateCreation: '2025-01-15',
+            secteur: 'Pêche maritime',
+            localisation: 'Port-Gentil, Ogooué-Maritime'
+          },
+          {
+            id: 'SIG-2025-008',
+            titre: 'Pêche illégale - Zone économique',
+            description: 'Activités de pêche non autorisées détectées',
+            montant: '2 500 000 000 FCFA',
+            statut: 'Résolu',
+            priorite: 'Haute',
+            dateCreation: '2025-01-14',
+            secteur: 'Surveillance maritime',
+            localisation: 'Cap Lopez, Ogooué-Maritime'
+          },
+          {
+            id: 'SIG-2025-005',
+            titre: 'Contrôle navires étrangers',
+            description: 'Vérification des licences de pêche internationales',
+            montant: '1 200 000 000 FCFA',
+            statut: 'En cours',
+            priorite: 'Moyenne',
+            dateCreation: '2025-01-12',
+            secteur: 'Contrôle maritime',
+            localisation: 'Mayumba, Nyanga'
+          }
+        ]);
+      } else {
+        // Données génériques pour les autres agents
+        setAdminHistory([
+          {
+            id: 1,
+            date: '2025-01-15',
+            action: 'Signalement traité',
+            description: 'Nouveau cas d\'enquête sectorielle',
+            status: 'En cours',
+            montant: '500 000 000 FCFA'
+          },
+          {
+            id: 2,
+            date: '2025-01-14',
+            action: 'Rapport généré',
+            description: 'Bilan hebdomadaire des activités',
+            status: 'Terminé',
+            montant: '0 FCFA'
+          }
+        ]);
+
+        setAdminCases([
+          {
+            id: 'SIG-2025-XXX',
+            titre: 'Cas sectoriel',
+            description: 'Enquête en cours dans le secteur',
+            montant: '500 000 000 FCFA',
+            statut: 'En cours',
+            priorite: 'Moyenne',
+            dateCreation: '2025-01-15',
+            secteur: admin.organization,
+            localisation: 'Gabon'
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des détails:', error);
+    } finally {
+      setIsLoadingAction(false);
+      setIsDetailsModalOpen(true);
+    }
   };
 
   // Fonction pour générer le rapport d'un admin
@@ -1226,6 +1344,102 @@ export default function AdminDashboard() {
                           <Shield className="h-3 w-3 mr-1" />
                           {privilege}
                         </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Cas en cours - Spécifique à l'Agent Pêche */}
+              {selectedAdmin.nom === 'Agent Pêche' && adminCases.length > 0 && (
+                <Card className="glass-effect border-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Package className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                      Cas Pêche-Gab en cours
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {adminCases.slice(0, 2).map((cas: any) => (
+                      <div key={cas.id} className="border border-muted/20 rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {cas.id}
+                            </Badge>
+                            <Badge className={`text-xs ${
+                              cas.priorite === 'Critique' ? 'bg-red-500/20 text-red-500' :
+                              cas.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500' :
+                              'bg-blue-500/20 text-blue-500'
+                            }`}>
+                              {cas.priorite}
+                            </Badge>
+                          </div>
+                          <Badge className={`text-xs ${
+                            cas.statut === 'En cours' ? 'bg-yellow-500/20 text-yellow-500' :
+                            cas.statut === 'Résolu' ? 'bg-green-500/20 text-green-500' :
+                            'bg-gray-500/20 text-gray-500'
+                          }`}>
+                            {cas.statut}
+                          </Badge>
+                        </div>
+                        <div className="text-sm font-medium">{cas.titre}</div>
+                        <div className="text-xs text-muted-foreground">{cas.description}</div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[hsl(var(--accent-success))] font-medium">
+                            {cas.montant}
+                          </span>
+                          <span className="text-muted-foreground">{cas.localisation}</span>
+                        </div>
+                      </div>
+                    ))}
+                    {adminCases.length > 2 && (
+                      <div className="text-center">
+                        <Button variant="ghost" size="sm" className="text-xs">
+                          Voir {adminCases.length - 2} autres cas
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Historique des activités */}
+              {adminHistory.length > 0 && (
+                <Card className="glass-effect border-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                      Historique des activités récentes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {adminHistory.slice(0, 4).map((activity: any) => (
+                        <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg border border-muted/10">
+                          <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent-intel))] mt-2 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">{activity.action}</span>
+                              <span className="text-xs text-muted-foreground">{activity.date}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">{activity.description}</div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge className={`text-xs ${
+                                activity.status === 'En cours' ? 'bg-yellow-500/20 text-yellow-500' :
+                                activity.status === 'Résolu' ? 'bg-green-500/20 text-green-500' :
+                                'bg-gray-500/20 text-gray-500'
+                              }`}>
+                                {activity.status}
+                              </Badge>
+                              {activity.montant !== '0 FCFA' && (
+                                <span className="text-xs text-[hsl(var(--accent-success))] font-medium">
+                                  {activity.montant}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </CardContent>
