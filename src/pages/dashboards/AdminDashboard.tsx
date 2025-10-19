@@ -424,8 +424,8 @@ export default function AdminDashboard() {
     setIsRapportModalOpen(true);
   };
 
-  // Fonction pour générer le rapport
-  const handleGenererRapport = async () => {
+  // Fonction pour générer le rapport institution/cas
+  const handleGenererRapportInstitution = async () => {
     setIsLoadingAction(true);
     try {
       // Simulation de génération de rapport
@@ -2039,7 +2039,7 @@ export default function AdminDashboard() {
               Annuler
             </Button>
             <Button
-              onClick={handleGenererRapport}
+              onClick={handleGenererRapportInstitution}
               disabled={isLoadingAction}
               className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
             >
