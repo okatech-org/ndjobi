@@ -754,72 +754,64 @@ export default function AdminDashboard() {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-background">
         {/* Sidebar */}
         <AdminSidebar />
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col w-full">
-          <Header />
-          
-          {/* En-tête du dashboard avec contrôle sidebar */}
-          <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 sticky top-16 z-30">
-            <div className="container py-3 md:py-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="flex items-center gap-3">
-                  {/* Bouton menu mobile */}
-                  <SidebarTrigger className="lg:hidden">
-                    <Button variant="outline" size="sm">
-                      <Menu className="h-4 w-4" />
-                    </Button>
-                  </SidebarTrigger>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                      <Crown className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                    </div>
-                    <div>
-                      <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
-                        Protocole d'État
-                        <Badge variant="default" className="text-xs">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Admin
-                        </Badge>
-                      </h1>
-                      <p className="text-muted-foreground text-xs hidden sm:block">
-                        Interface de Commandement National
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          {/* En-tête moderne et épuré */}
+          <header className="h-16 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
+            <div className="h-full px-4 md:px-6 flex items-center justify-between">
+              {/* Gauche: Titre et badge */}
+              <div className="flex items-center gap-3">
+                {/* Bouton menu mobile */}
+                <SidebarTrigger className="lg:hidden">
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SidebarTrigger>
                 
-                <div className="hidden md:flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-xs text-muted-foreground">Gabon - Deuxième République</div>
-                    <div className="text-xs font-medium">Vision 2025</div>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                    <Crown className="h-5 w-5 text-primary" />
                   </div>
+                  <div className="hidden md:block">
+                    <h1 className="text-base font-bold flex items-center gap-2">
+                      PROTOCOLE D'ÉTAT
+                    </h1>
+                    <p className="text-[10px] text-muted-foreground">
+                      Bonne gouvernance
+                    </p>
+                  </div>
+                  <Badge variant="default" className="text-[10px] px-2 py-0.5">
+                    <Shield className="h-2.5 w-2.5 mr-1" />
+                    Admin
+                  </Badge>
+                </div>
+              </div>
+              
+              {/* Droite: Actions et infos */}
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2">
+                  <Activity className="h-4 w-4" />
+                  <span className="text-xs">Nous Contacter</span>
+                </Button>
+                
+                <div className="h-8 w-px bg-border hidden md:block" />
+                
+                <div className="hidden lg:flex items-center gap-2 text-xs">
+                  <Badge variant="outline" className="text-[10px] px-2">
+                    Gabon - Vision 2025
+                  </Badge>
                 </div>
               </div>
             </div>
-          </div>
+          </header>
 
           {/* Contenu principal avec scroll */}
-          <main className="flex-1 overflow-y-auto">
-            <div className="container py-4 md:py-6">
-              {/* Indicateur de vue actuelle - mobile */}
-              <div className="mb-4 md:hidden">
-                <Badge variant="outline" className="text-xs">
-                  {activeView === 'dashboard' && 'Vue d\'ensemble'}
-                  {activeView === 'cas-sensibles' && 'Cas Sensibles'}
-                  {activeView === 'agents' && 'Performance Agents'}
-                  {activeView === 'regional' && 'Distribution Régionale'}
-                  {activeView === 'ministeres' && 'Ministères'}
-                  {activeView === 'iasted' && 'iAsted AI'}
-                  {activeView === 'xr7' && 'Module XR-7'}
-                  {activeView === 'rapports' && 'Rapports'}
-                </Badge>
-              </div>
-
+          <main className="flex-1 overflow-y-auto bg-muted/30">
+            <div className="container py-6 md:py-8 space-y-6">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
@@ -828,45 +820,11 @@ export default function AdminDashboard() {
               {activeView === 'rapports' && renderRapportsStrategiques()}
               {activeView === 'xr7' && <ModuleXR7 />}
               {activeView === 'iasted' && <IAstedChat isOpen={true} />}
-              
-              {/* Vues supplémentaires basées sur les items de la sidebar */}
-              {activeView === 'cas-sensibles' && renderValidation()}
-              {activeView === 'agents' && renderGestionSousAdmins()}
-              {activeView === 'regional' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold">Distribution Régionale</h2>
-                  {renderDashboardGlobal()}
-                </div>
-              )}
-              {activeView === 'ministeres' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold">Performance des Ministères</h2>
-                  {renderDashboardGlobal()}
-                </div>
-              )}
             </div>
           </main>
           
           {/* Bouton flottant iAsted - masqué si vue iasted active */}
           {activeView !== 'iasted' && <IAstedFloatingButton />}
-
-          {/* Footer */}
-          <div className="border-t mt-auto">
-            <div className="container py-4">
-              <div className="flex items-center justify-between text-xs text-muted-foreground flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-3.5 w-3.5" />
-                  <span>PROTOCOLE D'ÉTAT</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span>Système Opérationnel</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <Footer />
         </div>
       </div>
     </SidebarProvider>
