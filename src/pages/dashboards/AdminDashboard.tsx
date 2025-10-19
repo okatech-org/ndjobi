@@ -755,7 +755,7 @@ export default function AdminDashboard() {
             </div>
               </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
         {[
           { type: 'executif', titre: 'Rapport Exécutif', icon: Crown, desc: 'Synthèse présidentielle', color: 'purple' },
           { type: 'hebdomadaire', titre: 'Rapport Hebdo', icon: Calendar, desc: 'Évolution 7 jours', color: 'intel' },
@@ -763,22 +763,22 @@ export default function AdminDashboard() {
           { type: 'annuel', titre: 'Rapport Annuel', icon: TrendingUp, desc: 'Vision 2025', color: 'warning' }
         ].map((rapport, idx) => (
           <Card key={idx} className="glass-effect border-none cursor-pointer transition-all hover:translate-y-[-4px] relative overflow-hidden group">
-            <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-${rapport.color === 'intel' ? '[hsl(var(--accent-intel))]' : rapport.color === 'success' ? '[hsl(var(--accent-success))]' : rapport.color === 'warning' ? '[hsl(var(--accent-warning))]' : 'purple-500'} to-transparent`} />
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <rapport.icon className="h-5 w-5" />
-                {rapport.titre}
+            <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-${rapport.color === 'intel' ? '[hsl(var(--accent-intel))]' : rapport.color === 'success' ? '[hsl(var(--accent-success))]' : rapport.color === 'warning' ? '[hsl(var(--accent-warning))]' : 'purple-500'} to-transparent`} />
+            <CardHeader className="pb-2 md:pb-3 pt-2 md:pt-6 px-3 md:px-6">
+              <CardTitle className="text-xs md:text-base flex items-center gap-1.5 md:gap-2">
+                <rapport.icon className="h-3 w-3 md:h-5 md:w-5 flex-shrink-0" />
+                <span className="truncate">{rapport.titre}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">{rapport.desc}</p>
+            <CardContent className="pb-3 md:pb-6 px-3 md:px-6">
+              <p className="text-[10px] md:text-sm text-muted-foreground mb-2 md:mb-4 truncate">{rapport.desc}</p>
               <Button 
                 variant="outline" 
                 size="sm"
-                className="w-full glass-effect border-none"
+                className="w-full glass-effect border-none text-[10px] md:text-sm h-7 md:h-9"
                 onClick={() => handleGenererRapport(rapport.type as any)}
               >
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                 Générer PDF
               </Button>
             </CardContent>
