@@ -150,12 +150,14 @@ export function AdminSidebar() {
       if (result.success) {
         toast({
           title: "Retour réussi",
-          description: "Vous êtes maintenant déconnecté. Veuillez vous reconnecter en tant que Super Admin.",
+          description: "Vous êtes de retour dans le compte Protocole d'État",
         });
 
+        // Rediriger vers le dashboard Super Admin
         setTimeout(() => {
-          navigate('/auth', { replace: true });
-        }, 1000);
+          navigate('/dashboard/admin', { replace: true });
+          window.location.reload();
+        }, 500);
       } else {
         throw new Error(result.error || 'Erreur de retour');
       }

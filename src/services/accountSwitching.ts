@@ -127,6 +127,7 @@ class AccountSwitchingService {
 
   // Retourner au compte Super Admin original
   public async switchBackToOriginal(): Promise<{ success: boolean; error?: string }> {
+    console.log('🔙 [AccountSwitching] Retour au Super Admin...');
     try {
       // Récupérer le compte original depuis le localStorage
       const storedOriginal = localStorage.getItem(this.STORAGE_KEY);
@@ -140,24 +141,35 @@ class AccountSwitchingService {
         return { success: false, error: 'Données du compte original corrompues' };
       }
 
-      console.log('Retour au compte original:', this.originalAccount);
+      console.log('📧 Email Super Admin récupéré:', this.originalAccount.email);
 
-      // Se reconnecter avec le compte original
-      // Note: On ne peut pas utiliser directement le token, il faut se reconnecter
-      // Le Super Admin devra se reconnecter avec ses identifiants
-      
-      // Nettoyer les données PWA du compte démo
+      // Nettoyer les données de la session démo
       userPersistence.clearStoredUser();
+
+      // Recréer la session Super Admin locale
+      if (this.originalAccount.email) {
+        const created = demoAccountService.createLocalSession(this.originalAccount.email);
+        
+        if (!created) {
+          console.error('❌ Échec recréation session Super Admin');
+          return { success: false, error: 'Impossible de recréer la session Super Admin' };
+        }
+        console.log('✅ Session Super Admin recréée');
+      }
       
-      // Nettoyer le stockage du compte original
+      // Nettoyer le marqueur de compte basculé
       localStorage.removeItem(this.STORAGE_KEY);
       this.originalAccount = null;
 
-      console.log('Retour au compte original préparé');
+      // Dispatcher l'événement de changement de session
+      window.dispatchEvent(new Event('ndjobi:demo:session:changed'));
+      console.log('📢 Événement retour Super Admin dispatché');
+
+      console.log('✅ Retour au Super Admin réussi');
       return { success: true };
 
     } catch (error: any) {
-      console.error('Erreur lors du retour au compte original:', error);
+      console.error('💥 Erreur lors du retour au compte original:', error);
       return { success: false, error: error.message || 'Erreur de retour' };
     }
   }
