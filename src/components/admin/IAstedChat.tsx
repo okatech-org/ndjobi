@@ -298,8 +298,7 @@ export const IAstedChat = ({ isOpen = false }: IAstedChatProps) => {
           <Alert className="mt-2 md:mt-4 border-purple-200 bg-purple-50/50 dark:bg-purple-950/20 p-2 md:p-4">
             <Brain className="h-3 w-3 md:h-4 md:w-4 text-purple-600" />
             <AlertDescription className="text-[10px] md:text-sm">
-              <strong>Respect du RBAC :</strong> iAsted adapte automatiquement ses réponses et permissions selon votre rôle {' '}
-              <Badge variant="outline" className="ml-1 capitalize text-[9px] md:text-xs">{role}</Badge>. 
+              <strong>Respect du RBAC :</strong> iAsted adapte automatiquement ses réponses et permissions selon votre rôle. 
               Toutes les conversations sont chiffrées et auditées selon les normes CNPDCP.
             </AlertDescription>
           </Alert>
