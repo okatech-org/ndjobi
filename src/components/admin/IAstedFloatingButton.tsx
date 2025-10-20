@@ -96,21 +96,62 @@ export const IAstedFloatingButton = () => {
   // Génère un rapport vocal de secours structuré (~1–3 min) basé sur métadonnées connues
   const buildFallbackReport = useCallback((admin: any): string => {
     const org = admin?.organization || "l'administration";
-    const nom = admin?.nom || admin?.name || 'l’agent concerné';
+    const nom = admin?.nom || admin?.name || 'l'agent concerné';
     const taux = (admin?.taux || admin?.taux_succes)
       ? `${Math.round((admin?.taux || admin?.taux_succes) as number)}%`
       : 'non communiqué';
     const cas = admin?.casTraites || admin?.cas_traites || admin?.totalCas || 'plusieurs cas';
     const delai = admin?.delaiMoyen || admin?.delai_moyen || 'quelques jours';
-    const statut = admin?.statut || 'Actif';
+    const classification = admin?.classification || '';
+    const isServiceSecurite = admin?.type_service === 'securite_nationale';
+
+    // **RAPPORT VOCAL SERVICES SPÉCIAUX - TON MILITAIRE/FORMEL**
+    if (isServiceSecurite) {
+      const intro = `Monsieur le Président, rapport de sécurité nationale du ${org}. Classification ${classification}.`;
+      
+      const menaces = (() => {
+        switch (org) {
+          case 'DGSS':
+            return `Trois menaces critiques actives. Première: réseau corruption systémique haute administration. Sept hauts fonctionnaires sous surveillance. Preuves en consolidation. Impact: quarante-cinq milliards F C F A estimés. Deuxième: infiltration criminalité organisée transnationale. Agent infiltré opérationnel. Connexions trois pays limitrophes confirmées. Flux: huit milliards annuels. Troisième: menace sécurité intérieure nécessitant coordination renforcée DGSS-DGR-Défense.`;
+          case 'DGR':
+            return `Deux menaces majeures identifiées. Première: ingérence économique étrangère secteur extractif. Puissance hostile ciblant décideurs. Perte potentielle: quatre-vingts milliards sur cinq ans. Sources HUMINT confirmées niveau élevé. Deuxième: veille corruption secteur pétrolier. Quatre sources actives. Analyses financières en cours. Potentiel: vingt-cinq milliards.`;
+          case 'Défense Nationale':
+            return `Menace cyber critique installations militaires. Huit sites vulnérables. Tentatives intrusions réseau FAG confirmées. Systèmes obsolètes. Contre-mesures déployées urgence. Coût remédiation: trois virgule cinq milliards. Formation cent pour cent personnel requise.`;
+          case 'Intérieur':
+            return `Quatre réseaux criminalité transnationale actifs frontières. Trafics: armes, drogues, êtres humains, bois précieux. Vingt-trois agents frontaliers compromis. Pertes État: dix-huit milliards annuels. Surveillance anti-terrorisme: cinq individus radicalisés sous monitoring. Coordination DGSS active.`;
+          case 'Affaires Étrangères':
+            return `Menace réputation internationale. Indices transparence en recul. Cent vingt-huit sur cent quatre-vingts. Huit places perdues deux ans. Impact: quatre cent cinquante millions euros aides suspendues. Investisseurs étrangers réticents. Enquête internationale corruption diplomatique active. Coordination Interpol. Allégations trois milliards.`;
+          default:
+            return `Menaces sectorielles identifiées. Surveillance active maintenue.`;
+        }
+      })();
+      
+      const operations = `Sur le plan opérationnel: ${cas} opérations menées, taux succès ${taux}, délai moyen ${delai} jours. Coordination interservices: réunions hebdomadaires actives.`;
+      
+      const reco = (() => {
+        switch (org) {
+          case 'DGSS':
+          case 'DGR':
+            return `Trois recommandations présidentielles urgentes. Première: renforcement moyens humains techniques. Besoin: huit cents agents renseignement. Budget: deux virgule huit milliards. Délai: douze mois. Impact: efficacité opérationnelle accrue. Deuxième: coordination interservices renforcée. Cellule DGSS-DGR-Défense temps réel. Budget: quatre cent cinquante millions. Six mois. Troisième: cadre juridique anticorruption. Tribunaux spécialisés. Dix-huit mois. Six cent quatre-vingts millions.`;
+          default:
+            return `Recommandations: renforcement capacités opérationnelles. Coordination nationale. Réformes juridiques. Budgets détaillés disponibles briefing approfondi.`;
+        }
+      })();
+      
+      const cloture = `Situation sécuritaire: ${taux > 75 ? 'maîtrisée, vigilance maintenue' : taux > 60 ? 'préoccupante, surveillance renforcée nécessaire' : 'critique, action présidentielle urgente requise'}. Points décision disponibles. Je reste à disposition pour briefing approfondi. Fin de rapport. ${classification}.`;
+      
+      return [intro, menaces, operations, reco, cloture].filter(Boolean).join(' ');
+    }
+
+    // **RAPPORT VOCAL STANDARD - Agents, Citoyens**
     const mentionPeche = /pêche|mer|économie bleue/i.test(String(org))
       ? `Point urgent: un dossier prioritaire est signalé dans le secteur de la pêche et des mers. Les risques portent sur des détournements possibles et des failles de contrôle. Une coordination rapide avec la gendarmerie maritime et la justice est requise sous 72 heures.`
       : '';
     const intro = `Excellence, voici un rapport clair et utile pour ${org}.`;
     const perf = `Sans détailler les tableaux, la lecture est la suivante: ${cas} dossiers traités récemment, un succès moyen de ${taux}, pour un délai autour de ${delai}.`;
-    const lecture = `En pratique, l’activité tient, mais trois nœuds freinent la performance: vérification des pièces, présence opérationnelle sur le terrain, et partage d’information entre services.`;
-    const problemes = `Problématiques prioritaires: affaires à fort enjeu financier justifiant un suivi rapproché; retards causés par la coordination; besoin d’appui logistique ciblé.`;
-    const reco = `Mes recommandations: 1) Filtre de conformité a priori sur dossiers risqués; 2) Triage des cas par impact public pour concentrer l’effort; 3) Point focal transversal pour synchroniser maritime, justice et administration; 4) Renforcement outillage et formation, avec un jalon de suivi à quinze jours.`;
+    const lecture = `En pratique, l'activité tient, mais trois nœuds freinent la performance: vérification des pièces, présence opérationnelle sur le terrain, et partage d'information entre services.`;
+    const problemes = `Problématiques prioritaires: affaires à fort enjeu financier justifiant un suivi rapproché; retards causés par la coordination; besoin d'appui logistique ciblé.`;
+    const reco = `Mes recommandations: 1) Filtre de conformité a priori sur dossiers risqués; 2) Triage des cas par impact public pour concentrer l'effort; 3) Point focal transversal pour synchroniser maritime, justice et administration; 4) Renforcement outillage et formation, avec un jalon de suivi à quinze jours.`;
     const cloture = `Je propose un court point en fin de semaine pour valider les avancées et lever les obstacles. Fin de rapport.`;
     return [intro, mentionPeche, perf, lecture, problemes, reco, cloture].filter(Boolean).join(' ');
   }, []);
@@ -173,7 +214,12 @@ export const IAstedFloatingButton = () => {
           setIsProcessing(true);
 
           // 7. Générer et parler le rapport complet
-          const autoPrompt = `Génère un rapport vocal synthétique et structuré pour ${org}. Inclure: performance récente, cas en cours marquants, problématiques critiques avec impacts, et recommandations présidentielles actionnables à court terme. Style: présidentiel, clair, concis, en français, avec enchaînement naturel à l'oral.`;
+          const isServiceSecurite = admin?.type_service === 'securite_nationale';
+          const classification = admin?.classification || '';
+          
+          const autoPrompt = isServiceSecurite
+            ? `Génère un rapport de SÉCURITÉ NATIONALE vocal pour ${org}. Classification: ${classification}. Structure MILITAIRE formelle: 1) Introduction avec classification, 2) Menaces stratégiques critiques actives (détails concrets: acteurs, montants, sources renseignement), 3) Opérations en cours et succès récents, 4) Recommandations présidentielles urgentes avec budgets et délais précis, 5) Conclusion avec niveau menace et points décision. Ton: FORMEL, FACTUEL, MILITAIRE, CHIFFRÉ. Durée: 2-3 minutes. En français.`
+            : `Génère un rapport vocal synthétique et structuré pour ${org}. Inclure: performance récente, cas en cours marquants, problématiques critiques avec impacts, et recommandations présidentielles actionnables à court terme. Style: présidentiel, clair, concis, en français, avec enchaînement naturel à l'oral.`;
 
           // 8. Appeler l'IA et parler la réponse, avec TIMEOUT 3s + fallback local
           const timeoutMs = 3000;

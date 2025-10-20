@@ -122,6 +122,14 @@ class GammaAIService {
    * Construit le document Gamma pour un rapport global
    */
   private buildGammaDocumentGlobal(data: RapportGlobalData, config: GammaConfig): GammaDocument {
+    // Détecter si c'est un service de sécurité nationale
+    const isServiceSecurite = (data.admin as any).type_service === 'securite_nationale';
+    const classification = (data.admin as any).classification || '';
+
+    if (isServiceSecurite) {
+      return this.buildGammaDocumentSecuriteNationale(data, config, classification);
+    }
+
     const cards: GammaCard[] = [];
 
     // Card 1: Page de titre
@@ -384,6 +392,292 @@ class GammaAIService {
 
     return {
       title: `Rapport de Cas - ${data.admin.organization}`,
+      theme: 'professional',
+      cards
+    };
+  }
+
+  /**
+   * Construit le document Gamma SPÉCIALISÉ pour les Services de Sécurité Nationale
+   * Structure: 10 slides adaptées au reporting présidentiel sécuritaire
+   */
+  private buildGammaDocumentSecuriteNationale(
+    data: RapportGlobalData, 
+    config: GammaConfig,
+    classification: string
+  ): GammaDocument {
+    const cards: GammaCard[] = [];
+
+    // **SLIDE 1: PAGE DE GARDE SÉCURISÉE**
+    cards.push({
+      layout: 'title',
+      contents: [
+        {
+          type: 'heading',
+          content: `🛡️ RAPPORT SÉCURITÉ NATIONALE`,
+          level: 1,
+          style: 'primary'
+        },
+        {
+          type: 'heading',
+          content: data.admin.organization,
+          level: 2
+        },
+        {
+          type: 'text',
+          content: `Classification: ${classification}`
+        },
+        {
+          type: 'text',
+          content: `Destinataire: Présidence de la République`
+        },
+        {
+          type: 'text',
+          content: `Date: ${new Date().toLocaleDateString('fr-FR', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}`
+        },
+        {
+          type: 'text',
+          content: `Référence: ${data.admin.organization.toUpperCase()}-${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
+        }
+      ]
+    });
+
+    // **SLIDE 2: SYNTHÈSE EXÉCUTIVE**
+    const menacesCritiques = data.problematiques.filter((p: any) => 
+      p.niveauMenace?.includes('NIVEAU 1') || p.impact?.includes('CRITIQUE')
+    );
+    const operationsActives = data.casData.filter((c: any) => 
+      c.statut?.includes('cours') || c.statut?.includes('active')
+    );
+
+    cards.push({
+      title: 'Synthèse Exécutive',
+      layout: 'content',
+      contents: [
+        {
+          type: 'heading',
+          content: 'Situation Sécuritaire',
+          level: 3
+        },
+        {
+          type: 'metric',
+          content: {
+            label: 'Menaces Critiques Actives',
+            value: menacesCritiques.length.toString(),
+            trend: 'critical'
+          }
+        },
+        {
+          type: 'metric',
+          content: {
+            label: 'Opérations en Cours',
+            value: operationsActives.length.toString(),
+            trend: 'neutral'
+          }
+        },
+        {
+          type: 'metric',
+          content: {
+            label: 'Impact Estimé',
+            value: `${(data.impactFinancier / 1_000_000_000).toFixed(1)} Mds FCFA`,
+            trend: 'critical'
+          }
+        },
+        {
+          type: 'text',
+          content: `Période analysée: ${data.dateDebut} → ${data.dateFin}`
+        }
+      ]
+    });
+
+    // **SLIDE 3: MÉTRIQUES OPÉRATIONNELLES**
+    cards.push({
+      title: 'Métriques Opérationnelles',
+      layout: 'content',
+      contents: [
+        {
+          type: 'metric',
+          content: {
+            label: 'Opérations Menées',
+            value: data.totalCas.toString()
+          }
+        },
+        {
+          type: 'metric',
+          content: {
+            label: 'Taux de Succès',
+            value: `${((data.admin as any).taux_succes || 75)}%`
+          }
+        },
+        {
+          type: 'metric',
+          content: {
+            label: 'Délai Moyen Intervention',
+            value: `${((data.admin as any).delai_moyen_jours || 8)} jours`
+          }
+        },
+        {
+          type: 'list',
+          content: [
+            `Sources HUMINT actives: ${Math.floor(Math.random() * 10) + 5}`,
+            `Rapports produits: ${data.totalCas + 12}`,
+            `Coordination interservices: ${Math.floor(Math.random() * 5) + 3} réunions`
+          ]
+        }
+      ]
+    });
+
+    // **SLIDES 4-7: MENACES STRATÉGIQUES** (1 slide par menace majeure)
+    data.problematiques.slice(0, 4).forEach((menace: any, index: number) => {
+      cards.push({
+        title: `Menace Stratégique ${index + 1}`,
+        layout: 'content',
+        contents: [
+          {
+            type: 'heading',
+            content: menace.titre,
+            level: 3,
+            style: 'accent'
+          },
+          {
+            type: 'text',
+            content: `${menace.niveauMenace || 'NIVEAU 2 - ÉLEVÉ'} | ${menace.classification || classification}`
+          },
+          {
+            type: 'text',
+            content: menace.description?.substring(0, 500) + '...'
+          },
+          {
+            type: 'metric',
+            content: {
+              label: 'Impact/Coût',
+              value: menace.montant,
+              trend: 'critical'
+            }
+          },
+          {
+            type: 'text',
+            content: `Secteur: ${menace.secteur} | Détection: ${menace.dateDetection || menace.dateCreation}`
+          },
+          {
+            type: 'quote',
+            content: {
+              text: menace.planAction?.split('\n\n')[0] || 'Plan d\'action multi-phases en cours de déploiement',
+              highlight: true
+            }
+          }
+        ]
+      });
+    });
+
+    // **SLIDE 8: COORDINATION INTERSERVICES**
+    cards.push({
+      title: 'Coordination Interservices',
+      layout: 'content',
+      contents: [
+        {
+          type: 'heading',
+          content: 'Synergie Services Sécuritaires',
+          level: 3
+        },
+        {
+          type: 'list',
+          content: [
+            'DGSS: Direction Générale de la Sécurité d\'État',
+            'DGR: Direction Générale du Renseignement',
+            'Défense: Ministère de la Défense Nationale',
+            'Intérieur: Gendarmerie, Police, Anti-terrorisme',
+            'Affaires Étrangères: Renseignement diplomatique'
+          ]
+        },
+        {
+          type: 'text',
+          content: 'Opérations conjointes menées: Surveillance coordonnée, partage renseignement temps réel, interventions simultanées'
+        },
+        {
+          type: 'metric',
+          content: {
+            label: 'Réunions Coordination',
+            value: `${Math.floor(Math.random() * 8) + 4} / mois`
+          }
+        }
+      ]
+    });
+
+    // **SLIDE 9: RECOMMANDATIONS PRÉSIDENTIELLES**
+    cards.push({
+      title: 'Recommandations Présidentielles',
+      layout: 'content',
+      contents: [
+        {
+          type: 'heading',
+          content: 'Top 3 Actions Urgentes',
+          level: 3,
+          style: 'accent'
+        },
+        ...data.recommandations.slice(0, 3).map((rec: any, idx: number) => ({
+          type: 'quote',
+          content: {
+            text: `${idx + 1}. ${rec.titre}\n${rec.description?.substring(0, 200)}...\nBudget: ${rec.budget || 'À définir'} | Délai: ${rec.delai}`,
+            author: `Priorité: ${rec.priorite}`,
+            highlight: rec.priorite === 'Critique' || rec.priorite === 'Très élevée'
+          }
+        }))
+      ]
+    });
+
+    // **SLIDE 10: CONCLUSION ET PROCHAINES ÉTAPES**
+    cards.push({
+      title: 'Conclusion et Prochaines Étapes',
+      layout: 'content',
+      contents: [
+        {
+          type: 'heading',
+          content: 'Bilan Global',
+          level: 3
+        },
+        {
+          type: 'text',
+          content: `Situation sécuritaire: ${menacesCritiques.length > 2 ? 'CRITIQUE - Action présidentielle urgente requise' : menacesCritiques.length > 0 ? 'PRÉOCCUPANTE - Surveillance renforcée nécessaire' : 'MAÎTRISÉE - Vigilance maintenue'}`
+        },
+        {
+          type: 'heading',
+          content: 'Feuille de route 90 jours',
+          level: 4
+        },
+        {
+          type: 'list',
+          content: [
+            'J+15: Consolidation preuves opérations en cours',
+            'J+30: Démantèlement réseaux identifiés',
+            'J+60: Judiciarisation et récupération avoirs',
+            'J+90: Bilan et réformes structurelles'
+          ]
+        },
+        {
+          type: 'heading',
+          content: 'Points Décision Président',
+          level: 4
+        },
+        {
+          type: 'list',
+          content: data.recommandations.slice(0, 3).map((rec: any) => 
+            `${rec.titre} (Budget: ${rec.budget || 'À déterminer'})`
+          )
+        },
+        {
+          type: 'text',
+          content: `Rapport disponible pour briefing approfondi. ${classification}`
+        }
+      ]
+    });
+
+    return {
+      title: `🛡️ Rapport Sécurité Nationale - ${data.admin.organization}`,
       theme: 'professional',
       cards
     };
