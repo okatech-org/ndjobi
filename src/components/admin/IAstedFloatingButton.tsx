@@ -75,6 +75,26 @@ export const IAstedFloatingButton = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Événement pour ouvrir depuis une modale (rapport vocal institution)
+  useEffect(() => {
+    const onOpenVoiceReport = (e: CustomEvent) => {
+      setIsOpen(true);
+      setMode('voice');
+      // Message d'initialisation contextuel si fourni
+      const admin = (e.detail && (e.detail as any).admin) || null;
+      if (admin) {
+        addAssistantMessage(
+          `Je prépare un rapport vocal pour ${admin?.organization || 'l\'administration'}.
+Parlez après le bip pour dicter les éléments clés à inclure (performance, problématiques, recommandations).`,
+          'text'
+        );
+      }
+    };
+
+    window.addEventListener('iasted:open-voice-report', onOpenVoiceReport as any);
+    return () => window.removeEventListener('iasted:open-voice-report', onOpenVoiceReport as any);
+  }, []);
+
   // Gestion du drag and drop
   const handleMouseDown = (e: React.MouseEvent) => {
     // Empêcher le drag si on clique pour ouvrir/interagir

@@ -8,7 +8,9 @@ import {
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
   AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu,
-  Mail, Phone, X, Check, CheckSquare, Presentation, Sparkles
+  Mail, Phone, X, Check, CheckSquare, Presentation, Sparkles,
+  Mic,
+  FileSpreadsheet
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,6 +39,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import emblemGabon from '@/assets/emblem_gabon.png';
+import { IAstedVoiceButton } from '@/components/iasted';
 
 type AdminData = Record<string, any> & {
   id: string;
@@ -135,7 +138,7 @@ export default function AdminDashboard() {
   const [periodeSuivi, setPeriodeSuivi] = useState<'hebdomadaire' | 'mensuel' | 'trimestriel' | 'annuel'>('mensuel');
   const [dateDebut, setDateDebut] = useState<string>('');
   const [dateFin, setDateFin] = useState<string>('');
-  const [formatRapport, setFormatRapport] = useState<'pdf' | 'excel' | 'word' | 'gamma-pdf' | 'gamma-pptx'>('gamma-pdf');
+  const [formatRapport, setFormatRapport] = useState<'gamma-pdf' | 'gamma-pptx'>('gamma-pdf');
   
   // États pour la configuration Gamma AI
   const [gammaConfig, setGammaConfig] = useState({
@@ -680,15 +683,19 @@ export default function AdminDashboard() {
     try {
       // Notification de début de génération
       toast({
-        title: "Génération en cours",
-        description: "Préparation du rapport, veuillez patienter...",
+        title: "🎨 Génération Gamma AI en cours",
+        description: "Préparation du rapport professionnel, veuillez patienter...",
       });
 
-      // Délai pour montrer le feedback
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Import du service Gamma AI
+      const { gammaAIService } = await import('@/services/gammaAIService');
+      const gammaFormat = formatRapport === 'gamma-pdf' ? 'pdf' : 'pptx';
       
+      let rapportData: any;
+      let filename: string;
+
       if (rapportType === 'cas') {
-        // Rapport cas spécifiques
+        // Rapport cas spécifiques - Données optimisées pour Gamma AI
         const nombreCas = selectedCasIds.length;
         const casSelectionnes = adminCases.filter(cas => selectedCasIds.includes(cas.id));
         const montantTotal = casSelectionnes.reduce((sum, cas) => {
@@ -697,140 +704,153 @@ export default function AdminDashboard() {
           return sum + montant;
         }, 0);
 
-        const rapportData = {
-          admin: selectedAdmin,
-          casSelectionnes: casSelectionnes,
-          montantTotal: montantTotal
+        rapportData = {
+          admin: {
+            nom: selectedAdmin?.nom || 'Administrateur',
+            organization: selectedAdmin?.organization || 'Organisation',
+            email: selectedAdmin?.email || '',
+            phone: selectedAdmin?.phone || '',
+            role: selectedAdmin?.role || 'admin'
+          },
+          casSelectionnes: casSelectionnes.map(cas => ({
+            id: cas.id,
+            titre: cas.titre || 'Cas sans titre',
+            description: cas.description || 'Aucune description disponible',
+            montant: cas.montant || '0 FCFA',
+            statut: cas.statut || 'Non défini',
+            priorite: cas.priorite || 'Moyenne',
+            dateCreation: cas.dateCreation || new Date().toISOString().split('T')[0],
+            localisation: cas.localisation || 'Non spécifié',
+            secteur: cas.secteur || 'Non spécifié'
+          })),
+          montantTotal: montantTotal,
+          nombreCas: nombreCas,
+          periode: `Cas sélectionnés - ${new Date().toLocaleDateString('fr-FR')}`
         };
 
-        // Génération selon le format
-        if (formatRapport === 'gamma-pdf' || formatRapport === 'gamma-pptx') {
-          // Génération via Gamma AI
-          const gammaFormat = formatRapport === 'gamma-pdf' ? 'pdf' : 'pptx';
-          const { gammaAIService } = await import('@/services/gammaAIService');
-          
-          toast({
-            title: "Génération Gamma AI",
-            description: `Création du rapport avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
-          });
+        filename = `Rapport_Cas_${selectedAdmin?.organization?.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.${gammaFormat}`;
+        
+        // Génération du rapport de cas
+        const result = await gammaAIService.generateRapportCas(rapportData, gammaFormat, gammaConfig);
+        
+        // Téléchargement automatique
+        await gammaAIService.downloadFile(result.downloadUrl, filename);
 
-          const result = await gammaAIService.generateRapportCas(rapportData as any, gammaFormat, gammaConfig);
-          
-          // Télécharger automatiquement le fichier
-          const filename = `Rapport_Cas_${selectedAdmin.organization}_${new Date().toISOString().split('T')[0]}.${gammaFormat}`;
-          await gammaAIService.downloadFile(result.downloadUrl, filename);
+        toast({
+          title: "✅ Rapport Gamma AI généré avec succès",
+          description: (
+            <div className="space-y-1">
+              <p className="font-medium">{nombreCas} cas analysés - {montantTotal.toLocaleString()} FCFA</p>
+              <p className="text-sm text-muted-foreground">Format: {gammaFormat.toUpperCase()} • {gammaConfig.nombreCartes} slides</p>
+              <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline text-sm">
+                ✨ Voir sur Gamma.app →
+              </a>
+            </div>
+          ),
+        });
 
-          toast({
-            title: "✅ Rapport Gamma AI généré",
-            description: (
-              <div>
-                <p>{nombreCas} cas - {montantTotal.toLocaleString()} FCFA</p>
-                <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                  Voir sur Gamma →
-                </a>
-              </div>
-            ),
-          });
-        } else if (formatRapport === 'pdf') {
-          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generatePDFCas(rapportData as any);
-          toast({
-            title: "Rapport généré avec succès",
-            description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: PDF`,
-          });
-        } else if (formatRapport === 'excel') {
-          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateExcelCas(rapportData as any);
-          toast({
-            title: "Rapport généré avec succès",
-            description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: EXCEL`,
-          });
-        } else if (formatRapport === 'word') {
-          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateWordCas(rapportData as any);
-          toast({
-            title: "Rapport généré avec succès",
-            description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: WORD`,
-          });
-        }
       } else {
-        // Rapport global
-        const rapportData = {
-          admin: selectedAdmin,
+        // Rapport global - Données enrichies pour Gamma AI
+        const impactFinancier = adminProblematiques.reduce((sum, p) => {
+          const montantStr = String(p.montant || '0');
+          const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
+          return sum + montant;
+        }, 0);
+
+        rapportData = {
+          admin: {
+            nom: selectedAdmin?.nom || 'Administrateur',
+            organization: selectedAdmin?.organization || 'Organisation',
+            email: selectedAdmin?.email || '',
+            phone: selectedAdmin?.phone || '',
+            role: selectedAdmin?.role || 'admin'
+          },
           periode: periodeSuivi,
           dateDebut: dateDebut,
           dateFin: dateFin,
           totalCas: adminCases.length,
           totalProblematiques: adminProblematiques.length,
-          impactFinancier: adminProblematiques.reduce((sum, p) => {
-            const montantStr = String(p.montant || '0');
-            const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
-            return sum + montant;
-          }, 0),
-          casData: adminCases,
-          problematiques: adminProblematiques,
-          recommandations: adminRecommandations,
-          opinionPublique: adminOpinionPublique
+          impactFinancier: impactFinancier,
+          casData: adminCases.map(cas => ({
+            id: cas.id,
+            titre: cas.titre || 'Cas sans titre',
+            description: cas.description || 'Aucune description',
+            montant: cas.montant || '0 FCFA',
+            statut: cas.statut || 'Non défini',
+            priorite: cas.priorite || 'Moyenne',
+            dateCreation: cas.dateCreation || new Date().toISOString().split('T')[0],
+            localisation: cas.localisation || 'Non spécifié',
+            secteur: cas.secteur || 'Non spécifié'
+          })),
+          problematiques: adminProblematiques.map(prob => ({
+            id: prob.id,
+            titre: prob.titre || 'Problématique sans titre',
+            description: prob.description || 'Aucune description',
+            impact: prob.impact || 'Non évalué',
+            montant: prob.montant || '0 FCFA',
+            statut: prob.statut || 'En cours',
+            classification: prob.classification || 'Non classé',
+            dateCreation: prob.dateCreation || new Date().toISOString().split('T')[0],
+            secteur: prob.secteur || 'Non spécifié',
+            localisation: prob.localisation || 'Non spécifié',
+            actionsRecommandees: prob.actionsRecommandees || 'Aucune action recommandée'
+          })),
+          recommandations: adminRecommandations.map(rec => ({
+            id: rec.id,
+            titre: rec.titre || 'Recommandation sans titre',
+            description: rec.description || 'Aucune description',
+            priorite: rec.priorite || 'Moyenne',
+            categorie: rec.categorie || 'Non catégorisé',
+            statut: rec.statut || 'En attente',
+            impact: rec.impact || 'Non évalué',
+            delai: rec.delai || 'Non défini',
+            budget: rec.budget || 'Non défini',
+            services: rec.services || 'Non spécifié',
+            responsable: rec.responsable || 'Non assigné'
+          })),
+          opinionPublique: adminOpinionPublique ? {
+            principauxGriefs: adminOpinionPublique.principauxGriefs || [],
+            risqueSocial: adminOpinionPublique.risqueSocial || 'Non évalué',
+            tendanceOpinion: adminOpinionPublique.tendanceOpinion || 'Stable',
+            satisfactionGlobale: adminOpinionPublique.satisfactionGlobale || 0,
+            sentimentDominant: adminOpinionPublique.sentimentDominant || 'Neutre',
+            noteOpinion: adminOpinionPublique.noteOpinion || 0,
+            tauxSatisfaction: adminOpinionPublique.tauxSatisfaction || 0,
+            zonesRisque: adminOpinionPublique.zonesRisque || []
+          } : null
         };
 
-        // Génération selon le format
-        if (formatRapport === 'gamma-pdf' || formatRapport === 'gamma-pptx') {
-          // Génération via Gamma AI
-          const gammaFormat = formatRapport === 'gamma-pdf' ? 'pdf' : 'pptx';
-          const { gammaAIService } = await import('@/services/gammaAIService');
-          
-          toast({
-            title: "🎨 Génération Gamma AI",
-            description: `Création d'un rapport professionnel avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
-          });
+        filename = `Rapport_Global_${selectedAdmin?.organization?.replace(/[^a-zA-Z0-9]/g, '_')}_${dateDebut}_${dateFin}.${gammaFormat}`;
+        
+        // Génération du rapport global
+        const result = await gammaAIService.generateRapportGlobal(rapportData, gammaFormat, gammaConfig);
+        
+        // Téléchargement automatique
+        await gammaAIService.downloadFile(result.downloadUrl, filename);
 
-          const result = await gammaAIService.generateRapportGlobal(rapportData as any, gammaFormat, gammaConfig);
-          
-          // Télécharger automatiquement le fichier
-          const filename = `Rapport_Global_${selectedAdmin.organization}_${dateDebut}_${dateFin}.${gammaFormat}`;
-          await gammaAIService.downloadFile(result.downloadUrl, filename);
-
-          toast({
-            title: "✅ Rapport Gamma AI généré",
-            description: (
-              <div>
-                <p>Rapport {periodeSuivi} - Du {dateDebut} au {dateFin}</p>
-                <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                  Voir sur Gamma →
-                </a>
-              </div>
-            ),
-          });
-        } else if (formatRapport === 'pdf') {
-          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generatePDFGlobal(rapportData as any);
-          toast({
-            title: "Rapport généré avec succès",
-            description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: PDF`,
-          });
-        } else if (formatRapport === 'excel') {
-          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateExcelGlobal(rapportData as any);
-          toast({
-            title: "Rapport généré avec succès",
-            description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: EXCEL`,
-          });
-        } else if (formatRapport === 'word') {
-          const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateWordGlobal(rapportData as any);
-          toast({
-            title: "Rapport généré avec succès",
-            description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: WORD`,
-          });
-        }
+        toast({
+          title: "✅ Rapport Gamma AI généré avec succès",
+          description: (
+            <div className="space-y-1">
+              <p className="font-medium">Rapport {periodeSuivi} - Du {dateDebut} au {dateFin}</p>
+              <p className="text-sm text-muted-foreground">
+                {adminCases.length} cas • {adminProblematiques.length} problématiques • {impactFinancier.toLocaleString()} FCFA
+              </p>
+              <p className="text-sm text-muted-foreground">Format: {gammaFormat.toUpperCase()} • {gammaConfig.nombreCartes} slides</p>
+              <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline text-sm">
+                ✨ Voir sur Gamma.app →
+              </a>
+            </div>
+          ),
+        });
       }
 
       setIsRapportModalOpen(false);
     } catch (error) {
-      console.error('Erreur génération rapport:', error);
+      console.error('❌ Erreur génération rapport Gamma AI:', error);
       toast({
-        title: "Erreur",
-        description: `Impossible de générer le rapport: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
+        title: "❌ Erreur de génération",
+        description: `Impossible de générer le rapport Gamma AI: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
         variant: "destructive"
       });
     } finally {
@@ -2593,6 +2613,26 @@ export default function AdminDashboard() {
               Fermer
             </Button>
             <Button
+              variant="outline"
+              className="glass-effect border-none hover:bg-muted/50 transition-all flex items-center gap-2"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Ouvre iAsted voix dans une mini barre flottante (toggle via événement custom)
+                const event = new CustomEvent('iasted:open-voice-report', {
+                  detail: {
+                    context: 'institution',
+                    admin: selectedAdmin,
+                  }
+                });
+                window.dispatchEvent(event);
+              }}
+              title="Rapport vocal iAsted"
+            >
+              <Mic className="h-4 w-4" />
+              Rapport iAsted (vocal)
+            </Button>
+            <Button
               onClick={() => {
                 setIsDetailsModalOpen(false);
                 if (selectedAdmin) handleOuvrirRapportModal(selectedAdmin);
@@ -2910,7 +2950,7 @@ export default function AdminDashboard() {
                 </Badge>
               </div>
 
-                <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                   {/* Mode de création */}
                   <div className="space-y-2">
                     <Label className="text-xs text-foreground/70">Mode de création</Label>
@@ -3056,10 +3096,10 @@ export default function AdminDashboard() {
                     {gammaConfig.sourceImages === 'ia' ? ` 🎨 Images ${gammaConfig.styleImages === 'realiste' ? 'réalistes' : 'illustrations'}` : ' 🚫 Sans images'}
                   </div>
                 </div>
-              </div>
+            </div>
 
-              {/* Format d'extraction - APRÈS configuration */}
-              <div className="space-y-3 pt-4 border-t border-purple-500/20">
+            {/* Format d'extraction - APRÈS configuration */}
+            <div className="space-y-3 pt-4 border-t border-purple-500/20">
                 <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
                   <Download className="h-4 w-4 text-purple-500" />
                   Format d'extraction
@@ -3081,7 +3121,7 @@ export default function AdminDashboard() {
                         <FileText className={`h-6 w-6 ${formatRapport === 'gamma-pdf' ? 'text-purple-500' : 'text-muted-foreground'}`} />
                         <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pdf' ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
                       </div>
-                      <span className="text-sm font-bold text-foreground">PDF</span>
+                      <span className="text-sm font-bold text-foreground">PDF IA</span>
                       <span className="text-xs text-foreground/60">Document professionnel</span>
                     </div>
                   </Button>
@@ -3100,12 +3140,11 @@ export default function AdminDashboard() {
                         <Presentation className={`h-6 w-6 ${formatRapport === 'gamma-pptx' ? 'text-pink-500' : 'text-muted-foreground'}`} />
                         <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pptx' ? 'text-pink-400' : 'text-muted-foreground/50'}`} />
                       </div>
-                      <span className="text-sm font-bold text-foreground">PowerPoint</span>
+                      <span className="text-sm font-bold text-foreground">PowerPoint IA</span>
                       <span className="text-xs text-foreground/60">Présentation éditable</span>
                     </div>
                   </Button>
                 </div>
-              </div>
             </div>
 
             {/* Informations de livraison */}
@@ -3156,7 +3195,7 @@ export default function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-            </div>
+    </div>
   );
 
   const renderRapportsStrategiques = () => (
