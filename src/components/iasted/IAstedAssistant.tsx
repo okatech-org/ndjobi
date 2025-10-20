@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, MessageSquare, X, Loader2, Sparkles, FileText } from 'lucide-react';
+import { Mic, MicOff, MessageSquare, X, Loader2, Sparkles, FileText, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { IAstedService } from '@/services/iAstedService';
 import { IAstedVoiceService } from '@/services/iAstedVoiceService';
 import { IAstedStorageService } from '@/services/iAstedStorageService';
+import { IAstedMobileDetection } from '@/services/iAstedMobileDetection';
+import { IAstedTroubleshooting } from './IAstedTroubleshooting';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -33,6 +35,8 @@ export function IAstedAssistant() {
   const [sessionId] = useState(uuidv4());
   const [artifactOpen, setArtifactOpen] = useState(false);
   const [artifactContent, setArtifactContent] = useState<any>(null);
+  const [troubleshootingOpen, setTroubleshootingOpen] = useState(false);
+  const [currentIssue, setCurrentIssue] = useState<string | undefined>();
 
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,6 +47,49 @@ export function IAstedAssistant() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Détection automatique des problèmes au démarrage
+  useEffect(() => {
+    const detectIssues = () => {
+      const issues = IAstedMobileDetection.detectAllIssues();
+      const platform = IAstedMobileDetection.detectPlatform();
+      
+      console.log(`🔧 Plateforme détectée: ${platform}`);
+      console.log('🔧 Problèmes détectés:', issues);
+      
+      if (issues.length > 0) {
+        const summary = IAstedMobileDetection.getSummaryMessage(issues);
+        const isCompatible = IAstedMobileDetection.isPlatformCompatible();
+        
+        // Afficher un toast informatif
+        toast({
+          title: isCompatible ? "Configuration détectée" : "Problèmes de configuration",
+          description: summary,
+          variant: isCompatible ? "default" : "destructive"
+        });
+      }
+    };
+
+    // Détecter après un délai pour laisser l'interface se charger
+    const timer = setTimeout(detectIssues, 2000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  /**
+   * Détecter les problèmes et ouvrir le dépannage
+   */
+  const detectAndShowTroubleshooting = (error: string, issueType: 'microphone' | 'audio' = 'microphone') => {
+    console.log(`🔧 Problème détecté: ${error}`);
+    setCurrentIssue(issueType);
+    setTroubleshootingOpen(true);
+    
+    // Toast informatif
+    toast({
+      title: "Problème de configuration détecté",
+      description: "Consultez le guide de dépannage pour résoudre le problème.",
+      variant: "destructive"
+    });
+  };
 
   /**
    * GESTION DES CLICS SUR LE BOUTON
@@ -119,11 +166,20 @@ export function IAstedAssistant() {
       
     } catch (error: any) {
       console.error('Erreur initialisation mode vocal:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible d\'activer le mode vocal',
-        variant: 'destructive'
-      });
+      
+      // Détecter les erreurs spécifiques
+      const errorMessage = error.message || error.toString();
+      if (errorMessage.includes('microphone') || errorMessage.includes('permission') || errorMessage.includes('not allowed') || errorMessage.includes('NotAllowedError')) {
+        detectAndShowTroubleshooting(errorMessage, 'microphone');
+      } else if (errorMessage.includes('audio') || errorMessage.includes('playback') || errorMessage.includes('AudioContext')) {
+        detectAndShowTroubleshooting(errorMessage, 'audio');
+      } else {
+        toast({
+          title: 'Erreur',
+          description: 'Impossible d\'activer le mode vocal',
+          variant: 'destructive'
+        });
+      }
     }
   };
 
@@ -500,6 +556,15 @@ export function IAstedAssistant() {
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => setTroubleshootingOpen(true)}
+                className="text-white hover:bg-white/20"
+                title="Guide de dépannage"
+              >
+                <HelpCircle className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsOpen(false)}
                 className="text-white hover:bg-white/20"
               >
@@ -655,6 +720,13 @@ export function IAstedAssistant() {
           </Card>
         </div>
       )}
+
+      {/* COMPOSANT DE DÉPANNAGE */}
+      <IAstedTroubleshooting 
+        isOpen={troubleshootingOpen}
+        onClose={() => setTroubleshootingOpen(false)}
+        currentIssue={currentIssue}
+      />
     </>
   );
 }

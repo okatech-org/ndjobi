@@ -340,8 +340,45 @@ export class IAstedVoiceService {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
       return true;
-    } catch {
+    } catch (error: any) {
+      console.error('❌ Erreur permission microphone:', error);
+      
+      // Détecter les erreurs spécifiques iOS Safari
+      if (error.name === 'NotAllowedError') {
+        console.error('🚫 Accès microphone refusé - Vérifiez les paramètres Safari');
+        throw new Error('Microphone refusé: Vérifiez les paramètres Safari > Avancé > Protection de la confidentialité');
+      }
+      
       return false;
     }
+  }
+
+  /**
+   * Détecter les problèmes de configuration iOS Safari
+   */
+  static detectIOSIssues(): string[] {
+    const issues: string[] = [];
+    
+    // Détecter iOS Safari
+    const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent);
+    
+    if (isIOSSafari) {
+      issues.push('iOS Safari détecté - Vérifiez les paramètres de confidentialité');
+      
+      // Vérifier les APIs nécessaires
+      if (!window.AudioContext && !window.webkitAudioContext) {
+        issues.push('AudioContext non supporté - Mise à jour Safari requise');
+      }
+      
+      if (!navigator.mediaDevices) {
+        issues.push('MediaDevices API non disponible - HTTPS requis');
+      }
+      
+      if (!window.speechSynthesis) {
+        issues.push('Speech Synthesis non supporté');
+      }
+    }
+    
+    return issues;
   }
 }
