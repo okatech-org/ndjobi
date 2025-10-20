@@ -1556,10 +1556,12 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAgents.map((admin, idx) => (
+          {filteredAgents.map((admin, idx) => {
+            const isInactive = (admin as any).inactive === true;
+            return (
           <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
             admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
-          }`}>
+          } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
             {admin.statut === 'Attention' && (
               <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
             )}
@@ -1638,11 +1640,20 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {admin.statut === 'Attention' && (
+              {admin.statut === 'Attention' && !isInactive && (
                 <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
                   <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
                   <AlertDescription className="text-muted-foreground">
                     Performance en baisse. Délai de traitement supérieur à la norme nationale.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {isInactive && (
+                <Alert className="glass-effect border-none bg-muted/30">
+                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                  <AlertDescription className="text-muted-foreground text-xs">
+                    Compte non actif - En attente de configuration
                   </AlertDescription>
                 </Alert>
               )}
@@ -1653,7 +1664,7 @@ export default function AdminDashboard() {
                   size="sm" 
                   className="w-full glass-effect border-none bg-[hsl(var(--accent-intel))]/5 hover:bg-[hsl(var(--accent-intel))]/15"
                   onClick={() => handleVoirDetails(admin)}
-                  disabled={isLoadingAction}
+                  disabled={isLoadingAction || isInactive}
                 >
                   <Eye className="h-4 w-4 mr-2 text-[hsl(var(--accent-intel))]" />
                   Détails
@@ -1671,6 +1682,7 @@ export default function AdminDashboard() {
                     window.dispatchEvent(event);
                   }}
                   title="Rapport iAsted (vocal)"
+                  disabled={isInactive}
                 >
                   <Mic className="h-4 w-4 mr-2 text-purple-600" />
                   iAsted
@@ -1680,7 +1692,7 @@ export default function AdminDashboard() {
                   size="sm" 
                   className="w-full glass-effect border-none bg-[hsl(var(--accent-success))]/5 hover:bg-[hsl(var(--accent-success))]/15"
                   onClick={() => handleGenererRapportAdmin(admin)}
-                  disabled={isLoadingAction}
+                  disabled={isLoadingAction || isInactive}
                 >
                   {isLoadingAction ? (
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin text-[hsl(var(--accent-success))]" />
@@ -1692,7 +1704,8 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
         </div>
       )}
 
@@ -1842,18 +1855,52 @@ export default function AdminDashboard() {
       <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
         <DialogContent className="glass-effect border-none max-w-3xl h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
           <DialogHeader className="border-b border-muted/10 pb-4">
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20">
-                <Eye className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
-              </div>
-              <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                Détails - {selectedAdmin?.nom}
-              </span>
-            </DialogTitle>
-            <DialogDescription className="text-sm mt-2 flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-[hsl(var(--accent-success))]" />
-              {selectedAdmin?.organization} - Informations détaillées et historique de performance
-            </DialogDescription>
+            {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
+              // **EN-TÊTE SERVICES SPÉCIAUX / SÉCURITÉ NATIONALE**
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <Badge className="bg-red-600/90 text-white text-xs font-bold px-3 py-1">
+                    🛡️ {(selectedAdmin as any)?.classification || 'CONFIDENTIEL DÉFENSE'}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Service Spécial
+                  </Badge>
+                </div>
+                <DialogTitle className="flex items-center gap-2 text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-red-500/20 to-orange-500/20">
+                    <Shield className="h-5 w-5 text-red-600" />
+                  </div>
+                  <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                    Fiche Sécurité Nationale - {selectedAdmin?.nom}
+                  </span>
+                </DialogTitle>
+                <DialogDescription className="text-sm mt-2 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-red-600" />
+                    <span className="font-semibold">{selectedAdmin?.organization}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Rapport renseignement stratégique et analyse menaces - {new Date().toLocaleDateString('fr-FR')}
+                  </div>
+                </DialogDescription>
+              </>
+            ) : (
+              // **EN-TÊTE STANDARD (Agents, Citoyens)**
+              <>
+                <DialogTitle className="flex items-center gap-2 text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20">
+                    <Eye className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
+                  </div>
+                  <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                    Détails - {selectedAdmin?.nom}
+                  </span>
+                </DialogTitle>
+                <DialogDescription className="text-sm mt-2 flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+                  {selectedAdmin?.organization} - Informations détaillées et historique de performance
+                </DialogDescription>
+              </>
+            )}
           </DialogHeader>
           
           {selectedAdmin && (
@@ -1870,15 +1917,27 @@ export default function AdminDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Problématiques identifiées */}
+                  {/* Problématiques identifiées / Menaces Stratégiques */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                        <div className="text-sm font-semibold text-foreground">Problématiques identifiées</div>
-                        <Badge variant="outline" className="text-xs">
-                          {adminProblematiques.length} problème{adminProblematiques.length > 1 ? 's' : ''}
-                        </Badge>
+                        {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
+                          <>
+                            <Shield className="h-4 w-4 text-red-600" />
+                            <div className="text-sm font-semibold text-foreground">Menaces Stratégiques</div>
+                            <Badge variant="outline" className="text-xs bg-red-600/10 text-red-600 border-red-600/30">
+                              {adminProblematiques.length} menace{adminProblematiques.length > 1 ? 's' : ''}
+                            </Badge>
+                          </>
+                        ) : (
+                          <>
+                            <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                            <div className="text-sm font-semibold text-foreground">Problématiques identifiées</div>
+                            <Badge variant="outline" className="text-xs">
+                              {adminProblematiques.length} problème{adminProblematiques.length > 1 ? 's' : ''}
+                            </Badge>
+                          </>
+                        )}
                       </div>
                       <div className="text-xs text-foreground/70">
                         Impact financier total: {adminProblematiques.reduce((sum, p) => {
@@ -1928,8 +1987,20 @@ export default function AdminDashboard() {
 
                           {/* Titre et description détaillée */}
                           <div className="space-y-2">
-                            <div className="text-sm font-semibold text-foreground">{problematique.titre}</div>
-                            <div className="text-xs text-foreground/80 leading-relaxed">{problematique.description}</div>
+                            <div className="flex items-center gap-2">
+                              <div className="text-sm font-semibold text-foreground">{problematique.titre}</div>
+                              {(problematique as any).niveauMenace && (
+                                <Badge className="bg-red-600/90 text-white text-[10px] px-2 py-0.5">
+                                  {(problematique as any).niveauMenace}
+                                </Badge>
+                              )}
+                              {(problematique as any).classification && (selectedAdmin as any)?.type_service === 'securite_nationale' && (
+                                <Badge variant="outline" className="text-[10px] text-red-600 border-red-600/30">
+                                  {(problematique as any).classification}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-xs text-foreground/80 leading-relaxed whitespace-pre-wrap">{problematique.description}</div>
                           </div>
 
                           {/* Métriques détaillées */}
@@ -1937,7 +2008,9 @@ export default function AdminDashboard() {
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
                                 <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
-                                <span className="text-xs text-foreground/70">Impact financier</span>
+                                <span className="text-xs text-foreground/70">
+                                  {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Impact / Coût' : 'Impact financier'}
+                                </span>
                               </div>
                               <div className="text-sm font-bold text-[hsl(var(--accent-success))]">
                                 {problematique.montant}
@@ -1949,39 +2022,81 @@ export default function AdminDashboard() {
                                 <span className="text-xs text-foreground/70">Localisation</span>
                               </div>
                               <div className="text-sm font-medium text-foreground">
-                                {problematique.localisation}
+                                {problematique.localisation || 'National'}
                               </div>
                             </div>
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
                                 <Calendar className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                                <span className="text-xs text-foreground/70">Détecté le</span>
+                                <span className="text-xs text-foreground/70">
+                                  {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Détection' : 'Détecté le'}
+                                </span>
                               </div>
                               <div className="text-sm font-medium text-foreground">
-                                {problematique.dateCreation}
+                                {problematique.dateCreation || problematique.dateDetection}
                               </div>
                             </div>
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
-                                <TrendingUp className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                                <span className="text-xs text-foreground/70">Tendance</span>
+                                {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
+                                  <Shield className="h-3 w-3 text-red-600" />
+                                ) : (
+                                  <TrendingUp className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                )}
+                                <span className="text-xs text-foreground/70">
+                                  {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Menace' : 'Tendance'}
+                                </span>
                               </div>
                               <div className="text-sm font-medium text-foreground">
-                                {problematique.tendance || 'En aggravation'}
+                                {(problematique as any).menace || problematique.tendance || 'En aggravation'}
                               </div>
                             </div>
                           </div>
 
-                          {/* Actions recommandées */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <Target className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
-                              <span className="text-xs font-medium text-foreground">Actions recommandées</span>
+                          {/* Plan d'action (pour services spéciaux) ou Actions recommandées */}
+                          {(selectedAdmin as any)?.type_service === 'securite_nationale' && (problematique as any).planAction ? (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Target className="h-3 w-3 text-red-600" />
+                                <span className="text-xs font-medium text-foreground">Plan d'action stratégique</span>
+                              </div>
+                              <div className="text-xs text-foreground/70 pl-5 whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                                {(problematique as any).planAction}
+                              </div>
                             </div>
-                            <div className="text-xs text-foreground/70 pl-5">
-                              {problematique.actionsRecommandees || 'Intervention immédiate requise. Coordination avec les services compétents pour mise en place d\'un plan d\'action d\'urgence.'}
+                          ) : (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Target className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                <span className="text-xs font-medium text-foreground">Actions recommandées</span>
+                              </div>
+                              <div className="text-xs text-foreground/70 pl-5">
+                                {problematique.actionsRecommandees || 'Intervention immédiate requise. Coordination avec les services compétents pour mise en place d\'un plan d\'action d\'urgence.'}
+                              </div>
                             </div>
-                          </div>
+                          )}
+
+                          {/* KPIs (pour services spéciaux) */}
+                          {(selectedAdmin as any)?.type_service === 'securite_nationale' && (problematique as any).kpis && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <BarChart3 className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                <span className="text-xs font-medium text-foreground">Indicateurs de performance (KPIs)</span>
+                              </div>
+                              <div className="space-y-1 pl-5">
+                                {(problematique as any).kpis.map((kpi: any, kpiIdx: number) => (
+                                  <div key={kpiIdx} className="flex items-center justify-between text-[10px] bg-muted/20 p-2 rounded">
+                                    <span className="text-foreground/70">{kpi.indicateur}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Actuel: <span className="font-semibold text-foreground">{kpi.actuel}</span></span>
+                                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                                      <span className="text-[hsl(var(--accent-success))]">Cible: <span className="font-semibold">{kpi.cible}</span></span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
                           {/* Statut et suivi */}
                           <div className="flex items-center justify-between pt-2 border-t border-muted/20">
@@ -2397,37 +2512,61 @@ export default function AdminDashboard() {
                 </Card>
               )}
 
-              {/* Cas en cours - Spécifique à l'Agent Pêche */}
-              {selectedAdmin.nom === 'Agent Pêche' && adminCases.length > 0 && (
+              {/* Cas en cours / Opérations sensibles */}
+              {adminCases.length > 0 && (
                 <Card className="glass-effect border-none">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <Package className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-                      Dossier Pêche-Gab - Signalements critiques
+                      {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
+                        <>
+                          <Shield className="h-4 w-4 text-red-600" />
+                          Opérations sensibles en cours
+                        </>
+                      ) : selectedAdmin.nom === 'Agent Pêche' ? (
+                        <>
+                          <Package className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                          Dossier Pêche-Gab - Signalements critiques
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                          Cas en cours
+                        </>
+                      )}
                     </CardTitle>
                     <CardDescription className="text-xs text-muted-foreground">
-                      Enquêtes en cours sur les activités de pêche illégales et détournements de fonds
+                      {(selectedAdmin as any)?.type_service === 'securite_nationale' 
+                        ? `${(selectedAdmin as any).classification} - Dossiers actifs et surveillance`
+                        : selectedAdmin.nom === 'Agent Pêche'
+                          ? 'Enquêtes en cours sur les activités de pêche illégales et détournements de fonds'
+                          : 'Enquêtes et dossiers en cours de traitement'
+                      }
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {adminCases.slice(0, 3).map((cas: CaseData) => (
                       <div key={cas.id} className="border border-muted/20 rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2">
                             <Badge variant="outline" className="text-xs font-mono">
                               {cas.id}
                             </Badge>
                             <Badge className={`text-xs font-medium ${
-                              cas.priorite === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                              cas.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                              cas.priorite === 'Critique' || cas.priorite === 'Très élevée' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                              cas.priorite === 'Haute' || cas.priorite === 'Élevée' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
                               'bg-blue-500/20 text-blue-500 border-blue-500/30'
                             }`}>
                               {cas.priorite}
                             </Badge>
+                            {(selectedAdmin as any)?.type_service === 'securite_nationale' && (cas as any).classification && (
+                              <Badge className="bg-red-600/90 text-white text-[10px] px-2 py-0.5">
+                                {(cas as any).classification}
+                              </Badge>
+                            )}
                           </div>
                           <Badge className={`text-xs font-medium ${
-                            cas.statut === 'En cours' ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
-                            cas.statut === 'Résolu' ? 'bg-green-500/20 text-green-500 border-green-500/30' :
+                            cas.statut.includes('cours') || cas.statut.includes('active') ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
+                            cas.statut.includes('Résolu') || cas.statut.includes('terminée') || cas.statut.includes('réussie') ? 'bg-green-500/20 text-green-500 border-green-500/30' :
                             'bg-gray-500/20 text-gray-500 border-gray-500/30'
                           }`}>
                             {cas.statut}
@@ -2437,6 +2576,45 @@ export default function AdminDashboard() {
                         <div className="space-y-2">
                           <div className="text-sm font-semibold text-foreground">{cas.titre}</div>
                           <div className="text-xs text-muted-foreground leading-relaxed">{cas.description}</div>
+                          
+                          {/* Champs spécifiques services spéciaux */}
+                          {(selectedAdmin as any)?.type_service === 'securite_nationale' && (
+                            <div className="space-y-2 mt-3 pt-3 border-t border-muted/20">
+                              {(cas as any).menace && (
+                                <div className="flex items-center gap-2">
+                                  <AlertTriangle className="h-3 w-3 text-red-600" />
+                                  <span className="text-xs font-medium text-red-600">Menace: {(cas as any).menace}</span>
+                                </div>
+                              )}
+                              {(cas as any).sourcesRenseignement && (
+                                <div className="flex items-start gap-2">
+                                  <Brain className="h-3 w-3 text-[hsl(var(--accent-intel))] mt-0.5" />
+                                  <div className="flex-1">
+                                    <span className="text-[10px] text-muted-foreground">Sources: </span>
+                                    <span className="text-[10px] text-foreground/80">{(cas as any).sourcesRenseignement}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {(cas as any).coordination && (
+                                <div className="flex items-start gap-2">
+                                  <Users className="h-3 w-3 text-[hsl(var(--accent-success))] mt-0.5" />
+                                  <div className="flex-1">
+                                    <span className="text-[10px] text-muted-foreground">Coordination: </span>
+                                    <span className="text-[10px] text-foreground/80">{(cas as any).coordination}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {(cas as any).prochaineEtape && (
+                                <div className="flex items-start gap-2">
+                                  <ChevronRight className="h-3 w-3 text-[hsl(var(--accent-warning))] mt-0.5" />
+                                  <div className="flex-1">
+                                    <span className="text-[10px] text-muted-foreground">Prochaine étape: </span>
+                                    <span className="text-[10px] font-medium text-foreground/80">{(cas as any).prochaineEtape}</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 text-xs">
@@ -3342,10 +3520,12 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredSubAdmins.map((admin, idx) => (
+          {filteredSubAdmins.map((admin, idx) => {
+            const isInactive = (admin as any).inactive === true;
+            return (
             <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
               admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
-            }`}>
+            } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
               {admin.statut === 'Attention' && (
                 <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
               )}
@@ -3417,6 +3597,16 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
+                {/* Alerte inactivité */}
+                {isInactive && (
+                  <Alert className="glass-effect border-none bg-muted/30">
+                    <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                    <AlertDescription className="text-muted-foreground text-xs">
+                      Service non actif - En attente de configuration
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 {/* Actions */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
                   <Button
@@ -3424,6 +3614,7 @@ export default function AdminDashboard() {
                     size="sm"
                     onClick={() => handleVoirDetails(admin)}
                     className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                    disabled={isInactive}
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     Détails
@@ -3438,6 +3629,7 @@ export default function AdminDashboard() {
                       }));
                     }}
                     className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
+                    disabled={isInactive}
                   >
                     <Mic className="h-3 w-3 mr-1" />
                     iAsted
@@ -3447,6 +3639,7 @@ export default function AdminDashboard() {
                     size="sm"
                     onClick={() => handleOuvrirRapportModal(admin)}
                     className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                    disabled={isInactive}
                   >
                     <FileText className="h-3 w-3 mr-1" />
                     Rapport
@@ -3454,7 +3647,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -3563,10 +3757,12 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredCitoyens.map((admin, idx) => (
+          {filteredCitoyens.map((admin, idx) => {
+            const isInactive = (admin as any).inactive === true;
+            return (
             <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
               admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
-            }`}>
+            } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
               {admin.statut === 'Attention' && (
                 <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
               )}
@@ -3631,6 +3827,7 @@ export default function AdminDashboard() {
                     size="sm"
                     onClick={() => handleVoirDetails(admin)}
                     className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                    disabled={isInactive}
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     Détails
@@ -3645,6 +3842,7 @@ export default function AdminDashboard() {
                       }));
                     }}
                     className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
+                    disabled={isInactive}
                   >
                     <Mic className="h-3 w-3 mr-1" />
                     iAsted
@@ -3654,6 +3852,7 @@ export default function AdminDashboard() {
                     size="sm"
                     onClick={() => handleOuvrirRapportModal(admin)}
                     className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                    disabled={isInactive}
                   >
                     <FileText className="h-3 w-3 mr-1" />
                     Rapport
@@ -3661,7 +3860,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

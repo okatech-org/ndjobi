@@ -144,14 +144,15 @@ export function useProtocolEtat() {
         cas_traites: 38, 
         taux_succes: 72, 
         delai_moyen_jours: 9, 
-        statut: 'Actif',
+        statut: 'Inactif',
         email: '24177888003@ndjobi.com',
         phone: '+24177888003',
         role: 'sub_admin',
         organization: 'DGR',
         type_service: 'securite_nationale',
         classification: 'SECRET DÉFENSE',
-        privileges: ['Vue sectorielle renseignement', 'Assignation agents spécialisés', 'Enquêtes sensibles et confidentielles', 'Intelligence anticorruption', 'Rapports de renseignement']
+        privileges: ['Vue sectorielle renseignement', 'Assignation agents spécialisés', 'Enquêtes sensibles et confidentielles', 'Intelligence anticorruption', 'Rapports de renseignement'],
+        inactive: true
       },
       { 
         id: '3', 
@@ -161,14 +162,15 @@ export function useProtocolEtat() {
         cas_traites: 52, 
         taux_succes: 85, 
         delai_moyen_jours: 7, 
-        statut: 'Actif',
+        statut: 'Inactif',
         email: '24177888011@ndjobi.com',
         phone: '+24177888011',
         role: 'sub_admin',
         organization: 'Défense Nationale',
         type_service: 'securite_nationale',
         classification: 'SECRET DÉFENSE',
-        privileges: ['Sécurité militaire', 'Contre-espionnage', 'Protection installations stratégiques', 'Coordination forces armées', 'Renseignement militaire']
+        privileges: ['Sécurité militaire', 'Contre-espionnage', 'Protection installations stratégiques', 'Coordination forces armées', 'Renseignement militaire'],
+        inactive: true
       },
       { 
         id: '4', 
@@ -178,14 +180,15 @@ export function useProtocolEtat() {
         cas_traites: 67, 
         taux_succes: 81, 
         delai_moyen_jours: 6, 
-        statut: 'Actif',
+        statut: 'Inactif',
         email: '24177888012@ndjobi.com',
         phone: '+24177888012',
         role: 'sub_admin',
         organization: 'Intérieur',
         type_service: 'securite_nationale',
         classification: 'CONFIDENTIEL DÉFENSE',
-        privileges: ['Sécurité intérieure', 'Gendarmerie nationale', 'Police nationale', 'Lutte anti-terrorisme', 'Contrôle frontières']
+        privileges: ['Sécurité intérieure', 'Gendarmerie nationale', 'Police nationale', 'Lutte anti-terrorisme', 'Contrôle frontières'],
+        inactive: true
       },
       { 
         id: '5', 
@@ -212,12 +215,13 @@ export function useProtocolEtat() {
         cas_traites: 48, 
         taux_succes: 75, 
         delai_moyen_jours: 7, 
-        statut: 'Actif',
+        statut: 'Inactif',
         email: '24177888005@ndjobi.com',
         phone: '+24177888005',
         role: 'agent',
         organization: 'Ministère Justice',
-        privileges: ['Traitement signalements judiciaires', 'Enquêtes pénales', 'Surveillance juridique', 'Rapports judiciaires']
+        privileges: ['Traitement signalements judiciaires', 'Enquêtes pénales', 'Surveillance juridique', 'Rapports judiciaires'],
+        inactive: true
       },
       { 
         id: '7', 
@@ -227,12 +231,13 @@ export function useProtocolEtat() {
         cas_traites: 55, 
         taux_succes: 82, 
         delai_moyen_jours: 6, 
-        statut: 'Actif',
+        statut: 'Inactif',
         email: '24177888006@ndjobi.com',
         phone: '+24177888006',
         role: 'agent',
         organization: 'Anti-Corruption',
-        privileges: ['Traitement signalements corruption', 'Enquêtes anticorruption', 'Surveillance patrimoniale', 'Rapports anticorruption']
+        privileges: ['Traitement signalements corruption', 'Enquêtes anticorruption', 'Surveillance patrimoniale', 'Rapports anticorruption'],
+        inactive: true
       },
       { 
         id: '8', 

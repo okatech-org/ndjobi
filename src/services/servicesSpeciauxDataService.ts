@@ -282,6 +282,21 @@ export function getCasSensibles(service: string): CasSecurite[] {
         classification: 'CONFIDENTIEL DIPLOMATIQUE',
         menace: 'Sécurité ressortissants',
         prochaineEtape: 'Débriefing et protocoles actualisés'
+      },
+      {
+        id: 'DIP-2025-041',
+        titre: 'Surveillance ambassades étrangères suspectées',
+        description: 'Monitoring activités diplomatiques suspectes. 2 ambassades sous surveillance discrète. Sources HUMINT actives.',
+        montant: 'N/A',
+        statut: 'Surveillance diplomatique',
+        priorite: 'Élevée',
+        dateCreation: '2025-01-12',
+        secteur: 'Contre-espionnage diplomatique',
+        localisation: 'Libreville',
+        classification: 'SECRET DÉFENSE',
+        menace: 'Ingérence étrangère',
+        sourcesRenseignement: '3 sources HUMINT diplomatiques confirmées',
+        prochaineEtape: 'Rapport présidentiel (J-15)'
       }
     ]
   };
