@@ -575,8 +575,140 @@ export default function AdminDashboard() {
         
         // Opinion publique adaptée services spéciaux
         setAdminOpinionPublique(getOpinionPubliqueSecurite(admin.organization) as any);
+      } else if ((admin as any).type_compte === 'identifie') {
+        // **FICHE CITOYEN IDENTIFIÉ** - Informations personnelles + ses signalements
+        setAdminHistory([
+          {
+            id: 1,
+            date: '2025-01-18',
+            action: 'Signalement déposé',
+            description: 'Dénonciation corruption mairie - Marché public truqué',
+            status: 'En traitement',
+            montant: '450 000 000 FCFA'
+          },
+          {
+            id: 2,
+            date: '2025-01-12',
+            action: 'Signalement résolu',
+            description: 'Détournement fonds association - Récupération partielle',
+            status: 'Résolu',
+            montant: '120 000 000 FCFA'
+          },
+          {
+            id: 3,
+            date: '2024-12-20',
+            action: 'Signalement résolu',
+            description: 'Harcèlement fonctionnaire municipal - Sanction appliquée',
+            status: 'Résolu',
+            montant: 'N/A'
+          }
+        ]);
+
+        setAdminCases([
+          {
+            id: 'SIG-USER-2025-089',
+            titre: 'Corruption mairie - Marché public attribution frauduleuse',
+            description: 'Dénonciation attribution marché public 450M FCFA à société fictive. Preuves documentaires fournies (appel d\'offres, factures, témoignages).',
+            montant: '450 000 000 FCFA',
+            statut: 'En traitement',
+            priorite: 'Haute',
+            dateCreation: '2025-01-18',
+            secteur: 'Administration locale',
+            localisation: 'Libreville',
+            auteur: (admin as any).identite?.nom_complet,
+            anonymat: 'Non (identité révélée)'
+          },
+          {
+            id: 'SIG-USER-2024-234',
+            titre: 'Détournement fonds association quartier',
+            description: 'Président association détourne subventions municipales. Somme récupérée partiellement après enquête.',
+            montant: '120 000 000 FCFA',
+            statut: 'Résolu',
+            priorite: 'Moyenne',
+            dateCreation: '2024-12-20',
+            secteur: 'Société civile',
+            localisation: 'Gros-Bouquet, Libreville',
+            auteur: (admin as any).identite?.nom_complet,
+            anonymat: 'Non'
+          },
+          {
+            id: 'SIG-USER-2024-187',
+            titre: 'Racket agent municipal sur commerçants',
+            description: 'Agent municipal exige pots-de-vin pour délivrance autorisations. En cours de vérification.',
+            montant: 'Estimé: 15 000 000 FCFA',
+            statut: 'Enquête préliminaire',
+            priorite: 'Moyenne',
+            dateCreation: '2024-11-28',
+            secteur: 'Administration locale',
+            localisation: 'Gros-Bouquet',
+            auteur: (admin as any).identite?.nom_complet,
+            anonymat: 'Non'
+          }
+        ]);
+
+        setAdminProblematiques([]);
+        setAdminRecommandations([]);
+        setAdminOpinionPublique(null);
+      } else if ((admin as any).type_compte === 'anonyme') {
+        // **SIGNALEMENTS ANONYMES "Taper le Ndjobi"** - Uniquement dénonciations, aucune info personnelle
+        setAdminHistory([]);
+        
+        setAdminCases([
+          {
+            id: 'ANON-2025-1234',
+            titre: 'Détournement subventions agriculture (dénonciation anonyme)',
+            description: 'Source anonyme signale détournement 800M FCFA programme agricole. Vérifications en cours. Aucune identité révélée.',
+            montant: '800 000 000 FCFA',
+            statut: 'Vérification',
+            priorite: 'Haute',
+            dateCreation: '2025-01-16',
+            secteur: 'Agriculture',
+            localisation: 'Haut-Ogooué (source: métadonnées SMS)',
+            auteur: 'ANONYME',
+            anonymat: 'Complet (XR-7 requis)',
+            numero_anonyme: 'ANON-2025-1234',
+            methode: 'SMS "Taper le Ndjobi"',
+            metadata_xr7: 'IP, géolocalisation, analyse comportementale disponibles via XR-7'
+          },
+          {
+            id: 'ANON-2025-0987',
+            titre: 'Corruption juge tribunal (dénonciation anonyme)',
+            description: 'Allégations corruption magistrat. Demande enquête discrète. Protection identité critique.',
+            montant: 'Pots-de-vin: 50 000 000 FCFA',
+            statut: 'Enquête discrète',
+            priorite: 'Critique',
+            dateCreation: '2025-01-14',
+            secteur: 'Justice',
+            localisation: 'Libreville (source: métadonnées WhatsApp)',
+            auteur: 'ANONYME',
+            anonymat: 'Complet (XR-7 requis)',
+            numero_anonyme: 'ANON-2025-0987',
+            methode: 'WhatsApp "Taper le Ndjobi"',
+            metadata_xr7: 'Numéro téléphone chiffré, timestamp, empreinte appareil disponibles via XR-7'
+          },
+          {
+            id: 'ANON-2024-5621',
+            titre: 'Trafic influence entreprise publique (anonyme)',
+            description: 'Dénonciations nominations frauduleuses contre commissions. Enquête préliminaire ouverte.',
+            montant: 'Non chiffré',
+            statut: 'Analyse',
+            priorite: 'Moyenne',
+            dateCreation: '2024-12-28',
+            secteur: 'Entreprises publiques',
+            localisation: 'Port-Gentil (source: géolocalisation approximative)',
+            auteur: 'ANONYME',
+            anonymat: 'Complet (XR-7 requis)',
+            numero_anonyme: 'ANON-2024-5621',
+            methode: 'SMS "Taper le Ndjobi"',
+            metadata_xr7: 'Traces numériques disponibles via XR-7 uniquement'
+          }
+        ]);
+
+        setAdminProblematiques([]);
+        setAdminRecommandations([]);
+        setAdminOpinionPublique(null);
       } else {
-        // Données génériques pour les autres agents
+        // Données génériques pour les autres agents (non Pêche, non Services Spéciaux)
         setAdminHistory([
           {
             id: 1,
@@ -610,35 +742,8 @@ export default function AdminDashboard() {
           }
         ]);
 
-        // Problématiques génériques
-        setAdminProblematiques([
-          {
-            id: 'PROB-GEN-001',
-            titre: 'Problématique sectorielle',
-            description: 'Enjeu identifié dans le secteur d\'activité',
-            impact: 'Moyen',
-            montant: '500 000 000 FCFA',
-            statut: 'En cours',
-            classification: 'Pas urgent',
-            dateDetection: '2025-01-15',
-            secteur: admin.organization
-          }
-        ]);
-
-        // Recommandations génériques
-        setAdminRecommandations([
-          {
-            id: 'REC-GEN-001',
-            titre: 'Recommandation sectorielle',
-            description: 'Amélioration des processus dans le secteur',
-            priorite: 'Moyenne',
-            statut: 'Proposé',
-            classification: 'Pas urgent',
-            impact: 'Optimisation des performances',
-            delai: '60 jours',
-            responsable: admin.organization
-          }
-        ]);
+        setAdminProblematiques([]);
+        setAdminRecommandations([]);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des détails:', error);
@@ -1455,7 +1560,7 @@ export default function AdminDashboard() {
         >
           <UserPlus className="h-4 w-4 mr-2" />
           Nommer Agent
-        </Button>
+              </Button>
             </div>
 
       {/* Barre de recherche intelligente */}
@@ -1595,18 +1700,18 @@ export default function AdminDashboard() {
 
               {/* Métriques de performance */}
               <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
+              <div>
                   <div className="text-muted-foreground mb-1">Cas traités</div>
                   <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites}</div>
-                </div>
+              </div>
                 <div>
                   <div className="text-muted-foreground mb-1">Taux succès</div>
                   <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes}%</div>
-                </div>
-                <div>
+            </div>
+              <div>
                   <div className="text-muted-foreground mb-1">Délai moyen</div>
                   <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours}j</div>
-                </div>
+              </div>
               </div>
 
               <Progress value={admin.taux || admin.taux_succes} className="h-2" />
@@ -1700,13 +1805,13 @@ export default function AdminDashboard() {
                     <FileText className="h-4 w-4 mr-2 text-[hsl(var(--accent-success))]" />
                   )}
                   Rapport
-                </Button>
-              </div>
+              </Button>
+            </div>
             </CardContent>
           </Card>
           );
         })}
-        </div>
+              </div>
       )}
 
       <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
@@ -1884,8 +1989,66 @@ export default function AdminDashboard() {
                   </div>
                 </DialogDescription>
               </>
+            ) : (selectedAdmin as any)?.type_compte === 'identifie' ? (
+              // **EN-TÊTE CITOYEN IDENTIFIÉ**
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <Badge className="bg-[hsl(var(--accent-success))]/90 text-white text-xs font-bold px-3 py-1">
+                    👤 Citoyen Identifié
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Compte vérifié
+                  </Badge>
+                </div>
+                <DialogTitle className="flex items-center gap-2 text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-success))]/20 to-[hsl(var(--accent-intel))]/20">
+                    <Users className="h-5 w-5 text-[hsl(var(--accent-success))]" />
+                  </div>
+                  <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                    Fiche Citoyen - {(selectedAdmin as any)?.identite?.nom_complet || selectedAdmin?.nom}
+                  </span>
+                </DialogTitle>
+                <DialogDescription className="text-sm mt-2 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                    <span>{selectedAdmin?.email}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Compte citoyen avec signalements non anonymes
+                  </div>
+                </DialogDescription>
+              </>
+            ) : (selectedAdmin as any)?.type_compte === 'anonyme' ? (
+              // **EN-TÊTE SIGNALEMENTS ANONYMES**
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <Badge className="bg-purple-600/90 text-white text-xs font-bold px-3 py-1">
+                    🔒 Signalements Anonymes
+                  </Badge>
+                  <Badge variant="outline" className="text-xs text-red-600 border-red-600/30">
+                    Protection XR-7
+                  </Badge>
+                </div>
+                <DialogTitle className="flex items-center gap-2 text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                    <AlertCircle className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                    Signalements "Taper le Ndjobi" - {(selectedAdmin as any)?.numero_anonyme}
+                  </span>
+                </DialogTitle>
+                <DialogDescription className="text-sm mt-2 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-purple-600" />
+                    <span className="font-semibold">Protection identité totale</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Révélation autorisée uniquement via Protocole XR-7 (décision présidentielle)
+                  </div>
+                </DialogDescription>
+              </>
             ) : (
-              // **EN-TÊTE STANDARD (Agents, Citoyens)**
+              // **EN-TÊTE STANDARD (Agents)**
               <>
                 <DialogTitle className="flex items-center gap-2 text-xl">
                   <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20">
@@ -1905,7 +2068,88 @@ export default function AdminDashboard() {
           
           {selectedAdmin && (
             <div className="space-y-6 py-4 flex-1 overflow-y-auto pr-2">
-              {/* Analyse et recommandations présidentielles - EN HAUT */}
+              {/* INFORMATIONS IDENTITÉ CITOYEN (si citoyen identifié) */}
+              {(selectedAdmin as any)?.type_compte === 'identifie' && (selectedAdmin as any)?.identite && (
+                <Card className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-success))]/5 to-transparent">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Users className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+                      Informations Personnelles
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Identité vérifiée - Compte citoyen non anonyme
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="space-y-3">
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Nom complet</div>
+                          <div className="font-semibold text-foreground">{(selectedAdmin as any).identite.nom_complet}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Date de naissance</div>
+                          <div className="font-medium text-foreground">{new Date((selectedAdmin as any).identite.date_naissance).toLocaleDateString('fr-FR')}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Lieu de naissance</div>
+                          <div className="font-medium text-foreground">{(selectedAdmin as any).identite.lieu_naissance}</div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Profession</div>
+                          <div className="font-medium text-foreground">{(selectedAdmin as any).identite.profession}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Quartier/Zone</div>
+                          <div className="font-medium text-foreground">{(selectedAdmin as any).identite.quartier}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Inscription NDJOBI</div>
+                          <div className="font-medium text-foreground">{new Date((selectedAdmin as any).identite.date_inscription).toLocaleDateString('fr-FR')}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Statistiques signalements */}
+                    <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-muted/20">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-[hsl(var(--accent-intel))]">{(selectedAdmin as any).identite.signalements_total}</div>
+                        <div className="text-xs text-muted-foreground">Total signalements</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-[hsl(var(--accent-warning))]">{(selectedAdmin as any).identite.signalements_en_cours}</div>
+                        <div className="text-xs text-muted-foreground">En cours</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-[hsl(var(--accent-success))]">{(selectedAdmin as any).identite.signalements_resolus}</div>
+                        <div className="text-xs text-muted-foreground">Résolus</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* AVERTISSEMENT ANONYMAT (si signalements anonymes) */}
+              {(selectedAdmin as any)?.type_compte === 'anonyme' && (
+                <Alert className="glass-effect border-none bg-gradient-to-br from-purple-500/10 to-pink-500/10">
+                  <Shield className="h-4 w-4 text-purple-600" />
+                  <AlertTitle className="text-purple-600 font-semibold">Protection Identité - Protocole XR-7</AlertTitle>
+                  <AlertDescription className="text-xs text-muted-foreground space-y-2">
+                    <p>{(selectedAdmin as any)?.avertissement}</p>
+                    <p className="font-medium text-foreground/80">
+                      Méthode de contact: {(selectedAdmin as any)?.methode_contact}
+                    </p>
+                    <p className="text-[10px] text-purple-600">
+                      ⚠️ Métadonnées disponibles (IP, géolocalisation, analyse comportementale) accessibles uniquement via activation Protocole XR-7 avec décision présidentielle explicite.
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Analyse et recommandations présidentielles - EN HAUT (sauf pour citoyens) */}
+              {!((selectedAdmin as any)?.type_compte === 'identifie' || (selectedAdmin as any)?.type_compte === 'anonyme') && (
               <Card className="glass-effect border-none">
                 <CardHeader>
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -2433,8 +2677,10 @@ export default function AdminDashboard() {
                   </Alert>
                 </CardContent>
               </Card>
+              )}
 
               {/* Informations principales */}
+              {!((selectedAdmin as any)?.type_compte === 'identifie' || (selectedAdmin as any)?.type_compte === 'anonyme') && (
               <div className="grid grid-cols-2 gap-4">
                 <Card className="glass-effect border-none">
                   <CardHeader className="pb-3">
@@ -2462,8 +2708,10 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </div>
+              )}
 
               {/* Métriques de performance */}
+              {!((selectedAdmin as any)?.type_compte === 'identifie' || (selectedAdmin as any)?.type_compte === 'anonyme') && (
               <Card className="glass-effect border-none">
                 <CardHeader>
                   <CardTitle className="text-sm font-medium">Performance</CardTitle>
@@ -2492,9 +2740,10 @@ export default function AdminDashboard() {
                   <Progress value={selectedAdmin.taux_succes || selectedAdmin.taux} className="h-2 mt-4" />
                 </CardContent>
               </Card>
+              )}
 
               {/* Privilèges */}
-              {selectedAdmin.privileges && (
+              {!((selectedAdmin as any)?.type_compte === 'anonyme') && selectedAdmin.privileges && (
                 <Card className="glass-effect border-none">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium">Privilèges</CardTitle>
@@ -2522,6 +2771,16 @@ export default function AdminDashboard() {
                           <Shield className="h-4 w-4 text-red-600" />
                           Opérations sensibles en cours
                         </>
+                      ) : (selectedAdmin as any)?.type_compte === 'anonyme' ? (
+                        <>
+                          <AlertCircle className="h-4 w-4 text-purple-600" />
+                          Dénonciations Anonymes "Taper le Ndjobi"
+                        </>
+                      ) : (selectedAdmin as any)?.type_compte === 'identifie' ? (
+                        <>
+                          <FileText className="h-4 w-4 text-[hsl(var(--accent-success))]" />
+                          Mes Signalements Non-Anonymes
+                        </>
                       ) : selectedAdmin.nom === 'Agent Pêche' ? (
                         <>
                           <Package className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
@@ -2537,9 +2796,13 @@ export default function AdminDashboard() {
                     <CardDescription className="text-xs text-muted-foreground">
                       {(selectedAdmin as any)?.type_service === 'securite_nationale' 
                         ? `${(selectedAdmin as any).classification} - Dossiers actifs et surveillance`
-                        : selectedAdmin.nom === 'Agent Pêche'
-                          ? 'Enquêtes en cours sur les activités de pêche illégales et détournements de fonds'
-                          : 'Enquêtes et dossiers en cours de traitement'
+                        : (selectedAdmin as any)?.type_compte === 'anonyme'
+                          ? `${adminCases.length} dénonciations anonymes via SMS/WhatsApp - Identité protégée par XR-7`
+                          : (selectedAdmin as any)?.type_compte === 'identifie'
+                            ? `${adminCases.length} signalements déposés par ce citoyen (identité révélée)`
+                            : selectedAdmin.nom === 'Agent Pêche'
+                              ? 'Enquêtes en cours sur les activités de pêche illégales et détournements de fonds'
+                              : 'Enquêtes et dossiers en cours de traitement'
                       }
                     </CardDescription>
                   </CardHeader>
@@ -2615,6 +2878,64 @@ export default function AdminDashboard() {
                               )}
                             </div>
                           )}
+
+                          {/* Champs spécifiques signalements anonymes */}
+                          {(selectedAdmin as any)?.type_compte === 'anonyme' && (
+                            <div className="space-y-2 mt-3 pt-3 border-t border-purple-500/20 bg-purple-500/5 p-3 rounded">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Shield className="h-3 w-3 text-purple-600" />
+                                <span className="text-xs font-semibold text-purple-600">Protection Anonymat - XR-7</span>
+                              </div>
+                              {(cas as any).auteur && (
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-3 w-3 text-purple-600" />
+                                  <span className="text-xs font-medium">Auteur: <span className="text-purple-600">{(cas as any).auteur}</span></span>
+                                </div>
+                              )}
+                              {(cas as any).anonymat && (
+                                <div className="flex items-center gap-2">
+                                  <AlertCircle className="h-3 w-3 text-purple-600" />
+                                  <span className="text-xs">Anonymat: <span className="font-semibold text-purple-600">{(cas as any).anonymat}</span></span>
+                                </div>
+                              )}
+                              {(cas as any).numero_anonyme && (
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-[10px] text-purple-600 border-purple-600/30">
+                                    N° Anonyme: {(cas as any).numero_anonyme}
+                                  </Badge>
+                                </div>
+                              )}
+                              {(cas as any).methode && (
+                                <div className="flex items-start gap-2">
+                                  <Phone className="h-3 w-3 text-purple-600 mt-0.5" />
+                                  <div className="flex-1">
+                                    <span className="text-[10px] text-muted-foreground">Méthode: </span>
+                                    <span className="text-[10px] text-foreground/80">{(cas as any).methode}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {(cas as any).metadata_xr7 && (
+                                <div className="flex items-start gap-2">
+                                  <Zap className="h-3 w-3 text-red-600 mt-0.5" />
+                                  <div className="flex-1">
+                                    <span className="text-[10px] text-muted-foreground">Métadonnées XR-7: </span>
+                                    <span className="text-[10px] font-medium text-red-600">{(cas as any).metadata_xr7}</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Informations auteur pour citoyens identifiés */}
+                          {(selectedAdmin as any)?.type_compte === 'identifie' && (cas as any).auteur && (
+                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-muted/20">
+                              <Users className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                              <span className="text-xs">Déposé par: <span className="font-semibold text-foreground">{(cas as any).auteur}</span></span>
+                              <Badge variant="outline" className="text-[10px]">
+                                {(cas as any).anonymat || 'Identité révélée'}
+                              </Badge>
+                            </div>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 text-xs">
@@ -2647,8 +2968,12 @@ export default function AdminDashboard() {
                             <AlertTriangle className="h-4 w-4 text-red-500" />
                             <AlertTitle className="text-red-500 text-xs">Action immédiate requise</AlertTitle>
                             <AlertDescription className="text-xs text-muted-foreground">
-                              Ce dossier nécessite une intervention urgente du Président. 
-                              Impact financier majeur sur l'économie bleue gabonaise.
+                              {(selectedAdmin as any)?.type_compte === 'anonyme' 
+                                ? 'Dénonciation anonyme critique. Vérifications prioritaires requises. Activation XR-7 possible pour révélation identité si nécessaire.'
+                                : (selectedAdmin as any)?.type_compte === 'identifie'
+                                  ? 'Signalement citoyen prioritaire. Traitement urgent requis pour maintenir confiance citoyenne.'
+                                  : 'Ce dossier nécessite une intervention urgente du Président. Impact financier majeur sur l\'économie bleue gabonaise.'
+                              }
                             </AlertDescription>
                           </Alert>
                         )}
@@ -2710,7 +3035,7 @@ export default function AdminDashboard() {
               )}
 
               {/* Historique des activités */}
-              {adminHistory.length > 0 && (
+              {!((selectedAdmin as any)?.type_compte === 'anonyme') && adminHistory.length > 0 && (
                 <Card className="glass-effect border-none">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -3864,7 +4189,7 @@ export default function AdminDashboard() {
           })}
         </div>
       )}
-    </div>
+            </div>
   );
 
   const renderRapportsStrategiques = () => (

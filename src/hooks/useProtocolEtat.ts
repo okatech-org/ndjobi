@@ -267,22 +267,39 @@ export function useProtocolEtat() {
         phone: '+24177888008',
         role: 'user',
         organization: 'Citoyen Gabonais',
-        privileges: ['Création signalements', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED']
+        type_compte: 'identifie',
+        privileges: ['Création signalements', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED'],
+        identite: {
+          nom_complet: 'Jean-Paul Mbongo',
+          date_naissance: '1985-03-15',
+          lieu_naissance: 'Libreville',
+          profession: 'Commerçant',
+          quartier: 'Gros-Bouquet, Libreville',
+          date_inscription: '2024-11-12',
+          signalements_total: 12,
+          signalements_en_cours: 3,
+          signalements_resolus: 9
+        }
       },
       { 
         id: '10', 
-        user_id: '24177888009', 
-        nom: 'Citoyen Anonyme', 
-        secteur: 'Citoyen Gabonais', 
-        cas_traites: 8, 
-        taux_succes: 90, 
-        delai_moyen_jours: 4, 
+        user_id: 'ANON-2024-7891', 
+        nom: 'Signalements Anonymes', 
+        secteur: 'Taper le Ndjobi (Anonyme)', 
+        cas_traites: 47, 
+        taux_succes: 68, 
+        delai_moyen_jours: 8, 
         statut: 'Actif',
-        email: '24177888009@ndjobi.com',
-        phone: '+24177888009',
+        email: 'anonyme@ndjobi.system',
+        phone: 'N/A (Protection Anonymat)',
         role: 'user',
-        organization: 'Citoyen Gabonais',
-        privileges: ['Création signalements anonymes', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED']
+        organization: 'Signalements Anonymes',
+        type_compte: 'anonyme',
+        privileges: ['Signalements anonymes "Taper le Ndjobi"', 'Protection identité totale', 'Aucune traçabilité', 'Révélation XR-7 uniquement'],
+        numero_anonyme: 'ANON-2024-7891',
+        methode_contact: 'SMS/WhatsApp "Taper le Ndjobi"',
+        protection_xr7: true,
+        avertissement: 'Identité protégée. Révélation autorisée uniquement via Protocole XR-7 (décision présidentielle).'
       }
     ]);
     
