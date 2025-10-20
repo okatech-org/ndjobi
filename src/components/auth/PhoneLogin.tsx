@@ -86,6 +86,19 @@ export const PhoneLogin = () => {
 
       if (signInError) {
         console.error('Auth error:', signInError);
+        
+        if (signInError.message.includes('Database error')) {
+          throw new Error(
+            '🔴 Erreur de base de données détectée.\n\n' +
+            '👉 Action requise :\n' +
+            '1. Allez sur Supabase Dashboard\n' +
+            '2. Ouvrez SQL Editor\n' +
+            '3. Exécutez le script : scripts/fix-auth-error-simple.sql\n' +
+            '4. Rafraîchissez cette page et réessayez\n\n' +
+            'Détails : ' + signInError.message
+          );
+        }
+        
         throw new Error('Numéro ou code PIN incorrect');
       }
 
