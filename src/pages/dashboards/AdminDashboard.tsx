@@ -208,7 +208,7 @@ export default function AdminDashboard() {
   const [formatRapport, setFormatRapport] = useState<'gamma-pdf' | 'gamma-pptx'>('gamma-pdf');
   
   // État de navigation pour la vue Président
-  const [presidentTab, setPresidentTab] = useState<'brief' | 'vue-ensemble' | 'opinion' | 'situations' | 'vision'>('brief');
+  const [presidentTab, setPresidentTab] = useState<string>('vue-ensemble');
   
   // États pour la configuration Gamma AI
   const [gammaConfig, setGammaConfig] = useState({
@@ -1091,6 +1091,105 @@ export default function AdminDashboard() {
   // Fonction pour générer le rapport d'un admin (ancienne fonction)
   const handleGenererRapportAdmin = async (admin: AdminData) => {
     handleOuvrirRapportModal(admin);
+  };
+
+  // ============================================================================
+  // INTERFACE HYBRIDE PRÉSIDENT - 11 Onglets
+  // ============================================================================
+  const renderPresidentHybrid = () => {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+        <Header />
+        
+        <main className="container mx-auto px-4 py-8 space-y-6">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-700 via-green-600 to-blue-700 p-8 text-white shadow-2xl">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48"></div>
+            <div className="relative flex items-center gap-6">
+              <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/20">
+                <img src={emblemGabon} alt="Armoiries du Gabon" className="w-20 h-20 object-contain" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <Crown className="h-8 w-8" />
+                  <h1 className="text-3xl font-bold">Dashboard Président/Admin Unifié</h1>
+                </div>
+                <p className="text-green-100 text-lg">Vue stratégique ET gestion opérationnelle • République Gabonaise</p>
+              </div>
+            </div>
+          </div>
+
+          <Tabs value={presidentTab} onValueChange={setPresidentTab} className="space-y-6">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-xl h-auto">
+              <TabsTrigger value="vue-ensemble" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+                <Eye className="h-4 w-4 mr-2" />Vue Ensemble
+              </TabsTrigger>
+              <TabsTrigger value="opinion" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+                <Users className="h-4 w-4 mr-2" />Opinion
+              </TabsTrigger>
+              <TabsTrigger value="situations" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+                <AlertCircle className="h-4 w-4 mr-2" />Situations
+              </TabsTrigger>
+              <TabsTrigger value="vision" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+                <Target className="h-4 w-4 mr-2" />Vision
+              </TabsTrigger>
+              
+              <div className="col-span-full flex items-center gap-3 py-1">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
+                <Badge variant="outline" className="text-xs font-semibold px-3 bg-blue-50">
+                  <Crown className="h-3 w-3 mr-1" />OPÉRATIONNEL
+                </Badge>
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
+              </div>
+
+              <TabsTrigger value="gestion" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                <Building2 className="h-4 w-4 mr-2" />Institutions
+              </TabsTrigger>
+              <TabsTrigger value="validation" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                <Shield className="h-4 w-4 mr-2" />Validation
+              </TabsTrigger>
+              <TabsTrigger value="enquetes" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                <MapPin className="h-4 w-4 mr-2" />Enquêtes
+              </TabsTrigger>
+              <TabsTrigger value="rapports" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                <FileText className="h-4 w-4 mr-2" />Rapports
+              </TabsTrigger>
+              <TabsTrigger value="xr7" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+                <Radio className="h-4 w-4 mr-2" />XR-7
+              </TabsTrigger>
+              <TabsTrigger value="iasted" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                <Brain className="h-4 w-4 mr-2" />iAsted
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white">
+                <Settings className="h-4 w-4 mr-2" />Config
+              </TabsTrigger>
+            </TabsList>
+
+            <Suspense fallback={<div className="flex items-center justify-center p-12"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div></div>}>
+              <TabsContent value="vue-ensemble"><VueEnsemble /></TabsContent>
+              <TabsContent value="opinion"><OpinionPublique /></TabsContent>
+              <TabsContent value="situations"><SituationsCritiques /></TabsContent>
+              <TabsContent value="vision"><VisionNationale /></TabsContent>
+              <TabsContent value="gestion">{renderGestionInstitutions()}</TabsContent>
+              <TabsContent value="validation">{renderValidation()}</TabsContent>
+              <TabsContent value="enquetes">{renderSuiviEnquetes()}</TabsContent>
+              <TabsContent value="rapports">{renderRapportsStrategiques()}</TabsContent>
+              <TabsContent value="xr7"><ModuleXR7 /></TabsContent>
+              <TabsContent value="iasted"><IAstedChat isOpen={true} /></TabsContent>
+              <TabsContent value="settings">
+                <div className="text-center p-8">
+                  <Settings className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold">Paramètres</h3>
+                  <p className="text-muted-foreground mt-2">Configuration du dashboard (à venir)</p>
+                </div>
+              </TabsContent>
+            </Suspense>
+          </Tabs>
+        </main>
+        
+        <Footer />
+        <IAstedFloatingButton />
+      </div>
+    );
   };
 
   if (authLoading) {
@@ -4355,92 +4454,6 @@ export default function AdminDashboard() {
       )}
             </div>
   );
-
-  const renderPresidentHybrid = () => {
-    const [presidentTab, setPresidentTab] = useState('vue-ensemble');
-    
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
-        <Header />
-        
-        <main className="container mx-auto px-4 py-8 space-y-6">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-700 via-green-600 to-blue-700 p-8 text-white shadow-2xl">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48"></div>
-            <div className="relative flex items-center gap-6">
-              <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/20">
-                <img src={emblemGabon} alt="Armoiries du Gabon" className="w-20 h-20 object-contain" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <Crown className="h-8 w-8" />
-                  <h1 className="text-3xl font-bold">Dashboard Président/Admin Unifié</h1>
-                </div>
-                <p className="text-green-100 text-lg">Vue stratégique ET gestion opérationnelle • République Gabonaise</p>
-              </div>
-            </div>
-          </div>
-
-          <Tabs value={presidentTab} onValueChange={setPresidentTab} className="space-y-6">
-            <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-xl h-auto">
-              <TabsTrigger value="vue-ensemble" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
-                <Eye className="h-4 w-4 mr-2" />Vue Ensemble
-              </TabsTrigger>
-              <TabsTrigger value="opinion" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
-                <Users className="h-4 w-4 mr-2" />Opinion
-              </TabsTrigger>
-              <TabsTrigger value="situations" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
-                <AlertCircle className="h-4 w-4 mr-2" />Situations
-              </TabsTrigger>
-              <TabsTrigger value="vision" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
-                <Target className="h-4 w-4 mr-2" />Vision
-              </TabsTrigger>
-              
-              <div className="col-span-full flex items-center gap-3 py-1"><div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div><Badge variant="outline" className="text-xs font-semibold px-3 bg-blue-50"><Crown className="h-3 w-3 mr-1" />OPÉRATIONNEL</Badge><div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div></div>
-
-              <TabsTrigger value="gestion" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                <Building2 className="h-4 w-4 mr-2" />Institutions
-              </TabsTrigger>
-              <TabsTrigger value="validation" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                <Shield className="h-4 w-4 mr-2" />Validation
-              </TabsTrigger>
-              <TabsTrigger value="enquetes" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                <MapPin className="h-4 w-4 mr-2" />Enquêtes
-              </TabsTrigger>
-              <TabsTrigger value="rapports" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                <FileText className="h-4 w-4 mr-2" />Rapports
-              </TabsTrigger>
-              <TabsTrigger value="xr7" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
-                <Radio className="h-4 w-4 mr-2" />XR-7
-              </TabsTrigger>
-              <TabsTrigger value="iasted" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-                <Brain className="h-4 w-4 mr-2" />iAsted
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white">
-                <Settings className="h-4 w-4 mr-2" />Config
-              </TabsTrigger>
-            </TabsList>
-
-            <Suspense fallback={<div className="flex items-center justify-center p-12"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div></div>}>
-              <TabsContent value="vue-ensemble"><VueEnsemble /></TabsContent>
-              <TabsContent value="opinion"><OpinionPublique /></TabsContent>
-              <TabsContent value="situations"><SituationsCritiques /></TabsContent>
-              <TabsContent value="vision"><VisionNationale /></TabsContent>
-              <TabsContent value="gestion">{renderGestionInstitutions()}</TabsContent>
-              <TabsContent value="validation">{renderValidation()}</TabsContent>
-              <TabsContent value="enquetes">{renderSuiviEnquetes()}</TabsContent>
-              <TabsContent value="rapports">{renderRapportsStrategiques()}</TabsContent>
-              <TabsContent value="xr7"><ModuleXR7 /></TabsContent>
-              <TabsContent value="iasted"><IAstedChat isOpen={true} /></TabsContent>
-              <TabsContent value="settings"><div className="text-center p-8"><Settings className="h-16 w-16 mx-auto mb-4 text-muted-foreground" /><h3 className="text-lg font-semibold">Paramètres</h3></div></TabsContent>
-            </Suspense>
-          </Tabs>
-        </main>
-        
-        <Footer />
-        <IAstedFloatingButton />
-      </div>
-    );
-  };
 
   const renderRapportsStrategiques = () => (
     <div className="space-y-3 md:space-y-6">
