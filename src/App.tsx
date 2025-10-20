@@ -22,7 +22,6 @@ import { PWAAuth } from "@/components/auth/PWAAuth";
 // Lazy loading UNIQUEMENT pour les routes rarement utilisées
 const AgentDashboard = lazy(() => import("./pages/dashboards/AgentDashboard"));
 const AdminDashboard = lazy(() => import("./pages/dashboards/Admin"));
-const UnifiedPresidentDashboard = lazy(() => import("./pages/dashboards/Unified"));
 const SuperAdminDashboard = lazy(() => import("./pages/dashboards/SuperAdminDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -114,7 +113,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const effectiveRole = (localDemoRole as string) || (role as string) || null;
   if (effectiveRole && location.pathname === '/') {
     const dashboardUrl = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
-                        isPresident ? '/dashboard/unified' :
+                        isPresident ? '/dashboard/admin' :
                         effectiveRole === 'admin' ? '/dashboard/admin' :
                         effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
     console.log('📍 Redirection depuis / vers', dashboardUrl);
@@ -124,7 +123,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // Si on est déjà dans une route dashboard qui ne correspond pas au rôle effectif, rediriger UNE SEULE FOIS
   if (effectiveRole && location.pathname.startsWith('/dashboard')) {
     const target = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
-                   isPresident ? '/dashboard/unified' :
+                   isPresident ? '/dashboard/admin' :
                    effectiveRole === 'admin' ? '/dashboard/admin' :
                    effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
     if (!location.pathname.startsWith(target)) {
@@ -151,7 +150,6 @@ const NdjobiAgentVisibility = () => {
   const path = location.pathname || '';
   const isRestrictedSpace =
     path.startsWith('/dashboard/admin') ||
-    path.startsWith('/dashboard/unified') ||
     path.startsWith('/dashboard/super-admin') ||
     path.startsWith('/dashboard/agent');
 
@@ -241,16 +239,6 @@ const App = () => {
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard admin..." />}>
                     <AdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/unified"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard présidentiel..." />}>
-                    <UnifiedPresidentDashboard />
                   </Suspense>
                 </ProtectedRoute>
               }
