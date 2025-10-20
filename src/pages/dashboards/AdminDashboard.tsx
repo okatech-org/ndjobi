@@ -231,6 +231,11 @@ export default function AdminDashboard() {
     return matchesSearch && matchesRole && matchesOrganization;
   });
 
+  // Filtrage spécifique pour chaque vue
+  const filteredAgents = filteredSousAdmins.filter(admin => admin.role === 'agent');
+  const filteredSubAdmins = filteredSousAdmins.filter(admin => admin.role === 'sub_admin');
+  const filteredCitoyens = filteredSousAdmins.filter(admin => admin.role === 'user');
+
   // Obtenir les organisations uniques
   const uniqueOrganizations = Array.from(new Set(sousAdmins.map(admin => admin.organization))).filter(Boolean);
 
@@ -1408,13 +1413,13 @@ export default function AdminDashboard() {
           </div>
   );
 
-  const renderGestionSousAdmins = () => (
+  const renderGestionInstitutions = () => (
       <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion Institutions</h3>
           <p className="text-muted-foreground mt-1">
-            Supervision des directeurs sectoriels et performance
+            Supervision des agents sectoriels et performance
           </p>
             </div>
         <Button 
@@ -1422,7 +1427,7 @@ export default function AdminDashboard() {
           onClick={() => setIsNommerModalOpen(true)}
         >
           <UserPlus className="h-4 w-4 mr-2" />
-          Nommer Sous-Admin
+          Nommer Agent
         </Button>
             </div>
 
@@ -1446,10 +1451,8 @@ export default function AdminDashboard() {
               <SelectValue placeholder="Filtrer par rôle" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tous les rôles</SelectItem>
-              <SelectItem value="sub_admin">Sub-Admin</SelectItem>
+              <SelectItem value="all">Tous les agents</SelectItem>
               <SelectItem value="agent">Agent</SelectItem>
-              <SelectItem value="user">Citoyen</SelectItem>
             </SelectContent>
           </Select>
           
@@ -1471,7 +1474,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
             <span>
-              {filteredSousAdmins.length} compte{filteredSousAdmins.length > 1 ? 's' : ''} trouvé{filteredSousAdmins.length > 1 ? 's' : ''}
+              {filteredAgents.length} agent{filteredAgents.length > 1 ? 's' : ''} trouvé{filteredAgents.length > 1 ? 's' : ''}
               {searchQuery && ` pour "${searchQuery}"`}
             </span>
             {(searchQuery || selectedRole !== 'all' || selectedOrganization !== 'all') && (
@@ -1492,29 +1495,23 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
-              {sousAdmins.filter(a => a.role === 'sub_admin').length} Sub-Admin
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {sousAdmins.filter(a => a.role === 'agent').length} Agent
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {sousAdmins.filter(a => a.role === 'user').length} Citoyen
+              {filteredAgents.length} Agent
             </Badge>
           </div>
         </div>
       </div>
 
       {/* Résultats de recherche */}
-      {filteredSousAdmins.length === 0 ? (
+      {filteredAgents.length === 0 ? (
         <div className="text-center py-12">
           <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-            Aucun compte trouvé
+            Aucun agent trouvé
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
             {searchQuery 
-              ? `Aucun résultat pour "${searchQuery}". Essayez avec d'autres termes.`
-              : "Aucun compte ne correspond aux filtres sélectionnés."
+              ? `Aucun agent trouvé pour "${searchQuery}". Essayez avec d'autres termes.`
+              : "Aucun agent ne correspond aux filtres sélectionnés."
             }
           </p>
           <Button
@@ -1532,7 +1529,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredSousAdmins.map((admin, idx) => (
+          {filteredAgents.map((admin, idx) => (
           <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
             admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
           }`}>
@@ -1623,21 +1620,21 @@ export default function AdminDashboard() {
                 </Alert>
               )}
 
-              <div className="flex gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="flex-1 glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                  className="w-full glass-effect border-none bg-[hsl(var(--accent-intel))]/5 hover:bg-[hsl(var(--accent-intel))]/15"
                   onClick={() => handleVoirDetails(admin)}
                   disabled={isLoadingAction}
                 >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Voir Détails
+                  <Eye className="h-4 w-4 mr-2 text-[hsl(var(--accent-intel))]" />
+                  Détails
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 glass-effect border-none hover:bg-purple-500/10"
+                  className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -1648,20 +1645,20 @@ export default function AdminDashboard() {
                   }}
                   title="Rapport iAsted (vocal)"
                 >
-                  <Mic className="h-4 w-4 mr-2" />
-                  Rapport iAsted
+                  <Mic className="h-4 w-4 mr-2 text-purple-600" />
+                  iAsted
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="flex-1 glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                  className="w-full glass-effect border-none bg-[hsl(var(--accent-success))]/5 hover:bg-[hsl(var(--accent-success))]/15"
                   onClick={() => handleGenererRapportAdmin(admin)}
                   disabled={isLoadingAction}
                 >
                   {isLoadingAction ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin text-[hsl(var(--accent-success))]" />
                   ) : (
-                    <FileText className="h-4 w-4 mr-2" />
+                    <FileText className="h-4 w-4 mr-2 text-[hsl(var(--accent-success))]" />
                   )}
                   Rapport
                 </Button>
@@ -1690,7 +1687,7 @@ export default function AdminDashboard() {
 
       {/* Modal Nommer Sous-Admin */}
       <Dialog open={isNommerModalOpen} onOpenChange={setIsNommerModalOpen}>
-        <DialogContent className="glass-effect border-none max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="glass-effect border-none max-w-2xl h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-[hsl(var(--accent-intel))]" />
@@ -1701,7 +1698,7 @@ export default function AdminDashboard() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="nom">Nom complet *</Label>
@@ -1784,7 +1781,7 @@ export default function AdminDashboard() {
             </Alert>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="mt-auto sticky bottom-0 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
             <Button
               variant="outline"
               onClick={() => setIsNommerModalOpen(false)}
@@ -1816,7 +1813,7 @@ export default function AdminDashboard() {
 
       {/* Modal Détails Admin */}
       <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
+        <DialogContent className="glass-effect border-none max-w-3xl h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
           <DialogHeader className="border-b border-muted/10 pb-4">
             <DialogTitle className="flex items-center gap-2 text-xl">
               <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20">
@@ -2620,7 +2617,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <DialogFooter className="border-t border-muted/10 pt-4">
+          <DialogFooter className="mt-auto sticky bottom-0 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-muted/10 pt-4">
             <Button
               variant="outline"
               onClick={() => setIsDetailsModalOpen(false)}
@@ -2665,7 +2662,7 @@ export default function AdminDashboard() {
 
       {/* Modal Génération de Rapport */}
       <Dialog open={isRapportModalOpen} onOpenChange={setIsRapportModalOpen}>
-        <DialogContent className="glass-effect border-none max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
+        <DialogContent className="glass-effect border-none max-w-3xl h-[90vh] overflow-hidden flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
           <DialogHeader className="border-b border-muted/10 pb-4">
             <DialogTitle className="flex items-center gap-2 text-xl">
               <div className="p-2 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-success))]/20 to-[hsl(var(--accent-intel))]/20">
@@ -3182,7 +3179,7 @@ export default function AdminDashboard() {
             </Alert>
           </div>
 
-          <DialogFooter className="border-t border-muted/10 pt-4">
+          <DialogFooter className="mt-auto sticky bottom-0 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-muted/10 pt-4">
             <Button
               variant="outline"
               onClick={() => setIsRapportModalOpen(false)}
@@ -3212,6 +3209,434 @@ export default function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+
+  const renderGestionSpecial = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion Spéciale</h3>
+          <p className="text-muted-foreground mt-1">
+            Supervision des sous-administrateurs et performance
+          </p>
+        </div>
+        <Button 
+          className="bg-[hsl(var(--accent-warning))] hover:bg-[hsl(var(--accent-warning))]/90 text-white"
+          onClick={() => setIsNommerModalOpen(true)}
+        >
+          <UserPlus className="h-4 w-4 mr-2" />
+          Nommer Sous-Admin
+        </Button>
+      </div>
+
+      {/* Barre de recherche intelligente */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Recherche textuelle */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Rechercher par nom, secteur, email, téléphone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 glass-effect border-none"
+            />
+          </div>
+          
+          {/* Filtre par organisation */}
+          <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
+            <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
+              <SelectValue placeholder="Filtrer par organisation" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les organisations</SelectItem>
+              {uniqueOrganizations.map(org => (
+                <SelectItem key={org} value={org}>{org}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* Statistiques de recherche */}
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span>
+              {filteredSubAdmins.length} sous-administrateur{filteredSubAdmins.length > 1 ? 's' : ''} trouvé{filteredSubAdmins.length > 1 ? 's' : ''}
+              {searchQuery && ` pour "${searchQuery}"`}
+            </span>
+            {(searchQuery || selectedOrganization !== 'all') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedOrganization('all');
+                }}
+                className="text-xs h-6 px-2"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Effacer filtres
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {filteredSubAdmins.length} Sub-Admin
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Résultats de recherche */}
+      {filteredSubAdmins.length === 0 ? (
+        <div className="text-center py-12">
+          <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+            Aucun sous-administrateur trouvé
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {searchQuery 
+              ? `Aucun sous-administrateur trouvé pour "${searchQuery}". Essayez avec d'autres termes.`
+              : "Aucun sous-administrateur ne correspond aux filtres sélectionnés."
+            }
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedOrganization('all');
+            }}
+            className="glass-effect border-none"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Effacer tous les filtres
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredSubAdmins.map((admin, idx) => (
+            <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
+              admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
+            }`}>
+              {admin.statut === 'Attention' && (
+                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+              )}
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{admin.nom}</CardTitle>
+                    <CardDescription>{admin.secteur}</CardDescription>
+                  </div>
+                  <Badge className={`${
+                    admin.statut === 'Actif' 
+                      ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]' 
+                      : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
+                  }`}>
+                    {admin.statut}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Informations de contact */}
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Mail className="h-3 w-3" />
+                    <span className="truncate">{admin.email}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Phone className="h-3 w-3" />
+                    <span>{admin.phone}</span>
+                  </div>
+                </div>
+
+                {/* Métriques de performance */}
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div className="text-muted-foreground mb-1">Cas traités</div>
+                    <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground mb-1">Taux succès</div>
+                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes}%</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground mb-1">Délai moyen</div>
+                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours}j</div>
+                  </div>
+                </div>
+
+                <Progress value={admin.taux || admin.taux_succes} className="h-2" />
+
+                {/* Rôle et organisation */}
+                <div className="flex items-center justify-between text-xs">
+                  <Badge variant="outline" className="text-[10px]">
+                    Sub-Admin
+                  </Badge>
+                  <span className="text-muted-foreground">{admin.organization}</span>
+                </div>
+
+                {/* Privilèges */}
+                {admin.privileges && (
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground">Privilèges:</div>
+                    <div className="flex flex-wrap gap-1">
+                      {admin.privileges.map((privilege, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0.5">
+                          {privilege}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleVoirDetails(admin)}
+                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Détails
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Dispatch event for iAsted voice report
+                      window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
+                        detail: { admin }
+                      }));
+                    }}
+                    className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
+                  >
+                    <Mic className="h-3 w-3 mr-1" />
+                    iAsted
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOuvrirRapportModal(admin)}
+                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                  >
+                    <FileText className="h-3 w-3 mr-1" />
+                    Rapport
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderGestionCitoyens = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion Citoyens</h3>
+          <p className="text-muted-foreground mt-1">
+            Supervision des comptes citoyens et signalements
+          </p>
+        </div>
+        <Button 
+          className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
+          onClick={() => setIsNommerModalOpen(true)}
+        >
+          <UserPlus className="h-4 w-4 mr-2" />
+          Créer Compte Citoyen
+        </Button>
+      </div>
+
+      {/* Barre de recherche intelligente */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Recherche textuelle */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Rechercher par nom, email, téléphone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 glass-effect border-none"
+            />
+          </div>
+          
+          {/* Filtre par organisation */}
+          <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
+            <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
+              <SelectValue placeholder="Filtrer par organisation" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les organisations</SelectItem>
+              {uniqueOrganizations.map(org => (
+                <SelectItem key={org} value={org}>{org}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* Statistiques de recherche */}
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span>
+              {filteredCitoyens.length} citoyen{filteredCitoyens.length > 1 ? 's' : ''} trouvé{filteredCitoyens.length > 1 ? 's' : ''}
+              {searchQuery && ` pour "${searchQuery}"`}
+            </span>
+            {(searchQuery || selectedOrganization !== 'all') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedOrganization('all');
+                }}
+                className="text-xs h-6 px-2"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Effacer filtres
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {filteredCitoyens.length} Citoyen
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Résultats de recherche */}
+      {filteredCitoyens.length === 0 ? (
+        <div className="text-center py-12">
+          <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+            Aucun citoyen trouvé
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {searchQuery 
+              ? `Aucun citoyen trouvé pour "${searchQuery}". Essayez avec d'autres termes.`
+              : "Aucun citoyen ne correspond aux filtres sélectionnés."
+            }
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedOrganization('all');
+            }}
+            className="glass-effect border-none"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Effacer tous les filtres
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredCitoyens.map((admin, idx) => (
+            <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
+              admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
+            }`}>
+              {admin.statut === 'Attention' && (
+                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+              )}
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{admin.nom}</CardTitle>
+                    <CardDescription>{admin.secteur}</CardDescription>
+                  </div>
+                  <Badge className={`${
+                    admin.statut === 'Actif' 
+                      ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]' 
+                      : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
+                  }`}>
+                    {admin.statut}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Informations de contact */}
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Mail className="h-3 w-3" />
+                    <span className="truncate">{admin.email}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Phone className="h-3 w-3" />
+                    <span>{admin.phone}</span>
+                  </div>
+                </div>
+
+                {/* Métriques de performance */}
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div className="text-muted-foreground mb-1">Signalements</div>
+                    <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground mb-1">Taux succès</div>
+                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes || 0}%</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground mb-1">Délai moyen</div>
+                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours || 0}j</div>
+                  </div>
+                </div>
+
+                <Progress value={admin.taux || admin.taux_succes || 0} className="h-2" />
+
+                {/* Rôle et organisation */}
+                <div className="flex items-center justify-between text-xs">
+                  <Badge variant="outline" className="text-[10px]">
+                    Citoyen
+                  </Badge>
+                  <span className="text-muted-foreground">{admin.organization}</span>
+                </div>
+
+                {/* Actions */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleVoirDetails(admin)}
+                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Détails
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Dispatch event for iAsted voice report
+                      window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
+                        detail: { admin }
+                      }));
+                    }}
+                    className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
+                  >
+                    <Mic className="h-3 w-3 mr-1" />
+                    iAsted
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOuvrirRapportModal(admin)}
+                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                  >
+                    <FileText className="h-3 w-3 mr-1" />
+                    Rapport
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 
@@ -3356,7 +3781,9 @@ export default function AdminDashboard() {
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
               {activeView === 'enquetes' && renderSuiviEnquetes()}
-              {activeView === 'gestion' && renderGestionSousAdmins()}
+              {activeView === 'gestion' && renderGestionInstitutions()}
+              {activeView === 'special' && renderGestionSpecial()}
+              {activeView === 'citoyens' && renderGestionCitoyens()}
               {activeView === 'rapports' && renderRapportsStrategiques()}
               {activeView === 'xr7' && <ModuleXR7 />}
               {activeView === 'iasted' && <IAstedChat isOpen={true} />}

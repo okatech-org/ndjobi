@@ -48,7 +48,21 @@ const menuItems = [
     url: "/dashboard/admin?view=gestion",
     icon: Users,
     badge: null,
-    description: "Performance des institutions",
+    description: "Agents sectoriels",
+  },
+  {
+    title: "Gestion Spéciale",
+    url: "/dashboard/admin?view=special",
+    icon: Crown,
+    badge: null,
+    description: "Sous-administrateurs",
+  },
+  {
+    title: "Gestion Citoyens",
+    url: "/dashboard/admin?view=citoyens",
+    icon: Users,
+    badge: null,
+    description: "Comptes citoyens",
   },
   {
     title: "Validation Cas",
