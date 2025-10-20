@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix Super Admin Session - NDJOBI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 800px;
+      width: 100%;
+      padding: 40px;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .section h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    
+    .label {
+      font-weight: 600;
+      color: #555;
+    }
+    
+    .value {
+      color: #333;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .status.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button.secondary {
+      background: #6c757d;
+    }
+    
+    button.danger {
+      background: #dc3545;
+    }
+    
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .log {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .log-item {
+      margin-bottom: 8px;
+    }
+    
+    .log-success { color: #50fa7b; }
+    .log-error { color: #ff5555; }
+    .log-warning { color: #f1fa8c; }
+    .log-info { color: #8be9fd; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Réparation Session Super Admin</h1>
+    <p class="subtitle">Outil de diagnostic et correction - NDJOBI</p>
+    
+    <div class="section">
+      <h2>📊 État Actuel</h2>
+      <div id="current-status">
+        <p style="color: #999;">Chargement...</p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>🛠️ Actions</h2>
+      <div class="actions">
+        <button onclick="diagnoseSession()">🔍 Diagnostiquer</button>
+        <button onclick="fixSession()">✨ Réparer la Session</button>
+        <button onclick="clearAllSessions()" class="danger">🧹 Nettoyer Tout</button>
+        <button onclick="redirectToDashboard()" class="secondary">🚀 Aller au Dashboard</button>
+      </div>
+    </div>
+    
+    <div id="log-section" style="display: none;">
+      <div class="section">
+        <h2>📝 Journal</h2>
+        <div id="log" class="log"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let logs = [];
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const icon = {
+        'success': '✅',
+        'error': '❌',
+        'warning': '⚠️',
+        'info': 'ℹ️'
+      }[type] || 'ℹ️';
+      
+      logs.push({ message: `[${timestamp}] ${icon} ${message}`, type });
+      updateLog();
+    }
+    
+    function updateLog() {
+      const logElement = document.getElementById('log');
+      const logSection = document.getElementById('log-section');
+      
+      if (logs.length > 0) {
+        logSection.style.display = 'block';
+        logElement.innerHTML = logs.map(l => 
+          `<div class="log-item log-${l.type}">${l.message}</div>`
+        ).join('');
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+    }
+    
+    function updateStatus() {
+      const statusEl = document.getElementById('current-status');
+      
+      const superAdminSession = localStorage.getItem('ndjobi_super_admin_session');
+      const demoSession = localStorage.getItem('ndjobi_demo_session');
+      const regularSession = sessionStorage.getItem('ndjobi_session');
+      
+      let html = '<div style="space-y: 10px;">';
+      
+      // Super Admin Session
+      html += '<div class="info-item">';
+      html += '<span class="label">Session Super Admin:</span>';
+      if (superAdminSession) {
+        try {
+          const parsed = JSON.parse(superAdminSession);
+          const isExpired = Date.now() > parsed.expiresAt;
+          const hoursRemaining = Math.round((parsed.expiresAt - Date.now()) / (1000 * 60 * 60));
+          
+          if (isExpired) {
+            html += `<span class="status error">Expirée</span>`;
+          } else {
+            html += `<span class="status success">Active (${hoursRemaining}h restantes)</span>`;
+          }
+        } catch (e) {
+          html += '<span class="status error">Corrompue</span>';
+        }
+      } else {
+        html += '<span class="status error">Absente</span>';
+      }
+      html += '</div>';
+      
+      // Demo Session
+      html += '<div class="info-item">';
+      html += '<span class="label">Session Démo:</span>';
+      html += demoSession ? '<span class="status warning">Présente</span>' : '<span class="status">Absente</span>';
+      html += '</div>';
+      
+      // Regular Session
+      html += '<div class="info-item">';
+      html += '<span class="label">Session Normale:</span>';
+      html += regularSession ? '<span class="status success">Présente</span>' : '<span class="status">Absente</span>';
+      html += '</div>';
+      
+      html += '</div>';
+      statusEl.innerHTML = html;
+    }
+    
+    function diagnoseSession() {
+      logs = [];
+      log('Démarrage du diagnostic...', 'info');
+      
+      const superAdminSession = localStorage.getItem('ndjobi_super_admin_session');
+      const demoSession = localStorage.getItem('ndjobi_demo_session');
+      const regularSession = sessionStorage.getItem('ndjobi_session');
+      
+      log('Vérification localStorage...', 'info');
+      
+      if (superAdminSession) {
+        log('Session super admin trouvée', 'success');
+        try {
+          const parsed = JSON.parse(superAdminSession);
+          log(`Email: ${parsed.user?.email || 'N/A'}`, 'info');
+          log(`Rôle: ${parsed.role || 'N/A'}`, 'info');
+          
+          const isExpired = Date.now() > parsed.expiresAt;
+          if (isExpired) {
+            log('⚠️ Session expirée !', 'warning');
+            log(`Expirée depuis: ${new Date(parsed.expiresAt).toLocaleString()}`, 'warning');
+          } else {
+            const hoursRemaining = Math.round((parsed.expiresAt - Date.now()) / (1000 * 60 * 60));
+            log(`Session valide pour ${hoursRemaining} heures`, 'success');
+          }
+        } catch (e) {
+          log('Erreur de parsing de la session: ' + e.message, 'error');
+        }
+      } else {
+        log('Aucune session super admin trouvée', 'warning');
+      }
+      
+      if (demoSession) {
+        log('Session démo détectée (peut interférer)', 'warning');
+      }
+      
+      if (regularSession) {
+        log('Session normale détectée', 'info');
+      }
+      
+      log('Diagnostic terminé', 'success');
+      updateStatus();
+    }
+    
+    function fixSession() {
+      logs = [];
+      log('Démarrage de la réparation...', 'info');
+      
+      // Nettoyer les anciennes sessions
+      log('Nettoyage des anciennes sessions...', 'info');
+      localStorage.removeItem('ndjobi_super_admin_session');
+      localStorage.removeItem('ndjobi_demo_session');
+      sessionStorage.clear();
+      log('Sessions nettoyées', 'success');
+      
+      // Créer une nouvelle session super admin
+      log('Création d\'une nouvelle session super admin...', 'info');
+      
+      const newSession = {
+        isSuperAdmin: true,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24h
+        user: {
+          id: 'super-admin-local',
+          email: '33661002616@ndjobi.com',
+          phone: '+33661002616',
+          user_metadata: {
+            full_name: 'Super Administrateur',
+            phone: '+33661002616',
+          }
+        },
+        role: 'super_admin',
+      };
+      
+      try {
+        localStorage.setItem('ndjobi_super_admin_session', JSON.stringify(newSession));
+        log('Session créée avec succès', 'success');
+        log('Email: 33661002616@ndjobi.com', 'info');
+        log('Rôle: super_admin', 'info');
+        log('Validité: 24 heures', 'info');
+        
+        // Vérification
+        const verify = localStorage.getItem('ndjobi_super_admin_session');
+        if (verify) {
+          log('✨ Session vérifiée et opérationnelle !', 'success');
+          log('Vous pouvez maintenant accéder au dashboard', 'success');
+        } else {
+          log('Erreur: impossible de vérifier la session', 'error');
+        }
+      } catch (e) {
+        log('Erreur lors de la création: ' + e.message, 'error');
+      }
+      
+      updateStatus();
+    }
+    
+    function clearAllSessions() {
+      if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer toutes les sessions ?')) {
+        return;
+      }
+      
+      logs = [];
+      log('Suppression de toutes les sessions...', 'warning');
+      
+      localStorage.removeItem('ndjobi_super_admin_session');
+      localStorage.removeItem('ndjobi_demo_session');
+      localStorage.removeItem('ndjobi_session');
+      sessionStorage.clear();
+      
+      log('Toutes les sessions ont été supprimées', 'success');
+      log('Vous devrez vous reconnecter', 'info');
+      
+      updateStatus();
+    }
+    
+    function redirectToDashboard() {
+      log('Redirection vers le dashboard...', 'info');
+      window.location.href = '/dashboard/super-admin';
+    }
+    
+    // Initialisation
+    window.onload = function() {
+      updateStatus();
+      log('Outil de réparation chargé', 'success');
+      log('Cliquez sur "Diagnostiquer" pour analyser', 'info');
+    };
+  </script>
+</body>
+</html>
+

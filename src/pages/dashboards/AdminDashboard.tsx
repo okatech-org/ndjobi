@@ -12,7 +12,7 @@ import {
   Mic,
   FileSpreadsheet
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -144,6 +144,9 @@ export default function AdminDashboard() {
   const [dateDebut, setDateDebut] = useState<string>('');
   const [dateFin, setDateFin] = useState<string>('');
   const [formatRapport, setFormatRapport] = useState<'gamma-pdf' | 'gamma-pptx'>('gamma-pdf');
+  
+  // État de navigation pour la vue Président
+  const [presidentTab, setPresidentTab] = useState<'brief' | 'vue-ensemble' | 'opinion' | 'situations' | 'vision'>('brief');
   
   // États pour la configuration Gamma AI
   const [gammaConfig, setGammaConfig] = useState({
@@ -4295,7 +4298,6 @@ export default function AdminDashboard() {
 
   // Vue spéciale simplifiée pour le Président avec 4 onglets clairs
   const renderPresidentView = () => {
-    const [activeTab, setActiveTab] = useState('vue-ensemble');
 
     const opinionPublique = {
       satisfactionGlobale: 62,
@@ -4372,8 +4374,12 @@ export default function AdminDashboard() {
           </div>
 
           {/* Navigation par onglets */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-4 gap-4 bg-white/50 backdrop-blur-sm p-2 rounded-xl">
+          <Tabs value={presidentTab} onValueChange={(v) => setPresidentTab(v as any)} className="space-y-6">
+            <TabsList className="grid grid-cols-5 gap-4 bg-white/50 backdrop-blur-sm p-2 rounded-xl">
+              <TabsTrigger value="brief" className="data-[state=active]:bg-white">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Brief Exécutif
+              </TabsTrigger>
               <TabsTrigger value="vue-ensemble" className="data-[state=active]:bg-white">
                 <Eye className="h-4 w-4 mr-2" />
                 Vue d'Ensemble
@@ -4391,6 +4397,164 @@ export default function AdminDashboard() {
                 Vision Nationale
               </TabsTrigger>
             </TabsList>
+
+            {/* Onglet 0: Brief Exécutif */}
+            <TabsContent value="brief" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                      Décisions à prendre aujourd'hui
+                    </CardTitle>
+                    <CardDescription>
+                      {casSensibles?.length || 4} dossiers prioritaires nécessitent une décision
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {(casSensibles || []).slice(0, 3).map((c: any, i: number) => (
+                      <div key={i} className="flex items-start justify-between p-3 rounded-lg border">
+                        <div className="space-y-1 pr-3">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="destructive" className="uppercase">{c.reference_id}</Badge>
+                            <Badge variant="outline">IA {c.ai_priority_score}%</Badge>
+                          </div>
+                          <div className="font-medium">{c.titre}</div>
+                          <div className="text-xs text-muted-foreground">{c.location}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => enregistrerDecision(c.id, 'approuver')}>
+                            <CheckCircle className="h-4 w-4 mr-1" /> Approuver
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => enregistrerDecision(c.id, 'enquete')}>
+                            <Eye className="h-4 w-4 mr-1" /> Enquête
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => genererRapport('executif')}>
+                            <FileText className="h-4 w-4 mr-1" /> Rapport
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex items-center justify-end gap-2">
+                      <Button variant="outline" onClick={() => setPresidentTab('situations')}>Voir tous les dossiers</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-blue-600" />
+                      Risque national
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Tendance 30 jours</span>
+                      <Badge variant="secondary">{kpis?.tendance || '+12%'}</Badge>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between"><span>Cas critiques</span><strong>{kpis?.signalements_critiques || 28}</strong></div>
+                      <div className="flex items-center justify-between"><span>Taux de résolution</span><strong>{kpis?.taux_resolution || 67}%</strong></div>
+                      <div className="flex items-center justify-between"><span>Fonds récupérés</span><strong>{((kpis?.impact_economique || 7200000000)/1000000000).toFixed(1)} Mrd</strong></div>
+                      <div className="flex items-center justify-between"><span>Score transparence</span><strong>{kpis?.score_transparence || 78}/100</strong></div>
+                    </div>
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Focus</AlertTitle>
+                      <AlertDescription>
+                        Gab Pêche et CNSS concentrent l'essentiel du risque financier ce mois-ci.
+                      </AlertDescription>
+                    </Alert>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    Synthèse IA — Compte rendu exécutif
+                  </CardTitle>
+                  <CardDescription>
+                    Résumé actionnable généré à partir des signalements, décisions et performances
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid md:grid-cols-3 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="font-semibold">Constats</div>
+                    <ul className="space-y-1 text-muted-foreground">
+                      <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3" /> Hausse des signalements (+12%), pression médiatique locale.</li>
+                      <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3" /> 2 pôles critiques: malversations Gab Pêche, enrichissement CNSS.</li>
+                      <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3" /> Résolution stable à 67%, goulot sur enquêtes inter‑ministérielles.</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="font-semibold">Décisions recommandées</div>
+                    <ul className="space-y-1 text-muted-foreground">
+                      <li className="flex items-center gap-2"><CheckSquare className="h-3 w-3" /> Lancer audit express CNSS (15 jours) avec gel préventif ciblé.</li>
+                      <li className="flex items-center gap-2"><CheckSquare className="h-3 w-3" /> Task‑force conjointe Douanes/Marine sur flux Gab Pêche.</li>
+                      <li className="flex items-center gap-2"><CheckSquare className="h-3 w-3" /> Protéger lanceurs secteur santé (canal prioritaire XR‑7).</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="font-semibold">Impact attendu</div>
+                    <ul className="space-y-1 text-muted-foreground">
+                      <li className="flex items-center gap-2"><TrendingUp className="h-3 w-3" /> +1.4 Mrd FCFA récupérables sous 60 jours.</li>
+                      <li className="flex items-center gap-2"><TrendingUp className="h-3 w-3" /> +6 pts transparence si exécution rapide.</li>
+                      <li className="flex items-center gap-2"><TrendingUp className="h-3 w-3" /> -18% cas critiques récurrents sur 3 mois.</li>
+                    </ul>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex items-center justify-end gap-2">
+                  <Button onClick={() => genererRapport('executif')}><FileText className="h-4 w-4 mr-2" /> Générer le PDF</Button>
+                  <Button variant="outline" onClick={() => setPresidentTab('situations')}><AlertCircle className="h-4 w-4 mr-2" /> Ouvrir les dossiers</Button>
+                </CardFooter>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-blue-600" />
+                      Avancement Vision 2025
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid md:grid-cols-2 gap-3 text-sm">
+                    {(visionData || []).slice(0,4).map((p: any, idx: number) => (
+                      <div key={idx} className="p-3 rounded-lg border">
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium">{p.pilier}</div>
+                          <Badge variant="secondary">{p.score}/100</Badge>
+                        </div>
+                        <Progress value={p.score} className="h-2 mt-2" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-foreground" />
+                      Prochaines actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between p-2 rounded-lg border">
+                      <span>Signer mandat d'audit CNSS</span>
+                      <Badge variant="destructive">J+3</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg border">
+                      <span>Déployer task‑force Gab Pêche</span>
+                      <Badge variant="default">J+7</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg border">
+                      <span>Brief Conseil des Ministres</span>
+                      <Badge variant="secondary">Mercredi</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
             {/* Onglet 1: Vue d'Ensemble */}
             <TabsContent value="vue-ensemble" className="space-y-6">
@@ -4675,10 +4839,10 @@ export default function AdminDashboard() {
                       )}
 
                       <div className="flex gap-2">
-                        <Button 
+                          <Button 
                           onClick={() => {
                             enregistrerDecision(cas.id, 'approuver');
-                            toast.success('Cas approuvé', { description: 'Enquête lancée automatiquement' });
+                            toast({ description: 'Cas approuvé – Enquête lancée automatiquement' });
                           }}
                           className="flex-1 bg-green-600 hover:bg-green-700"
                         >
@@ -4688,7 +4852,7 @@ export default function AdminDashboard() {
                         <Button 
                           onClick={() => {
                             enregistrerDecision(cas.id, 'enquete', 'Investigation approfondie requise');
-                            toast.info('Investigation ordonnée');
+                            toast({ description: 'Investigation ordonnée' });
                           }}
                           variant="outline" 
                           className="flex-1"
