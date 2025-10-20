@@ -253,8 +253,33 @@ export const IAstedFloatingButton = () => {
       })();
     };
 
+    // Gestionnaire pour mode texte (mobile)
+    const onOpenTextMode = (event: CustomEvent) => {
+      const { admin, context, autoMessage } = event.detail;
+      lastRequestedAdminRef.current = admin;
+      
+      // Ouvrir directement en mode texte
+      setIsOpen(true);
+      setMode('text');
+      
+      // Ajouter le message automatique
+      if (autoMessage) {
+        const message = {
+          role: 'assistant' as const,
+          content: autoMessage,
+          timestamp: new Date(),
+          mode: 'text' as const
+        };
+        setMessages(prev => [...prev, message]);
+      }
+    };
+
     window.addEventListener('iasted:open-voice-report', onOpenVoiceReport as any);
-    return () => window.removeEventListener('iasted:open-voice-report', onOpenVoiceReport as any);
+    window.addEventListener('iasted:open-text-mode', onOpenTextMode as any);
+    return () => {
+      window.removeEventListener('iasted:open-voice-report', onOpenVoiceReport as any);
+      window.removeEventListener('iasted:open-text-mode', onOpenTextMode as any);
+    };
   }, []);
 
   // Gestion du drag and drop

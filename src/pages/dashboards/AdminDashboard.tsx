@@ -10,7 +10,12 @@ import {
   AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu,
   Mail, Phone, X, Check, CheckSquare, Presentation, Sparkles,
   Mic,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Settings,
+  Bell,
+  MessageCircle,
+  User,
+  LogOut
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1812,10 +1817,27 @@ export default function AdminDashboard() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const event = new CustomEvent('iasted:open-voice-report', {
-                      detail: { context: 'institution-card', admin }
-                    });
-                    window.dispatchEvent(event);
+                    
+                    // Détecter si on est sur mobile
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    
+                    if (isMobile) {
+                      // Sur mobile, ouvrir directement l'interface iAsted en mode texte
+                      const event = new CustomEvent('iasted:open-text-mode', {
+                        detail: { 
+                          context: 'institution-card', 
+                          admin,
+                          autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
+                        }
+                      });
+                      window.dispatchEvent(event);
+                    } else {
+                      // Sur desktop, utiliser le mode vocal comme avant
+                      const event = new CustomEvent('iasted:open-voice-report', {
+                        detail: { context: 'institution-card', admin }
+                      });
+                      window.dispatchEvent(event);
+                    }
                   }}
                   title="Rapport iAsted (vocal)"
                   disabled={isInactive}
@@ -3978,11 +4000,28 @@ export default function AdminDashboard() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      // Dispatch event for iAsted voice report
-                      window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
-                        detail: { admin }
-                      }));
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      // Détecter si on est sur mobile
+                      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                      
+                      if (isMobile) {
+                        // Sur mobile, ouvrir directement l'interface iAsted en mode texte
+                        window.dispatchEvent(new CustomEvent('iasted:open-text-mode', {
+                          detail: { 
+                            admin,
+                            context: 'institution',
+                            autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
+                          }
+                        }));
+                      } else {
+                        // Sur desktop, utiliser le mode vocal comme avant
+                        window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
+                          detail: { admin }
+                        }));
+                      }
                     }}
                     className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
                     disabled={isInactive}
@@ -4191,11 +4230,28 @@ export default function AdminDashboard() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      // Dispatch event for iAsted voice report
-                      window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
-                        detail: { admin }
-                      }));
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      // Détecter si on est sur mobile
+                      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                      
+                      if (isMobile) {
+                        // Sur mobile, ouvrir directement l'interface iAsted en mode texte
+                        window.dispatchEvent(new CustomEvent('iasted:open-text-mode', {
+                          detail: { 
+                            admin,
+                            context: 'institution',
+                            autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
+                          }
+                        }));
+                      } else {
+                        // Sur desktop, utiliser le mode vocal comme avant
+                        window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
+                          detail: { admin }
+                        }));
+                      }
                     }}
                     className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
                     disabled={isInactive}
@@ -5028,14 +5084,35 @@ export default function AdminDashboard() {
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col w-full relative z-10">
+          {/* Barre verticale compte (mobile) */}
+          <div className="fixed right-0 top-16 bottom-0 z-[60] flex lg:hidden">
+            <div className="h-full w-12 border-l bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col items-center py-3 gap-2">
+              <button aria-label="Profil" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Profil">
+                <User className="h-5 w-5" />
+              </button>
+              <button aria-label="Notifications" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Notifications">
+                <Bell className="h-5 w-5" />
+              </button>
+              <button aria-label="Messages" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Messages">
+                <MessageCircle className="h-5 w-5" />
+              </button>
+              <button aria-label="Paramètres" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Paramètres">
+                <Settings className="h-5 w-5" />
+              </button>
+              <div className="mt-auto" />
+              <button aria-label="Déconnexion" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground" title="Déconnexion">
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
           {/* En-tête glassmorphism */}
-          <header className="h-16 glass-effect sticky top-0 z-40">
+          <header className="h-16 glass-effect sticky top-0 z-50">
             <div className="h-full px-4 md:px-6 flex items-center justify-between">
               {/* Gauche: Titre et badge */}
               <div className="flex items-center gap-3">
                 {/* Bouton menu mobile */}
                 <SidebarTrigger className="lg:hidden">
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SidebarTrigger>
@@ -5075,7 +5152,7 @@ export default function AdminDashboard() {
 
           {/* Contenu principal avec scroll */}
           <main className="flex-1 overflow-y-auto">
-            <div className="container py-3 md:py-8 space-y-3 md:space-y-6">
+            <div className="container py-3 md:py-8 pr-12 lg:pr-0 space-y-3 md:space-y-6">
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
