@@ -1,11 +1,31 @@
-# Architecture Dashboards NDJOBI
+# Architecture Dashboards NDJOBI v2.1
+
+## 🎊 DASHBOARD HYBRIDE UNIFIÉ (Version Finale)
+
+**Implémenté le 20 octobre 2025**
+
+Le compte **Président** (+24177888001) accède à un **dashboard hybride unique** combinant :
+- ✅ **Vue Stratégique** (4 onglets) : KPIs nationaux, opinion publique, situations critiques, vision 2025
+- ✅ **Gestion Opérationnelle** (7 onglets) : Institutions, validation, enquêtes, rapports, XR-7, iAsted, paramètres
+
+**URL** : `/dashboard/unified` (11 onglets dans une seule interface)
+
+---
 
 ## 🏗️ Structure
 
 ```
 dashboards/
-├── President/              Dashboard présidentiel (vue stratégique)
-│   ├── index.tsx          Point d'entrée avec lazy loading
+├── Unified/               🎊 DASHBOARD HYBRIDE (Interface Unique Président)
+│   ├── UnifiedPresidentDashboard.tsx  Point d'entrée (11 onglets)
+│   ├── index.tsx          Export barrel
+│   └── views/             Vues opérationnelles Admin
+│       ├── GestionInstitutions.tsx
+│       ├── ValidationCas.tsx
+│       ├── SuiviEnquetes.tsx
+│       └── RapportsStrategiques.tsx
+│
+├── President/             Composants Vue Stratégique (réutilisés par Unified/)
 │   ├── PresidentLayout.tsx  Layout élégant avec header national
 │   ├── components/         4 onglets modulaires
 │   │   ├── VueEnsemble.tsx
@@ -16,7 +36,7 @@ dashboards/
 │       ├── usePresidentDashboard.ts
 │       └── usePresidentData.ts
 │
-├── Admin/                 Dashboard admin (gestion opérationnelle)
+├── Admin/                 Dashboard admin standard (Sub-Admins, Agents)
 │   ├── index.tsx          Point d'entrée
 │   ├── AdminLayout.tsx    Layout avec sidebar
 │   └── hooks/             Hooks spécifiques admin
