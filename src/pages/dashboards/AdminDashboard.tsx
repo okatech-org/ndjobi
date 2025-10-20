@@ -548,6 +548,33 @@ export default function AdminDashboard() {
           dateAnalyse: '2025-01-19',
           prochaineSondage: '2025-03-15 (suivi post-mesures correctives)'
         });
+      } else if ((admin as any).type_service === 'securite_nationale') {
+        // **DONNÉES SPÉCIFIQUES SERVICES SPÉCIAUX / SÉCURITÉ NATIONALE**
+        const { 
+          getHistoriqueOperationnel, 
+          getCasSensibles, 
+          getOpinionPubliqueSecurite, 
+          getRecommandationsSecurite 
+        } = await import('@/services/servicesSpeciauxDataService');
+        
+        const { getMenacesStrategiques } = await import('@/services/menacesStrategiquesDataService');
+
+        const classification = (admin as any).classification || 'CONFIDENTIEL DÉFENSE';
+        
+        // Historique opérationnel
+        setAdminHistory(getHistoriqueOperationnel(admin.organization, classification));
+        
+        // Cas sensibles en cours
+        setAdminCases(getCasSensibles(admin.organization) as any[]);
+        
+        // Menaces stratégiques
+        setAdminProblematiques(getMenacesStrategiques(admin.organization) as any[]);
+        
+        // Recommandations sécurité nationale
+        setAdminRecommandations(getRecommandationsSecurite(admin.organization, classification) as any[]);
+        
+        // Opinion publique adaptée services spéciaux
+        setAdminOpinionPublique(getOpinionPubliqueSecurite(admin.organization) as any);
       } else {
         // Données génériques pour les autres agents
         setAdminHistory([
