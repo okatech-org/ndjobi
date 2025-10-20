@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accès Rapide Super Admin - NDJOBI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .method {
+            background: #f7f9fc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e7ff;
+        }
+        .method h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #10b981;
+        }
+        .btn-secondary:hover {
+            background: #059669;
+        }
+        .alert {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #92400e;
+        }
+        .alert strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+        .steps li {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Accès Super Admin NDJOBI</h1>
+        <p class="subtitle">Choisissez votre méthode d'accès</p>
+
+        <div class="method">
+            <h3>⚡ Méthode 1: Accès Instantané (Recommandé)</h3>
+            <ol class="steps">
+                <li>Ouvrir la console du navigateur (F12)</li>
+                <li>Coller ce code:</li>
+            </ol>
+            <div class="code-block">localStorage.setItem('ndjobi_super_admin_session', JSON.stringify({
+  isSuperAdmin: true,
+  timestamp: Date.now(),
+  expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+}));
+window.location.href = '/dashboard/super-admin';</div>
+            <button class="btn btn-secondary" onclick="createSession()">✨ Créer la session automatiquement</button>
+        </div>
+
+        <div class="method">
+            <h3>🔒 Méthode 2: Authentification Normale</h3>
+            <ol class="steps">
+                <li>Aller sur la page d'authentification</li>
+                <li>Entrer le code: <strong>011282*</strong></li>
+                <li>Valider avec n'importe quel code à 6 chiffres (ex: 123456)</li>
+            </ol>
+            <a href="http://localhost:8080/auth/super-admin" class="btn">🔐 Page d'authentification</a>
+        </div>
+
+        <div class="alert">
+            <strong>⏱️ Durée de la session:</strong>
+            La session Super Admin reste active pendant 24 heures.
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://localhost:8080/dashboard/super-admin" class="btn">📊 Accéder au Dashboard</a>
+            <a href="http://localhost:8080/dashboard/super-admin?view=visibilite" class="btn btn-secondary">👁️ Volet Visibilité</a>
+        </div>
+    </div>
+
+    <script>
+        function createSession() {
+            const sessionData = {
+                isSuperAdmin: true,
+                timestamp: Date.now(),
+                expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+            };
+            
+            localStorage.setItem('ndjobi_super_admin_session', JSON.stringify(sessionData));
+            
+            alert('✅ Session Super Admin créée avec succès !\n\nVous allez être redirigé vers le dashboard.');
+            
+            window.location.href = '/dashboard/super-admin';
+        }
+    </script>
+</body>
+</html>
