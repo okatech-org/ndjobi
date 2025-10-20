@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
@@ -36,6 +38,76 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import emblemGabon from '@/assets/emblem_gabon.png';
 
+type AdminData = Record<string, any> & {
+  id: string;
+  nom: string;
+  email: string;
+  telephone?: string;
+  phone: string;
+  organization: string;
+  role: string;
+};
+
+type CaseData = Record<string, any> & {
+  id: string;
+  titre?: string;
+  statut?: string;
+  urgence?: string;
+  description?: string;
+  montant?: number | string;
+  region?: string;
+};
+
+type HistoryItem = Record<string, any> & {
+  id: string | number;
+  action?: string;
+  date?: string;
+  description?: string;
+  timestamp?: string;
+  montant?: string;
+};
+
+type Problematique = Record<string, any> & {
+  id: string;
+  titre?: string;
+  description?: string;
+  categorie?: string;
+  montantEstime?: string | number;
+  montant?: string | number;
+  region?: string;
+  date?: string;
+};
+
+type Grief = Record<string, any> & {
+  id: string;
+  titre?: string;
+  description?: string;
+  categorie?: string;
+  intensite?: number | string;
+  occurrences?: number;
+};
+
+type OpinionPublique = Record<string, any> & {
+  principauxGriefs: Grief[];
+  risqueSocial?: string;
+  tendanceOpinion?: string;
+  satisfactionGlobale?: number | number[];
+  sentimentDominant?: string;
+  noteOpinion?: number;
+  tauxSatisfaction?: number[] | number;
+  zonesRisque?: string[];
+};
+
+type Recommandation = Record<string, any> & {
+  id: string;
+  titre?: string;
+  description?: string;
+  priorite?: string;
+  delaiPropose?: string;
+  impact?: string;
+  ressourcesNecessaires?: string[];
+};
+
 export default function AdminDashboard() {
   const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -50,15 +122,15 @@ export default function AdminDashboard() {
   const [isNommerModalOpen, setIsNommerModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isRapportModalOpen, setIsRapportModalOpen] = useState(false);
-  const [selectedAdmin, setSelectedAdmin] = useState<any>(null);
+  const [selectedAdmin, setSelectedAdmin] = useState<AdminData | null>(null);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
-  const [adminHistory, setAdminHistory] = useState<any[]>([]);
-  const [adminCases, setAdminCases] = useState<any[]>([]);
-  const [adminProblematiques, setAdminProblematiques] = useState<any[]>([]);
-  const [adminOpinionPublique, setAdminOpinionPublique] = useState<any>(null);
-  const [adminRecommandations, setAdminRecommandations] = useState<any[]>([]);
+  const [adminHistory, setAdminHistory] = useState<HistoryItem[]>([]);
+  const [adminCases, setAdminCases] = useState<CaseData[]>([]);
+  const [adminProblematiques, setAdminProblematiques] = useState<Problematique[]>([]);
+  const [adminOpinionPublique, setAdminOpinionPublique] = useState<OpinionPublique | null>(null);
+  const [adminRecommandations, setAdminRecommandations] = useState<Recommandation[]>([]);
   const [rapportType, setRapportType] = useState<'cas' | 'global'>('global');
-  const [selectedCas, setSelectedCas] = useState<any>(null);
+  const [selectedCas, setSelectedCas] = useState<CaseData | null>(null);
   const [selectedCasIds, setSelectedCasIds] = useState<string[]>([]);
   const [periodeSuivi, setPeriodeSuivi] = useState<'hebdomadaire' | 'mensuel' | 'trimestriel' | 'annuel'>('mensuel');
   const [dateDebut, setDateDebut] = useState<string>('');
@@ -192,7 +264,7 @@ export default function AdminDashboard() {
   };
 
   // Fonction pour voir les détails d'un admin
-  const handleVoirDetails = async (admin: any) => {
+  const handleVoirDetails = async (admin: AdminData) => {
     setSelectedAdmin(admin);
     setIsLoadingAction(true);
     
@@ -404,7 +476,7 @@ export default function AdminDashboard() {
         setAdminOpinionPublique({
           sentimentGeneral: 'Négatif',
           scoreConfiance: 32,
-          tauxSatisfaction: 28,
+          tauxSatisfaction: [28],
           principauxGriefs: [
             {
               id: 'GRIEF-001',
@@ -529,7 +601,7 @@ export default function AdminDashboard() {
   };
 
   // Fonction pour ouvrir le modal de génération de rapport
-  const handleOuvrirRapportModal = (admin: any, cas?: any) => {
+  const handleOuvrirRapportModal = (admin: AdminData, cas?: CaseData) => {
     setSelectedAdmin(admin);
     if (cas) {
       setRapportType('cas');
@@ -607,7 +679,8 @@ export default function AdminDashboard() {
         const nombreCas = selectedCasIds.length;
         const casSelectionnes = adminCases.filter(cas => selectedCasIds.includes(cas.id));
         const montantTotal = casSelectionnes.reduce((sum, cas) => {
-          const montant = parseInt(cas.montant.replace(/[^\d]/g, ''));
+          const montantStr = typeof cas.montant === 'number' ? String(cas.montant) : (cas.montant || '0');
+          const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
           return sum + montant;
         }, 0);
 
@@ -628,7 +701,7 @@ export default function AdminDashboard() {
             description: `Création du rapport avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
           });
 
-          const result = await gammaAIService.generateRapportCas(rapportData, gammaFormat);
+          const result = await gammaAIService.generateRapportCas(rapportData as any, gammaFormat);
           
           // Télécharger automatiquement le fichier
           const filename = `Rapport_Cas_${selectedAdmin.organization}_${new Date().toISOString().split('T')[0]}.${gammaFormat}`;
@@ -647,21 +720,21 @@ export default function AdminDashboard() {
           });
         } else if (formatRapport === 'pdf') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generatePDFCas(rapportData);
+          rapportGenerationService.generatePDFCas(rapportData as any);
           toast({
             title: "Rapport généré avec succès",
             description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: PDF`,
           });
         } else if (formatRapport === 'excel') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateExcelCas(rapportData);
+          rapportGenerationService.generateExcelCas(rapportData as any);
           toast({
             title: "Rapport généré avec succès",
             description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: EXCEL`,
           });
         } else if (formatRapport === 'word') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateWordCas(rapportData);
+          rapportGenerationService.generateWordCas(rapportData as any);
           toast({
             title: "Rapport généré avec succès",
             description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: WORD`,
@@ -677,7 +750,8 @@ export default function AdminDashboard() {
           totalCas: adminCases.length,
           totalProblematiques: adminProblematiques.length,
           impactFinancier: adminProblematiques.reduce((sum, p) => {
-            const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+            const montantStr = String(p.montant || '0');
+            const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
             return sum + montant;
           }, 0),
           casData: adminCases,
@@ -697,7 +771,7 @@ export default function AdminDashboard() {
             description: `Création d'un rapport professionnel avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
           });
 
-          const result = await gammaAIService.generateRapportGlobal(rapportData, gammaFormat);
+          const result = await gammaAIService.generateRapportGlobal(rapportData as any, gammaFormat);
           
           // Télécharger automatiquement le fichier
           const filename = `Rapport_Global_${selectedAdmin.organization}_${dateDebut}_${dateFin}.${gammaFormat}`;
@@ -716,21 +790,21 @@ export default function AdminDashboard() {
           });
         } else if (formatRapport === 'pdf') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generatePDFGlobal(rapportData);
+          rapportGenerationService.generatePDFGlobal(rapportData as any);
           toast({
             title: "Rapport généré avec succès",
             description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: PDF`,
           });
         } else if (formatRapport === 'excel') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateExcelGlobal(rapportData);
+          rapportGenerationService.generateExcelGlobal(rapportData as any);
           toast({
             title: "Rapport généré avec succès",
             description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: EXCEL`,
           });
         } else if (formatRapport === 'word') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
-          rapportGenerationService.generateWordGlobal(rapportData);
+          rapportGenerationService.generateWordGlobal(rapportData as any);
           toast({
             title: "Rapport généré avec succès",
             description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: WORD`,
@@ -752,7 +826,7 @@ export default function AdminDashboard() {
   };
 
   // Fonction pour générer le rapport d'un admin (ancienne fonction)
-  const handleGenererRapportAdmin = async (admin: any) => {
+  const handleGenererRapportAdmin = async (admin: AdminData) => {
     handleOuvrirRapportModal(admin);
   };
 
@@ -1734,14 +1808,15 @@ export default function AdminDashboard() {
                       </div>
                       <div className="text-xs text-foreground/70">
                         Impact financier total: {adminProblematiques.reduce((sum, p) => {
-                          const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                          const montantStr = String(p.montant || '0');
+                          const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
                           return sum + montant;
                         }, 0).toLocaleString()} FCFA
                       </div>
                     </div>
                     
                     <div className="space-y-3">
-                      {adminProblematiques.map((problematique: any, index: number) => (
+                      {adminProblematiques.map((problematique: Problematique, index: number) => (
                         <div key={problematique.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
                           {/* En-tête avec métadonnées */}
                           <div className="flex items-center justify-between">
@@ -1888,10 +1963,10 @@ export default function AdminDashboard() {
                         <div className="text-center space-y-1">
                           <div className="text-xs text-foreground/70">Taux de satisfaction</div>
                           <div className={`text-2xl font-bold ${
-                            adminOpinionPublique.tauxSatisfaction < 40 ? 'text-red-500' :
-                            adminOpinionPublique.tauxSatisfaction < 60 ? 'text-orange-500' :
+                            (Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction) < 40 ? 'text-red-500' :
+                            (Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction) < 60 ? 'text-orange-500' :
                             'text-green-500'
-                          }`}>{adminOpinionPublique.tauxSatisfaction}%</div>
+                          }`}>{Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction}%</div>
                         </div>
                         <div className="text-center space-y-1">
                           <div className="text-xs text-foreground/70">Risque social</div>
@@ -1908,7 +1983,7 @@ export default function AdminDashboard() {
                       {/* Principaux griefs */}
                       <div className="space-y-3">
                         <div className="text-xs font-semibold text-foreground">Principaux griefs de la population</div>
-                        {adminOpinionPublique.principauxGriefs.map((grief: any) => (
+                        {adminOpinionPublique.principauxGriefs.map((grief: Grief) => (
                           <div key={grief.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -2003,7 +2078,7 @@ export default function AdminDashboard() {
                     </div>
                     
                     <div className="space-y-3">
-                      {adminRecommandations.map((recommandation: any, index: number) => (
+                      {adminRecommandations.map((recommandation: Recommandation, index: number) => (
                         <div key={recommandation.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-[hsl(var(--accent-warning))]/5 to-transparent">
                           {/* En-tête avec métadonnées */}
                           <div className="flex items-center justify-between">
@@ -2161,7 +2236,8 @@ export default function AdminDashboard() {
                       {adminProblematiques.length} problématique{adminProblematiques.length > 1 ? 's' : ''} identifiée{adminProblematiques.length > 1 ? 's' : ''} 
                       avec {adminRecommandations.length} recommandation{adminRecommandations.length > 1 ? 's' : ''} stratégique{adminRecommandations.length > 1 ? 's' : ''}. 
                       Impact financier total: {adminProblematiques.reduce((sum, p) => {
-                        const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                        const montantStr = String(p.montant || '0');
+                        const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
                         return sum + montant;
                       }, 0).toLocaleString()} FCFA.
                     </AlertDescription>
@@ -2260,7 +2336,7 @@ export default function AdminDashboard() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {adminCases.slice(0, 3).map((cas: any) => (
+                    {adminCases.slice(0, 3).map((cas: CaseData) => (
                       <div key={cas.id} className="border border-muted/20 rounded-lg p-4 space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -2357,7 +2433,8 @@ export default function AdminDashboard() {
                           <div className="text-xs text-muted-foreground">Total concerné</div>
                           <div className="text-sm font-semibold text-[hsl(var(--accent-success))]">
                             {adminCases.reduce((sum, cas) => {
-                              const montant = parseInt(cas.montant.replace(/[^\d]/g, ''));
+                              const montantStr = typeof cas.montant === 'number' ? String(cas.montant) : (cas.montant || '0');
+                              const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
                               return sum + montant;
                             }, 0).toLocaleString()} FCFA
                           </div>
@@ -2394,7 +2471,7 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {adminHistory.slice(0, 4).map((activity: any, index: number) => (
+                      {adminHistory.slice(0, 4).map((activity: HistoryItem, index: number) => (
                         <div key={activity.id} className="relative">
                           {/* Timeline line */}
                           {index < adminHistory.slice(0, 4).length - 1 && (
@@ -2451,9 +2528,10 @@ export default function AdminDashboard() {
                           <div className="font-medium text-muted-foreground">Total des montants traités</div>
                           <div className="text-sm font-semibold text-[hsl(var(--accent-success))]">
                             {adminHistory
-                              .filter(activity => activity.montant !== '0 FCFA')
+                              .filter(activity => String(activity.montant || '') !== '0 FCFA')
                               .reduce((sum, activity) => {
-                                const montant = parseInt(activity.montant.replace(/[^\d]/g, ''));
+                                const montantStr = String(activity.montant || '0');
+                                const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
                                 return sum + montant;
                               }, 0).toLocaleString()} FCFA
                           </div>
@@ -2593,7 +2671,7 @@ export default function AdminDashboard() {
                     <Calendar className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
                     Période de suivi
                   </Label>
-                  <Select value={periodeSuivi} onValueChange={(value: any) => setPeriodeSuivi(value)}>
+                  <Select value={periodeSuivi} onValueChange={(value) => setPeriodeSuivi(value as typeof periodeSuivi)}>
                     <SelectTrigger className="glass-effect border-none bg-gradient-to-r from-muted/30 to-muted/10 hover:from-muted/40 hover:to-muted/20 transition-all">
                       <SelectValue />
                     </SelectTrigger>
@@ -2701,7 +2779,8 @@ export default function AdminDashboard() {
                         </span>
                         <div className="text-base font-bold text-[hsl(var(--accent-success))]">
                           {adminProblematiques.reduce((sum, p) => {
-                            const montant = parseInt(p.montant.replace(/[^\d]/g, ''));
+                            const montantStr = String(p.montant || '0');
+                            const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
                             return sum + montant;
                           }, 0).toLocaleString()} FCFA
                         </div>
@@ -2729,7 +2808,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="space-y-2 max-h-[300px] overflow-y-auto border border-muted/20 rounded-lg p-3">
-                    {adminCases.map((cas: any) => (
+                    {adminCases.map((cas: CaseData) => (
                       <div
                         key={cas.id}
                         onClick={() => handleToggleCasSelection(cas.id)}
@@ -2795,7 +2874,8 @@ export default function AdminDashboard() {
                             {adminCases
                               .filter(cas => selectedCasIds.includes(cas.id))
                               .reduce((sum, cas) => {
-                                const montant = parseInt(cas.montant.replace(/[^\d]/g, ''));
+                                const montantStr = typeof cas.montant === 'number' ? String(cas.montant) : (cas.montant || '0');
+                                const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
                                 return sum + montant;
                               }, 0).toLocaleString()} FCFA
                           </div>
