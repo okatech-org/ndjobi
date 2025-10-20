@@ -1,11 +1,20 @@
 /**
- * iAsted Voice Service
+ * iAsted Voice Service - VERSION iOS/MOBILE OPTIMISÉE
  * 
  * Gère la reconnaissance vocale (STT) et la synthèse vocale (TTS)
  * pour l'interaction vocale avec l'assistant présidentiel.
+ * 
+ * OPTIMISATIONS iOS/MOBILE:
+ * - AudioPool pré-initialisé pour contourner l'autoplay
+ * - Détection format audio supporté (MP3/AAC/M4A)
+ * - MediaRecorder avec fallback WebM/MP4
+ * - Web Speech API avec gestion voix iOS
+ * - Retry automatique avec délais exponentiels
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { IAstedAudioManager } from './iAstedAudioManager';
+import { IAstedSpeechSynthesis } from './iAstedSpeechSynthesis';
 
 export class IAstedVoiceService {
   
@@ -29,13 +38,44 @@ export class IAstedVoiceService {
   }
 
   /**
+   * Initialiser le système audio (DOIT être appelé lors d'une interaction utilisateur)
+   */
+  static async initializeAudio(): Promise<void> {
+    await IAstedAudioManager.initialize();
+    await IAstedSpeechSynthesis.initialize();
+    console.log('✅ iAsted Voice Service initialisé');
+  }
+
+  /**
    * PARTIE 1 : RECONNAISSANCE VOCALE (Speech-to-Text)
    * 
    * Utilise l'API Web Speech Recognition ou l'API Whisper d'OpenAI
    */
 
   /**
-   * Démarrer l'enregistrement audio
+   * Détecter le format MediaRecorder supporté
+   */
+  private static getSupportedMediaRecorderFormat(): { mimeType: string; extension: string } {
+    // iOS supporte audio/mp4
+    if (MediaRecorder.isTypeSupported('audio/mp4')) {
+      return { mimeType: 'audio/mp4', extension: 'mp4' };
+    }
+    
+    // Android et navigateurs modernes supportent webm
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+      return { mimeType: 'audio/webm;codecs=opus', extension: 'webm' };
+    }
+    
+    if (MediaRecorder.isTypeSupported('audio/webm')) {
+      return { mimeType: 'audio/webm', extension: 'webm' };
+    }
+    
+    // Fallback
+    return { mimeType: '', extension: 'webm' };
+  }
+
+  /**
+   * Démarrer l'enregistrement audio avec détection de format
    */
   static async startRecording(): Promise<{ success: boolean; error?: string }> {
     try {
@@ -48,10 +88,14 @@ export class IAstedVoiceService {
         } 
       });
 
-      // Créer le MediaRecorder
-      this.mediaRecorder = new MediaRecorder(this.stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      // Détecter le format supporté
+      const format = this.getSupportedMediaRecorderFormat();
+      console.log('📱 Format MediaRecorder détecté:', format.mimeType || 'default');
+
+      // Créer le MediaRecorder avec le bon format
+      this.mediaRecorder = format.mimeType 
+        ? new MediaRecorder(this.stream, { mimeType: format.mimeType })
+        : new MediaRecorder(this.stream);
 
       this.audioChunks = [];
 
@@ -193,6 +237,7 @@ export class IAstedVoiceService {
 
   /**
    * Convertir du texte en audio et le jouer avec ElevenLabs via edge function
+   * VERSION iOS OPTIMISÉE avec AudioManager
    */
   static async speakText(text: string): Promise<{
     success: boolean;
@@ -201,6 +246,14 @@ export class IAstedVoiceService {
     error?: string;
   }> {
     try {
+      // Vérifier que l'audio est débloqué
+      if (!IAstedAudioManager.isAudioUnlocked()) {
+        console.warn('⚠️ Audio non débloqué - tentative fallback Web Speech');
+        return this.speakWithWebSpeech(text);
+      }
+
+      console.log('🎙️ Appel ElevenLabs TTS...');
+
       // Call ElevenLabs via edge function
       const { data, error } = await supabase.functions.invoke('iasted-tts', {
         body: { text, voice: 'XB0fDUnXU5powFXDhCwa' } // Charlotte (FR) par défaut
@@ -219,101 +272,64 @@ export class IAstedVoiceService {
       const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(audioBlob);
 
-      // Jouer l'audio et attendre la fin
-      return new Promise((resolve) => {
-        const audio = new Audio(audioUrl);
-        
-        audio.onended = () => {
-          console.log('✅ Lecture audio terminée');
-          resolve({ success: true, audioUrl, audioBlob });
-        };
-        
-        audio.onerror = (err) => {
-          console.error('❌ Erreur lecture audio:', err);
-          resolve({ success: false, error: 'Erreur lecture audio' });
-        };
-        
-        audio.play().catch((err) => {
-          console.error('❌ Erreur démarrage audio:', err);
-          resolve({ success: false, error: 'Impossible de lire l\'audio' });
-        });
-      });
+      console.log('🎵 Lecture audio via AudioManager...');
+
+      // Utiliser AudioManager pour la lecture (supporte iOS)
+      const playResult = await IAstedAudioManager.playAudioBlob(audioBlob);
+
+      if (playResult.success) {
+        console.log('✅ Audio joué avec succès');
+        return { success: true, audioUrl, audioBlob };
+      } else {
+        console.warn('⚠️ Échec AudioManager, fallback Web Speech');
+        throw new Error(playResult.error || 'Audio playback failed');
+      }
 
     } catch (error: any) {
-      console.error('Erreur ElevenLabs:', error);
+      console.error('Erreur ElevenLabs/AudioManager:', error);
       
-      // Fallback : Web Speech API
+      // Fallback : Web Speech API (optimisé pour iOS)
       return this.speakWithWebSpeech(text);
     }
   }
 
   /**
-   * TTS Fallback avec Web Speech API (avec attente des voix)
+   * TTS Fallback avec Web Speech API optimisé pour iOS
    */
-  private static speakWithWebSpeech(text: string): Promise<any> {
-    return new Promise((resolve) => {
-      if (!('speechSynthesis' in window)) {
-        resolve({ 
-          success: false, 
-          error: 'Speech Synthesis non supporté' 
-        });
-        return;
-      }
-
-      const ensureVoices = (): Promise<SpeechSynthesisVoice[]> => {
-        return new Promise((res) => {
-          let voices = speechSynthesis.getVoices();
-          if (voices && voices.length > 0) return res(voices);
-          const onVoices = () => {
-            voices = speechSynthesis.getVoices();
-            if (voices.length > 0) {
-              speechSynthesis.removeEventListener('voiceschanged', onVoices);
-              res(voices);
-            }
-          };
-          speechSynthesis.addEventListener('voiceschanged', onVoices);
-          // Timeout fallback
-          setTimeout(() => {
-            speechSynthesis.removeEventListener('voiceschanged', onVoices);
-            res(speechSynthesis.getVoices());
-          }, 1000);
-        });
+  private static async speakWithWebSpeech(text: string): Promise<any> {
+    if (!IAstedSpeechSynthesis.isSupported()) {
+      return { 
+        success: false, 
+        error: 'Speech Synthesis non supporté' 
       };
+    }
 
-      ensureVoices().then((voices) => {
-        try {
-          // Cancel any ongoing speech to avoid queueing
-          speechSynthesis.cancel();
-
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'fr-FR';
-          utterance.rate = this.VOICE_CONFIG.rate;
-          utterance.pitch = this.VOICE_CONFIG.pitch;
-          utterance.volume = this.VOICE_CONFIG.volume;
-
-          // Sélectionner une voix française si disponible
-          const frenchVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('fr'))
-            || voices.find(v => /fr|french/i.test(v.name));
-          if (frenchVoice) utterance.voice = frenchVoice;
-
-          utterance.onend = () => resolve({ success: true });
-          utterance.onerror = (error) => resolve({ success: false, error: (error as any).error || 'speech error' });
-
-          speechSynthesis.speak(utterance);
-        } catch (e: any) {
-          resolve({ success: false, error: e?.message || 'tts error' });
-        }
+    try {
+      console.log('🗣️ Fallback Web Speech API (iOS optimisé)');
+      
+      const result = await IAstedSpeechSynthesis.speak(text, {
+        lang: this.VOICE_CONFIG.language,
+        rate: this.VOICE_CONFIG.rate,
+        pitch: this.VOICE_CONFIG.pitch,
+        volume: this.VOICE_CONFIG.volume
       });
-    });
+
+      return result;
+      
+    } catch (error: any) {
+      return { 
+        success: false, 
+        error: error.message || 'Speech synthesis error' 
+      };
+    }
   }
 
   /**
    * Arrêter la lecture audio en cours
    */
   static stopSpeaking(): void {
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-    }
+    IAstedAudioManager.stop();
+    IAstedSpeechSynthesis.stop();
   }
 
   /**

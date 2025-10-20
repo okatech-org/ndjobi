@@ -1,11 +1,13 @@
 /**
  * Hook React pour gérer les conversations vocales avec iAsted
  * Intègre enregistrement audio, WebSocket, et lecture audio
+ * VERSION iOS/MOBILE OPTIMISÉE
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import IAstedWebSocket, { IAstedWebSocketConfig, TranscriptMessage, LLMResponseMessage } from '@/services/iasted/iastedWebSocket';
 import { iastedClient } from '@/services/iasted/iastedApiClient';
+import { IAstedAudioManager } from '@/services/iAstedAudioManager';
 
 export interface VoiceConversationTurn {
   id: string;
@@ -56,20 +58,43 @@ export const useIAstedVoice = (token: string, options: UseIAstedVoiceOptions = {
   }, []);
 
   const handleAudioResponse = useCallback(async (audioBlob: Blob) => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    // Utiliser l'AudioContext débloqué de IAstedAudioManager
+    const audioContext = IAstedAudioManager.getAudioContext();
+    
+    if (!audioContext) {
+      console.warn('⚠️ AudioContext non disponible, tentative avec IAstedAudioManager');
+      
+      // Fallback: utiliser AudioManager pour la lecture
+      try {
+        await IAstedAudioManager.playAudioBlob(audioBlob);
+      } catch (err) {
+        console.error('❌ Erreur lecture audio via AudioManager:', err);
+      }
+      return;
     }
 
     try {
+      // Vérifier l'état de l'AudioContext et le reprendre si nécessaire
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+
       const arrayBuffer = await audioBlob.arrayBuffer();
-      const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       
-      const source = audioContextRef.current.createBufferSource();
+      const source = audioContext.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(audioContextRef.current.destination);
+      source.connect(audioContext.destination);
       source.start(0);
     } catch (err) {
-      console.error('❌ Erreur lecture audio:', err);
+      console.error('❌ Erreur lecture audio WebAudio:', err);
+      
+      // Fallback final: HTMLAudioElement via AudioManager
+      try {
+        await IAstedAudioManager.playAudioBlob(audioBlob);
+      } catch (fallbackErr) {
+        console.error('❌ Erreur fallback audio:', fallbackErr);
+      }
     }
   }, []);
 

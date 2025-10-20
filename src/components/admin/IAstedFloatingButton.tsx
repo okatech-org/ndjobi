@@ -482,27 +482,41 @@ export const IAstedFloatingButton = () => {
   const handleDoubleClick = async () => {
     console.log('🎙️ Mode vocal activé - Double clic détecté');
 
-    // Débloquer l'audio immédiatement (user gesture)
-    await unlockAudioIfNeeded();
-    
-    // Si déjà ouvert en mode texte, basculer vers vocal
-    if (isOpen && mode === 'text') {
-      await switchToVoice();
-      return;
+    try {
+      // CRITIQUE: Initialiser le système audio IMMÉDIATEMENT (iOS/mobile)
+      console.log('🔓 Initialisation audio optimisée iOS/mobile...');
+      await IAstedVoiceService.initializeAudio();
+      
+      // Débloquer l'audio immédiatement (user gesture)
+      await unlockAudioIfNeeded();
+      
+      // Si déjà ouvert en mode texte, basculer vers vocal
+      if (isOpen && mode === 'text') {
+        await switchToVoice();
+        return;
+      }
+
+      // Démarrer en mode vocal sans ouvrir l'interface
+      setMode('voice');
+
+      // Vérifier/demander l'accès micro (une seule fois)
+      const hasMic = await ensureMicrophoneAccess();
+      if (!hasMic) {
+        return;
+      }
+
+      // Saluer puis lancer l'écoute
+      await speakGreeting();
+      await startVoiceInteraction();
+      
+    } catch (error: any) {
+      console.error('Erreur activation mode vocal:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'activer le mode vocal',
+        variant: 'destructive'
+      });
     }
-
-    // Démarrer en mode vocal sans ouvrir l'interface
-    setMode('voice');
-
-    // Vérifier/demander l'accès micro (une seule fois)
-    const hasMic = await ensureMicrophoneAccess();
-    if (!hasMic) {
-      return;
-    }
-
-    // Saluer puis lancer l'écoute
-    await speakGreeting();
-    await startVoiceInteraction();
   };
 
   /**

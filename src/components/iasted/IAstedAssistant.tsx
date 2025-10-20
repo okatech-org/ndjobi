@@ -94,22 +94,37 @@ export function IAstedAssistant() {
     setIsOpen(true);
     setMode('voice');
 
-    // Vérifier la permission microphone
-    const hasMic = await IAstedVoiceService.checkMicrophonePermission();
-    if (!hasMic) {
+    try {
+      // CRITIQUE: Initialiser l'audio IMMÉDIATEMENT lors de l'interaction utilisateur
+      // pour contourner les restrictions iOS/Safari
+      console.log('🔓 Initialisation audio (iOS/mobile)...');
+      await IAstedVoiceService.initializeAudio();
+      
+      // Vérifier la permission microphone
+      const hasMic = await IAstedVoiceService.checkMicrophonePermission();
+      if (!hasMic) {
+        toast({
+          title: 'Microphone requis',
+          description: 'Veuillez autoriser l\'accès au microphone',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      // iAsted parle en premier
+      await speakWelcomeMessage();
+
+      // Puis lance l'écoute
+      await startVoiceInteraction();
+      
+    } catch (error: any) {
+      console.error('Erreur initialisation mode vocal:', error);
       toast({
-        title: 'Microphone requis',
-        description: 'Veuillez autoriser l\'accès au microphone',
+        title: 'Erreur',
+        description: 'Impossible d\'activer le mode vocal',
         variant: 'destructive'
       });
-      return;
     }
-
-    // iAsted parle en premier
-    await speakWelcomeMessage();
-
-    // Puis lance l'écoute
-    await startVoiceInteraction();
   };
 
   /**
@@ -436,8 +451,20 @@ export function IAstedAssistant() {
    * Basculer vers le mode vocal depuis le mode texte
    */
   const switchToVoice = async () => {
-    setMode('voice');
-    await startVoiceInteraction();
+    try {
+      // Initialiser l'audio si pas déjà fait
+      await IAstedVoiceService.initializeAudio();
+      
+      setMode('voice');
+      await startVoiceInteraction();
+    } catch (error: any) {
+      console.error('Erreur basculement vers vocal:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de basculer en mode vocal',
+        variant: 'destructive'
+      });
+    }
   };
 
   // RENDU DU COMPOSANT

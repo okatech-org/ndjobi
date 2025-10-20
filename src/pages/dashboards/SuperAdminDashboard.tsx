@@ -2061,7 +2061,7 @@ const SuperAdminDashboard = () => {
               </CardDescription>
                   </div>
             <Badge variant="default" className="text-lg px-4 py-2">
-              Version 2.0.0
+              Version 2.1.0 - iOS Optimisé
             </Badge>
                 </div>
               </CardHeader>
@@ -3660,11 +3660,11 @@ const SuperAdminDashboard = () => {
             <CardContent className="space-y-6">
               <Alert className="border-primary/50 bg-primary/5">
                 <Brain className="h-4 w-4" />
-                <AlertTitle>Module d'Intelligence Artificielle Avancé</AlertTitle>
+                <AlertTitle>Module d'Intelligence Artificielle Avancé - iOS Optimisé</AlertTitle>
                 <AlertDescription>
                   iAsted est un assistant IA conversationnel spécialement conçu pour le Président de la République. 
                   Il fournit des analyses en temps réel, des recommandations stratégiques et une aide à la décision 
-                  basée sur l'ensemble des données de la plateforme NDJOBI.
+                  basée sur l'ensemble des données de la plateforme NDJOBI. <strong>Version iOS optimisée avec support vocal avancé.</strong>
                 </AlertDescription>
               </Alert>
 
@@ -3729,8 +3729,8 @@ const SuperAdminDashboard = () => {
                       <p className="text-sm text-blue-700 dark:text-blue-300">Interface chat classique avec saisie clavier</p>
                     </div>
                     <div className="p-3 rounded-lg border bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-                      <h5 className="font-semibold text-green-900 dark:text-green-100">Mode Vocal</h5>
-                      <p className="text-sm text-green-700 dark:text-green-300">Reconnaissance vocale + synthèse vocale</p>
+                      <h5 className="font-semibold text-green-900 dark:text-green-100">Mode Vocal iOS</h5>
+                      <p className="text-sm text-green-700 dark:text-green-300">STT/TTS optimisé iOS • AudioPool • WebM/MP4 • Auto-retry</p>
                     </div>
                     <div className="p-3 rounded-lg border bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
                       <h5 className="font-semibold text-purple-900 dark:text-purple-100">Bouton Flottant</h5>
@@ -3778,7 +3778,7 @@ const SuperAdminDashboard = () => {
                     </div>
                     <div className="p-3 rounded-lg border bg-gradient-to-r from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900">
                       <h5 className="font-semibold text-pink-900 dark:text-pink-100">IAstedVoiceService</h5>
-                      <p className="text-sm text-pink-700 dark:text-pink-300">Gestion de la reconnaissance et synthèse vocale</p>
+                      <p className="text-sm text-pink-700 dark:text-pink-300">STT/TTS iOS • AudioPool • MediaRecorder • Web Speech API</p>
                     </div>
                     <div className="p-3 rounded-lg border bg-gradient-to-r from-cyan-50 to-cyan-100 dark:from-cyan-950 dark:to-cyan-900">
                       <h5 className="font-semibold text-cyan-900 dark:text-cyan-100">IAstedStorageService</h5>
@@ -3800,6 +3800,62 @@ const SuperAdminDashboard = () => {
                     <div className="p-3 rounded-lg border bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900">
                       <h5 className="font-semibold text-amber-900 dark:text-amber-100">Artefacts</h5>
                       <p className="text-sm text-amber-700 dark:text-amber-300">Génération de rapports et visualisations</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Optimisations iOS */}
+          <Card>
+            <CardHeader>
+              <CardTitle>📱 Optimisations iOS/Mobile</CardTitle>
+              <CardDescription>
+                Améliorations spécifiques pour la compatibilité iOS et mobile
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertTitle>✅ Optimisations iOS Implémentées</AlertTitle>
+                <AlertDescription>
+                  Support complet iOS avec gestion avancée de l'audio et de la reconnaissance vocale
+                </AlertDescription>
+              </Alert>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">🎵 Gestion Audio Avancée :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                      <h5 className="font-semibold text-blue-900 dark:text-blue-100">AudioPool Pré-initialisé</h5>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">Contournement des restrictions autoplay iOS</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                      <h5 className="font-semibold text-green-900 dark:text-green-100">Détection Format Audio</h5>
+                      <p className="text-sm text-green-700 dark:text-green-300">Support MP3/AAC/M4A avec fallback WebM/MP4</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                      <h5 className="font-semibold text-purple-900 dark:text-purple-100">MediaRecorder Optimisé</h5>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">Enregistrement vocal avec gestion des erreurs iOS</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3">🗣️ Reconnaissance Vocale :</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+                      <h5 className="font-semibold text-orange-900 dark:text-orange-100">Web Speech API</h5>
+                      <p className="text-sm text-orange-700 dark:text-orange-300">Gestion optimisée des voix iOS disponibles</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950 dark:to-red-900">
+                      <h5 className="font-semibold text-red-900 dark:text-red-100">Retry Automatique</h5>
+                      <p className="text-sm text-red-700 dark:text-red-300">Délais exponentiels pour la robustesse iOS</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-950 dark:to-teal-900">
+                      <h5 className="font-semibold text-teal-900 dark:text-teal-100">AudioContext Gestion</h5>
+                      <p className="text-sm text-teal-700 dark:text-teal-300">Suspension/reprise automatique du contexte audio</p>
                     </div>
                   </div>
                 </div>
