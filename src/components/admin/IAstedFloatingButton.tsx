@@ -75,31 +75,73 @@ export const IAstedFloatingButton = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Événement pour ouvrir depuis une modale (rapport vocal institution)
+  // Événement pour rapport vocal automatique (sans modal, son direct)
   useEffect(() => {
     const onOpenVoiceReport = (e: CustomEvent) => {
-      setIsOpen(true);
-      setMode('voice');
       const admin = (e.detail && (e.detail as any).admin) || null;
 
       (async () => {
         try {
+          // 1. Débloquer l'audio immédiatement (user gesture)
           await unlockAudioIfNeeded();
+          
+          // 2. Forcer le déblocage audio avec interaction utilisateur
+          if (audioCtxRef.current?.state === 'suspended') {
+            await audioCtxRef.current.resume();
+          }
+
+          // 3. Démarrer directement la parole SANS ouvrir le modal
           const org = admin?.organization || "l'administration concernée";
           const intro = `J'analyse la situation de ${org}. Je passe en revue les cas, la performance, les problématiques et les recommandations.`;
-          setIsSpeaking(true);
-          await IAstedVoiceService.speakText(intro);
-          setIsSpeaking(false);
+          
+          // 4. Parler immédiatement avec TTS local (plus fiable)
+          if ('speechSynthesis' in window) {
+            speechSynthesis.cancel(); // Nettoyer la file
+            const utterance = new SpeechSynthesisUtterance(intro);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // Sélectionner voix française
+            const voices = speechSynthesis.getVoices();
+            const frenchVoice = voices.find(v => v.lang?.toLowerCase().startsWith('fr')) || 
+                               voices.find(v => /french|français/i.test(v.name));
+            if (frenchVoice) utterance.voice = frenchVoice;
+            
+            // Parler et attendre la fin
+            await new Promise<void>((resolve) => {
+              utterance.onend = () => resolve();
+              utterance.onerror = () => resolve(); // Continuer même en cas d'erreur
+              speechSynthesis.speak(utterance);
+            });
+          }
 
-          const autoPrompt = `Génère un rapport vocal synthétique et structuré pour ${org}. \nInclure: performance récente, cas en cours marquants, problématiques critiques avec impacts, et recommandations présidentielles actionnables à court terme. \nStyle: présidentiel, clair, concis, en français, avec enchaînement naturel à l'oral.`;
+          // 5. Générer et parler le rapport complet
+          const autoPrompt = `Génère un rapport vocal synthétique et structuré pour ${org}. Inclure: performance récente, cas en cours marquants, problématiques critiques avec impacts, et recommandations présidentielles actionnables à court terme. Style: présidentiel, clair, concis, en français, avec enchaînement naturel à l'oral.`;
 
-          setIsProcessing(true);
-          await getAIResponse(autoPrompt, 'voice');
-          setIsProcessing(false);
+          // 6. Appeler l'IA et parler la réponse
+          const result = await IAstedService.sendMessage(autoPrompt, []);
+          if (result.response) {
+            // Parler la réponse avec TTS local
+            if ('speechSynthesis' in window) {
+              const responseUtterance = new SpeechSynthesisUtterance(result.response);
+              responseUtterance.lang = 'fr-FR';
+              responseUtterance.rate = 0.9;
+              responseUtterance.pitch = 1.0;
+              responseUtterance.volume = 1.0;
+              
+              const voices = speechSynthesis.getVoices();
+              const frenchVoice = voices.find(v => v.lang?.toLowerCase().startsWith('fr')) || 
+                                 voices.find(v => /french|français/i.test(v.name));
+              if (frenchVoice) responseUtterance.voice = frenchVoice;
+              
+              speechSynthesis.speak(responseUtterance);
+            }
+          }
+
         } catch (err) {
-          console.error('Erreur lancement rapport vocal iAsted:', err);
-          setIsProcessing(false);
-          setIsSpeaking(false);
+          console.error('Erreur rapport vocal iAsted:', err);
         }
       })();
     };
@@ -818,12 +860,13 @@ export const IAstedFloatingButton = () => {
       {/* BOUTON SPHÉRIQUE DÉPLAÇABLE */}
       <div 
         ref={buttonRef}
-        className="fixed z-[9999] cursor-move"
+        className="fixed z-[99999] cursor-move"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
           transform: 'translate(-50%, -50%)',
-          transition: isDragging ? 'none' : 'transform 0.2s ease-out'
+          transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+          filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.3))'
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -850,7 +893,7 @@ export const IAstedFloatingButton = () => {
       {/* INTERFACE CHAT */}
       {isOpen && (
         <Card 
-          className="fixed w-[400px] h-[600px] shadow-2xl z-[9998] flex flex-col max-w-[calc(100vw-2rem)] md:w-[400px]"
+          className="fixed w-[400px] h-[600px] shadow-2xl z-[99998] flex flex-col max-w-[calc(100vw-2rem)] md:w-[400px]"
           style={{
             // Positionner le chat à gauche du bouton si possible, sinon à droite
             left: position.x > window.innerWidth / 2 
