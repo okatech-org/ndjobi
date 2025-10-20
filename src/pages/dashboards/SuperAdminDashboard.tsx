@@ -7,7 +7,7 @@ import {
   Clock, Check, X, RefreshCcw, Download, Upload, MapPin, CheckCircle,
   Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus,
   Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff, Brain, Package, Radio, Crown,
-  Mail, Phone
+  Mail, Phone, Target
 } from 'lucide-react';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { useAuth } from '@/hooks/useAuth';
@@ -2068,8 +2068,9 @@ const SuperAdminDashboard = () => {
             </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+          <TabsTrigger value="president">👑 Dashboard Président</TabsTrigger>
           <TabsTrigger value="architecture">Architecture</TabsTrigger>
           <TabsTrigger value="features">Fonctionnalités</TabsTrigger>
           <TabsTrigger value="iasted">🤖 iAsted</TabsTrigger>
@@ -2140,6 +2141,7 @@ const SuperAdminDashboard = () => {
               <div className="space-y-3">
                 {[
                   { role: 'Super Admin', color: 'destructive', features: ['Accès total système', 'Module XR-7', 'Configuration DB', 'Gestion utilisateurs'], icon: Zap },
+                  { role: 'Président (Dashboard Dédié)', color: 'default', features: ['Vue stratégique nationale', 'Opinion publique', 'Situations critiques', 'Vision Gabon 2025'], icon: Crown },
                   { role: 'Admin (Protocole d\'État)', color: 'default', features: ['Validation cas', 'Gestion agents', 'Rapports régionaux', 'Configuration seuils'], icon: Shield },
                   { role: 'Agent DGSS', color: 'secondary', features: ['Enquêtes terrain', 'Cas assignés', 'Rapports', 'Carte interventions'], icon: Users },
                   { role: 'User (Citoyen)', color: 'outline', features: ['Signaler corruption', 'Protéger projet', 'Suivre dossiers', 'Profil'], icon: User },
@@ -2165,6 +2167,247 @@ const SuperAdminDashboard = () => {
               </div>
               </CardContent>
             </Card>
+        </TabsContent>
+
+        <TabsContent value="president" className="space-y-4 mt-4">
+          <Card className="border-l-4 border-l-yellow-500">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Crown className="h-6 w-6 text-yellow-600" />
+                <div>
+                  <CardTitle>Dashboard Présidentiel - Vue Stratégique Nationale</CardTitle>
+                  <CardDescription className="mt-1">
+                    Interface dédiée pour le Président de la République • Simplicité & Efficacité
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert className="bg-green-50 border-green-200">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertTitle>✅ Implémentation Complète</AlertTitle>
+                <AlertDescription>
+                  Dashboard présidentiel opérationnel avec 4 vues principales simplifiées pour une compréhension rapide des affaires d'État.
+                </AlertDescription>
+              </Alert>
+
+              <div>
+                <h4 className="font-semibold mb-3">🎯 Objectif du Dashboard</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Fournir au Président une vue claire, synthétique et exploitable de la situation nationale en matière de corruption,
+                  d'opinion publique et de gouvernance. L'interface privilégie la simplicité et l'impact visuel pour faciliter 
+                  la prise de décision stratégique.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg border bg-blue-50/50">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-blue-600" />
+                    Vue d'Ensemble Nationale
+                  </h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• 4 KPIs stratégiques principaux</li>
+                    <li>• Score de transparence national</li>
+                    <li>• Distribution régionale des cas</li>
+                    <li>• Évolution mensuelle des signalements</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-lg border bg-purple-50/50">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-purple-600" />
+                    Opinion Publique
+                  </h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• Taux de satisfaction globale (62%)</li>
+                    <li>• Top 5 préoccupations citoyennes</li>
+                    <li>• Zones géographiques à risque</li>
+                    <li>• Sentiment national dominant</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-lg border bg-red-50/50">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                    Situations Critiques
+                  </h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• Cas nécessitant validation présidentielle</li>
+                    <li>• Analyses IA avec scores de priorité</li>
+                    <li>• Actions recommandées par dossier</li>
+                    <li>• Décisions rapides (Approuver/Enquête)</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-lg border bg-green-50/50">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Target className="h-4 w-4 text-green-600" />
+                    Vision Gabon 2025
+                  </h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• Progression des 5 piliers nationaux</li>
+                    <li>• Performance des ministères</li>
+                    <li>• Synthèse stratégique des résultats</li>
+                    <li>• Indicateurs Vision Émergent</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3">🔑 Caractéristiques Clés</h4>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-3 p-3 rounded-lg border">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Design Simplifié & Épuré</p>
+                      <p className="text-sm text-muted-foreground">
+                        Interface minimaliste avec codes couleurs intuitifs (Rouge=Critique, Vert=Positif)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-lg border">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Visualisations Claires</p>
+                      <p className="text-sm text-muted-foreground">
+                        Graphiques, jauges et barres de progression pour une lecture instantanée
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-lg border">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Navigation par Onglets</p>
+                      <p className="text-sm text-muted-foreground">
+                        4 onglets principaux pour séparer les informations par thématique
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-lg border">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Actions Rapides</p>
+                      <p className="text-sm text-muted-foreground">
+                        Boutons d'action directs : Approuver, Enquêter, Générer Rapport
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-lg border">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Assistant IA iAsted</p>
+                      <p className="text-sm text-muted-foreground">
+                        Bouton flottant pour assistance contextuelle vocale ou textuelle
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-lg border">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Protocole XR-7</p>
+                      <p className="text-sm text-muted-foreground">
+                        Accès direct au module d'urgence nationale en bas de page
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg border bg-muted/30">
+                <h4 className="font-semibold mb-3">📊 Données Affichées</h4>
+                <div className="grid md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="font-medium mb-1">KPIs Temps Réel</p>
+                    <ul className="space-y-1 text-muted-foreground">
+                      <li>• Total signalements: 320</li>
+                      <li>• Cas critiques: 28</li>
+                      <li>• Taux résolution: 67%</li>
+                      <li>• Fonds récupérés: 7.2 Mrd FCFA</li>
+                      <li>• Score transparence: 78/100</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-medium mb-1">Opinion & Recommandations</p>
+                    <ul className="space-y-1 text-muted-foreground">
+                      <li>• Satisfaction: 62%</li>
+                      <li>• Top griefs citoyens (5)</li>
+                      <li>• Zones à risque (2)</li>
+                      <li>• Recommandations stratégiques (3)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg border-2 border-yellow-300 bg-yellow-50">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Key className="h-4 w-4 text-yellow-700" />
+                  Accès Dashboard Présidentiel
+                </h4>
+                <div className="text-sm space-y-2">
+                  <p className="text-muted-foreground">
+                    Le dashboard est accessible uniquement au compte Président :
+                  </p>
+                  <div className="p-3 rounded-lg bg-white border">
+                    <p className="font-mono text-xs">
+                      <strong>Email:</strong> 24177888001@ndjobi.com<br/>
+                      <strong>Téléphone:</strong> +24177888001<br/>
+                      <strong>PIN:</strong> 111111<br/>
+                      <strong>URL:</strong> /dashboard/president
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">
+                    Redirection automatique lors de la connexion du Président
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3">🛠️ Implémentation Technique</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                    <p><strong>Composant:</strong> <code className="text-xs bg-muted px-1 py-0.5 rounded">PresidentDashboard.tsx</code></p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                    <p><strong>Route:</strong> <code className="text-xs bg-muted px-1 py-0.5 rounded">/dashboard/president</code></p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                    <p><strong>Hook:</strong> <code className="text-xs bg-muted px-1 py-0.5 rounded">useProtocolEtat()</code> - Données nationales</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                    <p><strong>Design:</strong> Glassmorphism avec dégradés vert/bleu (couleurs nationales)</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                    <p><strong>Graphiques:</strong> Recharts (Line, Bar, Pie charts)</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                    <p><strong>Composants UI:</strong> Shadcn/UI (Cards, Tabs, Progress, Badges, Alerts)</p>
+                  </div>
+                </div>
+              </div>
+
+              <Alert className="bg-blue-50 border-blue-200">
+                <Brain className="h-4 w-4 text-blue-600" />
+                <AlertTitle>💡 Philosophie de Design</AlertTitle>
+                <AlertDescription>
+                  Le dashboard présidentiel privilégie la <strong>simplicité</strong> et la <strong>clarté</strong> plutôt que la densité d'information.
+                  Chaque élément est pensé pour une compréhension immédiate, avec des indicateurs visuels (couleurs, jauges) 
+                  qui permettent au Président de saisir la situation nationale en un coup d'œil.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="architecture" className="space-y-4 mt-4">
