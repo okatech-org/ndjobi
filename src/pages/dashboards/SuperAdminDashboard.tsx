@@ -2363,6 +2363,92 @@ const SuperAdminDashboard = () => {
             </CardContent>
           </Card>
 
+          {/* Génération de Rapports - Gamma AI */}
+          <Card>
+            <CardHeader>
+              <CardTitle>📄 Génération de Rapports – Gamma AI</CardTitle>
+              <CardDescription>
+                Intégration complète Gamma (PDF Pro / PowerPoint) avec configuration avancée
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+                  <h4 className="font-semibold mb-2">🎨 Formats & organisation UI</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Formats standard supprimés (PDF/Excel/Word)</li>
+                    <li>• Uniquement <strong>Gamma AI</strong> (PDF Pro, PowerPoint)</li>
+                    <li>• Panneau <strong>Configuration Gamma AI</strong> (9 paramètres)</li>
+                    <li>• <strong>Format d'extraction</strong> positionné après la configuration</li>
+                    <li>• Alerte d'information avec <em>processus en 5 étapes</em></li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+                  <h4 className="font-semibold mb-2">⚙️ Paramètres pris en charge (9)</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Mode de création: IA / Coller le texte</li>
+                    <li>• Type de document: Présentation / Texte</li>
+                    <li>• Format de page: Défaut / Lettre / A4</li>
+                    <li>• Mode de génération: Générer / Synthèse / Conserver</li>
+                    <li>• Niveau de détail: Minimaliste / Concis / Détaillé</li>
+                    <li>• Langue de sortie: Français / Anglais</li>
+                    <li>• Source d'images: Généré par IA / Aucune</li>
+                    <li>• Style d'images: Réaliste / Illustration (conditionnel)</li>
+                    <li>• Nombre de cartes: 1 à 10</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="p-4 rounded-lg border bg-muted/30">
+                <h4 className="font-semibold mb-2">🔁 Processus Gamma (5 étapes)</h4>
+                <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                  <li>Extraction automatique des données détaillées</li>
+                  <li>Création du rapport selon la configuration</li>
+                  <li>Génération du design et mise en page</li>
+                  <li>Export en PDF ou PowerPoint</li>
+                  <li>Téléchargement + lien Gamma.app</li>
+                </ol>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Rapport Vocal iAsted – Gestion Institutions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🎙️ Rapport Vocal iAsted (Gestion Institutions)</CardTitle>
+              <CardDescription>
+                Bouton dédié dans les modales Détails pour lancer un rapport oral par iAsted
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
+                  <h4 className="font-semibold mb-2">🧩 Intégration UI</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Nouveau bouton <strong>Rapport iAsted (vocal)</strong> dans le footer des modales</li>
+                    <li>• Icône Micro, style glass + hover</li>
+                    <li>• Ouverture directe de la sphère iAsted en mode vocal</li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-lg border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
+                  <h4 className="font-semibold mb-2">🔌 Comportement & évènement</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Dispatch d'un évènement: <code>iasted:open-voice-report</code></li>
+                    <li>• Le bouton flottant iAsted écoute et s'ouvre en <strong>mode voix</strong></li>
+                    <li>• Message d'amorce contextuel (ministère/administration)</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="p-4 rounded-lg border bg-muted/30">
+                <h4 className="font-semibold mb-2">🎯 Cas d'usage</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Présenter à voix haute l'état d'un ministère (stats, problématiques, recommandations)</li>
+                  <li>• Débriefer rapidement un cas (Agent Pêche – Pêche-GAB)</li>
+                  <li>• Générer un résumé oral instantané pour le Président</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Module de Signalement */}
           <Card>
             <CardHeader>
