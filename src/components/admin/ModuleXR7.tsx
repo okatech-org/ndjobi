@@ -767,7 +767,7 @@ export function ModuleXR7() {
                                   {legal.article} • {legal.description}
                                 </div>
                               </div>
-                            </div>
+            </div>
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -805,15 +805,15 @@ export function ModuleXR7() {
             <div className="space-y-2">
               <Label>Durée de Protection (heures)</Label>
               <div className="flex gap-2">
-                <Input
-                  type="number"
-                  min="1"
-                  max="72"
-                  value={activationForm.duree_heures || 24}
-                  onChange={(e) => setActivationForm(prev => ({
-                    ...prev,
-                    duree_heures: parseInt(e.target.value)
-                  }))}
+              <Input
+                type="number"
+                min="1"
+                max="72"
+                value={activationForm.duree_heures || 24}
+                onChange={(e) => setActivationForm(prev => ({
+                  ...prev,
+                  duree_heures: parseInt(e.target.value)
+                }))}
                   className="flex-1"
                 />
                 {selectedRaison && (

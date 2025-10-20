@@ -1634,6 +1634,23 @@ export default function AdminDashboard() {
                   <Eye className="h-4 w-4 mr-2" />
                   Voir Détails
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 glass-effect border-none hover:bg-purple-500/10"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const event = new CustomEvent('iasted:open-voice-report', {
+                      detail: { context: 'institution-card', admin }
+                    });
+                    window.dispatchEvent(event);
+                  }}
+                  title="Rapport iAsted (vocal)"
+                >
+                  <Mic className="h-4 w-4 mr-2" />
+                  Rapport iAsted
+                </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
