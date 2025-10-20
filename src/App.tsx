@@ -21,8 +21,8 @@ import { PWAAuth } from "@/components/auth/PWAAuth";
 
 // Lazy loading UNIQUEMENT pour les routes rarement utilisées
 const AgentDashboard = lazy(() => import("./pages/dashboards/AgentDashboard"));
-const AdminDashboard = lazy(() => import("./pages/dashboards/AdminDashboard"));
-const PresidentDashboard = lazy(() => import("./pages/dashboards/PresidentDashboard"));
+const AdminDashboard = lazy(() => import("./pages/dashboards/Admin"));
+const PresidentDashboard = lazy(() => import("./pages/dashboards/President"));
 const SuperAdminDashboard = lazy(() => import("./pages/dashboards/SuperAdminDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
