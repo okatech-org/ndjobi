@@ -75,13 +75,15 @@ export const IAstedFloatingButton = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Événement pour rapport vocal automatique (sans modal, son direct)
+  // Événement pour rapport vocal automatique (BYPASS du double-clic)
   useEffect(() => {
     const onOpenVoiceReport = (e: CustomEvent) => {
       const admin = (e.detail && (e.detail as any).admin) || null;
 
       (async () => {
         try {
+          console.log('🎙️ RAPPORT VOCAL AUTOMATIQUE DÉCLENCHÉ - BYPASS double-clic');
+          
           // 1. Débloquer l'audio immédiatement (user gesture)
           await unlockAudioIfNeeded();
           
@@ -90,11 +92,14 @@ export const IAstedFloatingButton = () => {
             await audioCtxRef.current.resume();
           }
 
-          // 3. Démarrer directement la parole SANS ouvrir le modal
+          // 3. Indicateur visuel que le rapport vocal démarre
+          setIsSpeaking(true);
+
+          // 4. Démarrer directement la parole SANS ouvrir le modal
           const org = admin?.organization || "l'administration concernée";
           const intro = `J'analyse la situation de ${org}. Je passe en revue les cas, la performance, les problématiques et les recommandations.`;
           
-          // 4. Parler immédiatement avec TTS local (plus fiable)
+          // 5. Parler immédiatement avec TTS local (plus fiable)
           if ('speechSynthesis' in window) {
             speechSynthesis.cancel(); // Nettoyer la file
             const utterance = new SpeechSynthesisUtterance(intro);
@@ -117,12 +122,20 @@ export const IAstedFloatingButton = () => {
             });
           }
 
-          // 5. Générer et parler le rapport complet
+          // 6. Transition vers traitement IA
+          setIsSpeaking(false);
+          setIsProcessing(true);
+
+          // 7. Générer et parler le rapport complet
           const autoPrompt = `Génère un rapport vocal synthétique et structuré pour ${org}. Inclure: performance récente, cas en cours marquants, problématiques critiques avec impacts, et recommandations présidentielles actionnables à court terme. Style: présidentiel, clair, concis, en français, avec enchaînement naturel à l'oral.`;
 
-          // 6. Appeler l'IA et parler la réponse
+          // 8. Appeler l'IA et parler la réponse
           const result = await IAstedService.sendMessage(autoPrompt, []);
           if (result.response) {
+            // Passer en mode parole pour la réponse finale
+            setIsProcessing(false);
+            setIsSpeaking(true);
+            
             // Parler la réponse avec TTS local
             if ('speechSynthesis' in window) {
               const responseUtterance = new SpeechSynthesisUtterance(result.response);
@@ -136,12 +149,27 @@ export const IAstedFloatingButton = () => {
                                  voices.find(v => /french|français/i.test(v.name));
               if (frenchVoice) responseUtterance.voice = frenchVoice;
               
-              speechSynthesis.speak(responseUtterance);
+              // Parler et attendre la fin
+              await new Promise<void>((resolve) => {
+                responseUtterance.onend = () => {
+                  setIsSpeaking(false);
+                  resolve();
+                };
+                responseUtterance.onerror = () => {
+                  setIsSpeaking(false);
+                  resolve();
+                };
+                speechSynthesis.speak(responseUtterance);
+              });
             }
+          } else {
+            setIsProcessing(false);
           }
 
         } catch (err) {
           console.error('Erreur rapport vocal iAsted:', err);
+          setIsSpeaking(false);
+          setIsProcessing(false);
         }
       })();
     };
