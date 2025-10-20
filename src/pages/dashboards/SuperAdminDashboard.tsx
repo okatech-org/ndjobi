@@ -1194,6 +1194,25 @@ const SuperAdminDashboard = () => {
             </div>
               </CardContent>
             </Card>
+
+        <Card className="border-cyan-500/20 hover:border-cyan-500/40 transition-colors cursor-pointer bg-gradient-to-br from-cyan-50/50 to-blue-50/50 dark:from-cyan-950/20 dark:to-blue-950/20"
+              onClick={() => handleNavigateToView('visibilite')}>
+              <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Eye className="h-4 w-4 text-cyan-500" />
+              🔓 Visibilité
+            </CardTitle>
+              </CardHeader>
+              <CardContent>
+            <div className="text-2xl font-bold">9</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Comptes accessibles
+            </p>
+            <Badge variant="outline" className="mt-2 text-xs bg-cyan-500/10 border-cyan-500/30">
+              Portail actif
+            </Badge>
+              </CardContent>
+            </Card>
           </div>
 
       <Card>
@@ -3113,10 +3132,10 @@ const SuperAdminDashboard = () => {
                       features: ['Gestion clés API IA (OpenAI, Claude, Gemini, Azure)', 'Applications connectées (Webhooks, OAuth, API)', 'Configuration MCP (Model Context Protocol)', 'Agents IA personnalisés', 'Test et validation clés', 'Statistiques d\'usage'] 
                     },
                     { 
-                      view: 'Comptes Démo', 
-                      icon: TestTube,
+                      view: 'Visibilité', 
+                      icon: Eye,
                       color: 'text-cyan-500',
-                      features: ['Création comptes démo (Citoyen, Agent, Admin)', 'Basculement de compte sécurisé', 'Gestion téléphones et emails démo', 'Historique d\'utilisation', 'Suppression et nettoyage', 'Tests de rôles en temps réel'] 
+                      features: ['Portail d\'accès direct aux comptes (Admin, Sous-Admin, Agent)', 'Connexion rapide sans authentification', 'Vue d\'ensemble des comptes système', 'Accès instantané aux dashboards', 'Navigation inter-comptes fluide', 'Mode super-vision activé'] 
                     },
                     { 
                       view: 'Projet', 
@@ -5406,9 +5425,9 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
-  // Composant pour afficher les 9 comptes démo configurés
+  // Composant pour afficher les 9 comptes système configurés
   const DatabaseDemoAccountsCards = () => {
-    // Comptes démo hardcodés (basés sur les vrais comptes de la BDD)
+    // Comptes système hardcodés (basés sur les vrais comptes de la BDD)
     const demoAccountsList: DatabaseDemoAccount[] = [
       {
         id: 'c8cb1702-fcd3-4d60-82f3-f929a77e776a',
@@ -5528,7 +5547,7 @@ const SuperAdminDashboard = () => {
           <div>
             <h2 className="text-base sm:text-xl font-bold flex items-center gap-1.5 sm:gap-2">
               <TestTube className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-500" />
-              9 Comptes Démo Configurés
+              9 Comptes Système Disponibles
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">
               Comptes de test pré-configurés avec différents rôles et permissions
@@ -5542,7 +5561,7 @@ const SuperAdminDashboard = () => {
 
         <Alert className="border-cyan-500/50 bg-cyan-50/10 p-3 sm:p-4">
           <AlertCircle className="h-4 w-4 text-cyan-600" />
-          <AlertTitle className="text-sm sm:text-base">Comptes de Démonstration</AlertTitle>
+          <AlertTitle className="text-sm sm:text-base">🔓 Portail d'Accès Rapide</AlertTitle>
           <AlertDescription className="text-xs sm:text-sm">
             Ces comptes permettent de tester toutes les fonctionnalités de la plateforme selon différents rôles.
             Utilisez le bouton "Tester" pour basculer vers un compte ou "Copier" pour obtenir les identifiants.
@@ -5722,8 +5741,8 @@ const SuperAdminDashboard = () => {
     });
   };
 
-  const renderDemoView = () => {
-    // Les comptes démo sont maintenant chargés depuis la base de données via DatabaseDemoAccountsCards
+  const renderVisibiliteView = () => {
+    // Portail d'accès direct aux comptes système sans authentification
 
     const handleCreateDemoAccount = async () => {
       setCreatingAccount(true);
@@ -5806,51 +5825,78 @@ const SuperAdminDashboard = () => {
 
     return (
       <div className="space-y-6">
-        <Alert className="border-blue-500/50 bg-blue-50/10 p-3 sm:p-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle className="text-sm sm:text-base">Information</AlertTitle>
-          <AlertDescription className="text-xs sm:text-sm">
-            Les comptes démo permettent aux visiteurs de tester la plateforme avec des données fictives.
-            Chaque compte a un rôle spécifique (Citoyen, Agent, Admin) et des données de test.
+        <Alert className="border-cyan-500/50 bg-gradient-to-r from-cyan-50/50 to-blue-50/50 p-4">
+          <Eye className="h-5 w-5 text-cyan-600" />
+          <AlertTitle className="text-base font-semibold flex items-center gap-2">
+            🔓 Portail Visibilité Super Admin
+          </AlertTitle>
+          <AlertDescription className="text-sm mt-2">
+            Accédez instantanément aux comptes Admin, Sous-Admin et Agent sans authentification.
+            Ce portail vous permet de naviguer entre les différents niveaux d'accès de la plateforme NDJOBI.
           </AlertDescription>
         </Alert>
 
-        <div className="space-y-2 sm:space-y-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-            <div className="flex-1">
-              <Label htmlFor="demo-role" className="text-xs sm:text-base">Rôle du nouveau compte</Label>
-              <Select value={newAccountRole} onValueChange={setNewAccountRole}>
-                <SelectTrigger id="demo-role" className="h-9 sm:h-10 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">Citoyen</SelectItem>
-                  <SelectItem value="agent">Agent DGSS</SelectItem>
-                  <SelectItem value="admin">Protocole d'État</SelectItem>
-                </SelectContent>
-              </Select>
+        <Card className="border-2 border-cyan-500/30 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950 dark:to-blue-950">
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              Accès Direct aux Comptes Système
+            </CardTitle>
+            <CardDescription>
+              Cliquez sur un compte pour y accéder immédiatement
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <DatabaseDemoAccountsCards />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5" />
+              Créer un Nouveau Compte
+            </CardTitle>
+            <CardDescription>
+              Générer un nouveau compte de test rapidement
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="flex-1">
+                  <Label htmlFor="demo-role" className="text-sm">Rôle du compte</Label>
+                  <Select value={newAccountRole} onValueChange={setNewAccountRole}>
+                    <SelectTrigger id="demo-role" className="h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">👤 Citoyen</SelectItem>
+                      <SelectItem value="agent">🕵️ Agent DGSS</SelectItem>
+                      <SelectItem value="sub_admin">👨‍💼 Sous-Admin</SelectItem>
+                      <SelectItem value="admin">👑 Protocole d'État</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  onClick={handleCreateDemoAccount} 
+                  disabled={creatingAccount}
+                  className="sm:mt-6 h-10 bg-cyan-600 hover:bg-cyan-700"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  {creatingAccount ? "Création..." : "Créer le compte"}
+                </Button>
+              </div>
+
+              <Alert className="bg-muted/50">
+                <Info className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  Les comptes créés seront automatiquement ajoutés au portail d'accès ci-dessus
+                </AlertDescription>
+              </Alert>
             </div>
-            <Button 
-              onClick={handleCreateDemoAccount} 
-              disabled={creatingAccount}
-              className="mt-0 sm:mt-6 text-xs sm:text-sm h-9 sm:h-10"
-            >
-              <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-              {creatingAccount ? "Création..." : "Créer un compte"}
-            </Button>
-          </div>
-
-          <Alert className="p-3 sm:p-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle className="text-sm sm:text-base">Comptes Démo Migrés</AlertTitle>
-            <AlertDescription className="text-xs sm:text-sm">
-              Les comptes démo ont été migrés vers la base de données Supabase. 
-              Consultez la section "Comptes Démo de la Base de Données" ci-dessous pour accéder aux comptes configurés.
-            </AlertDescription>
-          </Alert>
-        </div>
-
-        <DatabaseDemoAccountsCards />
+          </CardContent>
+        </Card>
       </div>
     );
   };
@@ -5893,7 +5939,7 @@ const SuperAdminDashboard = () => {
           {activeView === 'project' && renderProjectView()}
           {activeView === 'xr7' && renderXR7View()}
           {activeView === 'config' && renderConfigView()}
-          {activeView === 'demo' && renderDemoView()}
+          {activeView === 'visibilite' && renderVisibiliteView()}
 
           {activeView === 'dashboard' && (
             <Alert className="border-destructive/30">
