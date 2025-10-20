@@ -96,7 +96,7 @@ export const IAstedFloatingButton = () => {
   // Génère un rapport vocal de secours structuré (~1–3 min) basé sur métadonnées connues
   const buildFallbackReport = useCallback((admin: any): string => {
     const org = admin?.organization || "l'administration";
-    const nom = admin?.nom || admin?.name || 'l'agent concerné';
+    const nom = admin?.nom || admin?.name || "l'agent concerné";
     const taux = (admin?.taux || admin?.taux_succes)
       ? `${Math.round((admin?.taux || admin?.taux_succes) as number)}%`
       : 'non communiqué';
