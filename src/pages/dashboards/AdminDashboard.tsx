@@ -137,6 +137,19 @@ export default function AdminDashboard() {
   const [dateFin, setDateFin] = useState<string>('');
   const [formatRapport, setFormatRapport] = useState<'pdf' | 'excel' | 'word' | 'gamma-pdf' | 'gamma-pptx'>('gamma-pdf');
   
+  // États pour la configuration Gamma AI
+  const [gammaConfig, setGammaConfig] = useState({
+    modeCreation: 'ia' as 'ia' | 'texte',
+    typeDocument: 'presentation' as 'texte' | 'presentation',
+    formatPage: 'defaut' as 'defaut' | 'lettre' | 'a4',
+    modeGeneration: 'generer' as 'generer' | 'synthese' | 'conserver',
+    niveauDetail: 'detaille' as 'minimaliste' | 'concis' | 'detaille',
+    langue: 'francais' as 'francais' | 'anglais',
+    sourceImages: 'ia' as 'ia' | 'aucune',
+    styleImages: 'realiste' as 'realiste' | 'illustration',
+    nombreCartes: 7
+  });
+  
   // États pour le formulaire de nomination
   const [nomForm, setNomForm] = useState({
     nom: '',
@@ -701,7 +714,7 @@ export default function AdminDashboard() {
             description: `Création du rapport avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
           });
 
-          const result = await gammaAIService.generateRapportCas(rapportData as any, gammaFormat);
+          const result = await gammaAIService.generateRapportCas(rapportData as any, gammaFormat, gammaConfig);
           
           // Télécharger automatiquement le fichier
           const filename = `Rapport_Cas_${selectedAdmin.organization}_${new Date().toISOString().split('T')[0]}.${gammaFormat}`;
@@ -771,7 +784,7 @@ export default function AdminDashboard() {
             description: `Création d'un rapport professionnel avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
           });
 
-          const result = await gammaAIService.generateRapportGlobal(rapportData as any, gammaFormat);
+          const result = await gammaAIService.generateRapportGlobal(rapportData as any, gammaFormat, gammaConfig);
           
           // Télécharger automatiquement le fichier
           const filename = `Rapport_Global_${selectedAdmin.organization}_${dateDebut}_${dateFin}.${gammaFormat}`;
@@ -2997,6 +3010,163 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Configuration Gamma AI */}
+            {formatRapport.startsWith('gamma-') && (
+              <div className="space-y-4 p-4 rounded-lg bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/20">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <span className="text-sm font-semibold text-foreground">Configuration Gamma AI</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Mode de création */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Mode de création</Label>
+                    <Select value={gammaConfig.modeCreation} onValueChange={(value: 'ia' | 'texte') => setGammaConfig({...gammaConfig, modeCreation: value})}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ia">✨ Créer avec l'IA</SelectItem>
+                        <SelectItem value="texte">📝 Coller le texte</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Type de document */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Type de document</Label>
+                    <Select value={gammaConfig.typeDocument} onValueChange={(value: 'texte' | 'presentation') => setGammaConfig({...gammaConfig, typeDocument: value})}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="presentation">📊 Présentation</SelectItem>
+                        <SelectItem value="texte">📄 Texte</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Format de page */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Format de page</Label>
+                    <Select value={gammaConfig.formatPage} onValueChange={(value: 'defaut' | 'lettre' | 'a4') => setGammaConfig({...gammaConfig, formatPage: value})}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="defaut">📏 Par défaut</SelectItem>
+                        <SelectItem value="lettre">📄 Lettre (US)</SelectItem>
+                        <SelectItem value="a4">📋 A4 (EU)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Mode de génération */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Mode de génération</Label>
+                    <Select value={gammaConfig.modeGeneration} onValueChange={(value: 'generer' | 'synthese' | 'conserver') => setGammaConfig({...gammaConfig, modeGeneration: value})}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="generer">✨ Générer</SelectItem>
+                        <SelectItem value="synthese">📝 Synthèse</SelectItem>
+                        <SelectItem value="conserver">💾 Conserver</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Niveau de détail */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Niveau de détail</Label>
+                    <Select value={gammaConfig.niveauDetail} onValueChange={(value: 'minimaliste' | 'concis' | 'detaille') => setGammaConfig({...gammaConfig, niveauDetail: value})}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="minimaliste">⚡ Minimaliste</SelectItem>
+                        <SelectItem value="concis">📋 Concis</SelectItem>
+                        <SelectItem value="detaille">📚 Détaillé</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Langue de sortie */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Langue de sortie</Label>
+                    <Select value={gammaConfig.langue} onValueChange={(value: 'francais' | 'anglais') => setGammaConfig({...gammaConfig, langue: value})}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="francais">🇫🇷 Français</SelectItem>
+                        <SelectItem value="anglais">🇬🇧 Anglais</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Source d'images */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Source d'images</Label>
+                    <Select value={gammaConfig.sourceImages} onValueChange={(value: 'ia' | 'aucune') => setGammaConfig({...gammaConfig, sourceImages: value})}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ia">🎨 Généré par l'IA</SelectItem>
+                        <SelectItem value="aucune">🚫 Ne pas ajouter d'images</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Style d'images */}
+                  {gammaConfig.sourceImages === 'ia' && (
+                    <div className="space-y-2">
+                      <Label className="text-xs text-foreground/70">Style d'images</Label>
+                      <Select value={gammaConfig.styleImages} onValueChange={(value: 'realiste' | 'illustration') => setGammaConfig({...gammaConfig, styleImages: value})}>
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="realiste">📸 Photo réaliste</SelectItem>
+                          <SelectItem value="illustration">🎨 Illustration</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Nombre de cartes */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Nombre de cartes (slides)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        max="10" 
+                        value={gammaConfig.nombreCartes}
+                        onChange={(e) => setGammaConfig({...gammaConfig, nombreCartes: parseInt(e.target.value) || 7})}
+                        className="h-9 text-xs"
+                      />
+                      <span className="text-xs text-foreground/60">/ 10</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Résumé de la configuration */}
+                <div className="p-3 rounded-lg bg-muted/20 space-y-1">
+                  <div className="text-xs font-medium text-foreground">📋 Résumé de la configuration :</div>
+                  <div className="text-xs text-foreground/70">
+                    {gammaConfig.typeDocument === 'presentation' ? '📊 Présentation' : '📄 Document'} • 
+                    {gammaConfig.niveauDetail === 'minimaliste' ? ' ⚡ Minimaliste' : gammaConfig.niveauDetail === 'concis' ? ' 📋 Concis' : ' 📚 Détaillé'} • 
+                    {gammaConfig.nombreCartes} cartes • 
+                    🇫🇷 {gammaConfig.langue === 'francais' ? 'Français' : 'Anglais'} • 
+                    {gammaConfig.sourceImages === 'ia' ? ` 🎨 Images ${gammaConfig.styleImages === 'realiste' ? 'réalistes' : 'illustrations'}` : ' 🚫 Sans images'}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Informations de livraison */}
             <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">

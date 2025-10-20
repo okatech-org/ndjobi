@@ -23,6 +23,18 @@ interface GammaDocument {
   cards: GammaCard[];
 }
 
+interface GammaConfig {
+  modeCreation: 'ia' | 'texte';
+  typeDocument: 'texte' | 'presentation';
+  formatPage: 'defaut' | 'lettre' | 'a4';
+  modeGeneration: 'generer' | 'synthese' | 'conserver';
+  niveauDetail: 'minimaliste' | 'concis' | 'detaille';
+  langue: 'francais' | 'anglais';
+  sourceImages: 'ia' | 'aucune';
+  styleImages: 'realiste' | 'illustration';
+  nombreCartes: number;
+}
+
 interface RapportGlobalData {
   admin: {
     nom: string;
@@ -68,15 +80,20 @@ class GammaAIService {
    */
   async generateRapportGlobal(
     data: RapportGlobalData,
-    format: 'pdf' | 'pptx'
+    format: 'pdf' | 'pptx',
+    config: GammaConfig
   ): Promise<{ url: string; downloadUrl: string }> {
-    console.log('🎨 Génération rapport global avec Gamma AI...', { format, organization: data.admin.organization });
+    console.log('🎨 Génération rapport global avec Gamma AI...', { 
+      format, 
+      organization: data.admin.organization,
+      config 
+    });
 
     // Construire le document structuré pour Gamma
-    const gammaDoc = this.buildGammaDocumentGlobal(data);
+    const gammaDoc = this.buildGammaDocumentGlobal(data, config);
 
     // Appeler l'API Gamma pour créer le document
-    const result = await this.createGammaDocument(gammaDoc, format);
+    const result = await this.createGammaDocument(gammaDoc, format, config);
 
     return result;
   }
@@ -86,12 +103,17 @@ class GammaAIService {
    */
   async generateRapportCas(
     data: RapportCasData,
-    format: 'pdf' | 'pptx'
+    format: 'pdf' | 'pptx',
+    config: GammaConfig
   ): Promise<{ url: string; downloadUrl: string }> {
-    console.log('🎨 Génération rapport cas avec Gamma AI...', { format, nbCas: data.casSelectionnes.length });
+    console.log('🎨 Génération rapport cas avec Gamma AI...', { 
+      format, 
+      nbCas: data.casSelectionnes.length,
+      config 
+    });
 
-    const gammaDoc = this.buildGammaDocumentCas(data);
-    const result = await this.createGammaDocument(gammaDoc, format);
+    const gammaDoc = this.buildGammaDocumentCas(data, config);
+    const result = await this.createGammaDocument(gammaDoc, format, config);
 
     return result;
   }
@@ -99,7 +121,7 @@ class GammaAIService {
   /**
    * Construit le document Gamma pour un rapport global
    */
-  private buildGammaDocumentGlobal(data: RapportGlobalData): GammaDocument {
+  private buildGammaDocumentGlobal(data: RapportGlobalData, config: GammaConfig): GammaDocument {
     const cards: GammaCard[] = [];
 
     // Card 1: Page de titre
@@ -285,7 +307,7 @@ class GammaAIService {
   /**
    * Construit le document Gamma pour un rapport de cas
    */
-  private buildGammaDocumentCas(data: RapportCasData): GammaDocument {
+  private buildGammaDocumentCas(data: RapportCasData, config: GammaConfig): GammaDocument {
     const cards: GammaCard[] = [];
 
     // Page de titre
@@ -372,13 +394,20 @@ class GammaAIService {
    */
   private async createGammaDocument(
     doc: GammaDocument,
-    format: 'pdf' | 'pptx'
+    format: 'pdf' | 'pptx',
+    config: GammaConfig
   ): Promise<{ url: string; downloadUrl: string }> {
     if (!this.apiKey) {
       throw new Error('Clé API Gamma non configurée. Veuillez ajouter VITE_GAMMA_API_KEY dans votre fichier .env');
     }
 
     try {
+      // Mapper la configuration aux paramètres Gamma
+      const gammaTheme = config.niveauDetail === 'minimaliste' ? 'minimal' : 
+                         config.niveauDetail === 'concis' ? 'modern' : 'professional';
+      
+      const documentType = config.typeDocument === 'presentation' ? 'presentation' : 'document';
+      
       // Appel à l'API Gamma pour créer le document
       const response = await fetch(`${this.baseURL}/documents`, {
         method: 'POST',
@@ -388,8 +417,15 @@ class GammaAIService {
         },
         body: JSON.stringify({
           title: doc.title,
-          theme: doc.theme,
-          cards: doc.cards,
+          theme: gammaTheme,
+          type: documentType,
+          cards: doc.cards.slice(0, config.nombreCartes),
+          language: config.langue === 'francais' ? 'fr' : 'en',
+          page_format: config.formatPage === 'a4' ? 'a4' : config.formatPage === 'lettre' ? 'letter' : 'default',
+          generation_mode: config.modeGeneration,
+          detail_level: config.niveauDetail,
+          image_generation: config.sourceImages === 'ia',
+          image_style: config.styleImages,
           export_format: format === 'pptx' ? 'ppt' : 'pdf',
           auto_export: true
         }),
