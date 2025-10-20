@@ -70,7 +70,30 @@ export const IAstedFloatingButton = () => {
   const buttonRef = useRef<HTMLDivElement>(null);
   const hasDraggedRef = useRef(false);
   const lastRequestedAdminRef = useRef<any>(null);
-  // Génère un rapport vocal de secours en <3s basé sur les métadonnées admin connues
+  // Parole longue fluide (chunking + pauses courtes)
+  const speakLongText = useCallback(async (fullText: string) => {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const voices = speechSynthesis.getVoices();
+    const fr = voices.find(v => v.lang?.toLowerCase().startsWith('fr')) || voices.find(v => /french|français/i.test(v.name));
+    const sentences = fullText.replace(/\s+/g, ' ').split(/(?<=[\.!?])\s+/).filter(Boolean);
+    const chunks: string[] = [];
+    let buf = '';
+    for (const s of sentences) {
+      if ((buf + ' ' + s).trim().length > 260) { chunks.push(buf.trim()); buf = s; } else { buf = (buf + ' ' + s).trim(); }
+    }
+    if (buf) chunks.push(buf.trim());
+    for (const c of chunks) {
+      await new Promise<void>((resolve)=>{
+        const u = new SpeechSynthesisUtterance(c);
+        u.lang = 'fr-FR'; u.rate = 0.95; u.pitch = 1.0; u.volume = 1.0; if (fr) u.voice = fr;
+        u.onend = ()=> setTimeout(resolve, 120); u.onerror = ()=> setTimeout(resolve, 120);
+        speechSynthesis.speak(u);
+      });
+    }
+  }, []);
+
+  // Génère un rapport vocal de secours structuré (~1–3 min) basé sur métadonnées connues
   const buildFallbackReport = useCallback((admin: any): string => {
     const org = admin?.organization || "l'administration";
     const nom = admin?.nom || admin?.name || 'l’agent concerné';
@@ -80,14 +103,16 @@ export const IAstedFloatingButton = () => {
     const cas = admin?.casTraites || admin?.cas_traites || admin?.totalCas || 'plusieurs cas';
     const delai = admin?.delaiMoyen || admin?.delai_moyen || 'quelques jours';
     const statut = admin?.statut || 'Actif';
-    return (
-      `Voici mon rapport synthétique pour ${org}. ` +
-      `Responsable: ${nom}. Statut: ${statut}. ` +
-      `Performance récente: ${cas} cas traités, taux de succès ${taux}, délai moyen ${delai}. ` +
-      `Problématiques identifiées: irrégularités dans certains dossiers, contraintes opérationnelles sur le terrain et besoins de coordination interservices. ` +
-      `Recommandations présidentielles: 1) Renforcer le contrôle a priori des pièces justificatives; 2) Prioriser les cas à fort impact financier; 3) Déployer un point focal pour fluidifier la coopération avec les forces maritimes et la justice; 4) Mettre à jour l’outillage numérique et la formation ciblée. ` +
-      `Je reste disponible pour les précisions et la programmation des actions immédiates.`
-    );
+    const mentionPeche = /pêche|mer|économie bleue/i.test(String(org))
+      ? `Point urgent: un dossier prioritaire est signalé dans le secteur de la pêche et des mers. Les risques portent sur des détournements possibles et des failles de contrôle. Une coordination rapide avec la gendarmerie maritime et la justice est requise sous 72 heures.`
+      : '';
+    const intro = `Excellence, voici un rapport clair et utile pour ${org}.`;
+    const perf = `Sans détailler les tableaux, la lecture est la suivante: ${cas} dossiers traités récemment, un succès moyen de ${taux}, pour un délai autour de ${delai}.`;
+    const lecture = `En pratique, l’activité tient, mais trois nœuds freinent la performance: vérification des pièces, présence opérationnelle sur le terrain, et partage d’information entre services.`;
+    const problemes = `Problématiques prioritaires: affaires à fort enjeu financier justifiant un suivi rapproché; retards causés par la coordination; besoin d’appui logistique ciblé.`;
+    const reco = `Mes recommandations: 1) Filtre de conformité a priori sur dossiers risqués; 2) Triage des cas par impact public pour concentrer l’effort; 3) Point focal transversal pour synchroniser maritime, justice et administration; 4) Renforcement outillage et formation, avec un jalon de suivi à quinze jours.`;
+    const cloture = `Je propose un court point en fin de semaine pour valider les avancées et lever les obstacles. Fin de rapport.`;
+    return [intro, mentionPeche, perf, lecture, problemes, reco, cloture].filter(Boolean).join(' ');
   }, []);
 
   // Auto-scroll
@@ -164,32 +189,8 @@ export const IAstedFloatingButton = () => {
             setIsProcessing(false);
             setIsSpeaking(true);
             
-            // Parler la réponse avec TTS local
-            if ('speechSynthesis' in window) {
-              const responseUtterance = new SpeechSynthesisUtterance(result.response);
-              responseUtterance.lang = 'fr-FR';
-              responseUtterance.rate = 0.9;
-              responseUtterance.pitch = 1.0;
-              responseUtterance.volume = 1.0;
-              
-              const voices = speechSynthesis.getVoices();
-              const frenchVoice = voices.find(v => v.lang?.toLowerCase().startsWith('fr')) || 
-                                 voices.find(v => /french|français/i.test(v.name));
-              if (frenchVoice) responseUtterance.voice = frenchVoice;
-              
-              // Parler et attendre la fin
-              await new Promise<void>((resolve) => {
-                responseUtterance.onend = () => {
-                  setIsSpeaking(false);
-                  resolve();
-                };
-                responseUtterance.onerror = () => {
-                  setIsSpeaking(false);
-                  resolve();
-                };
-                speechSynthesis.speak(responseUtterance);
-              });
-            }
+            await speakLongText(result.response);
+            setIsSpeaking(false);
           } else {
             setIsProcessing(false);
           }
