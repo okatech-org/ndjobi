@@ -139,7 +139,7 @@ type Grief = Record<string, any> & {
   occurrences?: number;
 };
 
-type OpinionPublique = Record<string, any> & {
+type OpinionPubliqueData = Record<string, any> & {
   principauxGriefs: Grief[];
   risqueSocial?: string;
   tendanceOpinion?: string;
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
   const [mobileMenuState, setMobileMenuState] = useState<'collapsed' | 'icons' | 'expanded'>('icons');
   const [adminCases, setAdminCases] = useState<CaseData[]>([]);
   const [adminProblematiques, setAdminProblematiques] = useState<Problematique[]>([]);
-  const [adminOpinionPublique, setAdminOpinionPublique] = useState<OpinionPublique | null>(null);
+  const [adminOpinionPublique, setAdminOpinionPublique] = useState<OpinionPubliqueData | null>(null);
   const [adminRecommandations, setAdminRecommandations] = useState<Recommandation[]>([]);
   const [rapportType, setRapportType] = useState<'cas' | 'global'>('global');
   const [selectedCas, setSelectedCas] = useState<CaseData | null>(null);
