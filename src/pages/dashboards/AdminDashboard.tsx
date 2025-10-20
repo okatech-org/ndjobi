@@ -15,7 +15,8 @@ import {
   Bell,
   MessageCircle,
   User,
-  LogOut
+  LogOut,
+  Radio
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,42 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import emblemGabon from '@/assets/emblem_gabon.png';
 import { IAstedVoiceButton } from '@/components/iasted';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+// Icône utilitaire compacte pour la barre mobile droite
+const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: string; active: boolean; label: string; icon: 'grid' | 'users' | 'crown' | 'user' | 'shield' | 'map' | 'file' | 'radio' | 'brain'; showLabel?: boolean }) => {
+  const Icon =
+    icon === 'grid' ? BarChart3 :
+    icon === 'users' ? Users :
+    icon === 'crown' ? Crown :
+    icon === 'user' ? User :
+    icon === 'shield' ? Shield :
+    icon === 'map' ? MapPin :
+    icon === 'file' ? FileText :
+    icon === 'radio' ? Radio :
+    Brain;
+  return (
+    <button
+      aria-label={label}
+      className={`rounded-full flex items-center justify-center transition-all duration-200 ${
+        active 
+          ? 'bg-primary text-primary-foreground shadow-md' 
+          : 'hover:bg-muted/70 hover:scale-105'
+      } ${
+        showLabel 
+          ? 'h-10 w-full px-3 gap-2' 
+          : 'h-10 w-10 mx-auto'
+      }`}
+      onClick={() => {
+        window.location.assign(href);
+      }}
+      title={label}
+    >
+      <Icon className="h-5 w-5 flex-shrink-0" />
+      {showLabel && <span className="text-xs font-medium whitespace-nowrap truncate">{label}</span>}
+    </button>
+  );
+};
 
 type AdminData = Record<string, any> & {
   id: string;
@@ -138,6 +175,9 @@ export default function AdminDashboard() {
   const [selectedAdmin, setSelectedAdmin] = useState<AdminData | null>(null);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
   const [adminHistory, setAdminHistory] = useState<HistoryItem[]>([]);
+  
+  // État du menu mobile (3 niveaux)
+  const [mobileMenuState, setMobileMenuState] = useState<'collapsed' | 'icons' | 'expanded'>('icons');
   const [adminCases, setAdminCases] = useState<CaseData[]>([]);
   const [adminProblematiques, setAdminProblematiques] = useState<Problematique[]>([]);
   const [adminOpinionPublique, setAdminOpinionPublique] = useState<OpinionPublique | null>(null);
@@ -5095,30 +5135,60 @@ export default function AdminDashboard() {
         <div className="fixed w-[300px] h-[300px] rounded-full opacity-[var(--orb-opacity)] blur-[100px] -bottom-[150px] -right-[150px] bg-gradient-to-br from-[hsl(var(--accent-warning))] via-[hsl(var(--accent-warning))] to-transparent animate-float-orb pointer-events-none" style={{ animationDuration: '30s', animationDelay: '-5s' }} />
         <div className="fixed w-[350px] h-[350px] rounded-full opacity-[var(--orb-opacity)] blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-[hsl(var(--accent-success))] via-[hsl(var(--accent-success))] to-transparent animate-float-orb pointer-events-none" style={{ animationDuration: '35s', animationDelay: '-10s' }} />
 
-        {/* Sidebar */}
-        <AdminSidebar />
+        {/* Sidebar desktop uniquement */}
+        <div className="hidden lg:block">
+          <AdminSidebar />
+        </div>
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col w-full relative z-10">
-          {/* Barre verticale compte (mobile) */}
+          {/* Barre verticale mobile avec 3 niveaux d'affichage */}
           <div className="fixed right-0 top-16 bottom-0 z-[60] flex lg:hidden">
-            <div className="h-full w-12 border-l bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col items-center py-3 gap-2">
-              <button aria-label="Profil" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Profil">
-                <User className="h-5 w-5" />
-              </button>
-              <button aria-label="Notifications" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Notifications">
-                <Bell className="h-5 w-5" />
-              </button>
-              <button aria-label="Messages" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Messages">
-                <MessageCircle className="h-5 w-5" />
-              </button>
-              <button aria-label="Paramètres" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted" title="Paramètres">
-                <Settings className="h-5 w-5" />
-              </button>
-              <div className="mt-auto" />
-              <button aria-label="Déconnexion" className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground" title="Déconnexion">
-                <LogOut className="h-5 w-5" />
-              </button>
+            <div className={`h-full border-l bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 flex flex-col items-center py-3 gap-2 transition-all duration-300 ease-in-out ${
+              mobileMenuState === 'collapsed' ? 'w-0 opacity-0 pointer-events-none' : 
+              mobileMenuState === 'icons' ? 'w-14' : 
+              'w-52'
+            }`}>
+              {/* Navigation items */}
+              {mobileMenuState !== 'collapsed' && (
+                <div className="flex flex-col gap-2 w-full px-2">
+                  <NavIcon href="/dashboard/admin" active={activeView === 'dashboard'} label="Dashboard" icon="grid" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=gestion" active={activeView === 'gestion'} label="Gestion Institutions" icon="users" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=special" active={activeView === 'special'} label="Gestion Spéciale" icon="crown" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=citoyens" active={activeView === 'citoyens'} label="Gestion Citoyens" icon="user" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=validation" active={activeView === 'validation'} label="Validation Cas" icon="shield" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=enquetes" active={activeView === 'enquetes'} label="Enquêtes" icon="map" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=rapports" active={activeView === 'rapports'} label="Rapports" icon="file" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=xr7" active={activeView === 'xr7'} label="Module XR-7" icon="radio" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/dashboard/admin?view=iasted" active={activeView === 'iasted'} label="iAsted AI" icon="brain" showLabel={mobileMenuState === 'expanded'} />
+                </div>
+              )}
+              
+              <div className="flex-1" />
+              
+              {/* Actions */}
+              {mobileMenuState !== 'collapsed' && (
+                <div className="flex flex-col gap-2 w-full px-2">
+                  <button 
+                    aria-label="Paramètres" 
+                    className={`rounded-full flex items-center justify-center hover:bg-muted transition-colors ${mobileMenuState === 'expanded' ? 'h-10 w-full px-3 gap-2' : 'h-10 w-10 mx-auto'}`}
+                    title="Paramètres" 
+                    onClick={() => window.location.assign('/dashboard/admin?view=settings')}
+                  >
+                    <Settings className="h-5 w-5" />
+                    {mobileMenuState === 'expanded' && <span className="text-xs font-medium whitespace-nowrap">Paramètres</span>}
+                  </button>
+                  <button 
+                    aria-label="Déconnexion" 
+                    className={`rounded-full flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors ${mobileMenuState === 'expanded' ? 'h-10 w-full px-3 gap-2' : 'h-10 w-10 mx-auto'}`}
+                    title="Déconnexion" 
+                    onClick={() => window.dispatchEvent(new CustomEvent('ndjobi:signout'))}
+                  >
+                    <LogOut className="h-5 w-5" />
+                    {mobileMenuState === 'expanded' && <span className="text-xs font-medium whitespace-nowrap">Déconnexion</span>}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           {/* En-tête glassmorphism */}
@@ -5126,12 +5196,7 @@ export default function AdminDashboard() {
             <div className="h-full px-4 md:px-6 flex items-center justify-between">
               {/* Gauche: Titre et badge */}
               <div className="flex items-center gap-3">
-                {/* Bouton menu mobile */}
-                <SidebarTrigger className="lg:hidden">
-                  <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SidebarTrigger>
+                {/* Bouton menu mobile supprimé - remplacé par barre droite */}
                 
                 <div className="flex items-center gap-3">
                   <img 
@@ -5148,12 +5213,35 @@ export default function AdminDashboard() {
               
               {/* Droite: Actions et infos */}
               <div className="flex items-center gap-3">
+                {/* LIVE - maintenant en première position */}
                 <div className="flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-live-pulse" />
                   <span className="text-xs font-medium text-red-500">LIVE</span>
                 </div>
                 
+                {/* Thème - maintenant en deuxième position */}
                 <ThemeToggle />
+                
+                {/* Bouton toggle menu mobile - maintenant en troisième position */}
+                <button 
+                  onClick={() => {
+                    setMobileMenuState(prev => 
+                      prev === 'collapsed' ? 'icons' : 
+                      prev === 'icons' ? 'expanded' : 
+                      'collapsed'
+                    );
+                  }}
+                  className={`lg:hidden h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted border transition-all duration-200 hover:scale-105 ${
+                    mobileMenuState === 'collapsed' ? 'border-border/50 hover:border-primary/50' :
+                    mobileMenuState === 'icons' ? 'border-primary/50 bg-primary/10 hover:bg-primary/20' :
+                    'border-primary bg-primary/20 hover:bg-primary/30'
+                  }`}
+                  title={`Menu: ${mobileMenuState === 'collapsed' ? 'Fermé' : mobileMenuState === 'icons' ? 'Icônes' : 'Complet'}`}
+                >
+                  <Menu className={`h-5 w-5 transition-all duration-200 ${
+                    mobileMenuState === 'expanded' ? 'rotate-90' : ''
+                  }`} />
+                </button>
                 
                 <div className="h-8 w-px bg-border/50 hidden lg:block" />
                 
@@ -5168,7 +5256,11 @@ export default function AdminDashboard() {
 
           {/* Contenu principal avec scroll */}
           <main className="flex-1 overflow-y-auto">
-            <div className="container py-3 md:py-8 pr-12 lg:pr-0 space-y-3 md:space-y-6">
+            <div className={`container py-3 md:py-8 space-y-3 md:space-y-6 transition-all duration-300 ease-in-out ${
+              mobileMenuState === 'collapsed' ? 'pr-0' : 
+              mobileMenuState === 'icons' ? 'pr-14' : 
+              'pr-52'
+            } lg:pr-0`}>
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
