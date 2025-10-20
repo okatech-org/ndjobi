@@ -3215,14 +3215,30 @@ export default function AdminDashboard() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Ouvre iAsted voix dans une mini barre flottante (toggle via événement custom)
-                const event = new CustomEvent('iasted:open-voice-report', {
-                  detail: {
-                    context: 'institution',
-                    admin: selectedAdmin,
-                  }
-                });
-                window.dispatchEvent(event);
+                
+                // Détecter si on est sur mobile
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                  // Sur mobile, ouvrir directement l'interface iAsted en mode texte
+                  const event = new CustomEvent('iasted:open-text-mode', {
+                    detail: {
+                      context: 'institution',
+                      admin: selectedAdmin,
+                      autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${selectedAdmin?.organization || 'cette institution'}. Comment puis-je vous aider ?`
+                    }
+                  });
+                  window.dispatchEvent(event);
+                } else {
+                  // Sur desktop, utiliser le mode vocal comme avant
+                  const event = new CustomEvent('iasted:open-voice-report', {
+                    detail: {
+                      context: 'institution',
+                      admin: selectedAdmin,
+                    }
+                  });
+                  window.dispatchEvent(event);
+                }
               }}
               title="Rapport vocal iAsted"
             >
