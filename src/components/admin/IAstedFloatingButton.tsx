@@ -41,18 +41,22 @@ export const IAstedFloatingButton = () => {
   const [silenceTimer, setSilenceTimer] = useState<NodeJS.Timeout | null>(null);
   const [audioAnalyser, setAudioAnalyser] = useState<AnalyserNode | null>(null);
   
-  // États pour le drag and drop
+  // États pour le drag and drop optimisé
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState(() => {
     // Charger la position sauvegardée ou position par défaut
     const saved = localStorage.getItem('iasted-button-position');
     if (saved) {
-      return JSON.parse(saved);
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // Fallback si le JSON est corrompu
+      }
     }
     // Position responsive : en bas à droite avec marges adaptées à l'écran
     const isMobile = window.innerWidth < 768;
-    const buttonSize = 60; // taille approximative du bouton
-    const margin = isMobile ? 20 : 40;
+    const buttonSize = isMobile ? 50 : 60; // Taille réduite sur mobile
+    const margin = isMobile ? 16 : 40;
     return { 
       x: window.innerWidth - margin - buttonSize/2, 
       y: window.innerHeight - margin - buttonSize/2 

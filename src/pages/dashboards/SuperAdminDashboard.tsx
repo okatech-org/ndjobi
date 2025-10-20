@@ -248,11 +248,19 @@ const SuperAdminDashboard = () => {
     const effectiveUser = user || localUser || (localRole ? { id: 'local-super-admin' } : null);
     if (effectiveUser && !hasLoadedData.current) {
       hasLoadedData.current = true;
-      loadSystemStats();
-      loadUsers();
-      loadActivityLogs();
-      loadSystemData();
-      loadConfigurationData();
+      
+      // Chargement optimisé avec cache
+      Promise.all([
+        loadSystemStats(),
+        loadUsers(),
+        loadActivityLogs()
+      ]).then(() => {
+        // Charger les données moins critiques en arrière-plan
+        setTimeout(() => {
+          loadSystemData();
+          loadConfigurationData();
+        }, 100);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, localUser, localRole]);

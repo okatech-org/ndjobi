@@ -22,31 +22,80 @@ export interface PresidentialContext {
 export class IAstedService {
 
   /**
-   * Envoyer un message à iAsted et obtenir une réponse
+   * Envoyer un message à iAsted et obtenir une réponse (optimisé)
    */
   static async sendMessage(
     message: string,
     context?: any
   ): Promise<{ success: boolean; response?: string; content?: string; error?: string }> {
     try {
+      // Cache intelligent pour éviter les requêtes répétitives
+      const cacheKey = `iasted-${btoa(message)}`;
+      const cached = this.getCachedResponse(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      // Requête optimisée avec timeout réduit
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       const { data, error } = await supabase.functions.invoke('iasted-chat', {
-        body: { message, context }
+        body: { message, context },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (error) throw error;
 
-      return {
+      const result = {
         success: data.success,
         response: data.response,
         content: data.response
       };
+
+      // Mettre en cache la réponse
+      this.setCachedResponse(cacheKey, result);
+
+      return result;
     } catch (error: any) {
       console.error('Erreur iAsted:', error);
+      
+      // Fallback intelligent
+      if (error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Délai d\'attente dépassé. Veuillez réessayer.'
+        };
+      }
+
       return {
         success: false,
         error: error.message || 'Erreur de communication avec iAsted'
       };
     }
+  }
+
+  /**
+   * Cache simple pour les réponses iAsted
+   */
+  private static responseCache = new Map<string, { data: any; timestamp: number }>();
+  private static readonly CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+
+  private static getCachedResponse(key: string): any {
+    const cached = this.responseCache.get(key);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+      return cached.data;
+    }
+    return null;
+  }
+
+  private static setCachedResponse(key: string, data: any): void {
+    this.responseCache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
   }
 
   /**
