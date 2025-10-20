@@ -286,8 +286,10 @@ export default function AdminDashboard() {
 
   // Fonction pour voir les détails d'un admin
   const handleVoirDetails = async (admin: AdminData) => {
+    console.log('🔍 [handleVoirDetails] Ouverture détails pour:', admin.nom, admin);
     setSelectedAdmin(admin);
     setIsLoadingAction(true);
+    setIsDetailsModalOpen(true); // Ouvrir immédiatement le modal
     
     try {
       // Charger l'historique et les cas spécifiques à l'admin
@@ -746,15 +748,21 @@ export default function AdminDashboard() {
         setAdminRecommandations([]);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des détails:', error);
+      console.error('❌ [handleVoirDetails] Erreur lors du chargement des détails:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les détails. Veuillez réessayer.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoadingAction(false);
-      setIsDetailsModalOpen(true);
+      console.log('✅ [handleVoirDetails] Modal ouvert pour:', admin.nom);
     }
   };
 
   // Fonction pour ouvrir le modal de génération de rapport
   const handleOuvrirRapportModal = (admin: AdminData, cas?: CaseData) => {
+    console.log('📊 [handleOuvrirRapportModal] Ouverture modal rapport pour:', admin.nom, cas ? 'cas spécifique' : 'global');
     setSelectedAdmin(admin);
     if (cas) {
       setRapportType('cas');
@@ -773,6 +781,7 @@ export default function AdminDashboard() {
     setPeriodeSuivi('mensuel');
     setFormatRapport('gamma-pdf');
     setIsRapportModalOpen(true);
+    console.log('✅ [handleOuvrirRapportModal] Modal rapport ouvert');
   };
 
   // Fonction pour basculer la sélection d'un cas
