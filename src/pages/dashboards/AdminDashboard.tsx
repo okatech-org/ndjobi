@@ -2900,124 +2900,15 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Options de format */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                <Download className="h-4 w-4 text-[hsl(var(--accent-success))]" />
-                Format du rapport
-              </Label>
-              
-              {/* Section Gamma AI - Recommandé */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-600 border-purple-500/30 text-xs">
-                    🎨 Gamma AI - Recommandé
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant={formatRapport === 'gamma-pdf' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFormatRapport('gamma-pdf')}
-                    className={`glass-effect border-none h-auto py-4 transition-all ${
-                      formatRapport === 'gamma-pdf' 
-                        ? 'bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 shadow-lg' 
-                        : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="relative">
-                        <FileText className={`h-5 w-5 ${formatRapport === 'gamma-pdf' ? 'text-purple-500' : 'text-muted-foreground'}`} />
-                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pdf' ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
-                      </div>
-                      <span className="text-xs font-semibold text-foreground">PDF Pro</span>
-                      <span className="text-[10px] text-foreground/60">Gamma AI</span>
-                    </div>
-                  </Button>
-                  <Button
-                    variant={formatRapport === 'gamma-pptx' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFormatRapport('gamma-pptx')}
-                    className={`glass-effect border-none h-auto py-4 transition-all ${
-                      formatRapport === 'gamma-pptx' 
-                        ? 'bg-gradient-to-br from-pink-500/20 to-pink-600/10 border border-pink-500/30 shadow-lg' 
-                        : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="relative">
-                        <Presentation className={`h-5 w-5 ${formatRapport === 'gamma-pptx' ? 'text-pink-500' : 'text-muted-foreground'}`} />
-                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pptx' ? 'text-pink-400' : 'text-muted-foreground/50'}`} />
-                      </div>
-                      <span className="text-xs font-semibold text-foreground">PowerPoint</span>
-                      <span className="text-[10px] text-foreground/60">Gamma AI</span>
-                    </div>
-                  </Button>
-                </div>
-              </div>
-
-              {/* Section Formats Standard */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-foreground/60">Formats standard</span>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <Button
-                    variant={formatRapport === 'pdf' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFormatRapport('pdf')}
-                    className={`glass-effect border-none h-auto py-3 transition-all ${
-                      formatRapport === 'pdf' 
-                        ? 'bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 shadow-lg' 
-                        : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <FileText className={`h-4 w-4 ${formatRapport === 'pdf' ? 'text-red-500' : 'text-muted-foreground'}`} />
-                      <span className="text-xs font-semibold text-foreground">PDF</span>
-                    </div>
-                  </Button>
-                  <Button
-                    variant={formatRapport === 'excel' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFormatRapport('excel')}
-                    className={`glass-effect border-none h-auto py-3 transition-all ${
-                      formatRapport === 'excel' 
-                        ? 'bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 shadow-lg' 
-                        : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <FileText className={`h-4 w-4 ${formatRapport === 'excel' ? 'text-green-500' : 'text-muted-foreground'}`} />
-                      <span className="text-xs font-semibold text-foreground">Excel</span>
-                    </div>
-                  </Button>
-                  <Button
-                    variant={formatRapport === 'word' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFormatRapport('word')}
-                    className={`glass-effect border-none h-auto py-3 transition-all ${
-                      formatRapport === 'word' 
-                        ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 shadow-lg' 
-                        : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <FileText className={`h-4 w-4 ${formatRapport === 'word' ? 'text-blue-500' : 'text-muted-foreground'}`} />
-                      <span className="text-xs font-semibold text-foreground">Word</span>
-                    </div>
-                  </Button>
-                </div>
-              </div>
-            </div>
-
             {/* Configuration Gamma AI */}
-            {formatRapport.startsWith('gamma-') && (
-              <div className="space-y-4 p-4 rounded-lg bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/20">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
-                  <span className="text-sm font-semibold text-foreground">Configuration Gamma AI</span>
-                </div>
+            <div className="space-y-4 p-4 rounded-lg bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/20">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-purple-500" />
+                <span className="text-sm font-semibold text-foreground">Configuration Gamma AI</span>
+                <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-600 border-purple-500/30 text-xs">
+                  Recommandé
+                </Badge>
+              </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   {/* Mode de création */}
@@ -3166,25 +3057,71 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-            )}
+
+              {/* Format d'extraction - APRÈS configuration */}
+              <div className="space-y-3 pt-4 border-t border-purple-500/20">
+                <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                  <Download className="h-4 w-4 text-purple-500" />
+                  Format d'extraction
+                </Label>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant={formatRapport === 'gamma-pdf' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormatRapport('gamma-pdf')}
+                    className={`glass-effect border-none h-auto py-4 transition-all ${
+                      formatRapport === 'gamma-pdf' 
+                        ? 'bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 shadow-lg' 
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="relative">
+                        <FileText className={`h-6 w-6 ${formatRapport === 'gamma-pdf' ? 'text-purple-500' : 'text-muted-foreground'}`} />
+                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pdf' ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
+                      </div>
+                      <span className="text-sm font-bold text-foreground">PDF</span>
+                      <span className="text-xs text-foreground/60">Document professionnel</span>
+                    </div>
+                  </Button>
+                  <Button
+                    variant={formatRapport === 'gamma-pptx' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormatRapport('gamma-pptx')}
+                    className={`glass-effect border-none h-auto py-4 transition-all ${
+                      formatRapport === 'gamma-pptx' 
+                        ? 'bg-gradient-to-br from-pink-500/20 to-pink-600/10 border border-pink-500/30 shadow-lg' 
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="relative">
+                        <Presentation className={`h-6 w-6 ${formatRapport === 'gamma-pptx' ? 'text-pink-500' : 'text-muted-foreground'}`} />
+                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pptx' ? 'text-pink-400' : 'text-muted-foreground/50'}`} />
+                      </div>
+                      <span className="text-sm font-bold text-foreground">PowerPoint</span>
+                      <span className="text-xs text-foreground/60">Présentation éditable</span>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             {/* Informations de livraison */}
-            <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
-              <FileText className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-              <AlertTitle className="text-[hsl(var(--accent-intel))] text-xs font-semibold">Information</AlertTitle>
-              <AlertDescription className="text-xs text-foreground/80">
-                {formatRapport.startsWith('gamma-') ? (
-                  <div className="space-y-1">
-                    <p className="font-medium">🎨 Génération avec Gamma AI :</p>
-                    <p>Rapport professionnel avec design moderne et mise en page automatique.</p>
-                    <p>Le fichier sera téléchargé automatiquement et vous recevrez un lien pour visualiser/modifier sur Gamma.app</p>
-                  </div>
-                ) : (
-                  <>
-                    Le rapport sera généré et disponible au téléchargement dans quelques instants. 
-                    Une notification sera envoyée une fois le processus terminé.
-                  </>
-                )}
+            <Alert className="glass-effect border-none bg-gradient-to-br from-purple-500/10 to-pink-500/5 border-purple-500/20">
+              <Sparkles className="h-4 w-4 text-purple-500" />
+              <AlertTitle className="text-purple-600 text-xs font-semibold">🎨 Génération avec Gamma AI</AlertTitle>
+              <AlertDescription className="text-xs text-foreground/80 space-y-2">
+                <p className="font-medium">Processus de génération :</p>
+                <div className="space-y-1 pl-4">
+                  <p>1️⃣ Extraction automatique des données détaillées (problématiques, opinion publique, recommandations)</p>
+                  <p>2️⃣ Création du rapport avec IA selon votre configuration</p>
+                  <p>3️⃣ Génération du design professionnel et mise en page automatique</p>
+                  <p>4️⃣ Export au format {formatRapport === 'gamma-pdf' ? 'PDF' : 'PowerPoint'} haute qualité</p>
+                  <p>5️⃣ Téléchargement automatique + lien Gamma.app pour édition</p>
+                </div>
+                <p className="font-medium text-purple-600 pt-2">⏱️ Temps estimé : 10-30 secondes</p>
               </AlertDescription>
             </Alert>
           </div>
