@@ -2201,12 +2201,12 @@ const SuperAdminDashboard = () => {
 
         <Alert className="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 border-2 border-green-300">
           <Info className="h-4 w-4 text-green-600" />
-          <AlertTitle>🎊 Dashboard Hybride Unifié v2.1 - Architecture Finale</AlertTitle>
+          <AlertTitle>🎊 Dashboard Hybride Fusionné v2.1 - Architecture Finale</AlertTitle>
           <AlertDescription className="space-y-3">
             <div className="bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg border-2 border-green-300 shadow-sm">
-              <p className="font-bold text-base mb-2 text-green-800">✅ Dashboard Président/Admin Unifié Opérationnel (20 oct 2025)</p>
+              <p className="font-bold text-base mb-2 text-green-800">✅ Dashboard Président/Admin Fusionné - /dashboard/admin (20 oct 2025)</p>
               <p className="text-sm text-green-700 font-medium">
-                Le compte Président (+24177888001) accède à un <strong>dashboard hybride unique</strong> combinant vue stratégique ET gestion opérationnelle dans une interface cohérente avec 11 onglets.
+                Le compte Président (+24177888001) accède à <strong>/dashboard/admin</strong> qui affiche automatiquement une <strong>interface hybride à 11 onglets</strong> combinant vue stratégique ET gestion opérationnelle. Les autres comptes admin voient l'interface standard avec sidebar.
               </p>
             </div>
 
@@ -2251,10 +2251,11 @@ const SuperAdminDashboard = () => {
               <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
                 <p className="font-semibold text-sm mb-2">📍 Routing & Accès</p>
                 <div className="ml-4 text-xs space-y-1">
-                  <p>• URL: <code className="bg-purple-100 px-2 py-0.5 rounded font-mono">/dashboard/unified</code></p>
-                  <p>• Compte: <code className="bg-purple-100 px-2 py-0.5 rounded font-mono">+24177888001</code> (Président)</p>
-                  <p>• Tabs: Navigation par URL params <code className="bg-purple-100 px-1 rounded">?tab=vue-ensemble</code></p>
-                  <p>• Lazy Loading: Activé (chargement à la demande des onglets)</p>
+                  <p>• URL: <code className="bg-purple-100 px-2 py-0.5 rounded font-mono">/dashboard/admin</code> (unique pour tous)</p>
+                  <p>• Président (<code className="bg-purple-100 px-1 rounded">+24177888001</code>) → <strong>Interface hybride 11 onglets</strong></p>
+                  <p>• Admin/Sub-Admin → <strong>Interface standard sidebar</strong></p>
+                  <p>• Détection automatique: <code className="bg-gray-100 px-1 rounded">isPresident</code> dans AdminDashboard.tsx ligne 176</p>
+                  <p>• Lazy Loading: Activé (President/components/ chargés à la demande)</p>
                 </div>
               </div>
 
