@@ -49,6 +49,30 @@ class DemoAccountService {
       phone: '+24177888003'
     },
     {
+      email: '24177888011@ndjobi.com',
+      password: '101010',
+      role: 'sub_admin',
+      label: 'Sous-Admin Défense',
+      fullName: 'Sous-Admin Défense Nationale',
+      phone: '+24177888011'
+    },
+    {
+      email: '24177888012@ndjobi.com',
+      password: '121212',
+      role: 'sub_admin',
+      label: 'Sous-Admin Intérieur',
+      fullName: 'Sous-Admin Ministère de l\'Intérieur',
+      phone: '+24177888012'
+    },
+    {
+      email: '24177888013@ndjobi.com',
+      password: '131313',
+      role: 'sub_admin',
+      label: 'Sous-Admin Affaires Étrangères',
+      fullName: 'Sous-Admin Affaires Étrangères',
+      phone: '+24177888013'
+    },
+    {
       email: '24177888004@ndjobi.com',
       password: '444444',
       role: 'agent',
