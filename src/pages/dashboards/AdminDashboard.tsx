@@ -6,7 +6,7 @@ import {
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
   AlertCircle, XCircle, RefreshCw, Search, UserPlus, Menu,
-  Mail, Phone, X, Check, CheckSquare
+  Mail, Phone, X, Check, CheckSquare, Presentation, Sparkles
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
   const [periodeSuivi, setPeriodeSuivi] = useState<'hebdomadaire' | 'mensuel' | 'trimestriel' | 'annuel'>('mensuel');
   const [dateDebut, setDateDebut] = useState<string>('');
   const [dateFin, setDateFin] = useState<string>('');
-  const [formatRapport, setFormatRapport] = useState<'pdf' | 'excel' | 'word'>('pdf');
+  const [formatRapport, setFormatRapport] = useState<'pdf' | 'excel' | 'word' | 'gamma-pdf' | 'gamma-pptx'>('gamma-pdf');
   
   // États pour le formulaire de nomination
   const [nomForm, setNomForm] = useState({
@@ -546,7 +546,7 @@ export default function AdminDashboard() {
     setDateDebut(firstDayOfMonth.toISOString().split('T')[0]);
     setDateFin(today.toISOString().split('T')[0]);
     setPeriodeSuivi('mensuel');
-    setFormatRapport('pdf');
+    setFormatRapport('gamma-pdf');
     setIsRapportModalOpen(true);
   };
 
@@ -618,21 +618,55 @@ export default function AdminDashboard() {
         };
 
         // Génération selon le format
-        if (formatRapport === 'pdf') {
+        if (formatRapport === 'gamma-pdf' || formatRapport === 'gamma-pptx') {
+          // Génération via Gamma AI
+          const gammaFormat = formatRapport === 'gamma-pdf' ? 'pdf' : 'pptx';
+          const { gammaAIService } = await import('@/services/gammaAIService');
+          
+          toast({
+            title: "Génération Gamma AI",
+            description: `Création du rapport avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
+          });
+
+          const result = await gammaAIService.generateRapportCas(rapportData, gammaFormat);
+          
+          // Télécharger automatiquement le fichier
+          const filename = `Rapport_Cas_${selectedAdmin.organization}_${new Date().toISOString().split('T')[0]}.${gammaFormat}`;
+          await gammaAIService.downloadFile(result.downloadUrl, filename);
+
+          toast({
+            title: "✅ Rapport Gamma AI généré",
+            description: (
+              <div>
+                <p>{nombreCas} cas - {montantTotal.toLocaleString()} FCFA</p>
+                <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                  Voir sur Gamma →
+                </a>
+              </div>
+            ),
+          });
+        } else if (formatRapport === 'pdf') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
           rapportGenerationService.generatePDFCas(rapportData);
+          toast({
+            title: "Rapport généré avec succès",
+            description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: PDF`,
+          });
         } else if (formatRapport === 'excel') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
           rapportGenerationService.generateExcelCas(rapportData);
+          toast({
+            title: "Rapport généré avec succès",
+            description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: EXCEL`,
+          });
         } else if (formatRapport === 'word') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
           rapportGenerationService.generateWordCas(rapportData);
+          toast({
+            title: "Rapport généré avec succès",
+            description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: WORD`,
+          });
         }
-
-        toast({
-          title: "Rapport généré avec succès",
-          description: `${nombreCas} cas - ${montantTotal.toLocaleString()} FCFA - Format: ${formatRapport.toUpperCase()}`,
-        });
       } else {
         // Rapport global
         const rapportData = {
@@ -648,25 +682,60 @@ export default function AdminDashboard() {
           }, 0),
           casData: adminCases,
           problematiques: adminProblematiques,
-          recommandations: adminRecommandations
+          recommandations: adminRecommandations,
+          opinionPublique: adminOpinionPublique
         };
 
         // Génération selon le format
-        if (formatRapport === 'pdf') {
+        if (formatRapport === 'gamma-pdf' || formatRapport === 'gamma-pptx') {
+          // Génération via Gamma AI
+          const gammaFormat = formatRapport === 'gamma-pdf' ? 'pdf' : 'pptx';
+          const { gammaAIService } = await import('@/services/gammaAIService');
+          
+          toast({
+            title: "🎨 Génération Gamma AI",
+            description: `Création d'un rapport professionnel avec Gamma AI en format ${gammaFormat.toUpperCase()}...`,
+          });
+
+          const result = await gammaAIService.generateRapportGlobal(rapportData, gammaFormat);
+          
+          // Télécharger automatiquement le fichier
+          const filename = `Rapport_Global_${selectedAdmin.organization}_${dateDebut}_${dateFin}.${gammaFormat}`;
+          await gammaAIService.downloadFile(result.downloadUrl, filename);
+
+          toast({
+            title: "✅ Rapport Gamma AI généré",
+            description: (
+              <div>
+                <p>Rapport {periodeSuivi} - Du {dateDebut} au {dateFin}</p>
+                <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                  Voir sur Gamma →
+                </a>
+              </div>
+            ),
+          });
+        } else if (formatRapport === 'pdf') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
           rapportGenerationService.generatePDFGlobal(rapportData);
+          toast({
+            title: "Rapport généré avec succès",
+            description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: PDF`,
+          });
         } else if (formatRapport === 'excel') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
           rapportGenerationService.generateExcelGlobal(rapportData);
+          toast({
+            title: "Rapport généré avec succès",
+            description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: EXCEL`,
+          });
         } else if (formatRapport === 'word') {
           const { rapportGenerationService } = await import('@/services/rapportGenerationService');
           rapportGenerationService.generateWordGlobal(rapportData);
+          toast({
+            title: "Rapport généré avec succès",
+            description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: WORD`,
+          });
         }
-
-        toast({
-          title: "Rapport généré avec succès",
-          description: `Rapport ${periodeSuivi} - Du ${dateDebut} au ${dateFin} - Format: ${formatRapport.toUpperCase()}`,
-        });
       }
 
       setIsRapportModalOpen(false);
@@ -2744,52 +2813,108 @@ export default function AdminDashboard() {
                 <Download className="h-4 w-4 text-[hsl(var(--accent-success))]" />
                 Format du rapport
               </Label>
-              <div className="grid grid-cols-3 gap-3">
-                <Button
-                  variant={formatRapport === 'pdf' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFormatRapport('pdf')}
-                  className={`glass-effect border-none h-auto py-3 transition-all ${
-                    formatRapport === 'pdf' 
-                      ? 'bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 shadow-lg' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <FileText className={`h-4 w-4 ${formatRapport === 'pdf' ? 'text-red-500' : 'text-muted-foreground'}`} />
-                    <span className="text-xs font-semibold text-foreground">PDF</span>
-                  </div>
-                </Button>
-                <Button
-                  variant={formatRapport === 'excel' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFormatRapport('excel')}
-                  className={`glass-effect border-none h-auto py-3 transition-all ${
-                    formatRapport === 'excel' 
-                      ? 'bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 shadow-lg' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <FileText className={`h-4 w-4 ${formatRapport === 'excel' ? 'text-green-500' : 'text-muted-foreground'}`} />
-                    <span className="text-xs font-semibold text-foreground">Excel</span>
-                  </div>
-                </Button>
-                <Button
-                  variant={formatRapport === 'word' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFormatRapport('word')}
-                  className={`glass-effect border-none h-auto py-3 transition-all ${
-                    formatRapport === 'word' 
-                      ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 shadow-lg' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <FileText className={`h-4 w-4 ${formatRapport === 'word' ? 'text-blue-500' : 'text-muted-foreground'}`} />
-                    <span className="text-xs font-semibold text-foreground">Word</span>
-                  </div>
-                </Button>
+              
+              {/* Section Gamma AI - Recommandé */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-600 border-purple-500/30 text-xs">
+                    🎨 Gamma AI - Recommandé
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant={formatRapport === 'gamma-pdf' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormatRapport('gamma-pdf')}
+                    className={`glass-effect border-none h-auto py-4 transition-all ${
+                      formatRapport === 'gamma-pdf' 
+                        ? 'bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 shadow-lg' 
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="relative">
+                        <FileText className={`h-5 w-5 ${formatRapport === 'gamma-pdf' ? 'text-purple-500' : 'text-muted-foreground'}`} />
+                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pdf' ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
+                      </div>
+                      <span className="text-xs font-semibold text-foreground">PDF Pro</span>
+                      <span className="text-[10px] text-foreground/60">Gamma AI</span>
+                    </div>
+                  </Button>
+                  <Button
+                    variant={formatRapport === 'gamma-pptx' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormatRapport('gamma-pptx')}
+                    className={`glass-effect border-none h-auto py-4 transition-all ${
+                      formatRapport === 'gamma-pptx' 
+                        ? 'bg-gradient-to-br from-pink-500/20 to-pink-600/10 border border-pink-500/30 shadow-lg' 
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="relative">
+                        <Presentation className={`h-5 w-5 ${formatRapport === 'gamma-pptx' ? 'text-pink-500' : 'text-muted-foreground'}`} />
+                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pptx' ? 'text-pink-400' : 'text-muted-foreground/50'}`} />
+                      </div>
+                      <span className="text-xs font-semibold text-foreground">PowerPoint</span>
+                      <span className="text-[10px] text-foreground/60">Gamma AI</span>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Section Formats Standard */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-foreground/60">Formats standard</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <Button
+                    variant={formatRapport === 'pdf' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormatRapport('pdf')}
+                    className={`glass-effect border-none h-auto py-3 transition-all ${
+                      formatRapport === 'pdf' 
+                        ? 'bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 shadow-lg' 
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <FileText className={`h-4 w-4 ${formatRapport === 'pdf' ? 'text-red-500' : 'text-muted-foreground'}`} />
+                      <span className="text-xs font-semibold text-foreground">PDF</span>
+                    </div>
+                  </Button>
+                  <Button
+                    variant={formatRapport === 'excel' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormatRapport('excel')}
+                    className={`glass-effect border-none h-auto py-3 transition-all ${
+                      formatRapport === 'excel' 
+                        ? 'bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 shadow-lg' 
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <FileText className={`h-4 w-4 ${formatRapport === 'excel' ? 'text-green-500' : 'text-muted-foreground'}`} />
+                      <span className="text-xs font-semibold text-foreground">Excel</span>
+                    </div>
+                  </Button>
+                  <Button
+                    variant={formatRapport === 'word' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormatRapport('word')}
+                    className={`glass-effect border-none h-auto py-3 transition-all ${
+                      formatRapport === 'word' 
+                        ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 shadow-lg' 
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <FileText className={`h-4 w-4 ${formatRapport === 'word' ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                      <span className="text-xs font-semibold text-foreground">Word</span>
+                    </div>
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -2798,8 +2923,18 @@ export default function AdminDashboard() {
               <FileText className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
               <AlertTitle className="text-[hsl(var(--accent-intel))] text-xs font-semibold">Information</AlertTitle>
               <AlertDescription className="text-xs text-foreground/80">
-                Le rapport sera généré et disponible au téléchargement dans quelques instants. 
-                Une notification sera envoyée une fois le processus terminé.
+                {formatRapport.startsWith('gamma-') ? (
+                  <div className="space-y-1">
+                    <p className="font-medium">🎨 Génération avec Gamma AI :</p>
+                    <p>Rapport professionnel avec design moderne et mise en page automatique.</p>
+                    <p>Le fichier sera téléchargé automatiquement et vous recevrez un lien pour visualiser/modifier sur Gamma.app</p>
+                  </div>
+                ) : (
+                  <>
+                    Le rapport sera généré et disponible au téléchargement dans quelques instants. 
+                    Une notification sera envoyée une fois le processus terminé.
+                  </>
+                )}
               </AlertDescription>
             </Alert>
           </div>
