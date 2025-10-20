@@ -7,7 +7,7 @@ import {
   Clock, Check, X, RefreshCcw, Download, Upload, MapPin, CheckCircle,
   Search, Filter, Calendar, ExternalLink, Trash2, Wrench, PlayCircle, UserPlus,
   Key, Bot, Cpu, Globe, Link, Save, TestTube, Copy, EyeOff, Brain, Package, Radio, Crown,
-  Mail, Phone, Target
+  Mail, Phone, Target, Info
 } from 'lucide-react';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { useAuth } from '@/hooks/useAuth';
@@ -2196,6 +2196,21 @@ const SuperAdminDashboard = () => {
                 <AlertTitle>✅ Implémentation Complète</AlertTitle>
                 <AlertDescription>
                   Dashboard présidentiel opérationnel avec 4 vues principales simplifiées pour une compréhension rapide des affaires d'État.
+                </AlertDescription>
+              </Alert>
+
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertTitle>🏗️ Architecture Dashboards Séparés</AlertTitle>
+                <AlertDescription className="space-y-2">
+                  <p>Le système utilise des dashboards distincts par rôle pour optimiser l'expérience utilisateur :</p>
+                  <div className="mt-2 space-y-1 text-sm">
+                    <p><strong>• Président</strong> → <code className="bg-blue-100 px-1 py-0.5 rounded text-xs">/dashboard/president</code> (PresidentDashboard.tsx)</p>
+                    <p className="ml-4 text-xs">Vue stratégique nationale avec 4 onglets synthétiques</p>
+                    <p><strong>• Admin/Sub-Admin</strong> → <code className="bg-blue-100 px-1 py-0.5 rounded text-xs">/dashboard/admin</code> (AdminDashboard.tsx)</p>
+                    <p className="ml-4 text-xs">Gestion opérationnelle complète avec 10 vues détaillées</p>
+                  </div>
+                  <p className="text-xs mt-2">Le routing dans App.tsx détecte automatiquement l'email <code>24177888001@ndjobi.com</code> et redirige vers l'interface appropriée.</p>
                 </AlertDescription>
               </Alert>
 
