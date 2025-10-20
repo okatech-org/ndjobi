@@ -6,7 +6,7 @@ Les **Services Spéciaux** (DGSS, DGR, Défense, Intérieur, Affaires Étrangèr
 
 ---
 
-## 🎯 Nouveaux Comptes Implémentés
+## 🎯 Comptes Services Spéciaux Implémentés
 
 ### 1. **Sous-Admin DGSS** (existant - amélioré)
 - **Email:** `24177888002@ndjobi.com`
@@ -26,6 +26,7 @@ Les **Services Spéciaux** (DGSS, DGR, Défense, Intérieur, Affaires Étrangèr
 - **Classification:** `SECRET DÉFENSE`
 - **Secteur:** Ministère de la Défense Nationale
 - **Missions:** Sécurité militaire, Contre-espionnage, Protection installations stratégiques
+- **Note:** Remplace l'ancien compte "Agent Défense" (24177888004) - **SUPPRIMÉ**
 
 ### 4. **Sous-Admin Intérieur** ⭐ NOUVEAU
 - **Email:** `24177888012@ndjobi.com`
@@ -33,6 +34,7 @@ Les **Services Spéciaux** (DGSS, DGR, Défense, Intérieur, Affaires Étrangèr
 - **Classification:** `CONFIDENTIEL DÉFENSE`
 - **Secteur:** Ministère de l'Intérieur
 - **Missions:** Sécurité intérieure, Gendarmerie, Police, Anti-terrorisme, Contrôle frontières
+- **Note:** Remplace l'ancien compte "Agent Intérieur" (24177888007) - **SUPPRIMÉ**
 
 ### 5. **Sous-Admin Affaires Étrangères** ⭐ NOUVEAU
 - **Email:** `24177888013@ndjobi.com`
@@ -40,6 +42,16 @@ Les **Services Spéciaux** (DGSS, DGR, Défense, Intérieur, Affaires Étrangèr
 - **Classification:** `CONFIDENTIEL DIPLOMATIQUE`
 - **Secteur:** Ministère des Affaires Étrangères
 - **Missions:** Renseignement diplomatique, Sécurité ambassades, Veille internationale
+
+---
+
+## 📝 Comptes Agents Restants (Gestion Institutions)
+
+Les comptes agents suivants sont maintenus pour les ministères/agences classiques :
+
+- **Agent Justice** - `24177888005@ndjobi.com` (PIN: 555555)
+- **Agent Anti-Corruption** - `24177888006@ndjobi.com` (PIN: 666666)
+- **Agent Pêche** - `24177888010@ndjobi.com` (PIN: 000000)
 
 ---
 

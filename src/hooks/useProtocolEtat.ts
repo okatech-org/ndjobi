@@ -205,22 +205,7 @@ export function useProtocolEtat() {
         privileges: ['Renseignement diplomatique', 'Sécurité ambassades', 'Veille internationale', 'Protection ressortissants', 'Relations bilatérales sécuritaires']
       },
       { 
-        id: '3', 
-        user_id: '24177888004', 
-        nom: 'Agent Défense', 
-        secteur: 'Ministère de la Défense Nationale', 
-        cas_traites: 42, 
-        taux_succes: 68, 
-        delai_moyen_jours: 10, 
-        statut: 'Actif',
-        email: '24177888004@ndjobi.com',
-        phone: '+24177888004',
-        role: 'agent',
-        organization: 'Ministère Défense',
-        privileges: ['Traitement signalements défense', 'Enquêtes militaires', 'Surveillance installations', 'Rapports sécuritaires']
-      },
-      { 
-        id: '4', 
+        id: '6', 
         user_id: '24177888005', 
         nom: 'Agent Justice', 
         secteur: 'Ministère de la Justice', 
@@ -235,7 +220,7 @@ export function useProtocolEtat() {
         privileges: ['Traitement signalements judiciaires', 'Enquêtes pénales', 'Surveillance juridique', 'Rapports judiciaires']
       },
       { 
-        id: '5', 
+        id: '7', 
         user_id: '24177888006', 
         nom: 'Agent Anti-Corruption', 
         secteur: 'Agence Nationale de Lutte contre la Corruption', 
@@ -250,22 +235,7 @@ export function useProtocolEtat() {
         privileges: ['Traitement signalements corruption', 'Enquêtes anticorruption', 'Surveillance patrimoniale', 'Rapports anticorruption']
       },
       { 
-        id: '6', 
-        user_id: '24177888007', 
-        nom: 'Agent Intérieur', 
-        secteur: 'Ministère de l\'Intérieur', 
-        cas_traites: 39, 
-        taux_succes: 70, 
-        delai_moyen_jours: 9, 
-        statut: 'Actif',
-        email: '24177888007@ndjobi.com',
-        phone: '+24177888007',
-        role: 'agent',
-        organization: 'Ministère Intérieur',
-        privileges: ['Traitement signalements intérieur', 'Enquêtes administratives', 'Surveillance territoriale', 'Rapports administratifs']
-      },
-      { 
-        id: '7', 
+        id: '8', 
         user_id: '24177888010', 
         nom: 'Agent Pêche', 
         secteur: 'Ministère de la Mer de la Pêche et de l\'Économie Bleue', 
@@ -280,7 +250,7 @@ export function useProtocolEtat() {
         privileges: ['Traitement des signalements liés à la pêche', 'Enquêtes sur les infractions maritimes', 'Surveillance des activités de pêche', 'Rapports sectoriels pêche']
       },
       { 
-        id: '8', 
+        id: '9', 
         user_id: '24177888008', 
         nom: 'Citoyen Démo', 
         secteur: 'Citoyen Gabonais', 
@@ -295,7 +265,7 @@ export function useProtocolEtat() {
         privileges: ['Création signalements', 'Suivi de ses signalements', 'Protection projets', 'Consultation statuts', 'Chat IASTED']
       },
       { 
-        id: '9', 
+        id: '10', 
         user_id: '24177888009', 
         nom: 'Citoyen Anonyme', 
         secteur: 'Citoyen Gabonais', 

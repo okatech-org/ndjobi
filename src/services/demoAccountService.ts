@@ -73,14 +73,6 @@ class DemoAccountService {
       phone: '+24177888013'
     },
     {
-      email: '24177888004@ndjobi.com',
-      password: '444444',
-      role: 'agent',
-      label: 'Agent Défense',
-      fullName: 'Agent Défense',
-      phone: '+24177888004'
-    },
-    {
       email: '24177888005@ndjobi.com',
       password: '555555',
       role: 'agent',
@@ -95,14 +87,6 @@ class DemoAccountService {
       label: 'Agent Anti-Corruption',
       fullName: 'Agent Anti-Corruption',
       phone: '+24177888006'
-    },
-    {
-      email: '24177888007@ndjobi.com',
-      password: '777777',
-      role: 'agent',
-      label: 'Agent Intérieur',
-      fullName: 'Agent Intérieur',
-      phone: '+24177888007'
     },
     {
       email: '24177888008@ndjobi.com',
