@@ -80,15 +80,28 @@ export const IAstedFloatingButton = () => {
     const onOpenVoiceReport = (e: CustomEvent) => {
       setIsOpen(true);
       setMode('voice');
-      // Message d'initialisation contextuel si fourni
       const admin = (e.detail && (e.detail as any).admin) || null;
-      if (admin) {
-        addAssistantMessage(
-          `Je prépare un rapport vocal pour ${admin?.organization || 'l\'administration'}.
-Parlez après le bip pour dicter les éléments clés à inclure (performance, problématiques, recommandations).`,
-          'text'
-        );
-      }
+
+      (async () => {
+        try {
+          await unlockAudioIfNeeded();
+          const org = admin?.organization || "l'administration concernée";
+          const intro = `J'analyse la situation de ${org}. Je passe en revue les cas, la performance, les problématiques et les recommandations.`;
+          setIsSpeaking(true);
+          await IAstedVoiceService.speakText(intro);
+          setIsSpeaking(false);
+
+          const autoPrompt = `Génère un rapport vocal synthétique et structuré pour ${org}. \nInclure: performance récente, cas en cours marquants, problématiques critiques avec impacts, et recommandations présidentielles actionnables à court terme. \nStyle: présidentiel, clair, concis, en français, avec enchaînement naturel à l'oral.`;
+
+          setIsProcessing(true);
+          await getAIResponse(autoPrompt, 'voice');
+          setIsProcessing(false);
+        } catch (err) {
+          console.error('Erreur lancement rapport vocal iAsted:', err);
+          setIsProcessing(false);
+          setIsSpeaking(false);
+        }
+      })();
     };
 
     window.addEventListener('iasted:open-voice-report', onOpenVoiceReport as any);
