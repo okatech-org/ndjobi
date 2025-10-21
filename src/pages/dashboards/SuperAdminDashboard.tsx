@@ -522,14 +522,14 @@ const SuperAdminDashboard = () => {
 
   const loadActivityLogs = async () => {
     try {
-      // Charger les derniers signalements comme activité
+      // Charger les derniers signalements comme activité (sans jointure profiles pour éviter l'erreur 400)
       const { data: recentReports, error: reportsError } = await supabase
         .from('signalements')
         .select(`
           id,
           title,
           created_at,
-          profiles!inner(email, full_name)
+          user_id
         `)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -545,10 +545,10 @@ const SuperAdminDashboard = () => {
 
       // Ajouter les signalements récents
       if (recentReports && !reportsError) {
-        (recentReports as unknown as Array<{ id: string; created_at: string; profiles?: { full_name?: string; email?: string } | null; title: string }>).forEach((report) => {
+        (recentReports as unknown as Array<{ id: string; created_at: string; user_id?: string; title: string }>).forEach((report) => {
           logs.push({
             time: new Date(report.created_at).toLocaleTimeString('fr-FR'),
-            user: report.profiles?.full_name || report.profiles?.email || 'Utilisateur',
+            user: report.user_id ? `Utilisateur ${report.user_id.substring(0, 8)}` : 'Utilisateur anonyme',
             action: `Signalement créé: ${report.title}`,
             type: 'info',
             icon: FileText
