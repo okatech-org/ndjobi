@@ -5940,6 +5940,7 @@ const SuperAdminDashboard = () => {
           {activeView === 'xr7' && renderXR7View()}
           {activeView === 'config' && renderConfigView()}
           {activeView === 'visibilite' && renderVisibiliteView()}
+          {activeView === 'demo' && renderVisibiliteView()}
 
           {activeView === 'dashboard' && (
             <Alert className="border-destructive/30">
