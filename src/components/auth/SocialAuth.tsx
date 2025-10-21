@@ -16,10 +16,10 @@ export const SocialAuth = () => {
     setLoading(provider);
     try {
       const action = searchParams.get('action');
-      let redirectTo = `${window.location.origin}/dashboard/user`;
+      let redirectTo = `${window.location.origin}/user`;
       
       if (action) {
-        redirectTo = `${window.location.origin}/dashboard/user?action=${action}`;
+        redirectTo = `${window.location.origin}/user?action=${action}`;
       }
       
       const { error } = await supabase.auth.signInWithOAuth({

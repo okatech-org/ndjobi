@@ -37,70 +37,70 @@ import emblemGabon from "@/assets/emblem_gabon.png";
 const menuItems = [
   {
     title: "Dashboard",
-    url: "/dashboard/admin",
+    url: "/admin",
     icon: LayoutDashboard,
     badge: null,
     description: "Vue d'ensemble",
   },
   {
     title: "Gestion Institutions",
-    url: "/dashboard/admin?view=gestion",
+    url: "/admin?view=gestion",
     icon: Users,
     badge: null,
     description: "Agents sectoriels",
   },
   {
     title: "Gestion Spéciale",
-    url: "/dashboard/admin?view=special",
+    url: "/admin?view=special",
     icon: Crown,
     badge: null,
     description: "Sous-administrateurs",
   },
   {
     title: "Gestion Citoyens",
-    url: "/dashboard/admin?view=citoyens",
+    url: "/admin?view=citoyens",
     icon: Users,
     badge: null,
     description: "Comptes citoyens",
   },
   {
     title: "Validation Cas",
-    url: "/dashboard/admin?view=validation",
+    url: "/admin?view=validation",
     icon: Shield,
     badge: "prioritaire",
     description: "Cas sensibles",
   },
   {
     title: "Enquêtes",
-    url: "/dashboard/admin?view=enquetes",
+    url: "/admin?view=enquetes",
     icon: MapPin,
     badge: null,
     description: "Suivi terrain",
   },
   {
     title: "Rapports",
-    url: "/dashboard/admin?view=rapports",
+    url: "/admin?view=rapports",
     icon: FileText,
     badge: null,
     description: "Documents stratégiques",
   },
   {
     title: "Module XR-7",
-    url: "/dashboard/admin?view=xr7",
+    url: "/admin?view=xr7",
     icon: Radio,
     badge: "critique",
     description: "Protocole d'urgence",
   },
   {
     title: "iAsted AI",
-    url: "/dashboard/admin?view=iasted",
+    url: "/admin?view=iasted",
     icon: Brain,
     badge: "IA",
     description: "Assistant intelligent",
   },
   {
     title: "Paramètres",
-    url: "/dashboard/admin?view=settings",
+    url: "/admin?view=settings",
     icon: Settings,
     badge: null,
     description: "Configuration",
@@ -167,7 +167,7 @@ export function AdminSidebar() {
 
         // Rediriger vers le dashboard Super Admin
         setTimeout(() => {
-          navigate('/dashboard/super-admin', { replace: true });
+          navigate('/super-admin', { replace: true });
           window.location.reload();
         }, 500);
       } else {
@@ -184,8 +184,8 @@ export function AdminSidebar() {
   };
 
   const isActive = (url: string) => {
-    if (url === "/dashboard/admin") {
-      return location.pathname === "/dashboard/admin" && !location.search;
+    if (url === "/admin") {
+      return location.pathname === "/admin" && !location.search;
     }
     const viewParam = url.split("?view=")[1];
     return location.search.includes(viewParam);

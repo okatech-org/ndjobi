@@ -51,7 +51,7 @@ const Auth = () => {
       // Dispatcher l'événement pour notifier le changement de session
       window.dispatchEvent(new Event('ndjobi:demo:session:changed'));
       
-      navigate('/dashboard/user');
+      navigate('/user');
     } catch (error: any) {
       toast({
         variant: 'destructive',

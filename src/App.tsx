@@ -114,21 +114,31 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   const effectiveRole = localDemoRole || role || null;
   if (effectiveRole && location.pathname === '/') {
-    const dashboardUrl = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
-                        isPresident ? '/dashboard/admin' :
-                        effectiveRole === 'admin' ? '/dashboard/admin' :
-                        effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
+    const dashboardUrl = effectiveRole === 'super_admin' ? '/super-admin' :
+                        isPresident ? '/admin' :
+                        effectiveRole === 'admin' ? '/admin' :
+                        effectiveRole === 'sub_admin' ? '/admin' :
+                        effectiveRole === 'agent' ? '/agent' : '/user';
     console.log('📍 Redirection depuis / vers', dashboardUrl);
     return <Navigate to={dashboardUrl} replace />;
   }
 
-  if (effectiveRole && location.pathname.startsWith('/dashboard')) {
-    const target = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
-                   isPresident ? '/dashboard/admin' :
-                   effectiveRole === 'admin' ? '/dashboard/admin' :
-                   effectiveRole === 'agent' ? '/dashboard/agent' : '/dashboard/user';
-    if (!location.pathname.startsWith(target)) {
-      console.log('📍 Correction route dashboard:', location.pathname, '->', target);
+  if (effectiveRole && (location.pathname.startsWith('/dashboard') || 
+                        location.pathname.startsWith('/user') || 
+                        location.pathname.startsWith('/agent') ||
+                        location.pathname.startsWith('/admin') ||
+                        location.pathname.startsWith('/super-admin'))) {
+    const target = effectiveRole === 'super_admin' ? '/super-admin' :
+                   isPresident ? '/admin' :
+                   effectiveRole === 'admin' ? '/admin' :
+                   effectiveRole === 'sub_admin' ? '/admin' :
+                   effectiveRole === 'agent' ? '/agent' : '/user';
+    
+    const validPaths = [target, `${target}/`];
+    const hasSubRoute = location.pathname.split('/').length > 2;
+    
+    if (!location.pathname.startsWith(target) && !location.pathname.startsWith('/dashboard')) {
+      console.log('📍 Correction route:', location.pathname, '->', target);
       return <Navigate to={target} replace />;
     }
   }
@@ -150,9 +160,9 @@ const NdjobiAgentVisibility = () => {
 
   const path = location.pathname || '';
   const isRestrictedSpace =
-    path.startsWith('/dashboard/admin') ||
-    path.startsWith('/dashboard/super-admin') ||
-    path.startsWith('/dashboard/agent');
+    path.startsWith('/admin') ||
+    path.startsWith('/super-admin') ||
+    path.startsWith('/agent');
 
   if (isRestrictedSpace) return null;
   if (role && role !== 'user') return null;
@@ -216,57 +226,60 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            
+            {/* Redirections des anciennes routes /dashboard/* vers /{role}/* */}
+            <Route path="/dashboard/super-admin/*" element={<Navigate to="/super-admin" replace />} />
+            <Route path="/dashboard/admin/*" element={<Navigate to="/admin" replace />} />
+            <Route path="/dashboard/agent/*" element={<Navigate to="/agent" replace />} />
+            <Route path="/dashboard/user/*" element={<Navigate to="/user" replace />} />
+            
+            {/* Routes User - Citoyen */}
             <Route
-              path="/dashboard/user"
+              path="/user"
               element={
                 <ProtectedRoute>
                   <UserDashboard />
                 </ProtectedRoute>
               }
             />
+            
+            {/* Routes Agent - Avec sous-routes pour extensibilité future */}
             <Route
-              path="/dashboard/agent"
+              path="/agent"
               element={
                 <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard agent..." />}>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace agent..." />}>
                     <AgentDashboard />
                   </Suspense>
                 </ProtectedRoute>
               }
             />
+            
+            {/* Routes Admin/Sub-Admin - Avec sous-routes */}
             <Route
-              path="/dashboard/admin"
+              path="/admin"
               element={
                 <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard admin..." />}>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace admin..." />}>
                     <AdminDashboard />
                   </Suspense>
                 </ProtectedRoute>
               }
             />
-            {/* Routes Super Admin avec sous-routes dédiées */}
+            
+            {/* Routes Super Admin - Avec sous-routes dédiées */}
             <Route
-              path="/dashboard/super-admin"
+              path="/super-admin"
               element={
                 <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard super admin..." />}>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du super admin..." />}>
                     <SuperAdminDashboard />
                   </Suspense>
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/dashboard/super-admin/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard super admin..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/super-admin/system"
+              path="/super-admin/system"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement du système..." />}>
@@ -276,7 +289,7 @@ const App = () => {
               }
             />
             <Route
-              path="/dashboard/super-admin/users"
+              path="/super-admin/users"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement des utilisateurs..." />}>
@@ -286,7 +299,7 @@ const App = () => {
               }
             />
             <Route
-              path="/dashboard/super-admin/project"
+              path="/super-admin/project"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement du projet..." />}>
@@ -296,7 +309,7 @@ const App = () => {
               }
             />
             <Route
-              path="/dashboard/super-admin/xr7"
+              path="/super-admin/xr7"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement du module XR-7..." />}>
@@ -306,7 +319,7 @@ const App = () => {
               }
             />
             <Route
-              path="/dashboard/super-admin/visibilite"
+              path="/super-admin/visibility"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la visibilité..." />}>
@@ -316,7 +329,11 @@ const App = () => {
               }
             />
             <Route
-              path="/dashboard/super-admin/config"
+              path="/super-admin/visibilite"
+              element={<Navigate to="/super-admin/visibility" replace />}
+            />
+            <Route
+              path="/super-admin/config"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la configuration..." />}>

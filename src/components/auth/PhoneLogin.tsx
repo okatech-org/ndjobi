@@ -38,13 +38,14 @@ type LoginFormData = {
 const getDashboardUrl = (role: string): string => {
   switch (role) {
     case 'super_admin':
-      return '/dashboard/super-admin';
+      return '/super-admin';
     case 'admin':
-      return '/dashboard/admin';
+    case 'sub_admin':
+      return '/admin';
     case 'agent':
-      return '/dashboard/agent';
+      return '/agent';
     default:
-      return '/dashboard/user';
+      return '/user';
   }
 };
 
@@ -102,7 +103,7 @@ export const PhoneLogin = () => {
         throw new Error('Numéro ou code PIN incorrect');
       }
 
-      let dashboardUrl = '/dashboard/user';
+      let dashboardUrl = '/user';
       let userRole = 'user';
       if (signInData?.user) {
         const { data: roleData } = await supabase

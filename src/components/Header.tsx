@@ -27,21 +27,22 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Dériver un rôle à partir de l'URL courante pour fiabiliser le menu mobile
-  const pathRole: UserRole | null = location.pathname.startsWith('/dashboard/super-admin') ? 'super_admin'
-    : location.pathname.startsWith('/dashboard/admin') ? 'admin'
-    : location.pathname.startsWith('/dashboard/agent') ? 'agent'
-    : location.pathname.startsWith('/dashboard/user') ? 'user'
+  const pathRole: UserRole | null = location.pathname.startsWith('/super-admin') ? 'super_admin'
+    : location.pathname.startsWith('/admin') ? 'admin'
+    : location.pathname.startsWith('/agent') ? 'agent'
+    : location.pathname.startsWith('/user') ? 'user'
     : null;
   const currentRole = (pathRole || role) as UserRole | null;
 
   // Déterminer le path du dashboard selon le rôle
   const getDashboardPath = () => {
     switch (currentRole) {
-      case 'super_admin': return '/dashboard/super-admin';
-      case 'admin': return '/dashboard/admin';
-      case 'agent': return '/dashboard/agent';
+      case 'super_admin': return '/super-admin';
+      case 'admin': 
+      case 'sub_admin': return '/admin';
+      case 'agent': return '/agent';
       case 'user': 
-      default: return '/dashboard/user';
+      default: return '/user';
     }
   };
 
@@ -49,12 +50,12 @@ const Header = () => {
 
   // Menu adapté selon le rôle
   const authenticatedMenuItems = currentRole === 'super_admin' ? [
-    { label: "Dashboard", path: `${dashboardPath}/dashboard`, icon: User },
+    { label: "Dashboard", path: dashboardPath, icon: User },
     { label: "Gestion Système", path: `${dashboardPath}/system`, icon: Settings },
     { label: "Utilisateurs", path: `${dashboardPath}/users`, icon: User },
     { label: "Projet", path: `${dashboardPath}/project`, icon: FileText },
     { label: "Module XR-7", path: `${dashboardPath}/xr7`, icon: AlertCircle },
-    { label: "Visibilité", path: `${dashboardPath}/visibilite`, icon: Bot },
+    { label: "Visibilité", path: `${dashboardPath}/visibility`, icon: Bot },
     { label: "Configuration", path: `${dashboardPath}/config`, icon: Key },
   ] : currentRole === 'admin' ? [
     { label: "Dashboard", path: dashboardPath, icon: User },

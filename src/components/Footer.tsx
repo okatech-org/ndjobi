@@ -9,7 +9,7 @@ const Footer = () => {
   const location = useLocation();
   
   // Dériver le rôle à partir de l'URL si nécessaire
-  const pathRole = location.pathname.startsWith('/dashboard/admin') ? 'admin' : null;
+  const pathRole = location.pathname.startsWith('/admin') ? 'admin' : null;
   const currentRole = pathRole || role;
   
   const isProtocolEtat = currentRole === 'admin';

@@ -4561,15 +4561,15 @@ export default function AdminDashboard() {
               {/* Navigation items */}
               {mobileMenuState !== 'collapsed' && (
                 <div className="flex flex-col gap-2 w-full px-2">
-                  <NavIcon href="/dashboard/admin" active={activeView === 'dashboard'} label="Dashboard" icon="grid" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=gestion" active={activeView === 'gestion'} label="Gestion Institutions" icon="users" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=special" active={activeView === 'special'} label="Gestion Spéciale" icon="crown" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=citoyens" active={activeView === 'citoyens'} label="Gestion Citoyens" icon="user" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=validation" active={activeView === 'validation'} label="Validation Cas" icon="shield" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=enquetes" active={activeView === 'enquetes'} label="Enquêtes" icon="map" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=rapports" active={activeView === 'rapports'} label="Rapports" icon="file" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=xr7" active={activeView === 'xr7'} label="Module XR-7" icon="radio" showLabel={mobileMenuState === 'expanded'} />
-                  <NavIcon href="/dashboard/admin?view=iasted" active={activeView === 'iasted'} label="iAsted AI" icon="brain" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin" active={activeView === 'dashboard'} label="Dashboard" icon="grid" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=gestion" active={activeView === 'gestion'} label="Gestion Institutions" icon="users" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=special" active={activeView === 'special'} label="Gestion Spéciale" icon="crown" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=citoyens" active={activeView === 'citoyens'} label="Gestion Citoyens" icon="user" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=validation" active={activeView === 'validation'} label="Validation Cas" icon="shield" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=enquetes" active={activeView === 'enquetes'} label="Enquêtes" icon="map" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=rapports" active={activeView === 'rapports'} label="Rapports" icon="file" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=xr7" active={activeView === 'xr7'} label="Module XR-7" icon="radio" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=iasted" active={activeView === 'iasted'} label="iAsted AI" icon="brain" showLabel={mobileMenuState === 'expanded'} />
                 </div>
               )}
               
@@ -4582,7 +4582,7 @@ export default function AdminDashboard() {
                     aria-label="Paramètres" 
                     className={`rounded-full flex items-center justify-center hover:bg-muted transition-colors ${mobileMenuState === 'expanded' ? 'h-10 w-full px-3 gap-2' : 'h-10 w-10 mx-auto'}`}
                     title="Paramètres" 
-                    onClick={() => window.location.assign('/dashboard/admin?view=settings')}
+                    onClick={() => window.location.assign('/admin?view=settings')}
                   >
                     <Settings className="h-5 w-5" />
                     {mobileMenuState === 'expanded' && <span className="text-xs font-medium whitespace-nowrap">Paramètres</span>}

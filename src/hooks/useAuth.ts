@@ -189,7 +189,7 @@ export function useAuth() {
         setRole('super_admin');
         
         // Rediriger directement vers le dashboard super admin
-        navigate('/dashboard/super-admin');
+        navigate('/super-admin');
         
         return { success: true };
       } else {

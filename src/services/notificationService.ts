@@ -86,7 +86,7 @@ class NotificationService {
       title: 'Mise à jour - Ndjobi',
       body: statusMessages[status] || 'Votre signalement a été mis à jour',
       tag: `report-${reportId}`,
-      data: { url: '/dashboard/user?view=files' },
+      data: { url: '/user?view=files' },
     });
   }
 
@@ -100,7 +100,7 @@ class NotificationService {
       title: 'Projet Protégé - Ndjobi',
       body: statusMessages[status] || 'Votre projet a été mis à jour',
       tag: `project-${projectId}`,
-      data: { url: '/dashboard/user?view=files' },
+      data: { url: '/user?view=files' },
     });
   }
 

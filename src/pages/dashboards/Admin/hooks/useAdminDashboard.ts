@@ -5,9 +5,9 @@ export const useAdminDashboard = () => {
 
   const setView = (view: string) => {
     if (view === 'dashboard') {
-      navigate('/dashboard/admin');
+      navigate('/admin');
     } else {
-      navigate(`/dashboard/admin?view=${view}`);
+      navigate(`/admin?view=${view}`);
     }
   };
 

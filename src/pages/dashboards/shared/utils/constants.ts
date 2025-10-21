@@ -19,11 +19,11 @@ export const ROLE_HIERARCHY = {
 };
 
 export const DASHBOARD_ROUTES = {
-  SUPER_ADMIN: '/dashboard/super-admin',
-  PRESIDENT: '/dashboard/president',
-  ADMIN: '/dashboard/admin',
-  AGENT: '/dashboard/agent',
-  USER: '/dashboard/user'
+  SUPER_ADMIN: '/super-admin',
+  PRESIDENT: '/admin',
+  ADMIN: '/admin',
+  AGENT: '/agent',
+  USER: '/user'
 };
 
 export const REFRESH_INTERVALS = {

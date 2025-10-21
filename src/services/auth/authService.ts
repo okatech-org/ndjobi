@@ -466,13 +466,14 @@ export class AuthService {
     const role = this.getCurrentRole();
     switch (role) {
       case 'super_admin':
-        return '/dashboard/super-admin';
+        return '/super-admin';
       case 'admin':
-        return '/dashboard/admin';
+      case 'sub_admin':
+        return '/admin';
       case 'agent':
-        return '/dashboard/agent';
+        return '/agent';
       case 'user':
-        return '/dashboard/user';
+        return '/user';
       default:
         return '/auth';
     }

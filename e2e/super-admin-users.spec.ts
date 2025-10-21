@@ -4,17 +4,26 @@ test.describe('Super Admin Dashboard - Gestion Utilisateurs', () => {
   
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    
+    await page.evaluate(() => {
+      localStorage.setItem('ndjobi_super_admin_session', JSON.stringify({
+        isSuperAdmin: true,
+        role: 'super_admin',
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+      }));
+    });
   });
 
   test('doit afficher la vue utilisateurs', async ({ page }) => {
-    await page.goto('/dashboard/super-admin?view=users');
+    await page.goto('/super-admin/users');
     
     await expect(page.locator('text=Gestion des Utilisateurs')).toBeVisible();
     await expect(page.locator('text=Total Utilisateurs')).toBeVisible();
   });
 
   test('doit permettre de rechercher un utilisateur', async ({ page }) => {
-    await page.goto('/dashboard/super-admin?view=users');
+    await page.goto('/super-admin/users');
     
     const searchInput = page.locator('input[placeholder*="Rechercher"]');
     await searchInput.fill('demo');
@@ -24,7 +33,7 @@ test.describe('Super Admin Dashboard - Gestion Utilisateurs', () => {
   });
 
   test('doit filtrer les utilisateurs par rôle', async ({ page }) => {
-    await page.goto('/dashboard/super-admin?view=users');
+    await page.goto('/super-admin/users');
     
     const roleSelect = page.locator('select, [role="combobox"]').first();
     await roleSelect.click();
@@ -35,7 +44,7 @@ test.describe('Super Admin Dashboard - Gestion Utilisateurs', () => {
   });
 
   test('doit actualiser la liste des utilisateurs', async ({ page }) => {
-    await page.goto('/dashboard/super-admin?view=users');
+    await page.goto('/super-admin/users');
     
     const refreshButton = page.locator('button:has-text("Actualiser")');
     await refreshButton.click();
@@ -44,7 +53,7 @@ test.describe('Super Admin Dashboard - Gestion Utilisateurs', () => {
   });
 
   test('doit voir les détails d\'un utilisateur', async ({ page }) => {
-    await page.goto('/dashboard/super-admin?view=users');
+    await page.goto('/super-admin/users');
     
     const viewButton = page.locator('button[aria-label*="Voir"]').first();
     if (await viewButton.isVisible()) {
@@ -54,7 +63,7 @@ test.describe('Super Admin Dashboard - Gestion Utilisateurs', () => {
   });
 
   test('doit changer le rôle d\'un utilisateur', async ({ page }) => {
-    await page.goto('/dashboard/super-admin?view=users');
+    await page.goto('/super-admin/users');
     
     const editButton = page.locator('button[aria-label*="Changer le rôle"]').first();
     if (await editButton.isVisible()) {
@@ -67,7 +76,7 @@ test.describe('Super Admin Dashboard - Gestion Utilisateurs', () => {
   });
 
   test('doit suspendre un utilisateur', async ({ page }) => {
-    await page.goto('/dashboard/super-admin?view=users');
+    await page.goto('/super-admin/users');
     
     const suspendButton = page.locator('button[aria-label*="Suspendre"]').first();
     if (await suspendButton.isVisible()) {

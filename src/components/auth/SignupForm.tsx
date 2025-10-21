@@ -60,7 +60,7 @@ export const SignupForm = () => {
       if (error) throw error;
 
       // Fetch user role for redirect (defaults to user role for signups)
-      let dashboardUrl = '/dashboard/user';
+      let dashboardUrl = '/user';
       if (signUpData?.user) {
         const { data: roleData } = await supabase
           .from('user_roles')

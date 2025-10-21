@@ -3,23 +3,23 @@ import { UserRole } from '@/types/auth';
 export const getDashboardUrl = (role: UserRole | null): string => {
   switch (role) {
     case 'super_admin':
-      return '/dashboard/super-admin';
+      return '/super-admin';
     case 'admin':
     case 'sub_admin':
-      return '/dashboard/admin';
+      return '/admin';
     case 'agent':
-      return '/dashboard/agent';
+      return '/agent';
     case 'user':
-      return '/dashboard/user';
+      return '/user';
     default:
-      return '/dashboard/user'; // Default to user dashboard instead of /dashboard
+      return '/user';
   }
 };
 
 export const getRoleFromDashboardUrl = (url: string): UserRole | null => {
-  if (url.includes('/dashboard/super-admin')) return 'super_admin';
-  if (url.includes('/dashboard/admin')) return 'admin'; // sub_admin also uses admin dashboard
-  if (url.includes('/dashboard/agent')) return 'agent';
-  if (url.includes('/dashboard/user')) return 'user';
+  if (url.includes('/super-admin')) return 'super_admin';
+  if (url.includes('/admin')) return 'admin';
+  if (url.includes('/agent')) return 'agent';
+  if (url.includes('/user')) return 'user';
   return null;
 };
