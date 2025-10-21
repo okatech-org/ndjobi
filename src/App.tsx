@@ -32,29 +32,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [hasChecked, setHasChecked] = useState(false);
   const [demoSessionVersion, setDemoSessionVersion] = useState(0);
+  const [localDemoRole, setLocalDemoRole] = useState<string | null>(null);
 
-  // Détecter si l'utilisateur est le Président
   const isPresident = user?.email === '24177888001@ndjobi.com' || 
                       user?.phone === '+24177888001';
 
   useEffect(() => {
-    // Marquer qu'on a vérifié après le premier render
     if (!isLoading && !hasChecked) {
       setHasChecked(true);
     }
   }, [isLoading, hasChecked]);
 
-  // Écouter les changements de session démo
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'ndjobi_demo_session') {
         console.log('🔄 Session démo changée, revalidation...');
         setDemoSessionVersion(prev => prev + 1);
-        setHasChecked(false); // Forcer une nouvelle vérification
+        setHasChecked(false);
       }
     };
 
-    // Écouter aussi les événements custom
     const handleDemoSessionChange = () => {
       console.log('🔄 Événement session démo détecté, revalidation...');
       setDemoSessionVersion(prev => prev + 1);
@@ -69,14 +66,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
     };
   }, []);
-
-  // Afficher le loader UNIQUEMENT pendant le premier chargement
-  if (isLoading && !hasChecked) {
-    return <LoadingFallback fullScreen message="Vérification de votre session..." />;
-  }
-
-  // Détection immédiate d'une session locale depuis localStorage (stabilisée)
-  const [localDemoRole, setLocalDemoRole] = useState<string | null>(null);
   
   useEffect(() => {
     try {
@@ -90,10 +79,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     } catch (_) {}
   }, [demoSessionVersion]);
 
-  // Pour les sessions locales (super_admin, demo), considérer l'accès comme autorisé
+  // Log stabilisé pour éviter la boucle
+  const [hasLoggedSession, setHasLoggedSession] = useState(false);
+  
+  useEffect(() => {
+    const hasLocalSession = !!role || !!localDemoRole;
+    if (hasLocalSession && !hasLoggedSession) {
+      const effRole = (localDemoRole as string) || (role as string);
+      console.log('✅ Session locale détectée, rôle:', effRole, ', accès autorisé');
+      setHasLoggedSession(true);
+    }
+  }, [role, localDemoRole, hasLoggedSession]);
+
+  if (isLoading && !hasChecked) {
+    return <LoadingFallback fullScreen message="Vérification de votre session..." />;
+  }
+
   const hasLocalSession = !!role || !!localDemoRole;
 
-  // FORCER l'accès pour les sessions locales même si user est null
   if (!user && !hasLocalSession) {
     if (location.pathname !== "/auth") {
       console.log('🚫 Pas d\'utilisateur détecté, redirection vers /auth');
@@ -101,14 +104,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
     return <></>;
   }
-
-  // Log une seule fois pour éviter la boucle
-  useEffect(() => {
-    if (hasLocalSession) {
-      const effRole = (localDemoRole as string) || (role as string);
-      console.log('✅ Session locale détectée, rôle:', effRole, ', accès autorisé');
-    }
-  }, [hasLocalSession, localDemoRole, role]);
 
   // Redirection automatique vers le dashboard approprié si on est sur une page générique
   const effectiveRole = (localDemoRole as string) || (role as string) || null;
