@@ -5426,9 +5426,9 @@ const SuperAdminDashboard = () => {
   );
 
   // Composant pour afficher les 9 comptes système configurés
-  const DatabaseDemoAccountsCards = () => {
+  const DatabaseSystemAccountsCards = () => {
     // Comptes système hardcodés (basés sur les vrais comptes de la BDD)
-    const demoAccountsList: DatabaseDemoAccount[] = [
+    const systemAccountsList: DatabaseDemoAccount[] = [
       {
         id: 'c8cb1702-fcd3-4d60-82f3-f929a77e776a',
         email: '24177888001@ndjobi.com',
@@ -5550,12 +5550,12 @@ const SuperAdminDashboard = () => {
               9 Comptes Système Disponibles
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">
-              Comptes de test pré-configurés avec différents rôles et permissions
+              Comptes système réels pré-configurés avec différents rôles et permissions
             </p>
           </div>
           <Badge variant="outline" className="text-xs sm:text-lg px-2 py-1 sm:px-4 sm:py-2 flex-shrink-0">
             <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            {demoAccountsList.length}
+            {systemAccountsList.length}
           </Badge>
         </div>
 
@@ -5569,7 +5569,7 @@ const SuperAdminDashboard = () => {
         </Alert>
 
         <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-1.5 sm:gap-4">
-          {demoAccountsList.map((account, index) => (
+          {systemAccountsList.map((account, index) => (
             <Card key={account.id} className="border hover:shadow-lg transition-shadow sm:border-2">
               <CardHeader className="pb-1.5 sm:pb-3 px-2 sm:px-6 pt-2 sm:pt-6">
                 <div className="flex items-start justify-between gap-1 sm:gap-2">
@@ -5831,7 +5831,7 @@ const SuperAdminDashboard = () => {
             🔓 Portail Visibilité Super Admin
           </AlertTitle>
           <AlertDescription className="text-sm mt-2">
-            Accédez instantanément aux comptes Admin, Sous-Admin et Agent sans authentification.
+            Accédez instantanément aux comptes système réels (Admin, Sous-Admin et Agent) sans authentification.
             Ce portail vous permet de naviguer entre les différents niveaux d'accès de la plateforme NDJOBI.
           </AlertDescription>
         </Alert>
@@ -5847,7 +5847,7 @@ const SuperAdminDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
-            <DatabaseDemoAccountsCards />
+            <DatabaseSystemAccountsCards />
           </CardContent>
         </Card>
 
@@ -5858,16 +5858,16 @@ const SuperAdminDashboard = () => {
               Créer un Nouveau Compte
             </CardTitle>
             <CardDescription>
-              Générer un nouveau compte de test rapidement
+              Générer un nouveau compte système rapidement
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div className="flex-1">
-                  <Label htmlFor="demo-role" className="text-sm">Rôle du compte</Label>
+                  <Label htmlFor="system-role" className="text-sm">Rôle du compte</Label>
                   <Select value={newAccountRole} onValueChange={setNewAccountRole}>
-                    <SelectTrigger id="demo-role" className="h-10">
+                    <SelectTrigger id="system-role" className="h-10">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
