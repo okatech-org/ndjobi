@@ -234,14 +234,37 @@ const SuperAdminDashboard = () => {
 
   // IMPORTANT: TOUS les hooks doivent être déclarés avant tout return conditionnel
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const view = params.get('view');
-    if (view) {
-      setActiveView(view);
-    } else {
+    // Détecter la vue depuis l'URL pathname au lieu des paramètres
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    
+    // Mapping des routes vers les vues
+    const routeToView: Record<string, string> = {
+      'dashboard': 'dashboard',
+      'system': 'system', 
+      'users': 'users',
+      'project': 'project',
+      'xr7': 'xr7',
+      'visibilite': 'visibilite',
+      'config': 'config'
+    };
+    
+    // Si on est sur /dashboard/super-admin (sans sous-route), afficher dashboard
+    if (lastSegment === 'super-admin') {
       setActiveView('dashboard');
+    } else if (routeToView[lastSegment]) {
+      setActiveView(routeToView[lastSegment]);
+    } else {
+      // Fallback: vérifier les paramètres URL pour compatibilité
+      const params = new URLSearchParams(location.search);
+      const view = params.get('view');
+      if (view) {
+        setActiveView(view);
+      } else {
+        setActiveView('dashboard');
+      }
     }
-  }, [location.search]);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     const effectiveUser = user || localUser || (localRole ? { id: 'local-super-admin' } : null);
@@ -620,7 +643,19 @@ const SuperAdminDashboard = () => {
   }
 
   const handleNavigateToView = (view: string) => {
-    navigate(`?view=${view}`);
+    // Navigation vers les routes dédiées au lieu des paramètres URL
+    const routeMap: Record<string, string> = {
+      'dashboard': '/dashboard/super-admin/dashboard',
+      'system': '/dashboard/super-admin/system',
+      'users': '/dashboard/super-admin/users', 
+      'project': '/dashboard/super-admin/project',
+      'xr7': '/dashboard/super-admin/xr7',
+      'visibilite': '/dashboard/super-admin/visibilite',
+      'config': '/dashboard/super-admin/config'
+    };
+    
+    const targetRoute = routeMap[view] || '/dashboard/super-admin';
+    navigate(targetRoute);
     setActiveView(view);
   };
 

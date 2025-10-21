@@ -31,11 +31,30 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, role, isLoading } = useAuth();
   const location = useLocation();
   const [hasChecked, setHasChecked] = useState(false);
-  const [demoSessionVersion, setDemoSessionVersion] = useState(0);
   const [localDemoRole, setLocalDemoRole] = useState<string | null>(null);
+  const [demoSessionVersion, setDemoSessionVersion] = useState(0);
 
   const isPresident = user?.email === '24177888001@ndjobi.com' || 
                       user?.phone === '+24177888001';
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('ndjobi_demo_session');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.role) {
+          setLocalDemoRole(parsed.role);
+        } else {
+          setLocalDemoRole(null);
+        }
+      } else {
+        setLocalDemoRole(null);
+      }
+    } catch (error) {
+      console.error('Erreur parsing session:', error);
+      setLocalDemoRole(null);
+    }
+  }, [demoSessionVersion]);
 
   useEffect(() => {
     if (!isLoading && !hasChecked) {
@@ -66,30 +85,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
     };
   }, []);
-  
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('ndjobi_demo_session');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && parsed.role) {
-          setLocalDemoRole(parsed.role);
-        }
-      }
-    } catch (_) {}
-  }, [demoSessionVersion]);
 
-  // Log stabilisé pour éviter la boucle
-  const [hasLoggedSession, setHasLoggedSession] = useState(false);
-  
   useEffect(() => {
     const hasLocalSession = !!role || !!localDemoRole;
-    if (hasLocalSession && !hasLoggedSession) {
-      const effRole = (localDemoRole as string) || (role as string);
+    if (hasLocalSession && hasChecked) {
+      const effRole = localDemoRole || role;
       console.log('✅ Session locale détectée, rôle:', effRole, ', accès autorisé');
-      setHasLoggedSession(true);
     }
-  }, [role, localDemoRole, hasLoggedSession]);
+  }, [role, localDemoRole, hasChecked]);
 
   if (isLoading && !hasChecked) {
     return <LoadingFallback fullScreen message="Vérification de votre session..." />;
@@ -105,8 +108,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <></>;
   }
 
-  // Redirection automatique vers le dashboard approprié si on est sur une page générique
-  const effectiveRole = (localDemoRole as string) || (role as string) || null;
+  if (hasLocalSession && !user) {
+    console.log('🔧 Session locale détectée mais user null - accès forcé pour', localDemoRole || role);
+  }
+
+  const effectiveRole = localDemoRole || role || null;
   if (effectiveRole && location.pathname === '/') {
     const dashboardUrl = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
                         isPresident ? '/dashboard/admin' :
@@ -116,7 +122,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to={dashboardUrl} replace />;
   }
 
-  // Si on est déjà dans une route dashboard qui ne correspond pas au rôle effectif, rediriger UNE SEULE FOIS
   if (effectiveRole && location.pathname.startsWith('/dashboard')) {
     const target = effectiveRole === 'super_admin' ? '/dashboard/super-admin' :
                    isPresident ? '/dashboard/admin' :
@@ -239,11 +244,82 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            {/* Routes Super Admin avec sous-routes dédiées */}
             <Route
               path="/dashboard/super-admin"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard super admin..." />}>
+                    <SuperAdminDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du dashboard super admin..." />}>
+                    <SuperAdminDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin/system"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du système..." />}>
+                    <SuperAdminDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin/users"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement des utilisateurs..." />}>
+                    <SuperAdminDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin/project"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du projet..." />}>
+                    <SuperAdminDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin/xr7"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du module XR-7..." />}>
+                    <SuperAdminDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin/visibilite"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la visibilité..." />}>
+                    <SuperAdminDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/super-admin/config"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la configuration..." />}>
                     <SuperAdminDashboard />
                   </Suspense>
                 </ProtectedRoute>

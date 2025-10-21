@@ -49,13 +49,13 @@ const Header = () => {
 
   // Menu adapté selon le rôle
   const authenticatedMenuItems = currentRole === 'super_admin' ? [
-    { label: "Dashboard", path: dashboardPath, icon: User },
-    { label: "Gestion Système", path: `${dashboardPath}?view=system`, icon: Settings },
-    { label: "Utilisateurs", path: `${dashboardPath}?view=users`, icon: User },
-    { label: "Projet", path: `${dashboardPath}?view=project`, icon: FileText },
-    { label: "Module XR-7", path: `${dashboardPath}?view=xr7`, icon: AlertCircle },
-    { label: "Visibilité", path: `${dashboardPath}?view=visibilite`, icon: Bot },
-    { label: "Configuration", path: `${dashboardPath}?view=config`, icon: Key },
+    { label: "Dashboard", path: `${dashboardPath}/dashboard`, icon: User },
+    { label: "Gestion Système", path: `${dashboardPath}/system`, icon: Settings },
+    { label: "Utilisateurs", path: `${dashboardPath}/users`, icon: User },
+    { label: "Projet", path: `${dashboardPath}/project`, icon: FileText },
+    { label: "Module XR-7", path: `${dashboardPath}/xr7`, icon: AlertCircle },
+    { label: "Visibilité", path: `${dashboardPath}/visibilite`, icon: Bot },
+    { label: "Configuration", path: `${dashboardPath}/config`, icon: Key },
   ] : currentRole === 'admin' ? [
     { label: "Dashboard", path: dashboardPath, icon: User },
     { label: "Gestion Agents", path: `${dashboardPath}?view=agents`, icon: User },
