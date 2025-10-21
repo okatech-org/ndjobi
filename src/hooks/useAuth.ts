@@ -174,13 +174,14 @@ export function useAuth() {
    * Connexion Super Admin sécurisée
    */
   const signInSuperAdmin = useCallback(async (
-    code: string
+    code: string,
+    phoneNumber?: string
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const result = await authService.authenticateSuperAdmin(code);
+      const result = await authService.authenticateSuperAdmin(code, phoneNumber);
 
       console.log({result})
       

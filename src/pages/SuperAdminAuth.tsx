@@ -68,7 +68,8 @@ const SuperAdminAuth = () => {
     setIsLoading(true);
 
     try {
-      const result = await signInSuperAdmin(fullPin);
+      // Passer le numéro de téléphone Super Admin
+      const result = await signInSuperAdmin(fullPin, '+33661002616');
      
       if (result.success) {
         toast({ 

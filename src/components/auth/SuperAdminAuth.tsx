@@ -234,8 +234,8 @@ export const SuperAdminAuth = ({ isOpen, onClose }: SuperAdminAuthProps) => {
       if (mode === 'forgot' && otpVerified) {
         result = await resetSuperAdminPin(fullPin);
       } else {
-        // Mode login normal
-        result = await signInSuperAdmin(fullPin);
+        // Mode login normal - passer le numéro de téléphone
+        result = await signInSuperAdmin(fullPin, phoneNumber);
       }
      
       if (result.success) {

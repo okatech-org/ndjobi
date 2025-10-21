@@ -110,12 +110,15 @@ export class AuthService {
    * Authentification Super Admin avec Supabase Auth (VRAI compte, pas demo)
    * Utilise le MÊME système que les autres utilisateurs : Numéro + PIN
    */
-  async authenticateSuperAdmin(pin: string): Promise<{
+  async authenticateSuperAdmin(pin: string, phoneNumber?: string): Promise<{
     success: boolean;
     error?: string;
   }> {
     try {
-      const superAdminEmail = '33661002616@ndjobi.com';
+      // Utiliser le numéro de téléphone si fourni, sinon utiliser l'email par défaut
+      const superAdminEmail = phoneNumber ? 
+        `${phoneNumber.replace(/\D/g, '')}@ndjobi.com` : 
+        '33661002616@ndjobi.com';
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: superAdminEmail,
