@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Compte Président - NDJOBI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .emblem {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #009e60;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .alert {
+            background: #fffbeb;
+            border: 1px solid #fbbf24;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .alert-title {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .alert-text {
+            color: #78350f;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .credentials {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .credential-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .credential-row:last-child {
+            border-bottom: none;
+        }
+
+        .credential-label {
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .credential-value {
+            color: #1a202c;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+        }
+
+        .features {
+            margin-bottom: 25px;
+        }
+
+        .features-title {
+            color: #1a202c;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-item {
+            padding: 8px 0;
+            color: #4a5568;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-item::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .button-secondary:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emblem">🇬🇦</div>
+            <h1>Compte Président</h1>
+            <p class="subtitle">Interface Hybride à 11 Onglets</p>
+        </div>
+
+        <div class="alert">
+            <div class="alert-title">⚠️ Compte Spécial Requis</div>
+            <div class="alert-text">
+                Ce compte donne accès à l'interface complète du Dashboard Président/Admin avec tous les modules de gestion.
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="credentials">
+            <div class="credential-row">
+                <span class="credential-label">📞 Téléphone</span>
+                <span class="credential-value">24177888001</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">🔐 Code PIN</span>
+                <span class="credential-value">111111</span>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="features-title">✨ Modules Inclus</div>
+            <ul class="feature-list">
+                <li class="feature-item">Dashboard Vue d'Ensemble</li>
+                <li class="feature-item">Gestion Institutions (Agents)</li>
+                <li class="feature-item">Gestion Spéciale (Sous-admins)</li>
+                <li class="feature-item">Gestion Citoyens</li>
+                <li class="feature-item">Validation Cas Sensibles</li>
+                <li class="feature-item">Enquêtes et Suivi Terrain</li>
+                <li class="feature-item">Rapports Stratégiques</li>
+                <li class="feature-item">Module XR-7 (Urgence)</li>
+                <li class="feature-item">iAsted AI (Assistant)</li>
+                <li class="feature-item">Paramètres et Configuration</li>
+            </ul>
+        </div>
+
+        <button class="button" onclick="connectPresident()">
+            <span id="btnText">🚀 Se Connecter avec le Compte Président</span>
+        </button>
+
+        <button class="button button-secondary" onclick="openGuide()">
+            📖 Voir le Guide Complet
+        </button>
+
+        <div class="footer">
+            <strong>NDJOBI</strong> - Système de Protection des Dénonciations<br>
+            République Gabonaise
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function connectPresident() {
+            const btn = document.getElementById('btnText');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="loading">⏳</span> Connexion en cours...';
+            
+            showStatus('🔄 Redirection vers la page de connexion...', 'success');
+            
+            setTimeout(() => {
+                const baseUrl = window.location.origin;
+                const authUrl = `${baseUrl}/auth`;
+                
+                sessionStorage.setItem('president_credentials', JSON.stringify({
+                    phone: '24177888001',
+                    pin: '111111',
+                    autoFill: true
+                }));
+                
+                window.location.href = authUrl;
+            }, 1000);
+        }
+
+        function openGuide() {
+            const guideUrl = window.location.origin + '/GUIDE-CONNEXION-PRESIDENT.md';
+            window.open(guideUrl, '_blank');
+        }
+
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('error') === 'wrong_account') {
+                showStatus('❌ Vous êtes connecté avec un autre compte. Veuillez vous déconnecter d\'abord.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
+
