@@ -75,17 +75,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <LoadingFallback fullScreen message="Vérification de votre session..." />;
   }
 
-  // Détection immédiate d'une session locale depuis localStorage
-  let localDemoRole: string | null = null;
-  try {
-    const raw = localStorage.getItem('ndjobi_demo_session');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.role) {
-        localDemoRole = parsed.role;
+  // Détection immédiate d'une session locale depuis localStorage (stabilisée)
+  const [localDemoRole, setLocalDemoRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('ndjobi_demo_session');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.role) {
+          setLocalDemoRole(parsed.role);
+        }
       }
-    }
-  } catch (_) {}
+    } catch (_) {}
+  }, [demoSessionVersion]);
 
   // Pour les sessions locales (super_admin, demo), considérer l'accès comme autorisé
   const hasLocalSession = !!role || !!localDemoRole;
@@ -99,15 +102,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <></>;
   }
 
-  // Si on a une session locale, forcer l'accès même si user devient null
-  if (hasLocalSession && !user) {
-    console.log('🔧 Session locale détectée mais user null - accès forcé pour', localDemoRole || role);
-  }
-
-  if (hasLocalSession) {
-    const effRole = (localDemoRole as string) || (role as string);
-    console.log('✅ Session locale détectée, rôle:', effRole, ', accès autorisé');
-  }
+  // Log une seule fois pour éviter la boucle
+  useEffect(() => {
+    if (hasLocalSession) {
+      const effRole = (localDemoRole as string) || (role as string);
+      console.log('✅ Session locale détectée, rôle:', effRole, ', accès autorisé');
+    }
+  }, [hasLocalSession, localDemoRole, role]);
 
   // Redirection automatique vers le dashboard approprié si on est sur une page générique
   const effectiveRole = (localDemoRole as string) || (role as string) || null;
