@@ -33,7 +33,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { accountSwitchingService } from "@/services/accountSwitching";
 import emblemGabon from "@/assets/emblem_gabon.png";
-import { demoAccountService } from "@/services/demoAccountService";
 
 const menuItems = [
   {
@@ -130,7 +129,6 @@ export function AdminSidebar() {
         accountSwitchingService.clearAll();
         console.log('✅ Données de compte basculé nettoyées');
       }
-      demoAccountService.clearLocalSession();
 
       // Déconnexion backend
       await signOut();

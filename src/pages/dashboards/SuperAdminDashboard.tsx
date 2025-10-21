@@ -17,7 +17,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { systemManagementService, type DatabaseStats, type ServiceStatus } from '@/services/systemManagement';
 import { userManagementService, type UserDetail, type UserStats } from '@/services/userManagement';
 import { accountSwitchingService, type DemoAccount } from '@/services/accountSwitching';
-import { demoAccountsFromDatabaseService, type DatabaseDemoAccount } from '@/services/demoAccountsFromDatabase';
 import { getDashboardUrl } from '@/lib/roleUtils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -5425,10 +5424,23 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
+  // Interface pour les comptes système
+  interface SystemAccount {
+    id: string;
+    email: string;
+    full_name: string;
+    phone: string;
+    pin: string;
+    role: string;
+    organization: string;
+    description: string;
+    created_at: string;
+  }
+
   // Composant pour afficher les 9 comptes système configurés
   const DatabaseSystemAccountsCards = () => {
     // Comptes système hardcodés (basés sur les vrais comptes de la BDD)
-    const systemAccountsList: DatabaseDemoAccount[] = [
+    const systemAccountsList: SystemAccount[] = [
       {
         id: 'c8cb1702-fcd3-4d60-82f3-f929a77e776a',
         email: '24177888001@ndjobi.com',
@@ -5437,7 +5449,8 @@ const SuperAdminDashboard = () => {
         organization: 'Présidence de la République',
         role: 'admin',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '111111'
+        pin: '111111',
+        description: 'Accès présidentiel - Administration complète'
       },
       {
         id: '94e4232b-e56d-4378-8fbf-8c1ae78814f5',
@@ -5447,7 +5460,8 @@ const SuperAdminDashboard = () => {
         organization: 'DGSS (Direction Générale de la Sécurité d\'État)',
         role: 'sub_admin',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '222222'
+        pin: '222222',
+        description: 'Vue sectorielle - Direction spécialisée'
       },
       {
         id: '3dd19fcc-3b54-481b-b2ac-9b23e6af20c0',
@@ -5457,7 +5471,8 @@ const SuperAdminDashboard = () => {
         organization: 'DGR (Direction Générale du Renseignement)',
         role: 'sub_admin',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '333333'
+        pin: '333333',
+        description: 'Vue sectorielle - Direction spécialisée'
       },
       {
         id: '96a22973-1b0b-453c-8313-3cd5fa19f043',
@@ -5467,7 +5482,8 @@ const SuperAdminDashboard = () => {
         organization: 'Ministère de la Défense',
         role: 'agent',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '444444'
+        pin: '444444',
+        description: 'Enquêtes opérationnelles - Terrain'
       },
       {
         id: 'c2b5af83-8503-4c14-9746-c263833cbd6b',
@@ -5477,7 +5493,8 @@ const SuperAdminDashboard = () => {
         organization: 'Ministère de la Justice',
         role: 'agent',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '555555'
+        pin: '555555',
+        description: 'Enquêtes opérationnelles - Terrain'
       },
       {
         id: '441f3f15-a9e8-405c-9e33-34dcfdbd348e',
@@ -5487,7 +5504,8 @@ const SuperAdminDashboard = () => {
         organization: 'Commission Anti-Corruption',
         role: 'agent',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '666666'
+        pin: '666666',
+        description: 'Enquêtes opérationnelles - Terrain'
       },
       {
         id: '89aa4bab-10f0-4d94-a008-07ae4b80ed32',
@@ -5497,7 +5515,8 @@ const SuperAdminDashboard = () => {
         organization: 'Ministère de l\'Intérieur',
         role: 'agent',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '777777'
+        pin: '777777',
+        description: 'Enquêtes opérationnelles - Terrain'
       },
       {
         id: '138045bf-d2aa-4066-9c62-122b184f75a1',
@@ -5507,7 +5526,8 @@ const SuperAdminDashboard = () => {
         organization: 'Citoyen',
         role: 'user',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '888888'
+        pin: '888888',
+        description: 'Signalements citoyens'
       },
       {
         id: '8258f5d9-94d7-4e21-a3cf-88537bf3ed91',
@@ -5517,7 +5537,8 @@ const SuperAdminDashboard = () => {
         organization: 'Anonyme',
         role: 'user',
         created_at: '2025-10-18T18:48:50.872856+00:00',
-        pin: '999999'
+        pin: '999999',
+        description: 'Signalements citoyens'
       }
     ];
 
@@ -5580,7 +5601,10 @@ const SuperAdminDashboard = () => {
                       <div className="flex-1 min-w-0">
                         <CardTitle className="text-xs sm:text-base truncate">{account.full_name}</CardTitle>
                         <Badge className={`mt-0.5 sm:mt-1 text-[10px] sm:text-xs ${getRoleBadgeColor(account.role)}`}>
-                          {demoAccountsFromDatabaseService.getRoleDisplayName(account.role)}
+                          {account.role === 'admin' ? 'Administrateur' : 
+                           account.role === 'sub_admin' ? 'Sous-Admin' : 
+                           account.role === 'agent' ? 'Agent' : 
+                           account.role === 'user' ? 'Utilisateur' : account.role}
                         </Badge>
                       </div>
                     </div>
@@ -5626,7 +5650,10 @@ const SuperAdminDashboard = () => {
 
                 <div className="pt-1.5 sm:pt-2 border-t hidden sm:block">
                   <p className="text-xs text-muted-foreground italic">
-                    {demoAccountsFromDatabaseService.getRoleDescription(account.role)}
+                    {account.role === 'admin' ? 'Administration complète' : 
+                     account.role === 'sub_admin' ? 'Direction sectorielle' : 
+                     account.role === 'agent' ? 'Enquêtes opérationnelles' : 
+                     account.role === 'user' ? 'Signalements citoyens' : 'Accès standard'}
                   </p>
                 </div>
 
@@ -5940,7 +5967,6 @@ const SuperAdminDashboard = () => {
           {activeView === 'xr7' && renderXR7View()}
           {activeView === 'config' && renderConfigView()}
           {activeView === 'visibilite' && renderVisibiliteView()}
-          {activeView === 'demo' && renderVisibiliteView()}
 
           {activeView === 'dashboard' && (
             <Alert className="border-destructive/30">
