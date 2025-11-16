@@ -30,7 +30,7 @@ export type Database = {
           user_message: string
           user_message_audio_url: string | null
           user_message_transcription: string | null
-          user_message_vector: unknown | null
+          user_message_vector: unknown
         }
         Insert: {
           actions_triggered?: Json | null
@@ -47,7 +47,7 @@ export type Database = {
           user_message: string
           user_message_audio_url?: string | null
           user_message_transcription?: string | null
-          user_message_vector?: unknown | null
+          user_message_vector?: unknown
         }
         Update: {
           actions_triggered?: Json | null
@@ -64,7 +64,7 @@ export type Database = {
           user_message?: string
           user_message_audio_url?: string | null
           user_message_transcription?: string | null
-          user_message_vector?: unknown | null
+          user_message_vector?: unknown
         }
         Relationships: []
       }
@@ -72,7 +72,7 @@ export type Database = {
         Row: {
           confidence_score: number | null
           content: string
-          content_vector: unknown | null
+          content_vector: unknown
           created_at: string | null
           id: string
           knowledge_type: string
@@ -88,7 +88,7 @@ export type Database = {
         Insert: {
           confidence_score?: number | null
           content: string
-          content_vector?: unknown | null
+          content_vector?: unknown
           created_at?: string | null
           id?: string
           knowledge_type: string
@@ -104,7 +104,7 @@ export type Database = {
         Update: {
           confidence_score?: number | null
           content?: string
-          content_vector?: unknown | null
+          content_vector?: unknown
           created_at?: string | null
           id?: string
           knowledge_type?: string
@@ -511,10 +511,7 @@ export type Database = {
       }
     }
     Functions: {
-      cleanup_old_pin_attempts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_old_pin_attempts: { Args: never; Returns: undefined }
       ensure_demo_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -523,7 +520,7 @@ export type Database = {
         Returns: boolean
       }
       get_super_admin_profile: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           email: string
           full_name: string
@@ -543,10 +540,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_president: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      is_president: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "user" | "agent" | "admin" | "super_admin" | "sub_admin"
