@@ -127,11 +127,23 @@ export function useAuth() {
       }
     };
 
+    // Écouteur global pour la déconnexion (notamment depuis le menu mobile)
+    const handleGlobalSignOut = async () => {
+      console.log('🚪 [useAuth] Événement global signout reçu');
+      if (isMounted) {
+        setUser(null);
+        setRole(null);
+        await authService.signOut();
+      }
+    };
+
     window.addEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
+    window.addEventListener('ndjobi:signout', handleGlobalSignOut);
 
     return () => {
       isMounted = false;
       window.removeEventListener('ndjobi:demo:session:changed', handleDemoSessionChange);
+      window.removeEventListener('ndjobi:signout', handleGlobalSignOut);
     };
   }, []);
 
@@ -236,27 +248,29 @@ export function useAuth() {
   }, []);
 
   /**
-   * Déconnexion
+   * Déconnexion robuste
    */
   const signOut = useCallback(async () => {
+    console.log('🚪 [useAuth] Déconnexion demandée');
     setIsLoading(true);
     
     try {
-      await authService.signOut();
+      // Nettoyer l'état React immédiatement
       setUser(null);
       setRole(null);
       setError(null);
+      
+      // Appeler le service de déconnexion
+      await authService.signOut();
       // La redirection est gérée dans authService
     } catch (err) {
-      console.error('Erreur lors de la déconnexion:', err);
-      // Forcer le nettoyage même en cas d'erreur
-      setUser(null);
-      setRole(null);
-      navigate('/auth');
+      console.error('❌ Erreur lors de la déconnexion:', err);
+      // Forcer la redirection même en cas d'erreur
+      window.location.replace('/auth');
     } finally {
       setIsLoading(false);
     }
-  }, [navigate]);
+  }, []);
 
   /**
    * Vérifie les permissions pour un rôle donné

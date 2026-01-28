@@ -277,41 +277,70 @@ export class AuthService {
   }
 
   /**
-   * Nettoie complètement la session
+   * Nettoie complètement la session - Version robuste
    */
   clearSession() {
+    console.log('🧹 [AuthService] Nettoyage complet de la session...');
+    
     this.currentUser = null;
     this.currentRole = null;
     this.sessionToken = null;
     
-    // Nettoyer tous les storages
+    // Nettoyer sessionStorage
     sessionStorage.clear();
-    localStorage.removeItem('ndjobi_session');
-    localStorage.removeItem('localDemoSession');
-    localStorage.removeItem('ndjobi_demo_session');
-    localStorage.removeItem('ndjobi_super_admin_session');
+    
+    // Nettoyer TOUTES les clés localStorage liées à l'authentification
+    const authKeys = [
+      'ndjobi_session',
+      'localDemoSession',
+      'ndjobi_demo_session',
+      'ndjobi_super_admin_session',
+      'ndjobi_original_account',
+      'ndjobi_user_data',
+      'ndjobi_device_id',
+      'sb-xfxqwlbqysiezqdpeqpv-auth-token',
+    ];
+    
+    authKeys.forEach(key => {
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {
+        console.warn(`⚠️ Impossible de supprimer ${key}:`, e);
+      }
+    });
     
     // Réinitialiser l'état global si nécessaire
     if (window.globalAuthState) {
       window.globalAuthState = null;
     }
+    
+    console.log('✅ [AuthService] Session nettoyée');
   }
 
   /**
-   * Déconnexion complète
+   * Déconnexion complète - Version robuste
    */
   async signOut() {
+    console.log('🚪 [AuthService] Déconnexion en cours...');
+    
     try {
-      await supabase.auth.signOut();
+      // Nettoyer la session locale d'abord
       this.clearSession();
       
-      // Rediriger vers la page d'authentification
-      window.location.href = '/auth';
+      // Puis déconnecter de Supabase
+      await supabase.auth.signOut().catch(err => {
+        console.warn('⚠️ Erreur Supabase signOut (ignorée):', err);
+      });
+      
+      console.log('✅ [AuthService] Déconnexion réussie');
+      
+      // Redirection avec rechargement complet
+      window.location.replace('/auth');
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-      // Forcer le nettoyage même en cas d'erreur
+      console.error('❌ Erreur lors de la déconnexion:', error);
+      // Forcer le nettoyage et la redirection même en cas d'erreur
       this.clearSession();
-      window.location.href = '/auth';
+      window.location.replace('/auth');
     }
   }
 

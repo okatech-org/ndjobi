@@ -195,9 +195,12 @@ class AccountSwitchingService {
 
   // Nettoyer complètement le service
   public clearAll(): void {
+    console.log('🧹 [AccountSwitching] Nettoyage complet...');
     this.originalAccount = null;
     localStorage.removeItem(this.STORAGE_KEY);
     userPersistence.clearStoredUser();
+    localStorage.removeItem('ndjobi_demo_session');
+    console.log('✅ [AccountSwitching] Nettoyage terminé');
   }
 }
 
