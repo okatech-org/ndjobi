@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Users, FileText, BarChart3, Eye, Search, AlertCircle, CheckCircle,
     Clock, TrendingUp, Calendar, MapPin, Shield, ChevronRight,
-    Target, Briefcase, Activity, Filter, PieChart, ArrowUpRight
+    Target, Briefcase, Activity, Filter, PieChart, ArrowUpRight, Map
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,9 @@ import {
     getTypesForAgentRole,
     SIGNALEMENT_TYPES
 } from '@/services/signalementRouting';
+import AgentRealtimeNotifications from '@/components/agent/AgentRealtimeNotifications';
+import MonthlyEvolutionChart from '@/components/agent/MonthlyEvolutionChart';
+import SignalementsMapView from '@/components/agent/SignalementsMapView';
 
 interface SpecializedAgentDashboardProps {
     agentRole: AgentRole;
@@ -62,7 +65,12 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
     const { user, role, isLoading } = useAuth();
     const { toast } = useToast();
 
-    const [activeView, setActiveView] = useState<'dashboard' | 'statistics' | 'tracking' | 'cases'>('dashboard');
+    const [activeView, setActiveView] = useState<'dashboard' | 'statistics' | 'tracking' | 'cases' | 'map'>('dashboard');
+    
+    // Callback for realtime notifications
+    const handleNewSignalement = useCallback(() => {
+        loadData();
+    }, []);
     const [loading, setLoading] = useState(false);
     const [signalements, setSignalements] = useState<Signalement[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -85,7 +93,7 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const view = params.get('view');
-        if (view && ['dashboard', 'statistics', 'tracking', 'cases'].includes(view)) {
+        if (view && ['dashboard', 'statistics', 'tracking', 'cases', 'map'].includes(view)) {
             setActiveView(view as typeof activeView);
         }
     }, [location.search]);
@@ -317,13 +325,20 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
 
     const renderStatistics = () => (
         <div className="space-y-6">
+            {/* Graphique d'évolution mensuelle */}
+            <MonthlyEvolutionChart 
+                signalements={signalements}
+                title={`Évolution - ${roleConfig.label}`}
+                description="Tendance des signalements reçus et résolus sur 6 mois"
+            />
+
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <BarChart3 className="h-5 w-5" />
-                        Statistiques - {roleConfig.label}
+                        Indicateurs de Performance
                     </CardTitle>
-                    <CardDescription>Vue d'ensemble des performances et métriques</CardDescription>
+                    <CardDescription>Métriques clés pour {roleConfig.label}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -372,7 +387,7 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
                         {/* Activité mensuelle */}
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Activité Mensuelle</CardTitle>
+                                <CardTitle className="text-sm">Comparaison Mensuelle</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="flex items-end gap-2 h-20">
@@ -573,20 +588,46 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
         </div>
     );
 
+    const renderMap = () => (
+        <div className="space-y-6">
+            <SignalementsMapView 
+                signalements={signalements}
+                onSelectSignalement={(s) => {
+                    toast({
+                        title: `Signalement ${s.reference_number || s.id.slice(0, 8)}`,
+                        description: s.title
+                    });
+                }}
+            />
+        </div>
+    );
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
+            {/* Realtime notifications */}
+            <AgentRealtimeNotifications 
+                agentRole={agentRole} 
+                onNewSignalement={handleNewSignalement} 
+            />
+            
             <Header />
             <main className="flex-1 container py-8">
                 {/* Navigation */}
                 <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="mb-6">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-5">
                         <TabsTrigger value="dashboard" className="flex items-center gap-2">
                             <Target className="h-4 w-4" />
-                            Tableau de bord
+                            <span className="hidden sm:inline">Tableau de bord</span>
+                            <span className="sm:hidden">Accueil</span>
                         </TabsTrigger>
                         <TabsTrigger value="statistics" className="flex items-center gap-2">
                             <BarChart3 className="h-4 w-4" />
-                            Statistiques
+                            <span className="hidden sm:inline">Statistiques</span>
+                            <span className="sm:hidden">Stats</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="map" className="flex items-center gap-2">
+                            <Map className="h-4 w-4" />
+                            Carte
                         </TabsTrigger>
                         <TabsTrigger value="tracking" className="flex items-center gap-2">
                             <Activity className="h-4 w-4" />
@@ -594,7 +635,8 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
                         </TabsTrigger>
                         <TabsTrigger value="cases" className="flex items-center gap-2">
                             <FileText className="h-4 w-4" />
-                            Signalements
+                            <span className="hidden sm:inline">Signalements</span>
+                            <span className="sm:hidden">Cas</span>
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>
@@ -607,6 +649,7 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
                     <>
                         {activeView === 'dashboard' && renderDashboard()}
                         {activeView === 'statistics' && renderStatistics()}
+                        {activeView === 'map' && renderMap()}
                         {activeView === 'tracking' && renderTracking()}
                         {activeView === 'cases' && renderCases()}
                     </>
