@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import HeroWithVideo from "@/components/HeroWithVideo";
 import CTACards from "@/components/CTACards";
 import AnonymousReportForm from "@/components/AnonymousReportForm";
+import ReportTracker from "@/components/ReportTracker";
 import TrustSection from "@/components/TrustSection";
 import StatsSection from "@/components/StatsSection";
 import Footer from "@/components/Footer";
@@ -20,6 +21,7 @@ const Index = () => {
         <HeroWithVideo />
         <CTACards />
         <AnonymousReportForm />
+        <ReportTracker />
         <TrustSection />
         <StatsSection />
       </main>

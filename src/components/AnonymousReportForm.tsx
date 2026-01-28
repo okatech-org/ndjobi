@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, Send, Shield, MapPin, FileText, CheckCircle2, Upload, X, Image, File, Loader2 } from "lucide-react";
+import { AlertTriangle, Send, Shield, MapPin, FileText, CheckCircle2, Upload, X, Image, File, Loader2, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -66,6 +66,7 @@ const reportTypes = [
 const AnonymousReportForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [referenceNumber, setReferenceNumber] = useState<string | null>(null);
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [honeypot, setHoneypot] = useState(""); // Honeypot anti-spam
@@ -211,7 +212,7 @@ const AnonymousReportForm = () => {
     return uploadedUrls;
   };
 
-  const onSubmit = async (data: ReportFormData) => {
+  const onSubmit = async (formData: ReportFormData) => {
     // Anti-spam checks
     // 1. Honeypot check - bots fill hidden fields
     if (honeypot) {
@@ -242,13 +243,13 @@ const AnonymousReportForm = () => {
       // Upload files first
       const attachmentUrls = files.length > 0 ? await uploadFiles() : [];
 
-      const { error } = await supabase
+      const { data: insertedData, error } = await supabase
         .from('signalements')
         .insert({
-          title: data.title,
-          type: data.type,
-          description: data.description,
-          location: data.location || null,
+          title: formData.title,
+          type: formData.type,
+          description: formData.description,
+          location: formData.location || null,
           status: 'pending',
           priority: 'normal',
           user_id: null, // Signalement anonyme
@@ -262,9 +263,16 @@ const AnonymousReportForm = () => {
             submitted_at: new Date().toISOString(),
             files_count: attachmentUrls.length,
           }
-        });
+        })
+        .select('reference_number')
+        .single();
 
       if (error) throw error;
+
+      // Store reference number for display
+      if (insertedData?.reference_number) {
+        setReferenceNumber(insertedData.reference_number);
+      }
 
       setIsSuccess(true);
       form.reset();
@@ -280,8 +288,7 @@ const AnonymousReportForm = () => {
         description: "Votre signalement anonyme a été enregistré avec succès.",
       });
 
-      // Reset success state after 5 seconds
-      setTimeout(() => setIsSuccess(false), 5000);
+      // Don't auto-reset success state - let user copy reference
       
     } catch (error) {
       console.error('Error submitting report:', error);
@@ -308,6 +315,26 @@ const AnonymousReportForm = () => {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const [copied, setCopied] = useState(false);
+
+  const copyReference = async () => {
+    if (referenceNumber) {
+      await navigator.clipboard.writeText(referenceNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({
+        title: "Copié !",
+        description: "Numéro de référence copié dans le presse-papier",
+      });
+    }
+  };
+
+  const handleNewReport = () => {
+    setIsSuccess(false);
+    setReferenceNumber(null);
+    setCopied(false);
+  };
+
   if (isSuccess) {
     return (
       <section id="signalement-anonyme" className="container py-12 md:py-16">
@@ -319,17 +346,56 @@ const AnonymousReportForm = () => {
             <h3 className="text-2xl font-bold text-green-600 mb-2">
               Signalement envoyé !
             </h3>
-            <p className="text-muted-foreground max-w-md">
-              Votre signalement anonyme a été enregistré et sera traité par nos équipes dans les plus brefs délais. 
-              Aucune information personnelle n'a été collectée.
+            
+            {/* Reference Number Display */}
+            {referenceNumber && (
+              <div className="my-6 p-4 bg-background rounded-lg border-2 border-dashed border-green-500/40 w-full max-w-sm">
+                <p className="text-sm text-muted-foreground mb-2">Votre numéro de référence</p>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="font-mono text-xl font-bold text-foreground tracking-wider">
+                    {referenceNumber}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={copyReference}
+                    className="h-8 w-8 p-0"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  ⚠️ Conservez ce numéro pour suivre votre signalement
+                </p>
+              </div>
+            )}
+
+            <p className="text-muted-foreground max-w-md text-sm">
+              Votre signalement sera traité par nos équipes dans les plus brefs délais. 
+              Utilisez le numéro de référence ci-dessus pour suivre l'avancement.
             </p>
-            <Button 
-              variant="outline" 
-              className="mt-6"
-              onClick={() => setIsSuccess(false)}
-            >
-              Faire un autre signalement
-            </Button>
+            
+            <div className="flex gap-3 mt-6">
+              <Button 
+                variant="outline" 
+                onClick={handleNewReport}
+              >
+                Nouveau signalement
+              </Button>
+              <Button 
+                variant="default"
+                onClick={() => {
+                  const tracker = document.getElementById('suivi-signalement');
+                  if (tracker) tracker.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Suivre mon signalement
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </section>

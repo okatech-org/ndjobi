@@ -366,6 +366,7 @@ export type Database = {
           location: string | null
           metadata: Json | null
           priority: string | null
+          reference_number: string | null
           resolved_at: string | null
           resolved_by: string | null
           status: string
@@ -382,6 +383,7 @@ export type Database = {
           location?: string | null
           metadata?: Json | null
           priority?: string | null
+          reference_number?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: string
@@ -398,6 +400,7 @@ export type Database = {
           location?: string | null
           metadata?: Json | null
           priority?: string | null
+          reference_number?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: string
