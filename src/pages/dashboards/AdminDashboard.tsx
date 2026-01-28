@@ -16,7 +16,8 @@ import {
   MessageCircle,
   User,
   LogOut,
-  Radio
+  Radio,
+  History
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import AdminSignalementComments from '@/components/admin/AdminSignalementComments';
+import { AdminAuditHistory } from '@/components/admin/AdminAuditHistory';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -57,7 +59,7 @@ const SituationsCritiques = lazy(() => import('./President/components/Situations
 const VisionNationale = lazy(() => import('./President/components/VisionNationale'));
 
 // Icône utilitaire compacte pour la barre mobile droite
-const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: string; active: boolean; label: string; icon: 'grid' | 'users' | 'crown' | 'user' | 'shield' | 'map' | 'file' | 'radio' | 'brain' | 'message'; showLabel?: boolean }) => {
+const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: string; active: boolean; label: string; icon: 'grid' | 'users' | 'crown' | 'user' | 'shield' | 'map' | 'file' | 'radio' | 'brain' | 'message' | 'history'; showLabel?: boolean }) => {
   const Icon =
     icon === 'grid' ? BarChart3 :
       icon === 'users' ? Users :
@@ -68,7 +70,8 @@ const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: strin
                 icon === 'file' ? FileText :
                   icon === 'radio' ? Radio :
                     icon === 'message' ? MessageCircle :
-                      Brain;
+                      icon === 'history' ? History :
+                        Brain;
   return (
     <button
       aria-label={label}
@@ -4466,6 +4469,9 @@ export default function AdminDashboard() {
               <TabsTrigger value="rapports" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 <FileText className="h-4 w-4 mr-2" />Rapports
               </TabsTrigger>
+              <TabsTrigger value="audit" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                <History className="h-4 w-4 mr-2" />Audit
+              </TabsTrigger>
               <TabsTrigger value="xr7" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
                 <Radio className="h-4 w-4 mr-2" />XR-7
               </TabsTrigger>
@@ -4488,6 +4494,7 @@ export default function AdminDashboard() {
               <TabsContent value="validation">{renderValidation()}</TabsContent>
               <TabsContent value="enquetes">{renderSuiviEnquetes()}</TabsContent>
               <TabsContent value="rapports">{renderRapportsStrategiques()}</TabsContent>
+              <TabsContent value="audit"><AdminAuditHistory /></TabsContent>
               <TabsContent value="xr7"><ModuleXR7 /></TabsContent>
               <TabsContent value="iasted"><IAstedChat isOpen={true} /></TabsContent>
               <TabsContent value="settings">
@@ -4549,6 +4556,7 @@ export default function AdminDashboard() {
                   <NavIcon href="/admin?view=enquetes" active={activeView === 'enquetes'} label="Enquêtes" icon="map" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=rapports" active={activeView === 'rapports'} label="Rapports" icon="file" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=messages" active={activeView === 'messages'} label="Messages Anonymes" icon="message" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=audit" active={activeView === 'audit'} label="Audit Agents" icon="history" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=xr7" active={activeView === 'xr7'} label="Module XR-7" icon="radio" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=iasted" active={activeView === 'iasted'} label="iAsted AI" icon="brain" showLabel={mobileMenuState === 'expanded'} />
                 </div>
@@ -4657,6 +4665,7 @@ export default function AdminDashboard() {
               {activeView === 'citoyens' && renderGestionCitoyens()}
               {activeView === 'rapports' && renderRapportsStrategiques()}
               {activeView === 'messages' && <AdminSignalementComments />}
+              {activeView === 'audit' && <AdminAuditHistory />}
               {activeView === 'xr7' && <ModuleXR7 />}
               {activeView === 'iasted' && <IAstedChat isOpen={true} />}
             </div>

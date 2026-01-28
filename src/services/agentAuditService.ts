@@ -111,6 +111,59 @@ export const agentAuditService = {
   },
 
   /**
+   * Récupère l'historique global de tous les agents (super-admin uniquement)
+   */
+  async getAllAgentsHistory(filters?: {
+    actionType?: AuditActionType;
+    startDate?: Date;
+    endDate?: Date;
+    agentId?: string;
+    limit?: number;
+  }) {
+    const session = await supabase.auth.getSession();
+    const accessToken = session.data.session?.access_token;
+    
+    if (!accessToken) return [];
+
+    try {
+      let url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/agent_audit_logs?order=created_at.desc`;
+      
+      if (filters?.limit) {
+        url += `&limit=${filters.limit}`;
+      } else {
+        url += '&limit=200';
+      }
+
+      if (filters?.actionType) {
+        url += `&action_type=eq.${filters.actionType}`;
+      }
+
+      if (filters?.agentId) {
+        url += `&agent_id=eq.${filters.agentId}`;
+      }
+
+      if (filters?.startDate) {
+        url += `&created_at=gte.${filters.startDate.toISOString()}`;
+      }
+
+      if (filters?.endDate) {
+        url += `&created_at=lte.${filters.endDate.toISOString()}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur récupération historique global:', error);
+      return [];
+    }
+  },
+
+  /**
    * Traduit le type d'action en label lisible
    */
   getActionLabel(actionType: AuditActionType): string {
