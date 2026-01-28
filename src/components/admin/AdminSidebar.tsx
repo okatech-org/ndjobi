@@ -14,6 +14,7 @@ import {
   ChevronRight,
   LogOut,
   ArrowLeft,
+  MessageSquare,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -83,6 +84,13 @@ const menuItems = [
     icon: FileText,
     badge: null,
     description: "Documents stratégiques",
+  },
+  {
+    title: "Messages Anonymes",
+    url: "/admin?view=messages",
+    icon: MessageSquare,
+    badge: "nouveau",
+    description: "Communication signalants",
   },
   {
     title: "Module XR-7",
@@ -199,6 +207,8 @@ export function AdminSidebar() {
         return "default";
       case "critique":
         return "destructive";
+      case "nouveau":
+        return "default";
       default:
         return "secondary";
     }
