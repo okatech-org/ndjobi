@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import SignalementComments from "./SignalementComments";
 
 interface ReportStatus {
+  id: string;
   reference_number: string;
   status: string;
   type: string;
@@ -97,9 +99,9 @@ const ReportTracker = () => {
     try {
       const { data, error } = await supabase
         .from('signalements')
-        .select('reference_number, status, type, created_at, priority, resolved_at')
+        .select('id, reference_number, status, type, created_at, priority, resolved_at')
         .eq('reference_number', cleanedReference)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         setNotFound(true);
@@ -262,6 +264,12 @@ const ReportTracker = () => {
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Nouvelle recherche
                 </Button>
+
+                {/* Comments Section */}
+                <SignalementComments 
+                  signalementId={reportStatus.id} 
+                  referenceNumber={reportStatus.reference_number} 
+                />
               </div>
             )}
           </CardContent>
