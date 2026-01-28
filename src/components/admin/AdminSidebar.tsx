@@ -15,6 +15,7 @@ import {
   LogOut,
   ArrowLeft,
   MessageSquare,
+  History,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -100,6 +101,13 @@ const menuItems = [
     icon: Radio,
     badge: "critique",
     description: "Protocole d'urgence",
+  },
+  {
+    title: "Audit Agents",
+    url: "/admin?view=audit",
+    icon: History,
+    badge: null,
+    description: "Historique des actions",
   },
   {
     title: "iAsted AI",
