@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Users, FileText, BarChart3, Eye, Search, AlertCircle, CheckCircle,
     Clock, TrendingUp, Calendar, MapPin, Shield, ChevronRight,
-    Target, Briefcase, Activity, Filter, PieChart, ArrowUpRight, Map
+    Target, Briefcase, Activity, Filter, PieChart, ArrowUpRight, Map, History
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +27,8 @@ import {
 import AgentRealtimeNotifications from '@/components/agent/AgentRealtimeNotifications';
 import MonthlyEvolutionChart from '@/components/agent/MonthlyEvolutionChart';
 import SignalementsMapView from '@/components/agent/SignalementsMapView';
+import { AgentAuditHistory } from '@/components/agent/AgentAuditHistory';
+import { agentAuditService } from '@/services/agentAuditService';
 
 interface SpecializedAgentDashboardProps {
     agentRole: AgentRole;
@@ -65,7 +67,7 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
     const { user, role, isLoading } = useAuth();
     const { toast } = useToast();
 
-    const [activeView, setActiveView] = useState<'dashboard' | 'statistics' | 'tracking' | 'cases' | 'map'>('dashboard');
+    const [activeView, setActiveView] = useState<'dashboard' | 'statistics' | 'tracking' | 'cases' | 'map' | 'history'>('dashboard');
     
     // Callback for realtime notifications
     const handleNewSignalement = useCallback(() => {
@@ -93,7 +95,7 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const view = params.get('view');
-        if (view && ['dashboard', 'statistics', 'tracking', 'cases', 'map'].includes(view)) {
+        if (view && ['dashboard', 'statistics', 'tracking', 'cases', 'map', 'history'].includes(view)) {
             setActiveView(view as typeof activeView);
         }
     }, [location.search]);
@@ -166,6 +168,10 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
 
     const handleStatusUpdate = async (id: string, newStatus: string) => {
         try {
+            // Get current signalement for audit
+            const currentSignalement = signalements.find(s => s.id === id);
+            const oldStatus = currentSignalement?.status;
+
             const updates: any = { status: newStatus, updated_at: new Date().toISOString() };
             if (newStatus === 'resolved') {
                 updates.resolved_at = new Date().toISOString();
@@ -177,6 +183,19 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
                 .eq('id', id);
 
             if (error) throw error;
+
+            // Log action in audit trail
+            if (user) {
+                const actionType = newStatus === 'resolved' ? 'resolve_signalement' : 
+                                   newStatus === 'rejected' ? 'reject_signalement' : 'update_status';
+                await agentAuditService.logAction({
+                    agent_id: user.id,
+                    signalement_id: id,
+                    action_type: actionType,
+                    old_values: { status: oldStatus },
+                    new_values: { status: newStatus }
+                });
+            }
 
             toast({ title: "Statut mis à jour", description: `Signalement passé à "${newStatus}"` });
             await loadData();
@@ -602,6 +621,12 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
         </div>
     );
 
+    const renderHistory = () => (
+        <div className="space-y-6">
+            <AgentAuditHistory />
+        </div>
+    );
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
             {/* Realtime notifications */}
@@ -614,7 +639,7 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
             <main className="flex-1 container py-8">
                 {/* Navigation */}
                 <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="mb-6">
-                    <TabsList className="grid w-full grid-cols-5">
+                    <TabsList className="grid w-full grid-cols-6">
                         <TabsTrigger value="dashboard" className="flex items-center gap-2">
                             <Target className="h-4 w-4" />
                             <span className="hidden sm:inline">Tableau de bord</span>
@@ -638,6 +663,11 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
                             <span className="hidden sm:inline">Signalements</span>
                             <span className="sm:hidden">Cas</span>
                         </TabsTrigger>
+                        <TabsTrigger value="history" className="flex items-center gap-2">
+                            <History className="h-4 w-4" />
+                            <span className="hidden sm:inline">Historique</span>
+                            <span className="sm:hidden">Audit</span>
+                        </TabsTrigger>
                     </TabsList>
                 </Tabs>
 
@@ -652,6 +682,7 @@ const SpecializedAgentDashboard = ({ agentRole }: SpecializedAgentDashboardProps
                         {activeView === 'map' && renderMap()}
                         {activeView === 'tracking' && renderTracking()}
                         {activeView === 'cases' && renderCases()}
+                        {activeView === 'history' && renderHistory()}
                     </>
                 )}
             </main>
