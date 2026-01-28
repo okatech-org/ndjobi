@@ -198,12 +198,14 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur globale:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue';
+    const errorDetails = error instanceof Error ? error.toString() : String(error);
     return new Response(
       JSON.stringify({
-        error: error.message || 'Une erreur est survenue',
-        details: error.toString()
+        error: errorMessage,
+        details: errorDetails
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
