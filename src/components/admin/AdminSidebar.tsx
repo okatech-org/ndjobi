@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { accountSwitchingService } from "@/services/accountSwitching";
+import { useUnreadMessagesCount } from "@/hooks/useUnreadMessagesCount";
 import emblemGabon from "@/assets/emblem_gabon.png";
 
 const menuItems = [
@@ -89,7 +90,8 @@ const menuItems = [
     title: "Messages Anonymes",
     url: "/admin?view=messages",
     icon: MessageSquare,
-    badge: "nouveau",
+    badge: null, // Will be replaced dynamically with unread count
+    badgeKey: "messages", // Special key to identify this item
     description: "Communication signalants",
   },
   {
@@ -122,8 +124,19 @@ export function AdminSidebar() {
   const collapsed = sidebarState === "collapsed";
   const { signOut } = useAuth();
   const { toast } = useToast();
+  const { count: unreadCount } = useUnreadMessagesCount();
   
   const isInSwitchedAccount = accountSwitchingService.isInSwitchedAccount();
+
+  // Dynamically update menu items with unread count
+  const dynamicMenuItems = useMemo(() => {
+    return menuItems.map(item => {
+      if ((item as any).badgeKey === 'messages' && unreadCount > 0) {
+        return { ...item, badge: unreadCount.toString(), badgeVariant: 'unread' as const };
+      }
+      return item;
+    });
+  }, [unreadCount]);
   
   const handleSignOut = async () => {
     try {
@@ -199,7 +212,11 @@ export function AdminSidebar() {
     return location.search.includes(viewParam);
   };
 
-  const getBadgeVariant = (badge: string | null) => {
+  const getBadgeVariant = (badge: string | null, item?: any) => {
+    // Check for dynamic unread badge
+    if (item?.badgeVariant === 'unread') {
+      return "destructive";
+    }
     switch (badge) {
       case "prioritaire":
         return "destructive";
@@ -255,9 +272,10 @@ export function AdminSidebar() {
           )}
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 px-2">
-              {menuItems.map((item, index) => {
+              {dynamicMenuItems.map((item, index) => {
                 const Icon = item.icon;
                 const active = isActive(item.url);
+                const itemAny = item as any;
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -295,8 +313,10 @@ export function AdminSidebar() {
                             </div>
                             {item.badge && (
                               <Badge
-                                variant={getBadgeVariant(item.badge)}
-                                className="text-[9px] px-1.5 py-0.5 font-bold uppercase flex-shrink-0"
+                                variant={getBadgeVariant(item.badge, itemAny)}
+                                className={`text-[9px] px-1.5 py-0.5 font-bold uppercase flex-shrink-0 ${
+                                  itemAny.badgeVariant === 'unread' ? 'animate-pulse' : ''
+                                }`}
                               >
                                 {item.badge}
                               </Badge>
