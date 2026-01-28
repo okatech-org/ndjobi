@@ -357,6 +357,41 @@ export type Database = {
         }
         Relationships: []
       }
+      signalement_comments: {
+        Row: {
+          admin_id: string | null
+          content: string
+          created_at: string
+          id: string
+          is_admin: boolean
+          signalement_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          signalement_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          signalement_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signalement_comments_signalement_id_fkey"
+            columns: ["signalement_id"]
+            isOneToOne: false
+            referencedRelation: "signalements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       signalements: {
         Row: {
           attachments: Json | null
