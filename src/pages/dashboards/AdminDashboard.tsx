@@ -40,6 +40,7 @@ import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import AdminSignalementComments from '@/components/admin/AdminSignalementComments';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -56,7 +57,7 @@ const SituationsCritiques = lazy(() => import('./President/components/Situations
 const VisionNationale = lazy(() => import('./President/components/VisionNationale'));
 
 // Icône utilitaire compacte pour la barre mobile droite
-const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: string; active: boolean; label: string; icon: 'grid' | 'users' | 'crown' | 'user' | 'shield' | 'map' | 'file' | 'radio' | 'brain'; showLabel?: boolean }) => {
+const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: string; active: boolean; label: string; icon: 'grid' | 'users' | 'crown' | 'user' | 'shield' | 'map' | 'file' | 'radio' | 'brain' | 'message'; showLabel?: boolean }) => {
   const Icon =
     icon === 'grid' ? BarChart3 :
       icon === 'users' ? Users :
@@ -66,7 +67,8 @@ const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: strin
               icon === 'map' ? MapPin :
                 icon === 'file' ? FileText :
                   icon === 'radio' ? Radio :
-                    Brain;
+                    icon === 'message' ? MessageCircle :
+                      Brain;
   return (
     <button
       aria-label={label}
@@ -4546,6 +4548,7 @@ export default function AdminDashboard() {
                   <NavIcon href="/admin?view=validation" active={activeView === 'validation'} label="Validation Cas" icon="shield" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=enquetes" active={activeView === 'enquetes'} label="Enquêtes" icon="map" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=rapports" active={activeView === 'rapports'} label="Rapports" icon="file" showLabel={mobileMenuState === 'expanded'} />
+                  <NavIcon href="/admin?view=messages" active={activeView === 'messages'} label="Messages Anonymes" icon="message" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=xr7" active={activeView === 'xr7'} label="Module XR-7" icon="radio" showLabel={mobileMenuState === 'expanded'} />
                   <NavIcon href="/admin?view=iasted" active={activeView === 'iasted'} label="iAsted AI" icon="brain" showLabel={mobileMenuState === 'expanded'} />
                 </div>
@@ -4653,6 +4656,7 @@ export default function AdminDashboard() {
               {activeView === 'special' && renderGestionSpecial()}
               {activeView === 'citoyens' && renderGestionCitoyens()}
               {activeView === 'rapports' && renderRapportsStrategiques()}
+              {activeView === 'messages' && <AdminSignalementComments />}
               {activeView === 'xr7' && <ModuleXR7 />}
               {activeView === 'iasted' && <IAstedChat isOpen={true} />}
             </div>
