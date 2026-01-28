@@ -2,6 +2,7 @@ import { User } from '@supabase/supabase-js';
 import { UserProfile, UserRole } from '@/types/auth';
 
 export interface DemoAccountData {
+  id: string; // ID réel de la base de données pour cohérence
   email: string;
   password: string;
   role: UserRole;
@@ -22,9 +23,11 @@ class DemoAccountService {
   private readonly STORAGE_KEY = 'ndjobi_demo_session';
   private readonly SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 heures
 
-  // Comptes démo disponibles (mis à jour avec les comptes de la base de données)
+  // Comptes démo disponibles - IDs réels de la base de données pour cohérence
+  // IMPORTANT: Ces IDs doivent correspondre aux IDs dans Supabase profiles table
   public readonly DEMO_ACCOUNTS: DemoAccountData[] = [
     {
+      id: 'c8cb1702-fcd3-4d60-82f3-f929a77e776a', // ID réel Supabase
       email: '24177888001@ndjobi.com',
       password: '111111',
       role: 'admin', // Selon diagramme: Président/Admin = Vue globale, Validation
@@ -33,6 +36,7 @@ class DemoAccountService {
       phone: '+24177888001'
     },
     {
+      id: '94e4232b-e56d-4378-8fbf-8c1ae78814f5',
       email: '24177888002@ndjobi.com',
       password: '222222',
       role: 'sub_admin', // Selon diagramme: Sous-Admin = Vue sectorielle
@@ -41,6 +45,7 @@ class DemoAccountService {
       phone: '+24177888002'
     },
     {
+      id: '3dd19fcc-3b54-481b-b2ac-9b23e6af20c0',
       email: '24177888003@ndjobi.com',
       password: '333333',
       role: 'sub_admin', // Selon diagramme: Sous-Admin = Vue sectorielle
@@ -49,6 +54,7 @@ class DemoAccountService {
       phone: '+24177888003'
     },
     {
+      id: 'demo-sub-admin-defense',
       email: '24177888011@ndjobi.com',
       password: '101010',
       role: 'sub_admin',
@@ -57,6 +63,7 @@ class DemoAccountService {
       phone: '+24177888011'
     },
     {
+      id: 'demo-sub-admin-interieur',
       email: '24177888012@ndjobi.com',
       password: '121212',
       role: 'sub_admin',
@@ -65,6 +72,7 @@ class DemoAccountService {
       phone: '+24177888012'
     },
     {
+      id: 'demo-sub-admin-affaires-etrangeres',
       email: '24177888013@ndjobi.com',
       password: '131313',
       role: 'sub_admin',
@@ -73,6 +81,7 @@ class DemoAccountService {
       phone: '+24177888013'
     },
     {
+      id: 'c2b5af83-8503-4c14-9746-c263833cbd6b',
       email: '24177888005@ndjobi.com',
       password: '555555',
       role: 'agent',
@@ -81,6 +90,7 @@ class DemoAccountService {
       phone: '+24177888005'
     },
     {
+      id: '441f3f15-a9e8-405c-9e33-34dcfdbd348e',
       email: '24177888006@ndjobi.com',
       password: '666666',
       role: 'agent',
@@ -89,6 +99,7 @@ class DemoAccountService {
       phone: '+24177888006'
     },
     {
+      id: '138045bf-d2aa-4066-9c62-122b184f75a1',
       email: '24177888008@ndjobi.com',
       password: '888888',
       role: 'user',
@@ -97,6 +108,7 @@ class DemoAccountService {
       phone: '+24177888008'
     },
     {
+      id: '8258f5d9-94d7-4e21-a3cf-88537bf3ed91',
       email: '24177888009@ndjobi.com',
       password: '999999',
       role: 'user',
@@ -105,6 +117,7 @@ class DemoAccountService {
       phone: '+24177888009'
     },
     {
+      id: 'demo-agent-peche',
       email: '24177888010@ndjobi.com',
       password: '000000',
       role: 'agent',
@@ -118,15 +131,15 @@ class DemoAccountService {
   public createLocalSession(accountEmail: string): boolean {
     try {
       const account = this.DEMO_ACCOUNTS.find(acc => acc.email === accountEmail);
-      
+
       if (!account) {
         console.error('Compte démo non trouvé:', accountEmail);
         return false;
       }
 
-      // Créer un utilisateur fictif
+      // Créer un utilisateur fictif avec le vrai ID de la base de données
       const mockUser = {
-        id: `local-${account.role}`,
+        id: account.id, // Utilise le vrai ID pour cohérence
         email: account.email,
         user_metadata: {
           full_name: account.fullName,
@@ -141,7 +154,7 @@ class DemoAccountService {
       } as User;
 
       const mockProfile: UserProfile = {
-        id: `local-${account.role}`,
+        id: account.id, // Utilise le vrai ID pour cohérence
         email: account.email,
         full_name: account.fullName,
         avatar_url: '',
@@ -160,7 +173,7 @@ class DemoAccountService {
 
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(sessionData));
       console.log(`✅ Session locale créée pour ${account.label}`);
-      
+
       return true;
     } catch (error) {
       console.error('Erreur création session locale:', error);
@@ -222,7 +235,7 @@ class DemoAccountService {
       if (!sessionData) return null;
 
       const session: LocalDemoSession = JSON.parse(sessionData);
-      
+
       // Vérifier l'expiration
       if (Date.now() > session.expiresAt) {
         this.clearLocalSession();

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { 
-  Crown, BarChart3, CheckCircle, Users, Package, 
+import {
+  Crown, BarChart3, CheckCircle, Users, Package,
   FileText, TrendingUp, Shield, AlertTriangle, Eye, Filter,
   Download, MapPin, Calendar, Activity, Zap, Brain, Scale,
   Building2, Flag, Target, DollarSign, Clock, ChevronRight,
@@ -30,7 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   LineChart, Line, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -59,26 +59,24 @@ const VisionNationale = lazy(() => import('./President/components/VisionNational
 const NavIcon = ({ href, active, label, icon, showLabel = false }: { href: string; active: boolean; label: string; icon: 'grid' | 'users' | 'crown' | 'user' | 'shield' | 'map' | 'file' | 'radio' | 'brain'; showLabel?: boolean }) => {
   const Icon =
     icon === 'grid' ? BarChart3 :
-    icon === 'users' ? Users :
-    icon === 'crown' ? Crown :
-    icon === 'user' ? User :
-    icon === 'shield' ? Shield :
-    icon === 'map' ? MapPin :
-    icon === 'file' ? FileText :
-    icon === 'radio' ? Radio :
-    Brain;
+      icon === 'users' ? Users :
+        icon === 'crown' ? Crown :
+          icon === 'user' ? User :
+            icon === 'shield' ? Shield :
+              icon === 'map' ? MapPin :
+                icon === 'file' ? FileText :
+                  icon === 'radio' ? Radio :
+                    Brain;
   return (
     <button
       aria-label={label}
-      className={`rounded-full flex items-center justify-center transition-all duration-200 ${
-        active 
-          ? 'bg-primary text-primary-foreground shadow-md' 
+      className={`rounded-full flex items-center justify-center transition-all duration-200 ${active
+          ? 'bg-primary text-primary-foreground shadow-md'
           : 'hover:bg-muted/70 hover:scale-105'
-      } ${
-        showLabel 
-          ? 'h-10 w-full px-3 gap-2' 
+        } ${showLabel
+          ? 'h-10 w-full px-3 gap-2'
           : 'h-10 w-10 mx-auto'
-      }`}
+        }`}
       onClick={() => {
         window.location.assign(href);
       }}
@@ -164,7 +162,7 @@ export default function AdminDashboard() {
   const { user, role, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  
+
   // ============================================================================
   // DASHBOARD HYBRIDE UNIFIÉ v2.1
   // ============================================================================
@@ -173,18 +171,18 @@ export default function AdminDashboard() {
   // dans UNE SEULE interface à onglets.
   //
   // Détection :
-  const isPresident = user?.email === '24177888001@ndjobi.com' || 
-                      user?.phone === '+24177888001';
+  const isPresident = user?.email === '24177888001@ndjobi.com' ||
+    user?.phone === '+24177888001';
   //
   // Si isPresident = true  → Affiche interface hybride avec 11 onglets
   // Si isPresident = false → Affiche interface admin standard avec sidebar
   // ============================================================================
-  
+
   // États pour la recherche et filtres
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedOrganization, setSelectedOrganization] = useState<string>('all');
-  
+
   // États pour les modals et actions
   const [isNommerModalOpen, setIsNommerModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -192,7 +190,7 @@ export default function AdminDashboard() {
   const [selectedAdmin, setSelectedAdmin] = useState<AdminData | null>(null);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
   const [adminHistory, setAdminHistory] = useState<HistoryItem[]>([]);
-  
+
   // État du menu mobile (3 niveaux)
   const [mobileMenuState, setMobileMenuState] = useState<'collapsed' | 'icons' | 'expanded'>('icons');
   const [adminCases, setAdminCases] = useState<CaseData[]>([]);
@@ -206,10 +204,10 @@ export default function AdminDashboard() {
   const [dateDebut, setDateDebut] = useState<string>('');
   const [dateFin, setDateFin] = useState<string>('');
   const [formatRapport, setFormatRapport] = useState<'gamma-pdf' | 'gamma-pptx'>('gamma-pdf');
-  
+
   // État de navigation pour la vue Président
   const [presidentTab, setPresidentTab] = useState<string>('vue-ensemble');
-  
+
   // États pour la configuration Gamma AI
   const [gammaConfig, setGammaConfig] = useState({
     modeCreation: 'ia' as 'ia' | 'texte',
@@ -222,7 +220,7 @@ export default function AdminDashboard() {
     styleImages: 'realiste' as 'realiste' | 'illustration',
     nombreCartes: 7
   });
-  
+
   // États pour le formulaire de nomination
   const [nomForm, setNomForm] = useState({
     nom: '',
@@ -250,7 +248,7 @@ export default function AdminDashboard() {
   const activeView = searchParams.get('view') || 'dashboard';
   const [timeRange, setTimeRange] = useState<string>('30days');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
-  
+
   const {
     notifications: realtimeNotifications,
     isSubscribed,
@@ -265,7 +263,7 @@ export default function AdminDashboard() {
       reloadData();
       subscribeNotifications();
     }
-    
+
     return () => {
       unsubscribeNotifications();
     };
@@ -288,16 +286,16 @@ export default function AdminDashboard() {
 
   // Logique de filtrage et recherche
   const filteredSousAdmins = sousAdmins.filter(admin => {
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch = searchQuery === '' ||
       admin.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
       admin.secteur.toLowerCase().includes(searchQuery.toLowerCase()) ||
       admin.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       admin.phone.includes(searchQuery) ||
       admin.organization.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesRole = selectedRole === 'all' || admin.role === selectedRole;
     const matchesOrganization = selectedOrganization === 'all' || admin.organization === selectedOrganization;
-    
+
     return matchesSearch && matchesRole && matchesOrganization;
   });
 
@@ -324,7 +322,7 @@ export default function AdminDashboard() {
     try {
       // Simulation de création (à remplacer par appel API Supabase)
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       toast({
         title: "Nomination réussie",
         description: `${nomForm.nom} a été nommé${nomForm.role === 'sub_admin' ? ' Sous-Admin' : ' Agent'} avec succès.`,
@@ -340,7 +338,7 @@ export default function AdminDashboard() {
         secteur: ''
       });
       setIsNommerModalOpen(false);
-      
+
       // Recharger les données
       reloadData();
     } catch (error) {
@@ -360,7 +358,7 @@ export default function AdminDashboard() {
     setSelectedAdmin(admin);
     setIsLoadingAction(true);
     setIsDetailsModalOpen(true); // Ouvrir immédiatement le modal
-    
+
     try {
       // Charger l'historique et les cas spécifiques à l'admin
       if (admin.nom === 'Agent Pêche') {
@@ -623,38 +621,38 @@ export default function AdminDashboard() {
       } else if ((admin as any).type_service === 'securite_nationale') {
         // **DONNÉES SPÉCIFIQUES SERVICES SPÉCIAUX / SÉCURITÉ NATIONALE**
         console.log('🛡️ [handleVoirDetails] Service de sécurité détecté:', admin.organization, 'Classification:', (admin as any).classification);
-        
-        const { 
-          getHistoriqueOperationnel, 
-          getCasSensibles, 
-          getOpinionPubliqueSecurite, 
-          getRecommandationsSecurite 
+
+        const {
+          getHistoriqueOperationnel,
+          getCasSensibles,
+          getOpinionPubliqueSecurite,
+          getRecommandationsSecurite
         } = await import('@/services/servicesSpeciauxDataService');
-        
+
         const { getMenacesStrategiques } = await import('@/services/menacesStrategiquesDataService');
 
         const classification = (admin as any).classification || 'CONFIDENTIEL DÉFENSE';
-        
+
         // Historique opérationnel
         const historique = getHistoriqueOperationnel(admin.organization, classification);
         console.log('📋 Historique opérationnel chargé:', historique.length, 'entrées');
         setAdminHistory(historique);
-        
+
         // Cas sensibles en cours
         const cas = getCasSensibles(admin.organization);
         console.log('📁 Cas sensibles chargés:', cas.length, 'cas');
         setAdminCases(cas as any[]);
-        
+
         // Menaces stratégiques
         const menaces = getMenacesStrategiques(admin.organization);
         console.log('⚠️ Menaces stratégiques chargées:', menaces.length, 'menaces');
         setAdminProblematiques(menaces as any[]);
-        
+
         // Recommandations sécurité nationale
         const recommandations = getRecommandationsSecurite(admin.organization, classification);
         console.log('📝 Recommandations chargées:', recommandations.length, 'recommandations');
         setAdminRecommandations(recommandations as any[]);
-        
+
         // Opinion publique adaptée services spéciaux
         const opinion = getOpinionPubliqueSecurite(admin.organization);
         console.log('📊 Opinion publique chargée:', opinion);
@@ -738,7 +736,7 @@ export default function AdminDashboard() {
         // **SIGNALEMENTS ANONYMES "Taper le Ndjobi"** - Uniquement dénonciations, aucune info personnelle
         console.log('🔒 [handleVoirDetails] Signalements anonymes détectés:', (admin as any).numero_anonyme);
         setAdminHistory([]);
-        
+
         setAdminCases([
           {
             id: 'ANON-2025-1234',
@@ -920,7 +918,7 @@ export default function AdminDashboard() {
       // Import du service Gamma AI
       const { gammaAIService } = await import('@/services/gammaAIService');
       const gammaFormat = formatRapport === 'gamma-pdf' ? 'pdf' : 'pptx';
-      
+
       let rapportData: any;
       let filename: string;
 
@@ -959,10 +957,10 @@ export default function AdminDashboard() {
         };
 
         filename = `Rapport_Cas_${selectedAdmin?.organization?.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.${gammaFormat}`;
-        
+
         // Génération du rapport de cas
         const result = await gammaAIService.generateRapportCas(rapportData, gammaFormat, gammaConfig);
-        
+
         // Téléchargement automatique
         await gammaAIService.downloadFile(result.downloadUrl, filename);
 
@@ -1051,10 +1049,10 @@ export default function AdminDashboard() {
         };
 
         filename = `Rapport_Global_${selectedAdmin?.organization?.replace(/[^a-zA-Z0-9]/g, '_')}_${dateDebut}_${dateFin}.${gammaFormat}`;
-        
+
         // Génération du rapport global
         const result = await gammaAIService.generateRapportGlobal(rapportData, gammaFormat, gammaConfig);
-        
+
         // Téléchargement automatique
         await gammaAIService.downloadFile(result.downloadUrl, filename);
 
@@ -1104,7 +1102,7 @@ export default function AdminDashboard() {
   // Vérifier aussi la session démo dans localStorage pour éviter les problèmes de timing
   let hasAdminAccess = role === 'admin';
   let localRole = null;
-  
+
   if (!hasAdminAccess) {
     try {
       const demoSessionData = localStorage.getItem('ndjobi_demo_session');
@@ -1148,7 +1146,7 @@ export default function AdminDashboard() {
               <div className="min-w-0 flex-1">
                 <div className="text-lg md:text-2xl font-bold tabular-nums truncate">{kpis?.total_signalements?.toLocaleString() || 0}</div>
                 <Badge className="mt-0.5 md:mt-1 text-[10px] md:text-xs bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]">{kpis?.tendance || '+0%'}</Badge>
-            </div>
+              </div>
               <div className="w-7 h-7 md:w-9 md:h-9 rounded-lg bg-[hsl(var(--accent-warning))]/20 flex items-center justify-center flex-shrink-0">
                 <AlertTriangle className="h-3 w-3 md:h-4 md:w-4 text-[hsl(var(--accent-warning))]" />
               </div>
@@ -1257,28 +1255,28 @@ export default function AdminDashboard() {
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="mois" tick={{ fontSize: 10 }} className="md:text-sm" />
                 <YAxis tick={{ fontSize: 10 }} className="md:text-sm" />
-                <Tooltip 
-                  contentStyle={{ 
-                    background: 'var(--glass-bg)', 
+                <Tooltip
+                  contentStyle={{
+                    background: 'var(--glass-bg)',
                     border: '1px solid var(--glass-border)',
                     borderRadius: '0.5rem',
                     backdropFilter: 'blur(10px)',
                     fontSize: '12px'
-                  }} 
+                  }}
                 />
                 <Legend wrapperStyle={{ fontSize: '11px' }} className="md:text-sm" />
-                <Line 
-                  type="monotone" 
-                  dataKey="signalements" 
-                  stroke="hsl(var(--accent-intel))" 
+                <Line
+                  type="monotone"
+                  dataKey="signalements"
+                  stroke="hsl(var(--accent-intel))"
                   name="Signalements"
                   strokeWidth={2}
                   className="md:stroke-[3px]"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="resolutions" 
-                  stroke="hsl(var(--accent-success))" 
+                <Line
+                  type="monotone"
+                  dataKey="resolutions"
+                  stroke="hsl(var(--accent-success))"
                   name="Cas résolus"
                   strokeWidth={2}
                   className="md:stroke-[3px]"
@@ -1302,33 +1300,33 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               {visionData.map((pilier, idx) => (
                 <div key={idx} className="space-y-2">
-          <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                     <span className="font-medium">{pilier.pilier}</span>
                     <Badge variant={
                       pilier.priorite === 'Critique' ? 'destructive' :
-                      pilier.priorite === 'Haute' ? 'default' :
-                      'secondary'
+                        pilier.priorite === 'Haute' ? 'default' :
+                          'secondary'
                     }>
                       {pilier.priorite}
                     </Badge>
-            </div>
+                  </div>
                   <div className="flex items-center gap-3">
-                    <Progress 
-                      value={(pilier.score / pilier.objectif) * 100} 
+                    <Progress
+                      value={(pilier.score / pilier.objectif) * 100}
                       className="h-2 flex-1"
                     />
                     <span className="text-sm font-medium min-w-[50px] text-right">
                       {pilier.score}/{pilier.objectif}
                     </span>
-          </div>
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     Budget alloué: {pilier.budget}
-                    </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       </div>
 
       <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-[hsl(var(--accent-warning))]/5 border-[hsl(var(--accent-warning))]/30">
@@ -1337,7 +1335,7 @@ export default function AdminDashboard() {
           Attention Requise
         </AlertTitle>
         <AlertDescription className="text-muted-foreground">
-          {kpis?.signalements_critiques || 0} cas critiques nécessitent une validation 
+          {kpis?.signalements_critiques || 0} cas critiques nécessitent une validation
           présidentielle immédiate. Consulter l'onglet "Validation" pour prendre les décisions.
           {isSubscribed && (
             <div className="mt-2 flex items-center gap-2">
@@ -1348,17 +1346,17 @@ export default function AdminDashboard() {
         </AlertDescription>
       </Alert>
 
-        <Card className="glass-effect border-none">
-          <CardHeader className="pb-2 md:pb-6 pt-3 md:pt-6 px-3 md:px-6">
-            <CardTitle className="flex items-center gap-1.5 md:gap-2 text-sm md:text-lg">
-              <MapPin className="h-4 w-4 md:h-5 md:w-5" />
-              Distribution Régionale
-            </CardTitle>
-            <CardDescription className="text-xs md:text-sm mt-0.5 md:mt-1.5">
-              Performance par région
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      <Card className="glass-effect border-none">
+        <CardHeader className="pb-2 md:pb-6 pt-3 md:pt-6 px-3 md:px-6">
+          <CardTitle className="flex items-center gap-1.5 md:gap-2 text-sm md:text-lg">
+            <MapPin className="h-4 w-4 md:h-5 md:w-5" />
+            Distribution Régionale
+          </CardTitle>
+          <CardDescription className="text-xs md:text-sm mt-0.5 md:mt-1.5">
+            Performance par région
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="overflow-x-auto -mx-2 md:mx-0">
             <div className="inline-block min-w-full align-middle">
               <table className="w-full border-collapse text-sm">
@@ -1386,8 +1384,8 @@ export default function AdminDashboard() {
                       <td className="py-2 md:py-3 px-2 md:px-4 text-center">
                         <Badge variant={
                           region.priorite === 'Haute' ? 'destructive' :
-                          region.priorite === 'Moyenne' ? 'default' :
-                          'secondary'
+                            region.priorite === 'Moyenne' ? 'default' :
+                              'secondary'
                         } className="text-xs">
                           {region.priorite}
                         </Badge>
@@ -1416,16 +1414,16 @@ export default function AdminDashboard() {
           <Select value={selectedRegion} onValueChange={setSelectedRegion}>
             <SelectTrigger className="w-[180px] glass-effect border-none">
               <SelectValue placeholder="Toutes régions" />
-                </SelectTrigger>
-                <SelectContent className="glass-effect border-none">
+            </SelectTrigger>
+            <SelectContent className="glass-effect border-none">
               <SelectItem value="all">Toutes régions</SelectItem>
               <SelectItem value="estuaire">Estuaire</SelectItem>
               <SelectItem value="haut-ogooue">Haut-Ogooué</SelectItem>
               <SelectItem value="ogooue-maritime">Ogooué-Maritime</SelectItem>
-                </SelectContent>
-              </Select>
+            </SelectContent>
+          </Select>
         </div>
-            </div>
+      </div>
 
       {casSensibles.map((cas, idx) => (
         <Card key={idx} className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent relative overflow-hidden group">
@@ -1436,21 +1434,20 @@ export default function AdminDashboard() {
                 <CardTitle className="text-lg">{cas.title || cas.titre}</CardTitle>
                 <CardDescription>Référence: {cas.id} • {new Date(cas.created_at).toLocaleDateString('fr-FR')}</CardDescription>
               </div>
-                            <Badge className={`text-sm ${
-                cas.priority === 'critique' || cas.urgence === 'Critique' ? 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]' :
-                cas.priority === 'haute' || cas.urgence === 'Haute' ? 'bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]' :
-                'bg-muted/50 text-muted-foreground'
-              }`}>
+              <Badge className={`text-sm ${cas.priority === 'critique' || cas.urgence === 'Critique' ? 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]' :
+                  cas.priority === 'haute' || cas.urgence === 'Haute' ? 'bg-[hsl(var(--accent-warning))]/20 text-[hsl(var(--accent-warning))]' :
+                    'bg-muted/50 text-muted-foreground'
+                }`}>
                 {cas.urgence || cas.priority || 'Moyenne'}
-                            </Badge>
-                          </div>
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div>
                 <div className="text-muted-foreground mb-1">Montant impliqué</div>
                 <div className="font-bold text-red-600">{cas.montant || 'N/A'}</div>
-                        </div>
+              </div>
               <div>
                 <div className="text-muted-foreground mb-1">Type</div>
                 <div className="font-semibold">{cas.type}</div>
@@ -1468,30 +1465,30 @@ export default function AdminDashboard() {
             <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
               <Brain className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
               <AlertDescription className="text-muted-foreground">
-                <strong className="text-foreground">Analyse IA:</strong> Score de priorité {cas.ai_priority_score || 0}%. 
+                <strong className="text-foreground">Analyse IA:</strong> Score de priorité {cas.ai_priority_score || 0}%.
                 {cas.ai_analysis_summary || 'Analyse en cours...'}
               </AlertDescription>
             </Alert>
 
             <div className="flex gap-2 flex-wrap">
-                            <Button 
+              <Button
                 className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
                 onClick={() => handleValiderCas(cas.id, 'approuver')}
                 disabled={isLoading}
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Approuver l'Action
-                            </Button>
-                          <Button 
-                            variant="outline" 
-                            className="glass-effect border-none"
+              </Button>
+              <Button
+                variant="outline"
+                className="glass-effect border-none"
                 onClick={() => handleValiderCas(cas.id, 'enquete')}
                 disabled={isLoading}
-                          >
+              >
                 <Eye className="h-4 w-4 mr-2" />
                 Enquête Approfondie
-                          </Button>
-                              <Button 
+              </Button>
+              <Button
                 variant="destructive"
                 className="bg-[hsl(var(--accent-danger))] hover:bg-[hsl(var(--accent-danger))]/90"
                 onClick={() => handleValiderCas(cas.id, 'rejeter')}
@@ -1499,19 +1496,19 @@ export default function AdminDashboard() {
               >
                 <XCircle className="h-4 w-4 mr-2" />
                 Rejeter le Dossier
-                              </Button>
-                              <Button 
+              </Button>
+              <Button
                 variant="ghost"
                 className="glass-effect border-none"
                 onClick={() => handleGenererRapport('executif')}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Rapport Détaillé
-                              </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
 
       {casSensibles.length === 0 && (
         <Card className="glass-effect border-none">
@@ -1524,11 +1521,11 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       )}
-      </div>
-    );
+    </div>
+  );
 
   const renderSuiviEnquetes = () => (
-      <div className="space-y-3 md:space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2 md:gap-4">
         <div>
           <h3 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Suivi des Enquêtes Nationales</h3>
@@ -1539,8 +1536,8 @@ export default function AdminDashboard() {
         <Button variant="outline" className="glass-effect border-none text-xs md:text-sm h-8 md:h-10 px-2 md:px-4" onClick={reloadData} disabled={isLoading}>
           <RefreshCw className={`h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           Actualiser
-                          </Button>
-                        </div>
+        </Button>
+      </div>
 
       <Card className="glass-effect border-none">
         <CardHeader>
@@ -1569,7 +1566,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-2 font-medium">
                         <Building2 className="h-4 w-4 text-muted-foreground" />
                         {item.ministere}
-            </div>
+                      </div>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <Badge variant="outline">{item.signalements}</Badge>
@@ -1577,13 +1574,13 @@ export default function AdminDashboard() {
                     <td className="py-3 px-4 text-center">
                       <Badge variant={item.critiques > 20 ? 'destructive' : 'default'}>
                         {item.critiques}
-                          </Badge>
+                      </Badge>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2 justify-center">
                         <Progress value={item.taux} className="w-20 h-2" />
                         <span className="text-sm font-medium min-w-[35px]">{item.taux}%</span>
-                        </div>
+                      </div>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <Badge variant="secondary">{item.responsable}</Badge>
@@ -1594,10 +1591,10 @@ export default function AdminDashboard() {
                       </Button>
                     </td>
                   </tr>
-              ))}
+                ))}
               </tbody>
             </table>
-            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -1617,44 +1614,44 @@ export default function AdminDashboard() {
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
               <XAxis dataKey="mois" />
               <YAxis />
-              <Tooltip 
-                contentStyle={{ 
-                  background: 'var(--glass-bg)', 
+              <Tooltip
+                contentStyle={{
+                  background: 'var(--glass-bg)',
                   border: '1px solid var(--glass-border)',
                   borderRadius: '0.5rem',
                   backdropFilter: 'blur(10px)'
-                }} 
+                }}
               />
               <Legend />
-              <Bar 
-                dataKey="budget" 
-                fill="hsl(var(--accent-success))" 
+              <Bar
+                dataKey="budget"
+                fill="hsl(var(--accent-success))"
                 name="Fonds récupérés (M FCFA)"
               />
             </BarChart>
           </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 
   const renderGestionInstitutions = () => (
-      <div className="space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Gestion Institutions</h3>
           <p className="text-muted-foreground mt-1">
             Supervision des agents sectoriels et performance
           </p>
-            </div>
-        <Button 
+        </div>
+        <Button
           className="bg-[hsl(var(--accent-intel))] hover:bg-[hsl(var(--accent-intel))]/90 text-white"
           onClick={() => setIsNommerModalOpen(true)}
         >
           <UserPlus className="h-4 w-4 mr-2" />
           Nommer Agent
-              </Button>
-            </div>
+        </Button>
+      </div>
 
       {/* Barre de recherche intelligente */}
       <div className="space-y-4">
@@ -1669,7 +1666,7 @@ export default function AdminDashboard() {
               className="pl-10 glass-effect border-none"
             />
           </div>
-          
+
           {/* Filtre par rôle */}
           <Select value={selectedRole} onValueChange={setSelectedRole}>
             <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
@@ -1680,7 +1677,7 @@ export default function AdminDashboard() {
               <SelectItem value="agent">Agent</SelectItem>
             </SelectContent>
           </Select>
-          
+
           {/* Filtre par organisation */}
           <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
             <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
@@ -1694,7 +1691,7 @@ export default function AdminDashboard() {
             </SelectContent>
           </Select>
         </div>
-        
+
         {/* Statistiques de recherche */}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
@@ -1734,7 +1731,7 @@ export default function AdminDashboard() {
             Aucun agent trouvé
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {searchQuery 
+            {searchQuery
               ? `Aucun agent trouvé pour "${searchQuery}". Essayez avec d'autres termes.`
               : "Aucun agent ne correspond aux filtres sélectionnés."
             }
@@ -1757,171 +1754,169 @@ export default function AdminDashboard() {
           {filteredAgents.map((admin, idx) => {
             const isInactive = (admin as any).inactive === true;
             return (
-          <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
-            admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
-          } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
-            {admin.statut === 'Attention' && (
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
-            )}
-            <CardHeader>
-              <div className="flex items-center justify-between">
-            <div>
-                  <CardTitle className="text-lg">{admin.nom}</CardTitle>
-                  <CardDescription>{admin.secteur}</CardDescription>
-                </div>
-                <Badge className={`${
-                  admin.statut === 'Actif' 
-                    ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]' 
-                    : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
-                }`}>
-                  {admin.statut}
-                            </Badge>
-            </div>
-        </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Informations de contact */}
-              <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Mail className="h-3 w-3" />
-                  <span className="truncate">{admin.email}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
-                  <span>{admin.phone}</span>
-                </div>
-              </div>
-
-              {/* Métriques de performance */}
-              <div className="grid grid-cols-3 gap-4 text-sm">
-              <div>
-                  <div className="text-muted-foreground mb-1">Cas traités</div>
-                  <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites}</div>
-              </div>
-                <div>
-                  <div className="text-muted-foreground mb-1">Taux succès</div>
-                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes}%</div>
-            </div>
-              <div>
-                  <div className="text-muted-foreground mb-1">Délai moyen</div>
-                  <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours}j</div>
-              </div>
-              </div>
-
-              <Progress value={admin.taux || admin.taux_succes} className="h-2" />
-
-              {/* Rôle et organisation */}
-              <div className="flex items-center justify-between text-xs">
-                <Badge variant="outline" className="text-[10px]">
-                  {admin.role === 'sub_admin' ? 'Sub-Admin' : 
-                   admin.role === 'agent' ? 'Agent' : 
-                   admin.role === 'user' ? 'Citoyen' : admin.role}
-                </Badge>
-                <span className="text-muted-foreground">{admin.organization}</span>
-              </div>
-
-              {/* Privilèges (pour les rôles admin/agent) */}
-              {admin.privileges && (admin.role === 'sub_admin' || admin.role === 'agent') && (
-                <div className="space-y-2">
-                  <div className="text-xs font-medium text-muted-foreground">Privilèges:</div>
-                  <div className="flex flex-wrap gap-1">
-                    {admin.privileges.slice(0, 2).map((privilege, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0.5">
-                        {privilege}
-                      </Badge>
-                    ))}
-                    {admin.privileges.length > 2 && (
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0.5">
-                        +{admin.privileges.length - 2} autres
-                      </Badge>
-                    )}
+              <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
+                } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
+                {admin.statut === 'Attention' && (
+                  <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+                )}
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{admin.nom}</CardTitle>
+                      <CardDescription>{admin.secteur}</CardDescription>
+                    </div>
+                    <Badge className={`${admin.statut === 'Actif'
+                        ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]'
+                        : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
+                      }`}>
+                      {admin.statut}
+                    </Badge>
                   </div>
-                </div>
-              )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Informations de contact */}
+                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      <span className="truncate">{admin.email}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      <span>{admin.phone}</span>
+                    </div>
+                  </div>
 
-              {admin.statut === 'Attention' && !isInactive && (
-                <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
-                  <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                  <AlertDescription className="text-muted-foreground">
-                    Performance en baisse. Délai de traitement supérieur à la norme nationale.
-                  </AlertDescription>
-                </Alert>
-              )}
+                  {/* Métriques de performance */}
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="text-muted-foreground mb-1">Cas traités</div>
+                      <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground mb-1">Taux succès</div>
+                      <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground mb-1">Délai moyen</div>
+                      <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours}j</div>
+                    </div>
+                  </div>
 
-              {isInactive && (
-                <Alert className="glass-effect border-none bg-muted/30">
-                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                  <AlertDescription className="text-muted-foreground text-xs">
-                    Compte non actif - En attente de configuration
-                  </AlertDescription>
-                </Alert>
-              )}
+                  <Progress value={admin.taux || admin.taux_succes} className="h-2" />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full glass-effect border-none bg-[hsl(var(--accent-intel))]/5 hover:bg-[hsl(var(--accent-intel))]/15"
-                  onClick={() => handleVoirDetails(admin)}
-                  disabled={isLoadingAction || isInactive}
-                >
-                  <Eye className="h-4 w-4 mr-2 text-[hsl(var(--accent-intel))]" />
-                  Détails
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Détecter si on est sur mobile
-                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    
-                    if (isMobile) {
-                      // Sur mobile, ouvrir directement l'interface iAsted en mode texte
-                      const event = new CustomEvent('iasted:open-text-mode', {
-                        detail: { 
-                          context: 'institution-card', 
-                          admin,
-                          autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
-                        }
-                      });
-                      window.dispatchEvent(event);
-                    } else {
-                      // Sur desktop, utiliser le mode vocal comme avant
-                      const event = new CustomEvent('iasted:open-voice-report', {
-                        detail: { context: 'institution-card', admin }
-                      });
-                      window.dispatchEvent(event);
-                    }
-                  }}
-                  title="Rapport iAsted (vocal)"
-                  disabled={isInactive}
-                >
-                  <Mic className="h-4 w-4 mr-2 text-purple-600" />
-                  iAsted
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full glass-effect border-none bg-[hsl(var(--accent-success))]/5 hover:bg-[hsl(var(--accent-success))]/15"
-                  onClick={() => handleGenererRapportAdmin(admin)}
-                  disabled={isLoadingAction || isInactive}
-                >
-                  {isLoadingAction ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin text-[hsl(var(--accent-success))]" />
-                  ) : (
-                    <FileText className="h-4 w-4 mr-2 text-[hsl(var(--accent-success))]" />
+                  {/* Rôle et organisation */}
+                  <div className="flex items-center justify-between text-xs">
+                    <Badge variant="outline" className="text-[10px]">
+                      {admin.role === 'sub_admin' ? 'Sub-Admin' :
+                        admin.role === 'agent' ? 'Agent' :
+                          admin.role === 'user' ? 'Citoyen' : admin.role}
+                    </Badge>
+                    <span className="text-muted-foreground">{admin.organization}</span>
+                  </div>
+
+                  {/* Privilèges (pour les rôles admin/agent) */}
+                  {admin.privileges && (admin.role === 'sub_admin' || admin.role === 'agent') && (
+                    <div className="space-y-2">
+                      <div className="text-xs font-medium text-muted-foreground">Privilèges:</div>
+                      <div className="flex flex-wrap gap-1">
+                        {admin.privileges.slice(0, 2).map((privilege, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0.5">
+                            {privilege}
+                          </Badge>
+                        ))}
+                        {admin.privileges.length > 2 && (
+                          <Badge variant="secondary" className="text-[9px] px-1.5 py-0.5">
+                            +{admin.privileges.length - 2} autres
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   )}
-                  Rapport
-              </Button>
-            </div>
-            </CardContent>
-          </Card>
-          );
-        })}
-              </div>
+
+                  {admin.statut === 'Attention' && !isInactive && (
+                    <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
+                      <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                      <AlertDescription className="text-muted-foreground">
+                        Performance en baisse. Délai de traitement supérieur à la norme nationale.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {isInactive && (
+                    <Alert className="glass-effect border-none bg-muted/30">
+                      <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                      <AlertDescription className="text-muted-foreground text-xs">
+                        Compte non actif - En attente de configuration
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full glass-effect border-none bg-[hsl(var(--accent-intel))]/5 hover:bg-[hsl(var(--accent-intel))]/15"
+                      onClick={() => handleVoirDetails(admin)}
+                      disabled={isLoadingAction || isInactive}
+                    >
+                      <Eye className="h-4 w-4 mr-2 text-[hsl(var(--accent-intel))]" />
+                      Détails
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        // Détecter si on est sur mobile
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                        if (isMobile) {
+                          // Sur mobile, ouvrir directement l'interface iAsted en mode texte
+                          const event = new CustomEvent('iasted:open-text-mode', {
+                            detail: {
+                              context: 'institution-card',
+                              admin,
+                              autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
+                            }
+                          });
+                          window.dispatchEvent(event);
+                        } else {
+                          // Sur desktop, utiliser le mode vocal comme avant
+                          const event = new CustomEvent('iasted:open-voice-report', {
+                            detail: { context: 'institution-card', admin }
+                          });
+                          window.dispatchEvent(event);
+                        }
+                      }}
+                      title="Rapport iAsted (vocal)"
+                      disabled={isInactive}
+                    >
+                      <Mic className="h-4 w-4 mr-2 text-purple-600" />
+                      iAsted
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full glass-effect border-none bg-[hsl(var(--accent-success))]/5 hover:bg-[hsl(var(--accent-success))]/15"
+                      onClick={() => handleGenererRapportAdmin(admin)}
+                      disabled={isLoadingAction || isInactive}
+                    >
+                      {isLoadingAction ? (
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin text-[hsl(var(--accent-success))]" />
+                      ) : (
+                        <FileText className="h-4 w-4 mr-2 text-[hsl(var(--accent-success))]" />
+                      )}
+                      Rapport
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       )}
 
       <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent">
@@ -1930,8 +1925,8 @@ export default function AdminDashboard() {
           Coordination Nationale
         </AlertTitle>
         <AlertDescription className="text-muted-foreground">
-          {sousAdmins.length} comptes actifs coordonnent les opérations 
-          sur l'ensemble du territoire national. 
+          {sousAdmins.length} comptes actifs coordonnent les opérations
+          sur l'ensemble du territoire national.
           Performance globale: {Math.round(sousAdmins.reduce((acc, a) => acc + (a.taux || a.taux_succes), 0) / sousAdmins.length)}%
           <br />
           <span className="text-xs mt-1 block">
@@ -1952,7 +1947,7 @@ export default function AdminDashboard() {
               Créez un nouveau compte pour coordonner les opérations sectorielles
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -1961,14 +1956,14 @@ export default function AdminDashboard() {
                   id="nom"
                   placeholder="Nom et prénom"
                   value={nomForm.nom}
-                  onChange={(e) => setNomForm({...nomForm, nom: e.target.value})}
+                  onChange={(e) => setNomForm({ ...nomForm, nom: e.target.value })}
                   className="glass-effect border-none"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="role">Rôle *</Label>
-                <Select value={nomForm.role} onValueChange={(value) => setNomForm({...nomForm, role: value as 'sub_admin' | 'agent'})}>
+                <Select value={nomForm.role} onValueChange={(value) => setNomForm({ ...nomForm, role: value as 'sub_admin' | 'agent' })}>
                   <SelectTrigger className="glass-effect border-none">
                     <SelectValue />
                   </SelectTrigger>
@@ -1988,11 +1983,11 @@ export default function AdminDashboard() {
                   type="email"
                   placeholder="email@ndjobi.com"
                   value={nomForm.email}
-                  onChange={(e) => setNomForm({...nomForm, email: e.target.value})}
+                  onChange={(e) => setNomForm({ ...nomForm, email: e.target.value })}
                   className="glass-effect border-none"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="phone">Téléphone *</Label>
                 <Input
@@ -2000,7 +1995,7 @@ export default function AdminDashboard() {
                   type="tel"
                   placeholder="+24177888XXX"
                   value={nomForm.phone}
-                  onChange={(e) => setNomForm({...nomForm, phone: e.target.value})}
+                  onChange={(e) => setNomForm({ ...nomForm, phone: e.target.value })}
                   className="glass-effect border-none"
                 />
               </div>
@@ -2012,7 +2007,7 @@ export default function AdminDashboard() {
                 id="organization"
                 placeholder="Ministère, Direction, Agence..."
                 value={nomForm.organization}
-                onChange={(e) => setNomForm({...nomForm, organization: e.target.value})}
+                onChange={(e) => setNomForm({ ...nomForm, organization: e.target.value })}
                 className="glass-effect border-none"
               />
             </div>
@@ -2023,7 +2018,7 @@ export default function AdminDashboard() {
                 id="secteur"
                 placeholder="Décrivez le secteur d'intervention..."
                 value={nomForm.secteur}
-                onChange={(e) => setNomForm({...nomForm, secteur: e.target.value})}
+                onChange={(e) => setNomForm({ ...nomForm, secteur: e.target.value })}
                 className="glass-effect border-none min-h-[100px]"
               />
             </div>
@@ -2175,7 +2170,7 @@ export default function AdminDashboard() {
               </>
             )}
           </DialogHeader>
-          
+
           {selectedAdmin && (
             <div className="space-y-6 py-4 flex-1 overflow-y-auto pr-2">
               {/* INFORMATIONS IDENTITÉ CITOYEN (si citoyen identifié) */}
@@ -2260,596 +2255,587 @@ export default function AdminDashboard() {
 
               {/* Analyse et recommandations présidentielles - EN HAUT (sauf pour citoyens) */}
               {!((selectedAdmin as any)?.type_compte === 'identifie' || (selectedAdmin as any)?.type_compte === 'anonyme') && (
-              <Card className="glass-effect border-none">
-                <CardHeader>
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                    Analyse et recommandations présidentielles
-                  </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground">
-                    Évaluation stratégique et recommandations pour décision présidentielle
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Problématiques identifiées / Menaces Stratégiques */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
-                          <>
-                            <Shield className="h-4 w-4 text-red-600" />
-                            <div className="text-sm font-semibold text-foreground">Menaces Stratégiques</div>
-                            <Badge variant="outline" className="text-xs bg-red-600/10 text-red-600 border-red-600/30">
-                              {adminProblematiques.length} menace{adminProblematiques.length > 1 ? 's' : ''}
-                            </Badge>
-                          </>
-                        ) : (
-                          <>
-                            <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                            <div className="text-sm font-semibold text-foreground">Problématiques identifiées</div>
-                            <Badge variant="outline" className="text-xs">
-                              {adminProblematiques.length} problème{adminProblematiques.length > 1 ? 's' : ''}
-                            </Badge>
-                          </>
-                        )}
+                <Card className="glass-effect border-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                      Analyse et recommandations présidentielles
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Évaluation stratégique et recommandations pour décision présidentielle
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Problématiques identifiées / Menaces Stratégiques */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
+                            <>
+                              <Shield className="h-4 w-4 text-red-600" />
+                              <div className="text-sm font-semibold text-foreground">Menaces Stratégiques</div>
+                              <Badge variant="outline" className="text-xs bg-red-600/10 text-red-600 border-red-600/30">
+                                {adminProblematiques.length} menace{adminProblematiques.length > 1 ? 's' : ''}
+                              </Badge>
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                              <div className="text-sm font-semibold text-foreground">Problématiques identifiées</div>
+                              <Badge variant="outline" className="text-xs">
+                                {adminProblematiques.length} problème{adminProblematiques.length > 1 ? 's' : ''}
+                              </Badge>
+                            </>
+                          )}
+                        </div>
+                        <div className="text-xs text-foreground/70">
+                          Impact financier total: {adminProblematiques.reduce((sum, p) => {
+                            const montantStr = String(p.montant || '0');
+                            const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
+                            return sum + montant;
+                          }, 0).toLocaleString()} FCFA
+                        </div>
                       </div>
-                      <div className="text-xs text-foreground/70">
+
+                      <div className="space-y-3">
+                        {adminProblematiques.map((problematique: Problematique, index: number) => (
+                          <div key={problematique.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
+                            {/* En-tête avec métadonnées */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[hsl(var(--accent-warning))]/20 to-[hsl(var(--accent-warning))]/10 flex items-center justify-center">
+                                  <span className="text-xs font-bold text-[hsl(var(--accent-warning))]">{index + 1}</span>
+                                </div>
+                                <Badge variant="outline" className="text-xs font-mono">
+                                  {problematique.id}
+                                </Badge>
+                                <Badge className={`text-xs font-medium ${problematique.impact === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                    problematique.impact === 'Élevé' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                      'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                                  }`}>
+                                  {problematique.impact}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {problematique.secteur}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Select defaultValue={problematique.classification}>
+                                  <SelectTrigger className="w-28 h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Résolu">✅ Résolu</SelectItem>
+                                    <SelectItem value="Pas urgent">⏳ Pas urgent</SelectItem>
+                                    <SelectItem value="Supprimer">🗑️ Supprimer</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+
+                            {/* Titre et description détaillée */}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <div className="text-sm font-semibold text-foreground">{problematique.titre}</div>
+                                {(problematique as any).niveauMenace && (
+                                  <Badge className="bg-red-600/90 text-white text-[10px] px-2 py-0.5">
+                                    {(problematique as any).niveauMenace}
+                                  </Badge>
+                                )}
+                                {(problematique as any).classification && (selectedAdmin as any)?.type_service === 'securite_nationale' && (
+                                  <Badge variant="outline" className="text-[10px] text-red-600 border-red-600/30">
+                                    {(problematique as any).classification}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-xs text-foreground/80 leading-relaxed whitespace-pre-wrap">{problematique.description}</div>
+                            </div>
+
+                            {/* Métriques détaillées */}
+                            <div className="grid grid-cols-2 gap-4 p-3 rounded-lg bg-muted/20">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                  <span className="text-xs text-foreground/70">
+                                    {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Impact / Coût' : 'Impact financier'}
+                                  </span>
+                                </div>
+                                <div className="text-sm font-bold text-[hsl(var(--accent-success))]">
+                                  {problematique.montant}
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                  <span className="text-xs text-foreground/70">Localisation</span>
+                                </div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {problematique.localisation || 'National'}
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                  <span className="text-xs text-foreground/70">
+                                    {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Détection' : 'Détecté le'}
+                                  </span>
+                                </div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {problematique.dateCreation || problematique.dateDetection}
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
+                                    <Shield className="h-3 w-3 text-red-600" />
+                                  ) : (
+                                    <TrendingUp className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                  )}
+                                  <span className="text-xs text-foreground/70">
+                                    {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Menace' : 'Tendance'}
+                                  </span>
+                                </div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {(problematique as any).menace || problematique.tendance || 'En aggravation'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Plan d'action (pour services spéciaux) ou Actions recommandées */}
+                            {(selectedAdmin as any)?.type_service === 'securite_nationale' && (problematique as any).planAction ? (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Target className="h-3 w-3 text-red-600" />
+                                  <span className="text-xs font-medium text-foreground">Plan d'action stratégique</span>
+                                </div>
+                                <div className="text-xs text-foreground/70 pl-5 whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                                  {(problematique as any).planAction}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Target className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                  <span className="text-xs font-medium text-foreground">Actions recommandées</span>
+                                </div>
+                                <div className="text-xs text-foreground/70 pl-5">
+                                  {problematique.actionsRecommandees || 'Intervention immédiate requise. Coordination avec les services compétents pour mise en place d\'un plan d\'action d\'urgence.'}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* KPIs (pour services spéciaux) */}
+                            {(selectedAdmin as any)?.type_service === 'securite_nationale' && (problematique as any).kpis && (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <BarChart3 className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                  <span className="text-xs font-medium text-foreground">Indicateurs de performance (KPIs)</span>
+                                </div>
+                                <div className="space-y-1 pl-5">
+                                  {(problematique as any).kpis.map((kpi: any, kpiIdx: number) => (
+                                    <div key={kpiIdx} className="flex items-center justify-between text-[10px] bg-muted/20 p-2 rounded">
+                                      <span className="text-foreground/70">{kpi.indicateur}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-muted-foreground">Actuel: <span className="font-semibold text-foreground">{kpi.actuel}</span></span>
+                                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                                        <span className="text-[hsl(var(--accent-success))]">Cible: <span className="font-semibold">{kpi.cible}</span></span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Statut et suivi */}
+                            <div className="flex items-center justify-between pt-2 border-t border-muted/20">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${problematique.impact === 'Critique' ? 'bg-red-500' :
+                                    problematique.impact === 'Élevé' ? 'bg-orange-500' :
+                                      'bg-blue-500'
+                                  }`}></div>
+                                <span className="text-xs text-foreground/70">
+                                  Statut: {problematique.statut || 'En cours d\'analyse'}
+                                </span>
+                              </div>
+                              <div className="text-xs text-foreground/60">
+                                Dernière mise à jour: {problematique.derniereMAJ || 'Aujourd\'hui'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Opinion publique */}
+                    {adminOpinionPublique && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
+                            <div className="text-sm font-semibold text-foreground">Opinion publique</div>
+                            <Badge variant="outline" className="text-xs">
+                              Analyse {adminOpinionPublique.dateAnalyse}
+                            </Badge>
+                          </div>
+                          <div className={`text-xs font-medium px-2 py-1 rounded ${adminOpinionPublique.sentimentGeneral === 'Négatif' ? 'bg-red-500/20 text-red-500' :
+                              adminOpinionPublique.sentimentGeneral === 'Neutre' ? 'bg-gray-500/20 text-gray-500' :
+                                'bg-green-500/20 text-green-500'
+                            }`}>
+                            Sentiment: {adminOpinionPublique.sentimentGeneral}
+                          </div>
+                        </div>
+
+                        {/* Indicateurs clés */}
+                        <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent border border-muted/10">
+                          <div className="text-center space-y-1">
+                            <div className="text-xs text-foreground/70">Score de confiance</div>
+                            <div className={`text-2xl font-bold ${adminOpinionPublique.scoreConfiance < 40 ? 'text-red-500' :
+                                adminOpinionPublique.scoreConfiance < 60 ? 'text-orange-500' :
+                                  'text-green-500'
+                              }`}>{adminOpinionPublique.scoreConfiance}%</div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <div className="text-xs text-foreground/70">Taux de satisfaction</div>
+                            <div className={`text-2xl font-bold ${(Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction) < 40 ? 'text-red-500' :
+                                (Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction) < 60 ? 'text-orange-500' :
+                                  'text-green-500'
+                              }`}>{Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction}%</div>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <div className="text-xs text-foreground/70">Risque social</div>
+                            <Badge className={`text-xs font-medium ${adminOpinionPublique.risqueSocial === 'Élevé' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                adminOpinionPublique.risqueSocial === 'Moyen' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                  'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                              }`}>
+                              {adminOpinionPublique.risqueSocial}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {/* Principaux griefs */}
+                        <div className="space-y-3">
+                          <div className="text-xs font-semibold text-foreground">Principaux griefs de la population</div>
+                          {adminOpinionPublique.principauxGriefs.map((grief: Grief) => (
+                            <div key={grief.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs font-mono">{grief.id}</Badge>
+                                  <Badge className={`text-xs font-medium ${grief.intensite === 'Très élevée' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                      grief.intensite === 'Élevée' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                        'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                                    }`}>
+                                    {grief.intensite}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Progress value={grief.pourcentage} className="w-24 h-2" />
+                                  <span className="text-xs font-medium text-foreground">{grief.pourcentage}%</span>
+                                </div>
+                              </div>
+                              <div className="text-sm font-semibold text-foreground">{grief.sujet}</div>
+                              <div className="text-xs text-foreground/80 leading-relaxed">{grief.description}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Impact politique */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Flag className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                            <span className="text-xs font-semibold text-foreground">Impact politique</span>
+                          </div>
+                          <div className="text-xs text-foreground/80 leading-relaxed p-3 rounded-lg bg-gradient-to-r from-[hsl(var(--accent-warning))]/10 to-transparent border border-muted/10">
+                            {adminOpinionPublique.impactPolitique}
+                          </div>
+                        </div>
+
+                        {/* Recommandations communication */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Activity className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                            <span className="text-xs font-semibold text-foreground">Recommandations communication</span>
+                          </div>
+                          <div className="space-y-1 pl-3">
+                            {adminOpinionPublique.recommandationsCommunication.map((rec: string, idx: number) => (
+                              <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-success))] mt-1.5 flex-shrink-0"></div>
+                                <span>{rec}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Actions correctives urgentes */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                            <span className="text-xs font-semibold text-foreground">Actions correctives urgentes</span>
+                          </div>
+                          <div className="space-y-1 pl-3">
+                            {adminOpinionPublique.actionsCorrectivesUrgentes.map((action: string, idx: number) => (
+                              <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-warning))] mt-1.5 flex-shrink-0"></div>
+                                <span>{action}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Sources et suivi */}
+                        <div className="flex items-center justify-between pt-3 border-t border-muted/10">
+                          <div className="text-xs text-foreground/60">
+                            Tendance: <span className="font-medium text-foreground/80">{adminOpinionPublique.tendanceEvolution}</span>
+                          </div>
+                          <div className="text-xs text-foreground/60">
+                            Prochain sondage: <span className="font-medium text-foreground/80">{adminOpinionPublique.prochaineSondage}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recommandations présidentielles */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                          <div className="text-sm font-semibold text-foreground">Recommandations présidentielles</div>
+                          <Badge variant="outline" className="text-xs">
+                            {adminRecommandations.length} recommandation{adminRecommandations.length > 1 ? 's' : ''}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-foreground/70">
+                          Priorité critique: {adminRecommandations.filter(r => r.priorite === 'Critique').length}
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {adminRecommandations.map((recommandation: Recommandation, index: number) => (
+                          <div key={recommandation.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-[hsl(var(--accent-warning))]/5 to-transparent">
+                            {/* En-tête avec métadonnées */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[hsl(var(--accent-warning))]/20 to-[hsl(var(--accent-warning))]/10 flex items-center justify-center">
+                                  <Crown className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                </div>
+                                <Badge variant="outline" className="text-xs font-mono">
+                                  {recommandation.id}
+                                </Badge>
+                                <Badge className={`text-xs font-medium ${recommandation.priorite === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                    recommandation.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                      'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                                  }`}>
+                                  {recommandation.priorite}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {recommandation.categorie || 'Stratégique'}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Select defaultValue={recommandation.classification}>
+                                  <SelectTrigger className="w-28 h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Résolu">✅ Résolu</SelectItem>
+                                    <SelectItem value="Pas urgent">⏳ Pas urgent</SelectItem>
+                                    <SelectItem value="Supprimer">🗑️ Supprimer</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+
+                            {/* Titre et description détaillée */}
+                            <div className="space-y-2">
+                              <div className="text-sm font-semibold text-foreground">{recommandation.titre}</div>
+                              <div className="text-xs text-foreground/80 leading-relaxed">{recommandation.description}</div>
+                            </div>
+
+                            {/* Justification et contexte */}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                <span className="text-xs font-medium text-foreground">Justification présidentielle</span>
+                              </div>
+                              <div className="text-xs text-foreground/70 pl-5 p-2 rounded bg-muted/20">
+                                {recommandation.justification || 'Cette recommandation s\'inscrit dans le cadre de la politique nationale de modernisation et d\'efficacité administrative. Elle vise à renforcer la transparence et l\'efficacité des services publics.'}
+                              </div>
+                            </div>
+
+                            {/* Métriques et délais */}
+                            <div className="grid grid-cols-2 gap-4 p-3 rounded-lg bg-muted/20">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Target className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                  <span className="text-xs text-foreground/70">Impact attendu</span>
+                                </div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {recommandation.impact}
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                  <span className="text-xs text-foreground/70">Délai d'exécution</span>
+                                </div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {recommandation.delai}
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                  <span className="text-xs text-foreground/70">Budget requis</span>
+                                </div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {recommandation.budget || 'À définir'}
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
+                                  <span className="text-xs text-foreground/70">Services concernés</span>
+                                </div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {recommandation.services || 'Multi-services'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Plan d'action détaillé */}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <CheckSquare className="h-3 w-3 text-[hsl(var(--accent-success))]" />
+                                <span className="text-xs font-medium text-foreground">Plan d'action</span>
+                              </div>
+                              <div className="space-y-1 pl-5">
+                                {recommandation.planAction ? (
+                                  recommandation.planAction.map((action: string, idx: number) => (
+                                    <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
+                                      <div className="w-1 h-1 rounded-full bg-[hsl(var(--accent-success))] mt-2 flex-shrink-0"></div>
+                                      <span>{action}</span>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <div className="text-xs text-foreground/70 pl-2">
+                                    • Mise en place d'un comité de pilotage<br />
+                                    • Définition des objectifs et indicateurs<br />
+                                    • Allocation des ressources nécessaires<br />
+                                    • Suivi et évaluation régulière
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Risques et mitigation */}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <AlertTriangle className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
+                                <span className="text-xs font-medium text-foreground">Risques identifiés</span>
+                              </div>
+                              <div className="text-xs text-foreground/70 pl-5">
+                                {recommandation.risques || 'Résistance au changement, contraintes budgétaires, délais d\'exécution. Mitigation: communication renforcée, formation des équipes, suivi rapproché.'}
+                              </div>
+                            </div>
+
+                            {/* Statut et suivi */}
+                            <div className="flex items-center justify-between pt-2 border-t border-muted/20">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${recommandation.priorite === 'Critique' ? 'bg-red-500' :
+                                    recommandation.priorite === 'Haute' ? 'bg-orange-500' :
+                                      'bg-blue-500'
+                                  }`}></div>
+                                <span className="text-xs text-foreground/70">
+                                  Statut: {recommandation.statut || 'En attente de validation'}
+                                </span>
+                              </div>
+                              <div className="text-xs text-foreground/60">
+                                Prochaine échéance: {recommandation.prochaineEcheance || 'Sous 30 jours'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Résumé exécutif */}
+                    <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
+                      <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
+                      <AlertTitle className="text-[hsl(var(--accent-warning))] text-xs">Résumé exécutif</AlertTitle>
+                      <AlertDescription className="text-xs text-muted-foreground">
+                        {adminProblematiques.length} problématique{adminProblematiques.length > 1 ? 's' : ''} identifiée{adminProblematiques.length > 1 ? 's' : ''}
+                        avec {adminRecommandations.length} recommandation{adminRecommandations.length > 1 ? 's' : ''} stratégique{adminRecommandations.length > 1 ? 's' : ''}.
                         Impact financier total: {adminProblematiques.reduce((sum, p) => {
                           const montantStr = String(p.montant || '0');
                           const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
                           return sum + montant;
-                        }, 0).toLocaleString()} FCFA
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {adminProblematiques.map((problematique: Problematique, index: number) => (
-                        <div key={problematique.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
-                          {/* En-tête avec métadonnées */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[hsl(var(--accent-warning))]/20 to-[hsl(var(--accent-warning))]/10 flex items-center justify-center">
-                                <span className="text-xs font-bold text-[hsl(var(--accent-warning))]">{index + 1}</span>
-                              </div>
-                              <Badge variant="outline" className="text-xs font-mono">
-                                {problematique.id}
-                              </Badge>
-                              <Badge className={`text-xs font-medium ${
-                                problematique.impact === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                                problematique.impact === 'Élevé' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
-                                'bg-blue-500/20 text-blue-500 border-blue-500/30'
-                              }`}>
-                                {problematique.impact}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {problematique.secteur}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Select defaultValue={problematique.classification}>
-                                <SelectTrigger className="w-28 h-7 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Résolu">✅ Résolu</SelectItem>
-                                  <SelectItem value="Pas urgent">⏳ Pas urgent</SelectItem>
-                                  <SelectItem value="Supprimer">🗑️ Supprimer</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-
-                          {/* Titre et description détaillée */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <div className="text-sm font-semibold text-foreground">{problematique.titre}</div>
-                              {(problematique as any).niveauMenace && (
-                                <Badge className="bg-red-600/90 text-white text-[10px] px-2 py-0.5">
-                                  {(problematique as any).niveauMenace}
-                                </Badge>
-                              )}
-                              {(problematique as any).classification && (selectedAdmin as any)?.type_service === 'securite_nationale' && (
-                                <Badge variant="outline" className="text-[10px] text-red-600 border-red-600/30">
-                                  {(problematique as any).classification}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-xs text-foreground/80 leading-relaxed whitespace-pre-wrap">{problematique.description}</div>
-                          </div>
-
-                          {/* Métriques détaillées */}
-                          <div className="grid grid-cols-2 gap-4 p-3 rounded-lg bg-muted/20">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
-                                <span className="text-xs text-foreground/70">
-                                  {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Impact / Coût' : 'Impact financier'}
-                                </span>
-                              </div>
-                              <div className="text-sm font-bold text-[hsl(var(--accent-success))]">
-                                {problematique.montant}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
-                                <span className="text-xs text-foreground/70">Localisation</span>
-                              </div>
-                              <div className="text-sm font-medium text-foreground">
-                                {problematique.localisation || 'National'}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                                <span className="text-xs text-foreground/70">
-                                  {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Détection' : 'Détecté le'}
-                                </span>
-                              </div>
-                              <div className="text-sm font-medium text-foreground">
-                                {problematique.dateCreation || problematique.dateDetection}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                {(selectedAdmin as any)?.type_service === 'securite_nationale' ? (
-                                  <Shield className="h-3 w-3 text-red-600" />
-                                ) : (
-                                  <TrendingUp className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                                )}
-                                <span className="text-xs text-foreground/70">
-                                  {(selectedAdmin as any)?.type_service === 'securite_nationale' ? 'Menace' : 'Tendance'}
-                                </span>
-                              </div>
-                              <div className="text-sm font-medium text-foreground">
-                                {(problematique as any).menace || problematique.tendance || 'En aggravation'}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Plan d'action (pour services spéciaux) ou Actions recommandées */}
-                          {(selectedAdmin as any)?.type_service === 'securite_nationale' && (problematique as any).planAction ? (
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Target className="h-3 w-3 text-red-600" />
-                                <span className="text-xs font-medium text-foreground">Plan d'action stratégique</span>
-                              </div>
-                              <div className="text-xs text-foreground/70 pl-5 whitespace-pre-wrap bg-muted/30 p-3 rounded">
-                                {(problematique as any).planAction}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Target className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
-                                <span className="text-xs font-medium text-foreground">Actions recommandées</span>
-                              </div>
-                              <div className="text-xs text-foreground/70 pl-5">
-                                {problematique.actionsRecommandees || 'Intervention immédiate requise. Coordination avec les services compétents pour mise en place d\'un plan d\'action d\'urgence.'}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* KPIs (pour services spéciaux) */}
-                          {(selectedAdmin as any)?.type_service === 'securite_nationale' && (problematique as any).kpis && (
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <BarChart3 className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
-                                <span className="text-xs font-medium text-foreground">Indicateurs de performance (KPIs)</span>
-                              </div>
-                              <div className="space-y-1 pl-5">
-                                {(problematique as any).kpis.map((kpi: any, kpiIdx: number) => (
-                                  <div key={kpiIdx} className="flex items-center justify-between text-[10px] bg-muted/20 p-2 rounded">
-                                    <span className="text-foreground/70">{kpi.indicateur}</span>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">Actuel: <span className="font-semibold text-foreground">{kpi.actuel}</span></span>
-                                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                                      <span className="text-[hsl(var(--accent-success))]">Cible: <span className="font-semibold">{kpi.cible}</span></span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Statut et suivi */}
-                          <div className="flex items-center justify-between pt-2 border-t border-muted/20">
-                            <div className="flex items-center gap-2">
-                              <div className={`w-2 h-2 rounded-full ${
-                                problematique.impact === 'Critique' ? 'bg-red-500' :
-                                problematique.impact === 'Élevé' ? 'bg-orange-500' :
-                                'bg-blue-500'
-                              }`}></div>
-                              <span className="text-xs text-foreground/70">
-                                Statut: {problematique.statut || 'En cours d\'analyse'}
-                              </span>
-                            </div>
-                            <div className="text-xs text-foreground/60">
-                              Dernière mise à jour: {problematique.derniereMAJ || 'Aujourd\'hui'}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Opinion publique */}
-                  {adminOpinionPublique && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-                          <div className="text-sm font-semibold text-foreground">Opinion publique</div>
-                          <Badge variant="outline" className="text-xs">
-                            Analyse {adminOpinionPublique.dateAnalyse}
-                          </Badge>
-                        </div>
-                        <div className={`text-xs font-medium px-2 py-1 rounded ${
-                          adminOpinionPublique.sentimentGeneral === 'Négatif' ? 'bg-red-500/20 text-red-500' :
-                          adminOpinionPublique.sentimentGeneral === 'Neutre' ? 'bg-gray-500/20 text-gray-500' :
-                          'bg-green-500/20 text-green-500'
-                        }`}>
-                          Sentiment: {adminOpinionPublique.sentimentGeneral}
-                        </div>
-                      </div>
-
-                      {/* Indicateurs clés */}
-                      <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-gradient-to-br from-[hsl(var(--accent-intel))]/10 to-transparent border border-muted/10">
-                        <div className="text-center space-y-1">
-                          <div className="text-xs text-foreground/70">Score de confiance</div>
-                          <div className={`text-2xl font-bold ${
-                            adminOpinionPublique.scoreConfiance < 40 ? 'text-red-500' :
-                            adminOpinionPublique.scoreConfiance < 60 ? 'text-orange-500' :
-                            'text-green-500'
-                          }`}>{adminOpinionPublique.scoreConfiance}%</div>
-                        </div>
-                        <div className="text-center space-y-1">
-                          <div className="text-xs text-foreground/70">Taux de satisfaction</div>
-                          <div className={`text-2xl font-bold ${
-                            (Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction) < 40 ? 'text-red-500' :
-                            (Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction) < 60 ? 'text-orange-500' :
-                            'text-green-500'
-                          }`}>{Array.isArray(adminOpinionPublique.tauxSatisfaction) ? adminOpinionPublique.tauxSatisfaction[0] : adminOpinionPublique.tauxSatisfaction}%</div>
-                        </div>
-                        <div className="text-center space-y-1">
-                          <div className="text-xs text-foreground/70">Risque social</div>
-                          <Badge className={`text-xs font-medium ${
-                            adminOpinionPublique.risqueSocial === 'Élevé' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                            adminOpinionPublique.risqueSocial === 'Moyen' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
-                            'bg-blue-500/20 text-blue-500 border-blue-500/30'
-                          }`}>
-                            {adminOpinionPublique.risqueSocial}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      {/* Principaux griefs */}
-                      <div className="space-y-3">
-                        <div className="text-xs font-semibold text-foreground">Principaux griefs de la population</div>
-                        {adminOpinionPublique.principauxGriefs.map((grief: Grief) => (
-                          <div key={grief.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-muted/10 to-transparent">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-xs font-mono">{grief.id}</Badge>
-                                <Badge className={`text-xs font-medium ${
-                                  grief.intensite === 'Très élevée' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                                  grief.intensite === 'Élevée' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
-                                  'bg-blue-500/20 text-blue-500 border-blue-500/30'
-                                }`}>
-                                  {grief.intensite}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Progress value={grief.pourcentage} className="w-24 h-2" />
-                                <span className="text-xs font-medium text-foreground">{grief.pourcentage}%</span>
-                              </div>
-                            </div>
-                            <div className="text-sm font-semibold text-foreground">{grief.sujet}</div>
-                            <div className="text-xs text-foreground/80 leading-relaxed">{grief.description}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Impact politique */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Flag className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                          <span className="text-xs font-semibold text-foreground">Impact politique</span>
-                        </div>
-                        <div className="text-xs text-foreground/80 leading-relaxed p-3 rounded-lg bg-gradient-to-r from-[hsl(var(--accent-warning))]/10 to-transparent border border-muted/10">
-                          {adminOpinionPublique.impactPolitique}
-                        </div>
-                      </div>
-
-                      {/* Recommandations communication */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Activity className="h-3 w-3 text-[hsl(var(--accent-success))]" />
-                          <span className="text-xs font-semibold text-foreground">Recommandations communication</span>
-                        </div>
-                        <div className="space-y-1 pl-3">
-                          {adminOpinionPublique.recommandationsCommunication.map((rec: string, idx: number) => (
-                            <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-success))] mt-1.5 flex-shrink-0"></div>
-                              <span>{rec}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Actions correctives urgentes */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                          <span className="text-xs font-semibold text-foreground">Actions correctives urgentes</span>
-                        </div>
-                        <div className="space-y-1 pl-3">
-                          {adminOpinionPublique.actionsCorrectivesUrgentes.map((action: string, idx: number) => (
-                            <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--accent-warning))] mt-1.5 flex-shrink-0"></div>
-                              <span>{action}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Sources et suivi */}
-                      <div className="flex items-center justify-between pt-3 border-t border-muted/10">
-                        <div className="text-xs text-foreground/60">
-                          Tendance: <span className="font-medium text-foreground/80">{adminOpinionPublique.tendanceEvolution}</span>
-                        </div>
-                        <div className="text-xs text-foreground/60">
-                          Prochain sondage: <span className="font-medium text-foreground/80">{adminOpinionPublique.prochaineSondage}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Recommandations présidentielles */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                        <div className="text-sm font-semibold text-foreground">Recommandations présidentielles</div>
-                        <Badge variant="outline" className="text-xs">
-                          {adminRecommandations.length} recommandation{adminRecommandations.length > 1 ? 's' : ''}
-                        </Badge>
-                      </div>
-                      <div className="text-xs text-foreground/70">
-                        Priorité critique: {adminRecommandations.filter(r => r.priorite === 'Critique').length}
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {adminRecommandations.map((recommandation: Recommandation, index: number) => (
-                        <div key={recommandation.id} className="border border-muted/20 rounded-lg p-4 space-y-3 bg-gradient-to-r from-[hsl(var(--accent-warning))]/5 to-transparent">
-                          {/* En-tête avec métadonnées */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[hsl(var(--accent-warning))]/20 to-[hsl(var(--accent-warning))]/10 flex items-center justify-center">
-                                <Crown className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                              </div>
-                              <Badge variant="outline" className="text-xs font-mono">
-                                {recommandation.id}
-                              </Badge>
-                              <Badge className={`text-xs font-medium ${
-                                recommandation.priorite === 'Critique' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                                recommandation.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
-                                'bg-blue-500/20 text-blue-500 border-blue-500/30'
-                              }`}>
-                                {recommandation.priorite}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {recommandation.categorie || 'Stratégique'}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Select defaultValue={recommandation.classification}>
-                                <SelectTrigger className="w-28 h-7 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Résolu">✅ Résolu</SelectItem>
-                                  <SelectItem value="Pas urgent">⏳ Pas urgent</SelectItem>
-                                  <SelectItem value="Supprimer">🗑️ Supprimer</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-
-                          {/* Titre et description détaillée */}
-                          <div className="space-y-2">
-                            <div className="text-sm font-semibold text-foreground">{recommandation.titre}</div>
-                            <div className="text-xs text-foreground/80 leading-relaxed">{recommandation.description}</div>
-                          </div>
-
-                          {/* Justification et contexte */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
-                              <span className="text-xs font-medium text-foreground">Justification présidentielle</span>
-                            </div>
-                            <div className="text-xs text-foreground/70 pl-5 p-2 rounded bg-muted/20">
-                              {recommandation.justification || 'Cette recommandation s\'inscrit dans le cadre de la politique nationale de modernisation et d\'efficacité administrative. Elle vise à renforcer la transparence et l\'efficacité des services publics.'}
-                            </div>
-                          </div>
-
-                          {/* Métriques et délais */}
-                          <div className="grid grid-cols-2 gap-4 p-3 rounded-lg bg-muted/20">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Target className="h-3 w-3 text-[hsl(var(--accent-success))]" />
-                                <span className="text-xs text-foreground/70">Impact attendu</span>
-                              </div>
-                              <div className="text-sm font-medium text-foreground">
-                                {recommandation.impact}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                                <span className="text-xs text-foreground/70">Délai d'exécution</span>
-                              </div>
-                              <div className="text-sm font-medium text-foreground">
-                                {recommandation.delai}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <DollarSign className="h-3 w-3 text-[hsl(var(--accent-success))]" />
-                                <span className="text-xs text-foreground/70">Budget requis</span>
-                              </div>
-                              <div className="text-sm font-medium text-foreground">
-                                {recommandation.budget || 'À définir'}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Users className="h-3 w-3 text-[hsl(var(--accent-intel))]" />
-                                <span className="text-xs text-foreground/70">Services concernés</span>
-                              </div>
-                              <div className="text-sm font-medium text-foreground">
-                                {recommandation.services || 'Multi-services'}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Plan d'action détaillé */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <CheckSquare className="h-3 w-3 text-[hsl(var(--accent-success))]" />
-                              <span className="text-xs font-medium text-foreground">Plan d'action</span>
-                            </div>
-                            <div className="space-y-1 pl-5">
-                              {recommandation.planAction ? (
-                                recommandation.planAction.map((action: string, idx: number) => (
-                                  <div key={idx} className="flex items-start gap-2 text-xs text-foreground/70">
-                                    <div className="w-1 h-1 rounded-full bg-[hsl(var(--accent-success))] mt-2 flex-shrink-0"></div>
-                                    <span>{action}</span>
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="text-xs text-foreground/70 pl-2">
-                                  • Mise en place d'un comité de pilotage<br/>
-                                  • Définition des objectifs et indicateurs<br/>
-                                  • Allocation des ressources nécessaires<br/>
-                                  • Suivi et évaluation régulière
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Risques et mitigation */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <AlertTriangle className="h-3 w-3 text-[hsl(var(--accent-warning))]" />
-                              <span className="text-xs font-medium text-foreground">Risques identifiés</span>
-                            </div>
-                            <div className="text-xs text-foreground/70 pl-5">
-                              {recommandation.risques || 'Résistance au changement, contraintes budgétaires, délais d\'exécution. Mitigation: communication renforcée, formation des équipes, suivi rapproché.'}
-                            </div>
-                          </div>
-
-                          {/* Statut et suivi */}
-                          <div className="flex items-center justify-between pt-2 border-t border-muted/20">
-                            <div className="flex items-center gap-2">
-                              <div className={`w-2 h-2 rounded-full ${
-                                recommandation.priorite === 'Critique' ? 'bg-red-500' :
-                                recommandation.priorite === 'Haute' ? 'bg-orange-500' :
-                                'bg-blue-500'
-                              }`}></div>
-                              <span className="text-xs text-foreground/70">
-                                Statut: {recommandation.statut || 'En attente de validation'}
-                              </span>
-                            </div>
-                            <div className="text-xs text-foreground/60">
-                              Prochaine échéance: {recommandation.prochaineEcheance || 'Sous 30 jours'}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Résumé exécutif */}
-                  <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent">
-                    <AlertTriangle className="h-4 w-4 text-[hsl(var(--accent-warning))]" />
-                    <AlertTitle className="text-[hsl(var(--accent-warning))] text-xs">Résumé exécutif</AlertTitle>
-                    <AlertDescription className="text-xs text-muted-foreground">
-                      {adminProblematiques.length} problématique{adminProblematiques.length > 1 ? 's' : ''} identifiée{adminProblematiques.length > 1 ? 's' : ''} 
-                      avec {adminRecommandations.length} recommandation{adminRecommandations.length > 1 ? 's' : ''} stratégique{adminRecommandations.length > 1 ? 's' : ''}. 
-                      Impact financier total: {adminProblematiques.reduce((sum, p) => {
-                        const montantStr = String(p.montant || '0');
-                        const montant = parseInt(montantStr.replace(/[^\d]/g, ''));
-                        return sum + montant;
-                      }, 0).toLocaleString()} FCFA.
-                    </AlertDescription>
-                  </Alert>
-                </CardContent>
-              </Card>
+                        }, 0).toLocaleString()} FCFA.
+                      </AlertDescription>
+                    </Alert>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Informations principales */}
               {!((selectedAdmin as any)?.type_compte === 'identifie' || (selectedAdmin as any)?.type_compte === 'anonyme') && (
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="glass-effect border-none">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Contact</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{selectedAdmin.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span>{selectedAdmin.phone}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="glass-effect border-none">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium">Contact</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <span>{selectedAdmin.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span>{selectedAdmin.phone}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                <Card className="glass-effect border-none">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Organisation</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <div><strong>Rôle:</strong> {selectedAdmin.role === 'sub_admin' ? 'Sub-Admin' : selectedAdmin.role === 'agent' ? 'Agent' : 'Citoyen'}</div>
-                    <div><strong>Secteur:</strong> {selectedAdmin.organization}</div>
-                  </CardContent>
-                </Card>
-              </div>
+                  <Card className="glass-effect border-none">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium">Organisation</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <div><strong>Rôle:</strong> {selectedAdmin.role === 'sub_admin' ? 'Sub-Admin' : selectedAdmin.role === 'agent' ? 'Agent' : 'Citoyen'}</div>
+                      <div><strong>Secteur:</strong> {selectedAdmin.organization}</div>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
 
               {/* Métriques de performance */}
               {!((selectedAdmin as any)?.type_compte === 'identifie' || (selectedAdmin as any)?.type_compte === 'anonyme') && (
-              <Card className="glass-effect border-none">
-                <CardHeader>
-                  <CardTitle className="text-sm font-medium">Performance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-3 gap-6">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-[hsl(var(--accent-intel))]">
-                        {selectedAdmin.cas_traites || selectedAdmin.casTraites}
+                <Card className="glass-effect border-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium">Performance</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-6">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-[hsl(var(--accent-intel))]">
+                          {selectedAdmin.cas_traites || selectedAdmin.casTraites}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">Cas traités</div>
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">Cas traités</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-[hsl(var(--accent-success))]">
-                        {selectedAdmin.taux_succes || selectedAdmin.taux}%
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-[hsl(var(--accent-success))]">
+                          {selectedAdmin.taux_succes || selectedAdmin.taux}%
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">Taux de succès</div>
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">Taux de succès</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-[hsl(var(--accent-warning))]">
-                        {selectedAdmin.delai_moyen_jours || selectedAdmin.delai}j
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-[hsl(var(--accent-warning))]">
+                          {selectedAdmin.delai_moyen_jours || selectedAdmin.delai}j
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">Délai moyen</div>
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">Délai moyen</div>
                     </div>
-                  </div>
-                  <Progress value={selectedAdmin.taux_succes || selectedAdmin.taux} className="h-2 mt-4" />
-                </CardContent>
-              </Card>
+                    <Progress value={selectedAdmin.taux_succes || selectedAdmin.taux} className="h-2 mt-4" />
+                  </CardContent>
+                </Card>
               )}
 
               {/* Privilèges */}
@@ -2904,7 +2890,7 @@ export default function AdminDashboard() {
                       )}
                     </CardTitle>
                     <CardDescription className="text-xs text-muted-foreground">
-                      {(selectedAdmin as any)?.type_service === 'securite_nationale' 
+                      {(selectedAdmin as any)?.type_service === 'securite_nationale'
                         ? `${(selectedAdmin as any).classification} - Dossiers actifs et surveillance`
                         : (selectedAdmin as any)?.type_compte === 'anonyme'
                           ? `${adminCases.length} dénonciations anonymes via SMS/WhatsApp - Identité protégée par XR-7`
@@ -2924,11 +2910,10 @@ export default function AdminDashboard() {
                             <Badge variant="outline" className="text-xs font-mono">
                               {cas.id}
                             </Badge>
-                            <Badge className={`text-xs font-medium ${
-                              cas.priorite === 'Critique' || cas.priorite === 'Très élevée' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                              cas.priorite === 'Haute' || cas.priorite === 'Élevée' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
-                              'bg-blue-500/20 text-blue-500 border-blue-500/30'
-                            }`}>
+                            <Badge className={`text-xs font-medium ${cas.priorite === 'Critique' || cas.priorite === 'Très élevée' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
+                                cas.priorite === 'Haute' || cas.priorite === 'Élevée' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
+                                  'bg-blue-500/20 text-blue-500 border-blue-500/30'
+                              }`}>
                               {cas.priorite}
                             </Badge>
                             {(selectedAdmin as any)?.type_service === 'securite_nationale' && (cas as any).classification && (
@@ -2937,19 +2922,18 @@ export default function AdminDashboard() {
                               </Badge>
                             )}
                           </div>
-                          <Badge className={`text-xs font-medium ${
-                            cas.statut.includes('cours') || cas.statut.includes('active') ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
-                            cas.statut.includes('Résolu') || cas.statut.includes('terminée') || cas.statut.includes('réussie') ? 'bg-green-500/20 text-green-500 border-green-500/30' :
-                            'bg-gray-500/20 text-gray-500 border-gray-500/30'
-                          }`}>
+                          <Badge className={`text-xs font-medium ${cas.statut.includes('cours') || cas.statut.includes('active') ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
+                              cas.statut.includes('Résolu') || cas.statut.includes('terminée') || cas.statut.includes('réussie') ? 'bg-green-500/20 text-green-500 border-green-500/30' :
+                                'bg-gray-500/20 text-gray-500 border-gray-500/30'
+                            }`}>
                             {cas.statut}
                           </Badge>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <div className="text-sm font-semibold text-foreground">{cas.titre}</div>
                           <div className="text-xs text-muted-foreground leading-relaxed">{cas.description}</div>
-                          
+
                           {/* Champs spécifiques services spéciaux */}
                           {(selectedAdmin as any)?.type_service === 'securite_nationale' && (
                             <div className="space-y-2 mt-3 pt-3 border-t border-muted/20">
@@ -3078,7 +3062,7 @@ export default function AdminDashboard() {
                             <AlertTriangle className="h-4 w-4 text-red-500" />
                             <AlertTitle className="text-red-500 text-xs">Action immédiate requise</AlertTitle>
                             <AlertDescription className="text-xs text-muted-foreground">
-                              {(selectedAdmin as any)?.type_compte === 'anonyme' 
+                              {(selectedAdmin as any)?.type_compte === 'anonyme'
                                 ? 'Dénonciation anonyme critique. Vérifications prioritaires requises. Activation XR-7 possible pour révélation identité si nécessaire.'
                                 : (selectedAdmin as any)?.type_compte === 'identifie'
                                   ? 'Signalement citoyen prioritaire. Traitement urgent requis pour maintenir confiance citoyenne.'
@@ -3090,9 +3074,9 @@ export default function AdminDashboard() {
 
                         {/* Bouton rapport cas spécifique */}
                         <div className="flex gap-2 pt-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="flex-1 glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
                             onClick={() => handleOuvrirRapportModal(selectedAdmin, cas)}
                             disabled={isLoadingAction}
@@ -3103,7 +3087,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                     ))}
-                    
+
                     {adminCases.length > 3 && (
                       <div className="text-center pt-2">
                         <Button variant="ghost" size="sm" className="text-xs">
@@ -3164,7 +3148,7 @@ export default function AdminDashboard() {
                           {index < adminHistory.slice(0, 4).length - 1 && (
                             <div className="absolute left-3 top-8 w-px h-8 bg-gradient-to-b from-[hsl(var(--accent-intel))] to-transparent" />
                           )}
-                          
+
                           <div className="flex items-start gap-4 p-3 rounded-lg border border-muted/10 bg-gradient-to-r from-muted/5 to-transparent">
                             <div className="w-6 h-6 rounded-full bg-[hsl(var(--accent-intel))] flex items-center justify-center flex-shrink-0 mt-0.5">
                               <div className="w-2 h-2 rounded-full bg-white" />
@@ -3178,11 +3162,10 @@ export default function AdminDashboard() {
                                 {activity.description}
                               </div>
                               <div className="flex items-center gap-3">
-                                <Badge className={`text-xs font-medium ${
-                                  activity.status === 'En cours' ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
-                                  activity.status === 'Résolu' ? 'bg-green-500/20 text-green-500 border-green-500/30' :
-                                  'bg-gray-500/20 text-gray-500 border-gray-500/30'
-                                }`}>
+                                <Badge className={`text-xs font-medium ${activity.status === 'En cours' ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' :
+                                    activity.status === 'Résolu' ? 'bg-green-500/20 text-green-500 border-green-500/30' :
+                                      'bg-gray-500/20 text-gray-500 border-gray-500/30'
+                                  }`}>
                                   {activity.status}
                                 </Badge>
                                 {activity.montant !== '0 FCFA' && (
@@ -3194,11 +3177,11 @@ export default function AdminDashboard() {
                                   </div>
                                 )}
                               </div>
-                              
+
                               {/* Détails supplémentaires pour les cas critiques */}
                               {activity.montant !== '0 FCFA' && (
                                 <div className="text-xs text-muted-foreground bg-muted/10 p-2 rounded border-l-2 border-[hsl(var(--accent-intel))]">
-                                  <strong>Impact financier:</strong> Cette intervention concerne un montant significatif 
+                                  <strong>Impact financier:</strong> Cette intervention concerne un montant significatif
                                   nécessitant un suivi rapproché et une validation présidentielle.
                                 </div>
                               )}
@@ -3207,7 +3190,7 @@ export default function AdminDashboard() {
                         </div>
                       ))}
                     </div>
-                    
+
                     {/* Résumé des actions */}
                     <div className="border-t border-muted/20 pt-3 mt-4">
                       <div className="grid grid-cols-2 gap-4 text-xs">
@@ -3237,11 +3220,10 @@ export default function AdminDashboard() {
 
 
               {/* Statut */}
-              <Alert className={`glass-effect border-none ${
-                selectedAdmin.statut === 'Actif'
+              <Alert className={`glass-effect border-none ${selectedAdmin.statut === 'Actif'
                   ? 'bg-gradient-to-br from-[hsl(var(--accent-success))]/10 to-transparent'
                   : 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/10 to-transparent'
-              }`}>
+                }`}>
                 {selectedAdmin.statut === 'Actif' ? (
                   <CheckCircle className="h-4 w-4 text-[hsl(var(--accent-success))]" />
                 ) : (
@@ -3272,10 +3254,10 @@ export default function AdminDashboard() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Détecter si on est sur mobile
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
+
                 if (isMobile) {
                   // Sur mobile, ouvrir directement l'interface iAsted en mode texte
                   const event = new CustomEvent('iasted:open-text-mode', {
@@ -3330,13 +3312,13 @@ export default function AdminDashboard() {
             </DialogTitle>
             <DialogDescription className="text-sm mt-2 flex items-center gap-2 text-foreground/80">
               <Building2 className="h-4 w-4 text-[hsl(var(--accent-intel))]" />
-              <span className="font-medium">{selectedAdmin?.organization}</span> - {rapportType === 'cas' 
+              <span className="font-medium">{selectedAdmin?.organization}</span> - {rapportType === 'cas'
                 ? `Sélection des cas à inclure dans le rapport`
                 : `Configuration du rapport global pour la période sélectionnée`
               }
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
             {/* Type de rapport */}
             <div className="space-y-3">
@@ -3351,11 +3333,10 @@ export default function AdminDashboard() {
                     setRapportType('global');
                     setSelectedCasIds([]);
                   }}
-                  className={`glass-effect border-none h-auto py-4 transition-all ${
-                    rapportType === 'global' 
-                      ? 'bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20 border border-[hsl(var(--accent-intel))]/30 shadow-lg' 
+                  className={`glass-effect border-none h-auto py-4 transition-all ${rapportType === 'global'
+                      ? 'bg-gradient-to-br from-[hsl(var(--accent-intel))]/20 to-[hsl(var(--accent-success))]/20 border border-[hsl(var(--accent-intel))]/30 shadow-lg'
                       : 'hover:bg-muted/50'
-                  }`}
+                    }`}
                 >
                   <div className="flex flex-col items-center gap-2">
                     <BarChart3 className={`h-5 w-5 ${rapportType === 'global' ? 'text-[hsl(var(--accent-intel))]' : 'text-muted-foreground'}`} />
@@ -3368,11 +3349,10 @@ export default function AdminDashboard() {
                 <Button
                   variant={rapportType === 'cas' ? 'default' : 'outline'}
                   onClick={() => setRapportType('cas')}
-                  className={`glass-effect border-none h-auto py-4 transition-all ${
-                    rapportType === 'cas' 
-                      ? 'bg-gradient-to-br from-[hsl(var(--accent-success))]/20 to-[hsl(var(--accent-intel))]/20 border border-[hsl(var(--accent-success))]/30 shadow-lg' 
+                  className={`glass-effect border-none h-auto py-4 transition-all ${rapportType === 'cas'
+                      ? 'bg-gradient-to-br from-[hsl(var(--accent-success))]/20 to-[hsl(var(--accent-intel))]/20 border border-[hsl(var(--accent-success))]/30 shadow-lg'
                       : 'hover:bg-muted/50'
-                  }`}
+                    }`}
                 >
                   <div className="flex flex-col items-center gap-2">
                     <Package className={`h-5 w-5 ${rapportType === 'cas' ? 'text-[hsl(var(--accent-success))]' : 'text-muted-foreground'}`} />
@@ -3535,18 +3515,16 @@ export default function AdminDashboard() {
                       <div
                         key={cas.id}
                         onClick={() => handleToggleCasSelection(cas.id)}
-                        className={`cursor-pointer p-3 rounded-lg border transition-all ${
-                          selectedCasIds.includes(cas.id)
+                        className={`cursor-pointer p-3 rounded-lg border transition-all ${selectedCasIds.includes(cas.id)
                             ? 'border-[hsl(var(--accent-success))] bg-[hsl(var(--accent-success))]/10'
                             : 'border-muted/20 hover:border-muted/40'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start gap-3">
-                          <div className={`w-4 h-4 rounded border flex items-center justify-center mt-0.5 ${
-                            selectedCasIds.includes(cas.id)
+                          <div className={`w-4 h-4 rounded border flex items-center justify-center mt-0.5 ${selectedCasIds.includes(cas.id)
                               ? 'bg-[hsl(var(--accent-success))] border-[hsl(var(--accent-success))]'
                               : 'border-muted-foreground'
-                          }`}>
+                            }`}>
                             {selectedCasIds.includes(cas.id) && (
                               <Check className="h-3 w-3 text-white" />
                             )}
@@ -3556,11 +3534,10 @@ export default function AdminDashboard() {
                               <Badge variant="outline" className="text-xs font-mono">
                                 {cas.id}
                               </Badge>
-                              <Badge className={`text-xs ${
-                                cas.priorite === 'Critique' ? 'bg-red-500/20 text-red-500' :
-                                cas.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500' :
-                                'bg-blue-500/20 text-blue-500'
-                              }`}>
+                              <Badge className={`text-xs ${cas.priorite === 'Critique' ? 'bg-red-500/20 text-red-500' :
+                                  cas.priorite === 'Haute' ? 'bg-orange-500/20 text-orange-500' :
+                                    'bg-blue-500/20 text-blue-500'
+                                }`}>
                                 {cas.priorite}
                               </Badge>
                             </div>
@@ -3621,200 +3598,198 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                  {/* Mode de création */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Mode de création</Label>
-                    <Select value={gammaConfig.modeCreation} onValueChange={(value: 'ia' | 'texte') => setGammaConfig({...gammaConfig, modeCreation: value})}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ia">✨ Créer avec l'IA</SelectItem>
-                        <SelectItem value="texte">📝 Coller le texte</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Type de document */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Type de document</Label>
-                    <Select value={gammaConfig.typeDocument} onValueChange={(value: 'texte' | 'presentation') => setGammaConfig({...gammaConfig, typeDocument: value})}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="presentation">📊 Présentation</SelectItem>
-                        <SelectItem value="texte">📄 Texte</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Format de page */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Format de page</Label>
-                    <Select value={gammaConfig.formatPage} onValueChange={(value: 'defaut' | 'lettre' | 'a4') => setGammaConfig({...gammaConfig, formatPage: value})}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="defaut">📏 Par défaut</SelectItem>
-                        <SelectItem value="lettre">📄 Lettre (US)</SelectItem>
-                        <SelectItem value="a4">📋 A4 (EU)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Mode de génération */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Mode de génération</Label>
-                    <Select value={gammaConfig.modeGeneration} onValueChange={(value: 'generer' | 'synthese' | 'conserver') => setGammaConfig({...gammaConfig, modeGeneration: value})}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="generer">✨ Générer</SelectItem>
-                        <SelectItem value="synthese">📝 Synthèse</SelectItem>
-                        <SelectItem value="conserver">💾 Conserver</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Niveau de détail */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Niveau de détail</Label>
-                    <Select value={gammaConfig.niveauDetail} onValueChange={(value: 'minimaliste' | 'concis' | 'detaille') => setGammaConfig({...gammaConfig, niveauDetail: value})}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="minimaliste">⚡ Minimaliste</SelectItem>
-                        <SelectItem value="concis">📋 Concis</SelectItem>
-                        <SelectItem value="detaille">📚 Détaillé</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Langue de sortie */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Langue de sortie</Label>
-                    <Select value={gammaConfig.langue} onValueChange={(value: 'francais' | 'anglais') => setGammaConfig({...gammaConfig, langue: value})}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="francais">🇫🇷 Français</SelectItem>
-                        <SelectItem value="anglais">🇬🇧 Anglais</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Source d'images */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Source d'images</Label>
-                    <Select value={gammaConfig.sourceImages} onValueChange={(value: 'ia' | 'aucune') => setGammaConfig({...gammaConfig, sourceImages: value})}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ia">🎨 Généré par l'IA</SelectItem>
-                        <SelectItem value="aucune">🚫 Ne pas ajouter d'images</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Style d'images */}
-                  {gammaConfig.sourceImages === 'ia' && (
-                    <div className="space-y-2">
-                      <Label className="text-xs text-foreground/70">Style d'images</Label>
-                      <Select value={gammaConfig.styleImages} onValueChange={(value: 'realiste' | 'illustration') => setGammaConfig({...gammaConfig, styleImages: value})}>
-                        <SelectTrigger className="h-9 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="realiste">📸 Photo réaliste</SelectItem>
-                          <SelectItem value="illustration">🎨 Illustration</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Nombre de cartes */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/70">Nombre de cartes (slides)</Label>
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        type="number" 
-                        min="1" 
-                        max="10" 
-                        value={gammaConfig.nombreCartes}
-                        onChange={(e) => setGammaConfig({...gammaConfig, nombreCartes: parseInt(e.target.value) || 7})}
-                        className="h-9 text-xs"
-                      />
-                      <span className="text-xs text-foreground/60">/ 10</span>
-                    </div>
-                  </div>
+                {/* Mode de création */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Mode de création</Label>
+                  <Select value={gammaConfig.modeCreation} onValueChange={(value: 'ia' | 'texte') => setGammaConfig({ ...gammaConfig, modeCreation: value })}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ia">✨ Créer avec l'IA</SelectItem>
+                      <SelectItem value="texte">📝 Coller le texte</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Résumé de la configuration */}
-                <div className="p-3 rounded-lg bg-muted/20 space-y-1">
-                  <div className="text-xs font-medium text-foreground">📋 Résumé de la configuration :</div>
-                  <div className="text-xs text-foreground/70">
-                    {gammaConfig.typeDocument === 'presentation' ? '📊 Présentation' : '📄 Document'} • 
-                    {gammaConfig.niveauDetail === 'minimaliste' ? ' ⚡ Minimaliste' : gammaConfig.niveauDetail === 'concis' ? ' 📋 Concis' : ' 📚 Détaillé'} • 
-                    {gammaConfig.nombreCartes} cartes • 
-                    🇫🇷 {gammaConfig.langue === 'francais' ? 'Français' : 'Anglais'} • 
-                    {gammaConfig.sourceImages === 'ia' ? ` 🎨 Images ${gammaConfig.styleImages === 'realiste' ? 'réalistes' : 'illustrations'}` : ' 🚫 Sans images'}
+                {/* Type de document */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Type de document</Label>
+                  <Select value={gammaConfig.typeDocument} onValueChange={(value: 'texte' | 'presentation') => setGammaConfig({ ...gammaConfig, typeDocument: value })}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="presentation">📊 Présentation</SelectItem>
+                      <SelectItem value="texte">📄 Texte</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Format de page */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Format de page</Label>
+                  <Select value={gammaConfig.formatPage} onValueChange={(value: 'defaut' | 'lettre' | 'a4') => setGammaConfig({ ...gammaConfig, formatPage: value })}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="defaut">📏 Par défaut</SelectItem>
+                      <SelectItem value="lettre">📄 Lettre (US)</SelectItem>
+                      <SelectItem value="a4">📋 A4 (EU)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Mode de génération */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Mode de génération</Label>
+                  <Select value={gammaConfig.modeGeneration} onValueChange={(value: 'generer' | 'synthese' | 'conserver') => setGammaConfig({ ...gammaConfig, modeGeneration: value })}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="generer">✨ Générer</SelectItem>
+                      <SelectItem value="synthese">📝 Synthèse</SelectItem>
+                      <SelectItem value="conserver">💾 Conserver</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Niveau de détail */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Niveau de détail</Label>
+                  <Select value={gammaConfig.niveauDetail} onValueChange={(value: 'minimaliste' | 'concis' | 'detaille') => setGammaConfig({ ...gammaConfig, niveauDetail: value })}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="minimaliste">⚡ Minimaliste</SelectItem>
+                      <SelectItem value="concis">📋 Concis</SelectItem>
+                      <SelectItem value="detaille">📚 Détaillé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Langue de sortie */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Langue de sortie</Label>
+                  <Select value={gammaConfig.langue} onValueChange={(value: 'francais' | 'anglais') => setGammaConfig({ ...gammaConfig, langue: value })}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="francais">🇫🇷 Français</SelectItem>
+                      <SelectItem value="anglais">🇬🇧 Anglais</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Source d'images */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Source d'images</Label>
+                  <Select value={gammaConfig.sourceImages} onValueChange={(value: 'ia' | 'aucune') => setGammaConfig({ ...gammaConfig, sourceImages: value })}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ia">🎨 Généré par l'IA</SelectItem>
+                      <SelectItem value="aucune">🚫 Ne pas ajouter d'images</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Style d'images */}
+                {gammaConfig.sourceImages === 'ia' && (
+                  <div className="space-y-2">
+                    <Label className="text-xs text-foreground/70">Style d'images</Label>
+                    <Select value={gammaConfig.styleImages} onValueChange={(value: 'realiste' | 'illustration') => setGammaConfig({ ...gammaConfig, styleImages: value })}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="realiste">📸 Photo réaliste</SelectItem>
+                        <SelectItem value="illustration">🎨 Illustration</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Nombre de cartes */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground/70">Nombre de cartes (slides)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={gammaConfig.nombreCartes}
+                      onChange={(e) => setGammaConfig({ ...gammaConfig, nombreCartes: parseInt(e.target.value) || 7 })}
+                      className="h-9 text-xs"
+                    />
+                    <span className="text-xs text-foreground/60">/ 10</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Résumé de la configuration */}
+              <div className="p-3 rounded-lg bg-muted/20 space-y-1">
+                <div className="text-xs font-medium text-foreground">📋 Résumé de la configuration :</div>
+                <div className="text-xs text-foreground/70">
+                  {gammaConfig.typeDocument === 'presentation' ? '📊 Présentation' : '📄 Document'} •
+                  {gammaConfig.niveauDetail === 'minimaliste' ? ' ⚡ Minimaliste' : gammaConfig.niveauDetail === 'concis' ? ' 📋 Concis' : ' 📚 Détaillé'} •
+                  {gammaConfig.nombreCartes} cartes •
+                  🇫🇷 {gammaConfig.langue === 'francais' ? 'Français' : 'Anglais'} •
+                  {gammaConfig.sourceImages === 'ia' ? ` 🎨 Images ${gammaConfig.styleImages === 'realiste' ? 'réalistes' : 'illustrations'}` : ' 🚫 Sans images'}
+                </div>
+              </div>
             </div>
 
             {/* Format d'extraction - APRÈS configuration */}
             <div className="space-y-3 pt-4 border-t border-purple-500/20">
-                <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                  <Download className="h-4 w-4 text-purple-500" />
-                  Format d'extraction
-                </Label>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant={formatRapport === 'gamma-pdf' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFormatRapport('gamma-pdf')}
-                    className={`glass-effect border-none h-auto py-4 transition-all ${
-                      formatRapport === 'gamma-pdf' 
-                        ? 'bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 shadow-lg' 
-                        : 'hover:bg-muted/50'
+              <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                <Download className="h-4 w-4 text-purple-500" />
+                Format d'extraction
+              </Label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant={formatRapport === 'gamma-pdf' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormatRapport('gamma-pdf')}
+                  className={`glass-effect border-none h-auto py-4 transition-all ${formatRapport === 'gamma-pdf'
+                      ? 'bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 shadow-lg'
+                      : 'hover:bg-muted/50'
                     }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="relative">
-                        <FileText className={`h-6 w-6 ${formatRapport === 'gamma-pdf' ? 'text-purple-500' : 'text-muted-foreground'}`} />
-                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pdf' ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
-                      </div>
-                      <span className="text-sm font-bold text-foreground">PDF IA</span>
-                      <span className="text-xs text-foreground/60">Document professionnel</span>
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="relative">
+                      <FileText className={`h-6 w-6 ${formatRapport === 'gamma-pdf' ? 'text-purple-500' : 'text-muted-foreground'}`} />
+                      <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pdf' ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
                     </div>
-                  </Button>
-                  <Button
-                    variant={formatRapport === 'gamma-pptx' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFormatRapport('gamma-pptx')}
-                    className={`glass-effect border-none h-auto py-4 transition-all ${
-                      formatRapport === 'gamma-pptx' 
-                        ? 'bg-gradient-to-br from-pink-500/20 to-pink-600/10 border border-pink-500/30 shadow-lg' 
-                        : 'hover:bg-muted/50'
+                    <span className="text-sm font-bold text-foreground">PDF IA</span>
+                    <span className="text-xs text-foreground/60">Document professionnel</span>
+                  </div>
+                </Button>
+                <Button
+                  variant={formatRapport === 'gamma-pptx' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormatRapport('gamma-pptx')}
+                  className={`glass-effect border-none h-auto py-4 transition-all ${formatRapport === 'gamma-pptx'
+                      ? 'bg-gradient-to-br from-pink-500/20 to-pink-600/10 border border-pink-500/30 shadow-lg'
+                      : 'hover:bg-muted/50'
                     }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="relative">
-                        <Presentation className={`h-6 w-6 ${formatRapport === 'gamma-pptx' ? 'text-pink-500' : 'text-muted-foreground'}`} />
-                        <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pptx' ? 'text-pink-400' : 'text-muted-foreground/50'}`} />
-                      </div>
-                      <span className="text-sm font-bold text-foreground">PowerPoint IA</span>
-                      <span className="text-xs text-foreground/60">Présentation éditable</span>
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="relative">
+                      <Presentation className={`h-6 w-6 ${formatRapport === 'gamma-pptx' ? 'text-pink-500' : 'text-muted-foreground'}`} />
+                      <Sparkles className={`h-3 w-3 absolute -top-1 -right-1 ${formatRapport === 'gamma-pptx' ? 'text-pink-400' : 'text-muted-foreground/50'}`} />
                     </div>
-                  </Button>
-                </div>
+                    <span className="text-sm font-bold text-foreground">PowerPoint IA</span>
+                    <span className="text-xs text-foreground/60">Présentation éditable</span>
+                  </div>
+                </Button>
+              </div>
             </div>
 
             {/* Informations de livraison */}
@@ -3877,7 +3852,7 @@ export default function AdminDashboard() {
             Supervision des sous-administrateurs et performance
           </p>
         </div>
-        <Button 
+        <Button
           className="bg-[hsl(var(--accent-warning))] hover:bg-[hsl(var(--accent-warning))]/90 text-white"
           onClick={() => setIsNommerModalOpen(true)}
         >
@@ -3899,7 +3874,7 @@ export default function AdminDashboard() {
               className="pl-10 glass-effect border-none"
             />
           </div>
-          
+
           {/* Filtre par organisation */}
           <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
             <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
@@ -3913,7 +3888,7 @@ export default function AdminDashboard() {
             </SelectContent>
           </Select>
         </div>
-        
+
         {/* Statistiques de recherche */}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
@@ -3952,7 +3927,7 @@ export default function AdminDashboard() {
             Aucun sous-administrateur trouvé
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {searchQuery 
+            {searchQuery
               ? `Aucun sous-administrateur trouvé pour "${searchQuery}". Essayez avec d'autres termes.`
               : "Aucun sous-administrateur ne correspond aux filtres sélectionnés."
             }
@@ -3974,147 +3949,145 @@ export default function AdminDashboard() {
           {filteredSubAdmins.map((admin, idx) => {
             const isInactive = (admin as any).inactive === true;
             return (
-            <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
-              admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
-            } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
-              {admin.statut === 'Attention' && (
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
-              )}
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{admin.nom}</CardTitle>
-                    <CardDescription>{admin.secteur}</CardDescription>
+              <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
+                } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
+                {admin.statut === 'Attention' && (
+                  <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+                )}
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{admin.nom}</CardTitle>
+                      <CardDescription>{admin.secteur}</CardDescription>
+                    </div>
+                    <Badge className={`${admin.statut === 'Actif'
+                        ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]'
+                        : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
+                      }`}>
+                      {admin.statut}
+                    </Badge>
                   </div>
-                  <Badge className={`${
-                    admin.statut === 'Actif' 
-                      ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]' 
-                      : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
-                  }`}>
-                    {admin.statut}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Informations de contact */}
-                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    <span className="truncate">{admin.email}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    <span>{admin.phone}</span>
-                  </div>
-                </div>
-
-                {/* Métriques de performance */}
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <div className="text-muted-foreground mb-1">Cas traités</div>
-                    <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites}</div>
-                  </div>
-                  <div>
-                    <div className="text-muted-foreground mb-1">Taux succès</div>
-                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes}%</div>
-                  </div>
-                  <div>
-                    <div className="text-muted-foreground mb-1">Délai moyen</div>
-                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours}j</div>
-                  </div>
-                </div>
-
-                <Progress value={admin.taux || admin.taux_succes} className="h-2" />
-
-                {/* Rôle et organisation */}
-                <div className="flex items-center justify-between text-xs">
-                  <Badge variant="outline" className="text-[10px]">
-                    Sub-Admin
-                  </Badge>
-                  <span className="text-muted-foreground">{admin.organization}</span>
-                </div>
-
-                {/* Privilèges */}
-                {admin.privileges && (
-                  <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground">Privilèges:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {admin.privileges.map((privilege, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0.5">
-                          {privilege}
-                        </Badge>
-                      ))}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Informations de contact */}
+                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      <span className="truncate">{admin.email}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      <span>{admin.phone}</span>
                     </div>
                   </div>
-                )}
 
-                {/* Alerte inactivité */}
-                {isInactive && (
-                  <Alert className="glass-effect border-none bg-muted/30">
-                    <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                    <AlertDescription className="text-muted-foreground text-xs">
-                      Service non actif - En attente de configuration
-                    </AlertDescription>
-                  </Alert>
-                )}
+                  {/* Métriques de performance */}
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="text-muted-foreground mb-1">Cas traités</div>
+                      <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground mb-1">Taux succès</div>
+                      <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground mb-1">Délai moyen</div>
+                      <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours}j</div>
+                    </div>
+                  </div>
 
-                {/* Actions */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleVoirDetails(admin)}
-                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
-                    disabled={isInactive}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    Détails
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      
-                      // Détecter si on est sur mobile
-                      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                      
-                      if (isMobile) {
-                        // Sur mobile, ouvrir directement l'interface iAsted en mode texte
-                        window.dispatchEvent(new CustomEvent('iasted:open-text-mode', {
-                          detail: { 
-                            admin,
-                            context: 'institution',
-                            autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
-                          }
-                        }));
-                      } else {
-                        // Sur desktop, utiliser le mode vocal comme avant
-                        window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
-                          detail: { admin }
-                        }));
-                      }
-                    }}
-                    className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
-                    disabled={isInactive}
-                  >
-                    <Mic className="h-3 w-3 mr-1" />
-                    iAsted
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOuvrirRapportModal(admin)}
-                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
-                    disabled={isInactive}
-                  >
-                    <FileText className="h-3 w-3 mr-1" />
-                    Rapport
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  <Progress value={admin.taux || admin.taux_succes} className="h-2" />
+
+                  {/* Rôle et organisation */}
+                  <div className="flex items-center justify-between text-xs">
+                    <Badge variant="outline" className="text-[10px]">
+                      Sub-Admin
+                    </Badge>
+                    <span className="text-muted-foreground">{admin.organization}</span>
+                  </div>
+
+                  {/* Privilèges */}
+                  {admin.privileges && (
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground">Privilèges:</div>
+                      <div className="flex flex-wrap gap-1">
+                        {admin.privileges.map((privilege, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0.5">
+                            {privilege}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Alerte inactivité */}
+                  {isInactive && (
+                    <Alert className="glass-effect border-none bg-muted/30">
+                      <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                      <AlertDescription className="text-muted-foreground text-xs">
+                        Service non actif - En attente de configuration
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Actions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleVoirDetails(admin)}
+                      className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                      disabled={isInactive}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Détails
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        // Détecter si on est sur mobile
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                        if (isMobile) {
+                          // Sur mobile, ouvrir directement l'interface iAsted en mode texte
+                          window.dispatchEvent(new CustomEvent('iasted:open-text-mode', {
+                            detail: {
+                              admin,
+                              context: 'institution',
+                              autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
+                            }
+                          }));
+                        } else {
+                          // Sur desktop, utiliser le mode vocal comme avant
+                          window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
+                            detail: { admin }
+                          }));
+                        }
+                      }}
+                      className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
+                      disabled={isInactive}
+                    >
+                      <Mic className="h-3 w-3 mr-1" />
+                      iAsted
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOuvrirRapportModal(admin)}
+                      className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                      disabled={isInactive}
+                    >
+                      <FileText className="h-3 w-3 mr-1" />
+                      Rapport
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
@@ -4131,7 +4104,7 @@ export default function AdminDashboard() {
             Supervision des comptes citoyens et signalements
           </p>
         </div>
-        <Button 
+        <Button
           className="bg-[hsl(var(--accent-success))] hover:bg-[hsl(var(--accent-success))]/90 text-white"
           onClick={() => setIsNommerModalOpen(true)}
         >
@@ -4153,7 +4126,7 @@ export default function AdminDashboard() {
               className="pl-10 glass-effect border-none"
             />
           </div>
-          
+
           {/* Filtre par organisation */}
           <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
             <SelectTrigger className="w-full sm:w-48 glass-effect border-none">
@@ -4167,7 +4140,7 @@ export default function AdminDashboard() {
             </SelectContent>
           </Select>
         </div>
-        
+
         {/* Statistiques de recherche */}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
@@ -4206,7 +4179,7 @@ export default function AdminDashboard() {
             Aucun citoyen trouvé
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {searchQuery 
+            {searchQuery
               ? `Aucun citoyen trouvé pour "${searchQuery}". Essayez avec d'autres termes.`
               : "Aucun citoyen ne correspond aux filtres sélectionnés."
             }
@@ -4228,139 +4201,137 @@ export default function AdminDashboard() {
           {filteredCitoyens.map((admin, idx) => {
             const isInactive = (admin as any).inactive === true;
             return (
-            <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${
-              admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
-            } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
-              {admin.statut === 'Attention' && (
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
-              )}
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{admin.nom}</CardTitle>
-                    <CardDescription>{admin.secteur}</CardDescription>
+              <Card key={idx} className={`glass-effect border-none relative overflow-hidden ${admin.statut === 'Attention' ? 'bg-gradient-to-br from-[hsl(var(--accent-warning))]/5 to-transparent' : ''
+                } ${isInactive ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
+                {admin.statut === 'Attention' && (
+                  <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[hsl(var(--accent-warning))] to-transparent" />
+                )}
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{admin.nom}</CardTitle>
+                      <CardDescription>{admin.secteur}</CardDescription>
+                    </div>
+                    <Badge className={`${admin.statut === 'Actif'
+                        ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]'
+                        : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
+                      }`}>
+                      {admin.statut}
+                    </Badge>
                   </div>
-                  <Badge className={`${
-                    admin.statut === 'Actif' 
-                      ? 'bg-[hsl(var(--accent-success))]/20 text-[hsl(var(--accent-success))]' 
-                      : 'bg-[hsl(var(--accent-danger))]/20 text-[hsl(var(--accent-danger))]'
-                  }`}>
-                    {admin.statut}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Informations de contact */}
-                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    <span className="truncate">{admin.email}</span>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Informations de contact */}
+                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      <span className="truncate">{admin.email}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      <span>{admin.phone}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    <span>{admin.phone}</span>
-                  </div>
-                </div>
 
-                {/* Métriques de performance */}
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <div className="text-muted-foreground mb-1">Signalements</div>
-                    <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites || 0}</div>
+                  {/* Métriques de performance */}
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="text-muted-foreground mb-1">Signalements</div>
+                      <div className="text-2xl font-bold tabular-nums">{admin.casTraites || admin.cas_traites || 0}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground mb-1">Taux succès</div>
+                      <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes || 0}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground mb-1">Délai moyen</div>
+                      <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours || 0}j</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-muted-foreground mb-1">Taux succès</div>
-                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-success))]">{admin.taux || admin.taux_succes || 0}%</div>
+
+                  <Progress value={admin.taux || admin.taux_succes || 0} className="h-2" />
+
+                  {/* Rôle et organisation */}
+                  <div className="flex items-center justify-between text-xs">
+                    <Badge variant="outline" className="text-[10px]">
+                      Citoyen
+                    </Badge>
+                    <span className="text-muted-foreground">{admin.organization}</span>
                   </div>
-                  <div>
-                    <div className="text-muted-foreground mb-1">Délai moyen</div>
-                    <div className="text-2xl font-bold tabular-nums text-[hsl(var(--accent-intel))]">{admin.delai || admin.delai_moyen_jours || 0}j</div>
+
+                  {/* Actions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleVoirDetails(admin)}
+                      className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
+                      disabled={isInactive}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Détails
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        // Détecter si on est sur mobile
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                        if (isMobile) {
+                          // Sur mobile, ouvrir directement l'interface iAsted en mode texte
+                          window.dispatchEvent(new CustomEvent('iasted:open-text-mode', {
+                            detail: {
+                              admin,
+                              context: 'institution',
+                              autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
+                            }
+                          }));
+                        } else {
+                          // Sur desktop, utiliser le mode vocal comme avant
+                          window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
+                            detail: { admin }
+                          }));
+                        }
+                      }}
+                      className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
+                      disabled={isInactive}
+                    >
+                      <Mic className="h-3 w-3 mr-1" />
+                      iAsted
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOuvrirRapportModal(admin)}
+                      className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
+                      disabled={isInactive}
+                    >
+                      <FileText className="h-3 w-3 mr-1" />
+                      Rapport
+                    </Button>
                   </div>
-                </div>
-
-                <Progress value={admin.taux || admin.taux_succes || 0} className="h-2" />
-
-                {/* Rôle et organisation */}
-                <div className="flex items-center justify-between text-xs">
-                  <Badge variant="outline" className="text-[10px]">
-                    Citoyen
-                  </Badge>
-                  <span className="text-muted-foreground">{admin.organization}</span>
-                </div>
-
-                {/* Actions */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleVoirDetails(admin)}
-                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-intel))]/10"
-                    disabled={isInactive}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    Détails
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      
-                      // Détecter si on est sur mobile
-                      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                      
-                      if (isMobile) {
-                        // Sur mobile, ouvrir directement l'interface iAsted en mode texte
-                        window.dispatchEvent(new CustomEvent('iasted:open-text-mode', {
-                          detail: { 
-                            admin,
-                            context: 'institution',
-                            autoMessage: `Excellence, je suis iAsted. Je vais analyser les données de ${admin.organization || 'cette institution'}. Comment puis-je vous aider ?`
-                          }
-                        }));
-                      } else {
-                        // Sur desktop, utiliser le mode vocal comme avant
-                        window.dispatchEvent(new CustomEvent('iasted:open-voice-report', {
-                          detail: { admin }
-                        }));
-                      }
-                    }}
-                    className="w-full glass-effect border-none bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
-                    disabled={isInactive}
-                  >
-                    <Mic className="h-3 w-3 mr-1" />
-                    iAsted
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOuvrirRapportModal(admin)}
-                    className="w-full glass-effect border-none hover:bg-[hsl(var(--accent-success))]/10"
-                    disabled={isInactive}
-                  >
-                    <FileText className="h-3 w-3 mr-1" />
-                    Rapport
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
       )}
-            </div>
+    </div>
   );
 
   const renderRapportsStrategiques = () => (
     <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2 md:gap-4">
-              <div>
+        <div>
           <h3 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">Rapports Stratégiques</h3>
           <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">
             Analytics avancés et indicateurs Vision Gabon 2025
           </p>
-              </div>
+        </div>
         <div className="flex gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-[140px] glass-effect border-none">
@@ -4376,9 +4347,9 @@ export default function AdminDashboard() {
           <Button variant="outline" className="glass-effect border-none">
             <Download className="h-4 w-4 mr-2" />
             Exporter
-              </Button>
-            </div>
-              </div>
+          </Button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
         {[
@@ -4397,8 +4368,8 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="pb-3 md:pb-6 px-3 md:px-6">
               <p className="text-[10px] md:text-sm text-muted-foreground mb-2 md:mb-4 truncate">{rapport.desc}</p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 className="w-full glass-effect border-none text-[10px] md:text-sm h-7 md:h-9"
                 onClick={() => handleGenererRapport(rapport.type as 'executif' | 'hebdomadaire' | 'mensuel' | 'annuel')}
@@ -4409,7 +4380,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         ))}
-          </div>
+      </div>
 
       <Alert className="glass-effect border-none bg-gradient-to-br from-[hsl(var(--accent-success))]/10 to-transparent">
         <Target className="h-4 w-4 text-[hsl(var(--accent-success))]" />
@@ -4417,11 +4388,11 @@ export default function AdminDashboard() {
           Vision Gabon Émergent 2025
         </AlertTitle>
         <AlertDescription className="text-muted-foreground">
-          La lutte anticorruption contribue directement aux objectifs de la Deuxième République. 
-          Impact mesuré: réduction de 34% des cas de corruption vs 2023, récupération de {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)} milliards FCFA, 
+          La lutte anticorruption contribue directement aux objectifs de la Deuxième République.
+          Impact mesuré: réduction de 34% des cas de corruption vs 2023, récupération de {((kpis?.impact_economique || 0) / 1000000000).toFixed(1)} milliards FCFA,
           amélioration de 18 points du score de transparence nationale.
-            </AlertDescription>
-          </Alert>
+        </AlertDescription>
+      </Alert>
     </div>
   );
 
@@ -4434,7 +4405,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
         <Header />
-        
+
         <main className="container mx-auto px-4 py-8 space-y-6">
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-700 via-green-600 to-blue-700 p-8 text-white shadow-2xl">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48"></div>
@@ -4466,7 +4437,7 @@ export default function AdminDashboard() {
               <TabsTrigger value="vision" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
                 <Target className="h-4 w-4 mr-2" />Vision
               </TabsTrigger>
-              
+
               <div className="col-span-full flex items-center gap-3 py-1">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
                 <Badge variant="outline" className="text-xs font-semibold px-3 bg-blue-50">
@@ -4477,6 +4448,12 @@ export default function AdminDashboard() {
 
               <TabsTrigger value="gestion" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 <Building2 className="h-4 w-4 mr-2" />Institutions
+              </TabsTrigger>
+              <TabsTrigger value="special" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white">
+                <Crown className="h-4 w-4 mr-2" />Spéciale
+              </TabsTrigger>
+              <TabsTrigger value="citoyens" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+                <Users className="h-4 w-4 mr-2" />Citoyens
               </TabsTrigger>
               <TabsTrigger value="validation" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 <Shield className="h-4 w-4 mr-2" />Validation
@@ -4504,6 +4481,8 @@ export default function AdminDashboard() {
               <TabsContent value="situations"><SituationsCritiques /></TabsContent>
               <TabsContent value="vision"><VisionNationale /></TabsContent>
               <TabsContent value="gestion">{renderGestionInstitutions()}</TabsContent>
+              <TabsContent value="special">{renderGestionSpecial()}</TabsContent>
+              <TabsContent value="citoyens">{renderGestionCitoyens()}</TabsContent>
               <TabsContent value="validation">{renderValidation()}</TabsContent>
               <TabsContent value="enquetes">{renderSuiviEnquetes()}</TabsContent>
               <TabsContent value="rapports">{renderRapportsStrategiques()}</TabsContent>
@@ -4519,7 +4498,7 @@ export default function AdminDashboard() {
             </Suspense>
           </Tabs>
         </main>
-        
+
         <Footer />
         <IAstedFloatingButton />
       </div>
@@ -4538,7 +4517,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex w-full relative overflow-hidden">
         {/* Background Pattern */}
         <div className="fixed inset-0 bg-pattern-grid pointer-events-none z-0" />
-        
+
         {/* Animated Orbs */}
         <div className="fixed w-[400px] h-[400px] rounded-full opacity-[var(--orb-opacity)] blur-[100px] -top-[200px] -left-[200px] bg-gradient-to-br from-[hsl(var(--accent-intel))] via-[hsl(var(--accent-intel))] to-transparent animate-float-orb pointer-events-none" style={{ animationDuration: '25s' }} />
         <div className="fixed w-[300px] h-[300px] rounded-full opacity-[var(--orb-opacity)] blur-[100px] -bottom-[150px] -right-[150px] bg-gradient-to-br from-[hsl(var(--accent-warning))] via-[hsl(var(--accent-warning))] to-transparent animate-float-orb pointer-events-none" style={{ animationDuration: '30s', animationDelay: '-5s' }} />
@@ -4553,11 +4532,10 @@ export default function AdminDashboard() {
         <div className="flex-1 flex flex-col w-full relative z-10">
           {/* Barre verticale mobile avec 3 niveaux d'affichage */}
           <div className="fixed right-0 top-16 bottom-0 z-[60] flex lg:hidden">
-            <div className={`h-full border-l bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 flex flex-col items-center py-3 gap-2 transition-all duration-300 ease-in-out ${
-              mobileMenuState === 'collapsed' ? 'w-0 opacity-0 pointer-events-none' : 
-              mobileMenuState === 'icons' ? 'w-14' : 
-              'w-52'
-            }`}>
+            <div className={`h-full border-l bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 flex flex-col items-center py-3 gap-2 transition-all duration-300 ease-in-out ${mobileMenuState === 'collapsed' ? 'w-0 opacity-0 pointer-events-none' :
+                mobileMenuState === 'icons' ? 'w-14' :
+                  'w-52'
+              }`}>
               {/* Navigation items */}
               {mobileMenuState !== 'collapsed' && (
                 <div className="flex flex-col gap-2 w-full px-2">
@@ -4572,25 +4550,25 @@ export default function AdminDashboard() {
                   <NavIcon href="/admin?view=iasted" active={activeView === 'iasted'} label="iAsted AI" icon="brain" showLabel={mobileMenuState === 'expanded'} />
                 </div>
               )}
-              
+
               <div className="flex-1" />
-              
+
               {/* Actions */}
               {mobileMenuState !== 'collapsed' && (
                 <div className="flex flex-col gap-2 w-full px-2">
-                  <button 
-                    aria-label="Paramètres" 
+                  <button
+                    aria-label="Paramètres"
                     className={`rounded-full flex items-center justify-center hover:bg-muted transition-colors ${mobileMenuState === 'expanded' ? 'h-10 w-full px-3 gap-2' : 'h-10 w-10 mx-auto'}`}
-                    title="Paramètres" 
+                    title="Paramètres"
                     onClick={() => window.location.assign('/admin?view=settings')}
                   >
                     <Settings className="h-5 w-5" />
                     {mobileMenuState === 'expanded' && <span className="text-xs font-medium whitespace-nowrap">Paramètres</span>}
                   </button>
-                  <button 
-                    aria-label="Déconnexion" 
+                  <button
+                    aria-label="Déconnexion"
                     className={`rounded-full flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors ${mobileMenuState === 'expanded' ? 'h-10 w-full px-3 gap-2' : 'h-10 w-10 mx-auto'}`}
-                    title="Déconnexion" 
+                    title="Déconnexion"
                     onClick={() => window.dispatchEvent(new CustomEvent('ndjobi:signout'))}
                   >
                     <LogOut className="h-5 w-5" />
@@ -4606,10 +4584,10 @@ export default function AdminDashboard() {
               {/* Gauche: Titre et badge */}
               <div className="flex items-center gap-3">
                 {/* Bouton menu mobile supprimé - remplacé par barre droite */}
-                
+
                 <div className="flex items-center gap-3">
-                  <img 
-                    src={emblemGabon} 
+                  <img
+                    src={emblemGabon}
                     alt="Emblème du Gabon"
                     className="h-8 w-8 object-contain rounded-full bg-white p-1 shadow-sm"
                   />
@@ -4619,7 +4597,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Droite: Actions et infos */}
               <div className="flex items-center gap-3">
                 {/* LIVE - maintenant en première position */}
@@ -4627,33 +4605,31 @@ export default function AdminDashboard() {
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-live-pulse" />
                   <span className="text-xs font-medium text-red-500">LIVE</span>
                 </div>
-                
+
                 {/* Thème - maintenant en deuxième position */}
                 <ThemeToggle />
-                
+
                 {/* Bouton toggle menu mobile - maintenant en troisième position */}
-                <button 
+                <button
                   onClick={() => {
-                    setMobileMenuState(prev => 
-                      prev === 'collapsed' ? 'icons' : 
-                      prev === 'icons' ? 'expanded' : 
-                      'collapsed'
+                    setMobileMenuState(prev =>
+                      prev === 'collapsed' ? 'icons' :
+                        prev === 'icons' ? 'expanded' :
+                          'collapsed'
                     );
                   }}
-                  className={`lg:hidden h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted border transition-all duration-200 hover:scale-105 ${
-                    mobileMenuState === 'collapsed' ? 'border-border/50 hover:border-primary/50' :
-                    mobileMenuState === 'icons' ? 'border-primary/50 bg-primary/10 hover:bg-primary/20' :
-                    'border-primary bg-primary/20 hover:bg-primary/30'
-                  }`}
+                  className={`lg:hidden h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted border transition-all duration-200 hover:scale-105 ${mobileMenuState === 'collapsed' ? 'border-border/50 hover:border-primary/50' :
+                      mobileMenuState === 'icons' ? 'border-primary/50 bg-primary/10 hover:bg-primary/20' :
+                        'border-primary bg-primary/20 hover:bg-primary/30'
+                    }`}
                   title={`Menu: ${mobileMenuState === 'collapsed' ? 'Fermé' : mobileMenuState === 'icons' ? 'Icônes' : 'Complet'}`}
                 >
-                  <Menu className={`h-5 w-5 transition-all duration-200 ${
-                    mobileMenuState === 'expanded' ? 'rotate-90' : ''
-                  }`} />
+                  <Menu className={`h-5 w-5 transition-all duration-200 ${mobileMenuState === 'expanded' ? 'rotate-90' : ''
+                    }`} />
                 </button>
-                
+
                 <div className="h-8 w-px bg-border/50 hidden lg:block" />
-                
+
                 <div className="hidden lg:flex items-center gap-2">
                   <Badge variant="outline" className="text-[10px] px-2 bg-[hsl(var(--accent-success))]/10 border-[hsl(var(--accent-success))]/30">
                     Gabon • Vision 2025
@@ -4665,11 +4641,10 @@ export default function AdminDashboard() {
 
           {/* Contenu principal avec scroll */}
           <main className="flex-1 overflow-y-auto">
-            <div className={`container py-3 md:py-8 space-y-3 md:space-y-6 transition-all duration-300 ease-in-out ${
-              mobileMenuState === 'collapsed' ? 'pr-0' : 
-              mobileMenuState === 'icons' ? 'pr-14' : 
-              'pr-52'
-            } lg:pr-0`}>
+            <div className={`container py-3 md:py-8 space-y-3 md:space-y-6 transition-all duration-300 ease-in-out ${mobileMenuState === 'collapsed' ? 'pr-0' :
+                mobileMenuState === 'icons' ? 'pr-14' :
+                  'pr-52'
+              } lg:pr-0`}>
               {/* Rendu des vues selon activeView */}
               {activeView === 'dashboard' && renderDashboardGlobal()}
               {activeView === 'validation' && renderValidation()}
@@ -4682,7 +4657,7 @@ export default function AdminDashboard() {
               {activeView === 'iasted' && <IAstedChat isOpen={true} />}
             </div>
           </main>
-          
+
           {/* Bouton flottant iAsted - masqué si vue iasted active */}
           {activeView !== 'iasted' && <IAstedFloatingButton />}
         </div>
