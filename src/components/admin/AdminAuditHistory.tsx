@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { History, Clock, FileText, RefreshCw, Filter, User, Calendar } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { History, Clock, FileText, RefreshCw, Filter, User, Calendar, BarChart3, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -13,6 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { AgentActivityTrendChart } from './AgentActivityTrendChart';
+import { SuspiciousActivityAlerts } from './SuspiciousActivityAlerts';
 
 interface AuditEntry {
   id: string;
@@ -246,196 +249,205 @@ export const AdminAuditHistory: React.FC = () => {
   }
 
   return (
-    <Card>
-      <CardHeader className="space-y-4">
-        <div className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
-            Audit Global des Agents
-            <Badge variant="secondary" className="ml-2">
-              {auditLogs.length} entrées
-            </Badge>
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-                Effacer filtres
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing}
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Graphiques de tendance et alertes */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AgentActivityTrendChart auditLogs={auditLogs} agents={agents} />
+        <SuspiciousActivityAlerts auditLogs={auditLogs} agents={agents} />
+      </div>
 
-        {/* Filtres */}
-        <div className="flex flex-wrap gap-3">
-          {/* Filtre par type d'action */}
-          <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
-            <SelectTrigger className="w-[180px] bg-background">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Type d'action" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border z-50">
-              <SelectItem value="all">Toutes les actions</SelectItem>
-              {ACTION_TYPES.map(type => (
-                <SelectItem key={type.value} value={type.value}>
-                  {agentAuditService.getActionIcon(type.value)} {type.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Filtre par agent */}
-          <Select value={agentFilter} onValueChange={setAgentFilter}>
-            <SelectTrigger className="w-[200px] bg-background">
-              <User className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Agent" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border z-50">
-              <SelectItem value="all">Tous les agents</SelectItem>
-              {agentsList.map(agent => (
-                <SelectItem key={agent.id} value={agent.id}>
-                  {agent.full_name || agent.email || agent.id.slice(0, 8)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Filtre date début */}
-          <Popover>
-            <PopoverTrigger asChild>
+      {/* Historique détaillé */}
+      <Card>
+        <CardHeader className="space-y-4">
+          <div className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Historique Détaillé des Agents
+              <Badge variant="secondary" className="ml-2">
+                {auditLogs.length} entrées
+              </Badge>
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={handleClearFilters}>
+                  Effacer filtres
+                </Button>
+              )}
               <Button
-                variant="outline"
-                className={cn(
-                  "w-[160px] justify-start text-left font-normal bg-background",
-                  !startDate && "text-muted-foreground"
-                )}
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
               >
-                <Calendar className="mr-2 h-4 w-4" />
-                {startDate ? format(startDate, "dd/MM/yyyy") : "Date début"}
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-background border z-50" align="start">
-              <CalendarComponent
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-
-          {/* Filtre date fin */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-[160px] justify-start text-left font-normal bg-background",
-                  !endDate && "text-muted-foreground"
-                )}
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {endDate ? format(endDate, "dd/MM/yyyy") : "Date fin"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-background border z-50" align="start">
-              <CalendarComponent
-                mode="single"
-                selected={endDate}
-                onSelect={setEndDate}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </CardHeader>
-
-      <CardContent>
-        {auditLogs.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Aucune action enregistrée {hasActiveFilters ? 'avec ces filtres' : 'pour le moment'}</p>
+            </div>
           </div>
-        ) : (
-          <ScrollArea className="h-[600px] pr-4">
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-border" />
 
-              <div className="space-y-4">
-                {auditLogs.map((log) => {
-                  const agent = agents.get(log.agent_id);
-                  const signalement = signalements.get(log.signalement_id);
-                  const actionType = log.action_type as AuditActionType;
-                  
-                  return (
-                    <div key={log.id} className="relative pl-12">
-                      {/* Timeline dot */}
-                      <div className="absolute left-3 w-5 h-5 rounded-full bg-background border-2 border-primary flex items-center justify-center text-xs">
-                        {agentAuditService.getActionIcon(actionType)}
-                      </div>
+          {/* Filtres */}
+          <div className="flex flex-wrap gap-3">
+            {/* Filtre par type d'action */}
+            <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
+              <SelectTrigger className="w-[180px] bg-background">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Type d'action" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border z-50">
+                <SelectItem value="all">Toutes les actions</SelectItem>
+                {ACTION_TYPES.map(type => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {agentAuditService.getActionIcon(type.value)} {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-                      <div className="bg-muted/50 rounded-lg p-4 border">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap mb-2">
-                              {/* Agent badge */}
-                              <Badge variant="outline" className="bg-background">
-                                <User className="h-3 w-3 mr-1" />
-                                {agent?.full_name || agent?.email || log.agent_id.slice(0, 8)}
-                              </Badge>
-                              
-                              {/* Action badge */}
-                              <Badge className={getActionBadgeColor(actionType)}>
-                                {agentAuditService.getActionLabel(actionType)}
-                              </Badge>
+            {/* Filtre par agent */}
+            <Select value={agentFilter} onValueChange={setAgentFilter}>
+              <SelectTrigger className="w-[200px] bg-background">
+                <User className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Agent" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border z-50">
+                <SelectItem value="all">Tous les agents</SelectItem>
+                {agentsList.map(agent => (
+                  <SelectItem key={agent.id} value={agent.id}>
+                    {agent.full_name || agent.email || agent.id.slice(0, 8)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Filtre date début */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[160px] justify-start text-left font-normal bg-background",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "dd/MM/yyyy") : "Date début"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-background border z-50" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+
+            {/* Filtre date fin */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[160px] justify-start text-left font-normal bg-background",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {endDate ? format(endDate, "dd/MM/yyyy") : "Date fin"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-background border z-50" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          {auditLogs.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Aucune action enregistrée {hasActiveFilters ? 'avec ces filtres' : 'pour le moment'}</p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-border" />
+
+                <div className="space-y-4">
+                  {auditLogs.map((log) => {
+                    const agent = agents.get(log.agent_id);
+                    const signalement = signalements.get(log.signalement_id);
+                    const actionType = log.action_type as AuditActionType;
+                    
+                    return (
+                      <div key={log.id} className="relative pl-12">
+                        {/* Timeline dot */}
+                        <div className="absolute left-3 w-5 h-5 rounded-full bg-background border-2 border-primary flex items-center justify-center text-xs">
+                          {agentAuditService.getActionIcon(actionType)}
+                        </div>
+
+                        <div className="bg-muted/50 rounded-lg p-4 border">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap mb-2">
+                                {/* Agent badge */}
+                                <Badge variant="outline" className="bg-background">
+                                  <User className="h-3 w-3 mr-1" />
+                                  {agent?.full_name || agent?.email || log.agent_id.slice(0, 8)}
+                                </Badge>
+                                
+                                {/* Action badge */}
+                                <Badge className={getActionBadgeColor(actionType)}>
+                                  {agentAuditService.getActionLabel(actionType)}
+                                </Badge>
+                              </div>
+
+                              {signalement && (
+                                <div className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
+                                  <FileText className="h-3 w-3" />
+                                  <span className="font-mono">
+                                    {signalement.reference_number || signalement.id.slice(0, 8)}
+                                  </span>
+                                  <span className="mx-1">-</span>
+                                  <span className="truncate max-w-[300px]">{signalement.title}</span>
+                                </div>
+                              )}
+
+                              {renderChanges(log.old_values, log.new_values)}
                             </div>
 
-                            {signalement && (
-                              <div className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
-                                <FileText className="h-3 w-3" />
-                                <span className="font-mono">
-                                  {signalement.reference_number || signalement.id.slice(0, 8)}
-                                </span>
-                                <span className="mx-1">-</span>
-                                <span className="truncate max-w-[300px]">{signalement.title}</span>
-                              </div>
-                            )}
-
-                            {renderChanges(log.old_values, log.new_values)}
-                          </div>
-
-                          <div className="text-xs text-muted-foreground flex flex-col items-end gap-1">
-                            <span className="flex items-center gap-1 whitespace-nowrap">
-                              <Clock className="h-3 w-3" />
-                              {formatDistanceToNow(new Date(log.created_at), {
-                                addSuffix: true,
-                                locale: fr
-                              })}
-                            </span>
-                            <span className="text-[10px] opacity-70">
-                              {format(new Date(log.created_at), "dd/MM/yyyy HH:mm")}
-                            </span>
+                            <div className="text-xs text-muted-foreground flex flex-col items-end gap-1">
+                              <span className="flex items-center gap-1 whitespace-nowrap">
+                                <Clock className="h-3 w-3" />
+                                {formatDistanceToNow(new Date(log.created_at), {
+                                  addSuffix: true,
+                                  locale: fr
+                                })}
+                              </span>
+                              <span className="text-[10px] opacity-70">
+                                {format(new Date(log.created_at), "dd/MM/yyyy HH:mm")}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          </ScrollArea>
-        )}
-      </CardContent>
-    </Card>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
