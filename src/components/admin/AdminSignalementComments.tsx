@@ -17,12 +17,14 @@ import {
   CheckCircle2,
   FileSearch,
   RefreshCw,
-  MessageSquare
+  MessageSquare,
+  CheckCheck
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useUnreadMessagesCount } from "@/hooks/useUnreadMessagesCount";
 
 interface Comment {
   id: string;
@@ -30,6 +32,8 @@ interface Comment {
   is_admin: boolean;
   created_at: string;
   signalement_id: string;
+  read_at: string | null;
+  read_by: string | null;
 }
 
 interface SignalementWithComments {
@@ -83,6 +87,8 @@ const AdminSignalementComments = () => {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<{ id: string } | null>(null);
+  const [markingAsRead, setMarkingAsRead] = useState(false);
+  const { refetch: refetchUnreadCount } = useUnreadMessagesCount();
 
   useEffect(() => {
     fetchUser();
@@ -96,10 +102,10 @@ const AdminSignalementComments = () => {
 
   const fetchSignalementsWithComments = async () => {
     try {
-      // Fetch all signalements that have comments
+      // Fetch all signalements that have comments with read status
       const { data: commentsData, error: commentsError } = await supabase
         .from('signalement_comments')
-        .select('signalement_id, created_at, is_admin')
+        .select('signalement_id, created_at, is_admin, read_at')
         .order('created_at', { ascending: false });
 
       if (commentsError) throw commentsError;
@@ -110,16 +116,18 @@ const AdminSignalementComments = () => {
           acc[comment.signalement_id] = {
             count: 0,
             lastAt: comment.created_at,
-            hasUnread: false
+            hasUnread: false,
+            unreadCount: 0
           };
         }
         acc[comment.signalement_id].count++;
-        // Mark as unread if last comment is from user (not admin)
-        if (!comment.is_admin && !acc[comment.signalement_id].hasUnread) {
+        // Mark as unread if user comment hasn't been read
+        if (!comment.is_admin && !comment.read_at) {
           acc[comment.signalement_id].hasUnread = true;
+          acc[comment.signalement_id].unreadCount++;
         }
         return acc;
-      }, {} as Record<string, { count: number; lastAt: string; hasUnread: boolean }>) || {};
+      }, {} as Record<string, { count: number; lastAt: string; hasUnread: boolean; unreadCount: number }>) || {};
 
       const signalementIds = Object.keys(commentsBySignalement);
 
@@ -189,13 +197,17 @@ const AdminSignalementComments = () => {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*', // Listen for INSERT and UPDATE
           schema: 'public',
           table: 'signalement_comments',
           filter: `signalement_id=eq.${signalement.id}`
         },
         (payload) => {
-          setComments(prev => [...prev, payload.new as Comment]);
+          if (payload.eventType === 'INSERT') {
+            setComments(prev => [...prev, payload.new as Comment]);
+          } else if (payload.eventType === 'UPDATE') {
+            setComments(prev => prev.map(c => c.id === (payload.new as Comment).id ? payload.new as Comment : c));
+          }
         }
       )
       .subscribe();
@@ -203,6 +215,55 @@ const AdminSignalementComments = () => {
     return () => {
       supabase.removeChannel(channel);
     };
+  };
+
+  const markMessagesAsRead = async (signalementId: string) => {
+    if (!user) return;
+    
+    setMarkingAsRead(true);
+    try {
+      // Get all unread user comments for this signalement
+      const unreadComments = comments.filter(c => !c.is_admin && !c.read_at);
+      
+      if (unreadComments.length === 0) {
+        toast.info("Tous les messages sont déjà lus");
+        return;
+      }
+
+      const { error } = await supabase
+        .from('signalement_comments')
+        .update({
+          read_at: new Date().toISOString(),
+          read_by: user.id
+        })
+        .eq('signalement_id', signalementId)
+        .eq('is_admin', false)
+        .is('read_at', null);
+
+      if (error) throw error;
+
+      // Update local state
+      setComments(prev => prev.map(c => 
+        !c.is_admin && !c.read_at 
+          ? { ...c, read_at: new Date().toISOString(), read_by: user.id }
+          : c
+      ));
+
+      // Update signalement list
+      setSignalements(prev => prev.map(s => 
+        s.id === signalementId ? { ...s, has_unread: false } : s
+      ));
+
+      // Refresh unread count
+      refetchUnreadCount();
+      
+      toast.success(`${unreadComments.length} message(s) marqué(s) comme lu(s)`);
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+      toast.error("Erreur lors du marquage des messages");
+    } finally {
+      setMarkingAsRead(false);
+    }
   };
 
   const handleSubmitReply = async (e: React.FormEvent) => {
@@ -375,6 +436,23 @@ const AdminSignalementComments = () => {
                     {selectedSignalement.reference_number}
                   </CardDescription>
                 </div>
+                {/* Mark as read button */}
+                {comments.some(c => !c.is_admin && !c.read_at) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => markMessagesAsRead(selectedSignalement.id)}
+                    disabled={markingAsRead}
+                    className="gap-2"
+                  >
+                    {markingAsRead ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCheck className="h-4 w-4" />
+                    )}
+                    Marquer comme lu
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -411,6 +489,16 @@ const AdminSignalementComments = () => {
                                   <Badge variant="secondary" className="text-xs">
                                     Signalant anonyme
                                   </Badge>
+                                  {comment.read_at && (
+                                    <span title={`Lu le ${format(new Date(comment.read_at), "d MMM 'à' HH:mm", { locale: fr })}`}>
+                                      <CheckCheck className="h-3.5 w-3.5 text-green-500" />
+                                    </span>
+                                  )}
+                                  {!comment.read_at && (
+                                    <Badge variant="destructive" className="text-[9px] px-1 py-0">
+                                      Non lu
+                                    </Badge>
+                                  )}
                                 </>
                               )}
                             </div>
