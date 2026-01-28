@@ -520,27 +520,25 @@ export default function NdjobiAIAgent() {
       const signalementData: any = {
         title: `Signalement de ${collectedData.type || 'corruption'}`,
         type: collectedData.type || 'corruption',
-        location: collectedData.location || '',
+        location: collectedData.location || null,
         description: collectedData.description,
         status: 'pending',
         priority: 'normal',
+        user_id: user ? user.id : null, // Explicitement null pour anonyme
         metadata: {
           submission_method: 'chat_ai',
           is_anonymous: !user,
           device_id: deviceId,
           gps_latitude: collectedData.gps_latitude,
           gps_longitude: collectedData.gps_longitude,
+          submitted_at: new Date().toISOString(),
         },
       };
-
-      if (user) {
-        signalementData.user_id = user.id;
-      }
 
       const { data, error } = await supabase
         .from('signalements')
         .insert(signalementData)
-        .select()
+        .select('id, reference_number')
         .single();
 
       if (error) throw error;
@@ -549,24 +547,29 @@ export default function NdjobiAIAgent() {
         await deviceIdentityService.recordAnonymousSignalement(data.id);
       }
 
+      const refNumber = data.reference_number || data.id.substring(0, 8).toUpperCase();
+
       setTimeout(() => {
         const accountMsg = user
           ? `Votre dénonciation a été enregistrée et sera traitée dans les 24-48h.`
-          : `Votre dénonciation anonyme a été enregistrée.\n\n💡 Créez un compte pour suivre l'évolution de votre dossier !`;
+          : `Votre dénonciation anonyme a été enregistrée.\n\n⚠️ **Conservez ce numéro** pour suivre votre signalement sur ndjobi.com/suivi`;
 
         addMessage(
           `✅ **Ndjobi tapé avec succès !**\n\n` +
-          `📁 Numéro de dossier : **${data.id.substring(0, 8)}**\n\n` +
+          `📁 Numéro de référence : **${refNumber}**\n\n` +
           accountMsg + `\n\n` +
           `Merci de contribuer à la transparence ! 🙏🎯`,
           true,
-          !user ? [{ label: "Créer un compte", action: "goto_signup", style: "primary" }] : undefined
+          !user ? [
+            { label: "📋 Suivre mon signalement", action: "goto_tracking", style: "primary" },
+            { label: "Créer un compte", action: "goto_signup", style: "secondary" },
+          ] : undefined
         );
         setIsTyping(false);
         resetFlow();
         toast({
           title: "Ndjobi tapé !",
-          description: `Dossier #${data.id.substring(0, 8)}`,
+          description: `Référence: ${refNumber}`,
         });
       }, 1500);
     } catch (error: any) {
@@ -770,6 +773,19 @@ export default function NdjobiAIAgent() {
         setTimeout(() => {
           addMessage("D'accord, indiquez le lieu (ville, quartier, bâtiment...) :", true);
           setIsTyping(false);
+        }, 800);
+        break;
+      case 'goto_tracking':
+        addMessage("Je veux suivre mon signalement", false);
+        setTimeout(() => {
+          addMessage(
+            "📋 Rendez-vous sur la page de suivi pour consulter l'état de votre signalement.\n\n🔗 Vous allez être redirigé...",
+            true
+          );
+          setIsTyping(false);
+          setTimeout(() => {
+            window.location.href = '/suivi';
+          }, 1500);
         }, 800);
         break;
       case 'goto_signup':
