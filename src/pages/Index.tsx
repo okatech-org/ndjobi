@@ -2,6 +2,7 @@ import { SEOHead } from "@/components/SEOHead";
 import Header from "@/components/Header";
 import HeroWithVideo from "@/components/HeroWithVideo";
 import CTACards from "@/components/CTACards";
+import AnonymousReportForm from "@/components/AnonymousReportForm";
 import TrustSection from "@/components/TrustSection";
 import StatsSection from "@/components/StatsSection";
 import Footer from "@/components/Footer";
@@ -18,6 +19,7 @@ const Index = () => {
       <main className="flex-1">
         <HeroWithVideo />
         <CTACards />
+        <AnonymousReportForm />
         <TrustSection />
         <StatsSection />
       </main>
