@@ -620,7 +620,7 @@ class GammaAIService {
           style: 'accent'
         },
         ...data.recommandations.slice(0, 3).map((rec: any, idx: number) => ({
-          type: 'quote',
+          type: 'quote' as const,
           content: {
             text: `${idx + 1}. ${rec.titre}\n${rec.description?.substring(0, 200)}...\nBudget: ${rec.budget || 'À définir'} | Délai: ${rec.delai}`,
             author: `Priorité: ${rec.priorite}`,

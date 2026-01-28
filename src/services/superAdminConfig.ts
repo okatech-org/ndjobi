@@ -1,4 +1,8 @@
-import { supabase } from '@/integrations/supabase/client';
+/**
+ * Service de configuration Super Admin
+ * Note: Les tables api_keys, connected_apps, mcp_configs, ai_agents n'existent pas dans le schéma actuel
+ * Les méthodes retournent des données vides ou des fallbacks en attendant la création des tables
+ */
 
 export interface ApiKey {
   id: string;
@@ -50,338 +54,90 @@ export interface AIAgent {
 }
 
 class SuperAdminConfigService {
+  // API Keys - Table doesn't exist, returning empty array
   async getAllApiKeys(): Promise<ApiKey[]> {
-    try {
-      const { data, error } = await supabase
-        .from('api_keys')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return (data || []).map(item => ({
-        id: item.id,
-        name: item.name,
-        service: item.service,
-        key: item.key_encrypted,
-        status: item.status,
-        lastUsed: item.last_used,
-        usage: item.usage || 0,
-        limit: item.usage_limit || 1000,
-        created_at: item.created_at,
-        metadata: item.metadata || {},
-      }));
-    } catch (error) {
-      console.error('Erreur récupération clés API:', error);
-      return [];
-    }
+    console.log('[SuperAdminConfig] api_keys table not available');
+    return [];
   }
 
-  async addApiKey(apiKey: Omit<ApiKey, 'id' | 'created_at'>): Promise<void> {
-    try {
-      const { error } = await supabase.from('api_keys').insert([{
-        name: apiKey.name,
-        service: apiKey.service,
-        key_encrypted: apiKey.key,
-        status: apiKey.status || 'active',
-        usage: apiKey.usage || 0,
-        usage_limit: apiKey.limit || 1000,
-        last_used: apiKey.lastUsed || null,
-        metadata: apiKey.metadata || {},
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      }]);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur ajout clé API:', error);
-      throw error;
-    }
+  async addApiKey(_apiKey: Omit<ApiKey, 'id' | 'created_at'>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot add API key - table does not exist');
+    throw new Error('api_keys table not available');
   }
 
-  async updateApiKey(id: string, updates: Partial<ApiKey>): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('api_keys')
-        .update({
-          ...(updates.name && { name: updates.name }),
-          ...(updates.service && { service: updates.service }),
-          ...(updates.key && { key_encrypted: updates.key }),
-          ...(updates.status && { status: updates.status }),
-          ...(updates.usage !== undefined && { usage: updates.usage }),
-          ...(updates.limit !== undefined && { usage_limit: updates.limit }),
-          ...(updates.lastUsed && { last_used: updates.lastUsed }),
-          ...(updates.metadata && { metadata: updates.metadata }),
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur mise à jour clé API:', error);
-      throw error;
-    }
+  async updateApiKey(_id: string, _updates: Partial<ApiKey>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot update API key - table does not exist');
+    throw new Error('api_keys table not available');
   }
 
-  async deleteApiKey(id: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('api_keys')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur suppression clé API:', error);
-      throw error;
-    }
+  async deleteApiKey(_id: string): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot delete API key - table does not exist');
+    throw new Error('api_keys table not available');
   }
 
+  // Connected Apps - Table doesn't exist, returning empty array
   async getAllConnectedApps(): Promise<ConnectedApp[]> {
-    try {
-      const { data, error } = await supabase
-        .from('connected_apps')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return (data || []).map(item => ({
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        url: item.url,
-        status: item.status,
-        lastSync: item.last_sync,
-        created_at: item.created_at,
-        config: item.config || {},
-      }));
-    } catch (error) {
-      console.error('Erreur récupération applications:', error);
-      return [];
-    }
+    console.log('[SuperAdminConfig] connected_apps table not available');
+    return [];
   }
 
-  async addConnectedApp(app: Omit<ConnectedApp, 'id' | 'created_at'>): Promise<void> {
-    try {
-      const { error } = await supabase.from('connected_apps').insert([{
-        name: app.name,
-        type: app.type,
-        url: app.url || null,
-        status: app.status || 'connected',
-        last_sync: app.lastSync || null,
-        config: app.config || {},
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      }]);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur ajout application:', error);
-      throw error;
-    }
+  async addConnectedApp(_app: Omit<ConnectedApp, 'id' | 'created_at'>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot add connected app - table does not exist');
+    throw new Error('connected_apps table not available');
   }
 
-  async updateConnectedApp(id: string, updates: Partial<ConnectedApp>): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('connected_apps')
-        .update({
-          ...(updates.name && { name: updates.name }),
-          ...(updates.type && { type: updates.type }),
-          ...(updates.url && { url: updates.url }),
-          ...(updates.status && { status: updates.status }),
-          ...(updates.lastSync && { last_sync: updates.lastSync }),
-          ...(updates.config && { config: updates.config }),
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur mise à jour application:', error);
-      throw error;
-    }
+  async updateConnectedApp(_id: string, _updates: Partial<ConnectedApp>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot update connected app - table does not exist');
+    throw new Error('connected_apps table not available');
   }
 
-  async deleteConnectedApp(id: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('connected_apps')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur suppression application:', error);
-      throw error;
-    }
+  async deleteConnectedApp(_id: string): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot delete connected app - table does not exist');
+    throw new Error('connected_apps table not available');
   }
 
+  // MCP Configs - Table doesn't exist, returning empty array
   async getAllMCPConfigs(): Promise<MCPConfig[]> {
-    try {
-      const { data, error } = await supabase
-        .from('mcp_configs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return (data || []).map(item => ({
-        id: item.id,
-        name: item.name,
-        endpoint: item.endpoint,
-        protocol: item.protocol,
-        status: item.status,
-        capabilities: item.capabilities || [],
-        lastConnected: item.last_connected,
-        created_at: item.created_at,
-        config: item.config || {},
-      }));
-    } catch (error) {
-      console.error('Erreur récupération MCP configs:', error);
-      return [];
-    }
+    console.log('[SuperAdminConfig] mcp_configs table not available');
+    return [];
   }
 
-  async addMCPConfig(mcp: Omit<MCPConfig, 'id' | 'created_at'>): Promise<void> {
-    try {
-      const { error } = await supabase.from('mcp_configs').insert([{
-        name: mcp.name,
-        endpoint: mcp.endpoint,
-        protocol: mcp.protocol,
-        status: mcp.status || 'active',
-        capabilities: mcp.capabilities || [],
-        last_connected: mcp.lastConnected || null,
-        config: mcp.config || {},
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      }]);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur ajout MCP config:', error);
-      throw error;
-    }
+  async addMCPConfig(_mcp: Omit<MCPConfig, 'id' | 'created_at'>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot add MCP config - table does not exist');
+    throw new Error('mcp_configs table not available');
   }
 
-  async updateMCPConfig(id: string, updates: Partial<MCPConfig>): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('mcp_configs')
-        .update({
-          ...(updates.name && { name: updates.name }),
-          ...(updates.endpoint && { endpoint: updates.endpoint }),
-          ...(updates.protocol && { protocol: updates.protocol }),
-          ...(updates.status && { status: updates.status }),
-          ...(updates.capabilities && { capabilities: updates.capabilities }),
-          ...(updates.lastConnected && { last_connected: updates.lastConnected }),
-          ...(updates.config && { config: updates.config }),
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur mise à jour MCP config:', error);
-      throw error;
-    }
+  async updateMCPConfig(_id: string, _updates: Partial<MCPConfig>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot update MCP config - table does not exist');
+    throw new Error('mcp_configs table not available');
   }
 
-  async deleteMCPConfig(id: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('mcp_configs')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur suppression MCP config:', error);
-      throw error;
-    }
+  async deleteMCPConfig(_id: string): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot delete MCP config - table does not exist');
+    throw new Error('mcp_configs table not available');
   }
 
+  // AI Agents - Table doesn't exist, returning empty array
   async getAllAIAgents(): Promise<AIAgent[]> {
-    try {
-      const { data, error } = await supabase
-        .from('ai_agents')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return (data || []).map(item => ({
-        id: item.id,
-        name: item.name,
-        model: item.model,
-        provider: item.provider,
-        status: item.status,
-        capabilities: item.capabilities || [],
-        lastUsed: item.last_used,
-        usageCount: item.usage_count || 0,
-        created_at: item.created_at,
-        config: item.config || {},
-      }));
-    } catch (error) {
-      console.error('Erreur récupération agents IA:', error);
-      return [];
-    }
+    console.log('[SuperAdminConfig] ai_agents table not available');
+    return [];
   }
 
-  async addAIAgent(agent: Omit<AIAgent, 'id' | 'created_at'>): Promise<void> {
-    try {
-      const { error } = await supabase.from('ai_agents').insert([{
-        name: agent.name,
-        model: agent.model,
-        provider: agent.provider,
-        status: agent.status || 'active',
-        capabilities: agent.capabilities || [],
-        last_used: agent.lastUsed || null,
-        usage_count: agent.usageCount || 0,
-        config: agent.config || {},
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      }]);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur ajout agent IA:', error);
-      throw error;
-    }
+  async addAIAgent(_agent: Omit<AIAgent, 'id' | 'created_at'>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot add AI agent - table does not exist');
+    throw new Error('ai_agents table not available');
   }
 
-  async updateAIAgent(id: string, updates: Partial<AIAgent>): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('ai_agents')
-        .update({
-          ...(updates.name && { name: updates.name }),
-          ...(updates.model && { model: updates.model }),
-          ...(updates.provider && { provider: updates.provider }),
-          ...(updates.status && { status: updates.status }),
-          ...(updates.capabilities && { capabilities: updates.capabilities }),
-          ...(updates.lastUsed && { last_used: updates.lastUsed }),
-          ...(updates.usageCount !== undefined && { usage_count: updates.usageCount }),
-          ...(updates.config && { config: updates.config }),
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur mise à jour agent IA:', error);
-      throw error;
-    }
+  async updateAIAgent(_id: string, _updates: Partial<AIAgent>): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot update AI agent - table does not exist');
+    throw new Error('ai_agents table not available');
   }
 
-  async deleteAIAgent(id: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('ai_agents')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Erreur suppression agent IA:', error);
-      throw error;
-    }
+  async deleteAIAgent(_id: string): Promise<void> {
+    console.warn('[SuperAdminConfig] Cannot delete AI agent - table does not exist');
+    throw new Error('ai_agents table not available');
   }
 }
 
 export const superAdminConfigService = new SuperAdminConfigService();
 export default superAdminConfigService;
-

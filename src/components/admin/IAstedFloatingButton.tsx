@@ -142,7 +142,8 @@ export const IAstedFloatingButton = () => {
         }
       })();
       
-      const cloture = `Situation sécuritaire: ${taux > 75 ? 'maîtrisée, vigilance maintenue' : taux > 60 ? 'préoccupante, surveillance renforcée nécessaire' : 'critique, action présidentielle urgente requise'}. Points décision disponibles. Je reste à disposition pour briefing approfondi. Fin de rapport. ${classification}.`;
+      const tauxNum = typeof taux === 'string' ? parseFloat(taux) : (taux as number);
+      const cloture = `Situation sécuritaire: ${tauxNum > 75 ? 'maîtrisée, vigilance maintenue' : tauxNum > 60 ? 'préoccupante, surveillance renforcée nécessaire' : 'critique, action présidentielle urgente requise'}. Points décision disponibles. Je reste à disposition pour briefing approfondi. Fin de rapport. ${classification}.`;
       
       return [intro, menaces, operations, reco, cloture].filter(Boolean).join(' ');
     }

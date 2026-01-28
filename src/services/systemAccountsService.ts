@@ -19,8 +19,8 @@ class SystemAccountsService {
       
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, full_name, phone_number, created_at')
-        .in('phone_number', [
+        .select('id, email, full_name, phone, created_at')
+        .in('phone', [
           '+24177888001',
           '+24177888002',
           '+24177888003',
@@ -100,7 +100,7 @@ class SystemAccountsService {
       };
 
       const accounts: SystemAccount[] = profilesData?.map(profile => {
-        const phone = profile.phone_number || '';
+        const phone = profile.phone || '';
         const metadata = accountsMetadata[phone] || {
           pin: '000000',
           organization: 'Inconnu',
@@ -245,7 +245,7 @@ class SystemAccountsService {
     try {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, email, full_name, phone_number, created_at')
+        .select('id, email, full_name, phone, created_at')
         .eq('id', accountId)
         .single();
 
@@ -264,7 +264,7 @@ class SystemAccountsService {
         console.error('❌ Erreur récupération rôle:', roleError);
       }
 
-      const phone = profile.phone_number || '';
+      const phone = profile.phone || '';
       const accountsMetadata: Record<string, { pin: string; organization: string; description: string }> = {
         '+24177888001': { pin: '111111', organization: 'Présidence de la République', description: 'Accès présidentiel' },
         '+24177888002': { pin: '222222', organization: 'DGSS', description: 'Direction spécialisée' },

@@ -366,7 +366,8 @@ export class IAstedVoiceService {
       issues.push('iOS Safari détecté - Vérifiez les paramètres de confidentialité');
       
       // Vérifier les APIs nécessaires
-      if (!window.AudioContext && !window.webkitAudioContext) {
+      const hasAudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!hasAudioContext) {
         issues.push('AudioContext non supporté - Mise à jour Safari requise');
       }
       
