@@ -1,4 +1,4 @@
-import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X, ArrowLeft, MessageCircle, Key, Bot, Zap } from "lucide-react";
+import { Shield, LogOut, User, FileText, Settings, AlertCircle, FolderLock, LayoutDashboard, Search, Map as MapIcon, Menu, X, ArrowLeft, MessageCircle, Key, Bot, Zap, FileSearch } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -204,17 +204,28 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
           {!user && (
-            <Button 
-              variant={location.pathname === '/statistiques' ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => navigate('/statistiques')}
-              className="gap-2"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              Statistiques
-            </Button>
+            <>
+              <Button 
+                variant={location.pathname === '/suivi' ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => navigate('/suivi')}
+                className="gap-2"
+              >
+                <FileSearch className="h-4 w-4" />
+                Suivi
+              </Button>
+              <Button 
+                variant={location.pathname === '/statistiques' ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => navigate('/statistiques')}
+                className="gap-2"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Statistiques
+              </Button>
+            </>
           )}
           {user && authenticatedMenuItems.map((item) => {
             const Icon = item.icon;
