@@ -288,13 +288,21 @@ export function AdminSidebar() {
                       tooltip={collapsed ? item.title : undefined}
                     >
                       <div className="flex items-center gap-3 w-full min-w-0">
-                        <Icon
-                          className={`h-5 w-5 flex-shrink-0 transition-all duration-200 ${
-                            active
-                              ? "text-primary-foreground"
-                              : "text-muted-foreground group-hover:text-foreground"
-                          }`}
-                        />
+                        <div className="relative flex-shrink-0">
+                          <Icon
+                            className={`h-5 w-5 transition-all duration-200 ${
+                              active
+                                ? "text-primary-foreground"
+                                : "text-muted-foreground group-hover:text-foreground"
+                            }`}
+                          />
+                          {/* Indicateur visuel en mode réduit */}
+                          {collapsed && itemAny.badgeVariant === 'unread' && unreadCount > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px] font-bold text-white bg-destructive rounded-full animate-pulse shadow-lg">
+                              {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                          )}
+                        </div>
                         {!collapsed && (
                           <div className="flex items-center justify-between flex-1 gap-2 min-w-0 animate-fade-in">
                             <div className="flex flex-col min-w-0 flex-1">
