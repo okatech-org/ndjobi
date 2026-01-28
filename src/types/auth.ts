@@ -1,6 +1,17 @@
 import { User, Session } from '@supabase/supabase-js';
 
-export type UserRole = 'user' | 'agent' | 'admin' | 'sub_admin' | 'super_admin';
+export type UserRole = 
+  | 'user' 
+  | 'agent' 
+  | 'admin' 
+  | 'sub_admin' 
+  | 'super_admin'
+  | 'agent_anticorruption'
+  | 'agent_justice'
+  | 'agent_interior'
+  | 'agent_defense'
+  | 'sub_admin_dgss'
+  | 'sub_admin_dgr';
 
 export interface UserProfile {
   id: string;

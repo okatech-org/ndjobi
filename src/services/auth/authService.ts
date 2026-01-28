@@ -472,8 +472,14 @@ export class AuthService {
         return '/super-admin';
       case 'admin':
       case 'sub_admin':
+      case 'sub_admin_dgss':
+      case 'sub_admin_dgr':
         return '/admin';
       case 'agent':
+      case 'agent_anticorruption':
+      case 'agent_justice':
+      case 'agent_interior':
+      case 'agent_defense':
         return '/agent';
       case 'user':
         return '/user';
@@ -488,10 +494,16 @@ export class AuthService {
   hasPermission(requiredRole: UserRole): boolean {
     const effectiveRole = this.getCurrentRole();
     const roleHierarchy: Record<UserRole, number> = {
-      'super_admin': 4,
-      'admin': 3,
-      'sub_admin': 2.5,
+      'super_admin': 5,
+      'admin': 4,
+      'sub_admin': 3,
+      'sub_admin_dgss': 3,
+      'sub_admin_dgr': 3,
       'agent': 2,
+      'agent_anticorruption': 2,
+      'agent_justice': 2,
+      'agent_interior': 2,
+      'agent_defense': 2,
       'user': 1,
     };
 
