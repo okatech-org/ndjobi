@@ -16,6 +16,7 @@ import Report from "./pages/Report";
 import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/dashboards/UserDashboard";
 import Statistics from "./pages/Statistics";
+import TrackReport from "./pages/TrackReport";
 import NdjobiAIAgent from "@/components/ai-agent/NdjobiAIAgent";
 import { PWAAuth } from "@/components/auth/PWAAuth";
 
@@ -343,6 +344,7 @@ const App = () => {
               }
             />
             <Route path="/statistiques" element={<Statistics />} />
+            <Route path="/suivi" element={<TrackReport />} />
             <Route path="*" element={
               <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la page..." />}>
                 <NotFound />
