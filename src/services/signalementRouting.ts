@@ -3,6 +3,8 @@
  * Gère le routage automatique des signalements vers les agents spécialisés
  */
 
+import type { UserRole } from '@/types/auth';
+
 export type AgentRole =
     | 'agent_anticorruption'
     | 'agent_justice'
@@ -10,6 +12,21 @@ export type AgentRole =
     | 'agent_defense'
     | 'sub_admin_dgss'
     | 'sub_admin_dgr';
+
+/**
+ * Vérifie si un rôle est un rôle d'agent spécialisé
+ */
+export function isSpecializedAgentRole(role: UserRole | null): role is AgentRole {
+    if (!role) return false;
+    return [
+        'agent_anticorruption',
+        'agent_justice',
+        'agent_interior',
+        'agent_defense',
+        'sub_admin_dgss',
+        'sub_admin_dgr'
+    ].includes(role);
+}
 
 export type SignalementType =
     | 'corruption'
