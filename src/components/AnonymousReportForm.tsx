@@ -68,6 +68,8 @@ const AnonymousReportForm = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [honeypot, setHoneypot] = useState(""); // Honeypot anti-spam
+  const [formStartTime] = useState(Date.now()); // Track form load time
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -210,6 +212,30 @@ const AnonymousReportForm = () => {
   };
 
   const onSubmit = async (data: ReportFormData) => {
+    // Anti-spam checks
+    // 1. Honeypot check - bots fill hidden fields
+    if (honeypot) {
+      console.warn('Honeypot triggered - likely spam');
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue. Veuillez réessayer.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 2. Time-based check - humans take at least 5 seconds to fill form
+    const timeElapsed = Date.now() - formStartTime;
+    if (timeElapsed < 5000) {
+      console.warn('Form submitted too quickly - likely spam');
+      toast({
+        title: "Trop rapide",
+        description: "Veuillez prendre le temps de remplir le formulaire correctement.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -344,6 +370,23 @@ const AnonymousReportForm = () => {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                {/* Honeypot field - hidden from humans, bots will fill it */}
+                <div 
+                  className="absolute left-[-9999px] opacity-0 h-0 w-0 overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <label htmlFor="website_url">Website</label>
+                  <input
+                    type="text"
+                    id="website_url"
+                    name="website_url"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
+
                 {/* Type de signalement */}
                 <FormField
                   control={form.control}
