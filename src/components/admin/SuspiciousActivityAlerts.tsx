@@ -15,12 +15,21 @@ import {
   Zap,
   Eye,
   EyeOff,
-  Bell,
   BellOff,
+  Settings,
 } from 'lucide-react';
-import { formatDistanceToNow, format, differenceInMinutes, subHours } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { agentAuditService, AuditActionType } from '@/services/agentAuditService';
+import { differenceInMinutes, subHours } from 'date-fns';
+import { useSecurityAlertThresholds } from '@/hooks/useSecurityAlertThresholds';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { SecurityAlertThresholdsSettings } from './SecurityAlertThresholdsSettings';
 
 interface AuditEntry {
   id: string;
@@ -58,37 +67,21 @@ interface SuspiciousActivity {
   details: Record<string, unknown>;
 }
 
-// Seuils de détection
-const THRESHOLDS = {
-  // Actions rapides: plus de X actions en Y minutes
-  RAPID_ACTIONS_COUNT: 10,
-  RAPID_ACTIONS_WINDOW_MINUTES: 5,
-  // Modifications de masse: plus de X modifications de statut en Y minutes
-  MASS_STATUS_CHANGES_COUNT: 5,
-  MASS_STATUS_CHANGES_WINDOW_MINUTES: 10,
-  // Rejets multiples: plus de X rejets en Y minutes
-  MASS_REJECTIONS_COUNT: 3,
-  MASS_REJECTIONS_WINDOW_MINUTES: 30,
-  // Résolutions rapides: résolution en moins de X minutes après création
-  QUICK_RESOLUTION_MINUTES: 2,
-  // Actions hors heures normales (0h-6h)
-  OFF_HOURS_START: 0,
-  OFF_HOURS_END: 6,
-};
-
 export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> = ({
   auditLogs,
   agents,
 }) => {
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
   const [showDismissed, setShowDismissed] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { thresholds } = useSecurityAlertThresholds();
 
   const getAgentName = (agentId: string): string => {
     const agent = agents.get(agentId);
     return agent?.full_name || agent?.email || agentId.slice(0, 8);
   };
 
-  // Détecter les activités suspectes
+  // Détecter les activités suspectes avec seuils dynamiques
   const suspiciousActivities = useMemo(() => {
     const alerts: SuspiciousActivity[] = [];
     const now = new Date();
@@ -112,14 +105,14 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
       // 1. Détection des actions rapides
       for (let i = 0; i < sortedLogs.length; i++) {
         const windowEnd = new Date(sortedLogs[i].created_at);
-        const windowStart = new Date(windowEnd.getTime() - THRESHOLDS.RAPID_ACTIONS_WINDOW_MINUTES * 60 * 1000);
+        const windowStart = new Date(windowEnd.getTime() - thresholds.rapidActionsWindowMinutes * 60 * 1000);
         
         const actionsInWindow = sortedLogs.filter(log => {
           const logTime = new Date(log.created_at);
           return logTime >= windowStart && logTime <= windowEnd;
         });
 
-        if (actionsInWindow.length >= THRESHOLDS.RAPID_ACTIONS_COUNT) {
+        if (actionsInWindow.length >= thresholds.rapidActionsCount) {
           const alertId = `rapid-${agentId}-${windowEnd.getTime()}`;
           if (!alerts.find(a => a.id === alertId)) {
             alerts.push({
@@ -127,7 +120,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
               type: 'rapid_actions',
               severity: 'warning',
               title: 'Activité inhabituelle détectée',
-              description: `${actionsInWindow.length} actions en ${THRESHOLDS.RAPID_ACTIONS_WINDOW_MINUTES} minutes`,
+              description: `${actionsInWindow.length} actions en ${thresholds.rapidActionsWindowMinutes} minutes`,
               agentId,
               agentName: getAgentName(agentId),
               timestamp: windowEnd,
@@ -145,14 +138,14 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
 
       for (let i = 0; i < statusChanges.length; i++) {
         const windowEnd = new Date(statusChanges[i].created_at);
-        const windowStart = new Date(windowEnd.getTime() - THRESHOLDS.MASS_STATUS_CHANGES_WINDOW_MINUTES * 60 * 1000);
+        const windowStart = new Date(windowEnd.getTime() - thresholds.massStatusChangesWindowMinutes * 60 * 1000);
         
         const changesInWindow = statusChanges.filter(log => {
           const logTime = new Date(log.created_at);
           return logTime >= windowStart && logTime <= windowEnd;
         });
 
-        if (changesInWindow.length >= THRESHOLDS.MASS_STATUS_CHANGES_COUNT) {
+        if (changesInWindow.length >= thresholds.massStatusChangesCount) {
           const alertId = `mass-status-${agentId}-${windowEnd.getTime()}`;
           if (!alerts.find(a => a.id === alertId)) {
             alerts.push({
@@ -160,7 +153,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
               type: 'mass_status_changes',
               severity: 'warning',
               title: 'Modifications de statut en masse',
-              description: `${changesInWindow.length} changements de statut en ${THRESHOLDS.MASS_STATUS_CHANGES_WINDOW_MINUTES} minutes`,
+              description: `${changesInWindow.length} changements de statut en ${thresholds.massStatusChangesWindowMinutes} minutes`,
               agentId,
               agentName: getAgentName(agentId),
               timestamp: windowEnd,
@@ -175,14 +168,14 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
       
       for (let i = 0; i < rejections.length; i++) {
         const windowEnd = new Date(rejections[i].created_at);
-        const windowStart = new Date(windowEnd.getTime() - THRESHOLDS.MASS_REJECTIONS_WINDOW_MINUTES * 60 * 1000);
+        const windowStart = new Date(windowEnd.getTime() - thresholds.massRejectionsWindowMinutes * 60 * 1000);
         
         const rejectionsInWindow = rejections.filter(log => {
           const logTime = new Date(log.created_at);
           return logTime >= windowStart && logTime <= windowEnd;
         });
 
-        if (rejectionsInWindow.length >= THRESHOLDS.MASS_REJECTIONS_COUNT) {
+        if (rejectionsInWindow.length >= thresholds.massRejectionsCount) {
           const alertId = `mass-reject-${agentId}-${windowEnd.getTime()}`;
           if (!alerts.find(a => a.id === alertId)) {
             alerts.push({
@@ -190,7 +183,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
               type: 'mass_rejections',
               severity: 'critical',
               title: 'Rejets multiples suspects',
-              description: `${rejectionsInWindow.length} signalements rejetés en ${THRESHOLDS.MASS_REJECTIONS_WINDOW_MINUTES} minutes`,
+              description: `${rejectionsInWindow.length} signalements rejetés en ${thresholds.massRejectionsWindowMinutes} minutes`,
               agentId,
               agentName: getAgentName(agentId),
               timestamp: windowEnd,
@@ -203,7 +196,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
       // 4. Détection des actions hors heures normales
       const offHoursActions = sortedLogs.filter(log => {
         const hour = new Date(log.created_at).getHours();
-        return hour >= THRESHOLDS.OFF_HOURS_START && hour < THRESHOLDS.OFF_HOURS_END;
+        return hour >= thresholds.offHoursStart && hour < thresholds.offHoursEnd;
       });
 
       if (offHoursActions.length > 0) {
@@ -215,7 +208,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
             type: 'off_hours_activity',
             severity: 'info',
             title: 'Activité hors heures normales',
-            description: `${offHoursActions.length} action(s) entre ${THRESHOLDS.OFF_HOURS_START}h et ${THRESHOLDS.OFF_HOURS_END}h`,
+            description: `${offHoursActions.length} action(s) entre ${thresholds.offHoursStart}h et ${thresholds.offHoursEnd}h`,
             agentId,
             agentName: getAgentName(agentId),
             timestamp: new Date(latestOffHour.created_at),
@@ -225,7 +218,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
       }
     });
 
-    // 5. Détection des résolutions très rapides (peut indiquer un traitement superficiel)
+    // 5. Détection des résolutions très rapides
     const resolutions = recentLogs.filter(log => log.action_type === 'resolve_signalement');
     resolutions.forEach(resolution => {
       const viewActions = recentLogs.filter(
@@ -244,7 +237,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
           new Date(firstView.created_at)
         );
 
-        if (minutesBetween <= THRESHOLDS.QUICK_RESOLUTION_MINUTES) {
+        if (minutesBetween <= thresholds.quickResolutionMinutes) {
           const alertId = `quick-resolve-${resolution.id}`;
           if (!alerts.find(a => a.id === alertId)) {
             alerts.push({
@@ -267,14 +260,13 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
     });
 
     return alerts.sort((a, b) => {
-      // Trier par sévérité puis par date
       const severityOrder = { critical: 0, warning: 1, info: 2 };
       if (severityOrder[a.severity] !== severityOrder[b.severity]) {
         return severityOrder[a.severity] - severityOrder[b.severity];
       }
       return b.timestamp.getTime() - a.timestamp.getTime();
     });
-  }, [auditLogs, agents]);
+  }, [auditLogs, agents, thresholds]);
 
   const visibleAlerts = suspiciousActivities.filter(
     alert => showDismissed || !dismissedAlerts.has(alert.id)
@@ -353,24 +345,39 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
               Détection automatique des comportements inhabituels (dernières 24h)
             </CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowDismissed(!showDismissed)}
-            className="flex items-center gap-2"
-          >
-            {showDismissed ? (
-              <>
-                <EyeOff className="h-4 w-4" />
-                Masquer ignorées
-              </>
-            ) : (
-              <>
-                <Eye className="h-4 w-4" />
-                Voir ignorées ({dismissedAlerts.size})
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Configuration des Alertes</DialogTitle>
+                </DialogHeader>
+                <SecurityAlertThresholdsSettings />
+              </DialogContent>
+            </Dialog>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowDismissed(!showDismissed)}
+              className="flex items-center gap-2"
+            >
+              {showDismissed ? (
+                <>
+                  <EyeOff className="h-4 w-4" />
+                  Masquer
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4" />
+                  Ignorées ({dismissedAlerts.size})
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -381,7 +388,7 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
             <p className="text-sm">Le système surveille continuellement l'activité des agents</p>
           </div>
         ) : (
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[350px] pr-4">
             <div className="space-y-3">
               {visibleAlerts.map(alert => (
                 <Alert
@@ -436,25 +443,25 @@ export const SuspiciousActivityAlerts: React.FC<SuspiciousActivityAlertsProps> =
           </ScrollArea>
         )}
 
-        {/* Légende des seuils */}
+        {/* Légende des seuils dynamiques */}
         <div className="mt-4 pt-4 border-t">
-          <p className="text-xs text-muted-foreground mb-2">Seuils de détection:</p>
+          <p className="text-xs text-muted-foreground mb-2">Seuils de détection actifs:</p>
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <Zap className="h-3 w-3" />
-              <span>≥{THRESHOLDS.RAPID_ACTIONS_COUNT} actions / {THRESHOLDS.RAPID_ACTIONS_WINDOW_MINUTES}min</span>
+              <span>≥{thresholds.rapidActionsCount} actions / {thresholds.rapidActionsWindowMinutes}min</span>
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
-              <span>≥{THRESHOLDS.MASS_STATUS_CHANGES_COUNT} modifs statut / {THRESHOLDS.MASS_STATUS_CHANGES_WINDOW_MINUTES}min</span>
+              <span>≥{thresholds.massStatusChangesCount} modifs / {thresholds.massStatusChangesWindowMinutes}min</span>
             </div>
             <div className="flex items-center gap-1">
               <AlertCircle className="h-3 w-3" />
-              <span>≥{THRESHOLDS.MASS_REJECTIONS_COUNT} rejets / {THRESHOLDS.MASS_REJECTIONS_WINDOW_MINUTES}min</span>
+              <span>≥{thresholds.massRejectionsCount} rejets / {thresholds.massRejectionsWindowMinutes}min</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              <span>Activité entre {THRESHOLDS.OFF_HOURS_START}h-{THRESHOLDS.OFF_HOURS_END}h</span>
+              <span>Hors heures: {thresholds.offHoursStart}h-{thresholds.offHoursEnd}h</span>
             </div>
           </div>
         </div>

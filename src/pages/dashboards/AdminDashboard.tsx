@@ -37,6 +37,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useProtocolEtat } from '@/hooks/useProtocolEtat';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { useSecurityAlertsNotifications } from '@/hooks/useSecurityAlertsNotifications';
 import { ModuleXR7 } from '@/components/admin/ModuleXR7';
 import { IAstedChat } from '@/components/admin/IAstedChat';
 import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
@@ -260,6 +261,9 @@ export default function AdminDashboard() {
     subscribe: subscribeNotifications,
     unsubscribe: unsubscribeNotifications
   } = useRealtimeNotifications();
+
+  // Activer les notifications d'alertes de sécurité en temps réel
+  useSecurityAlertsNotifications();
 
   const COLORS = ['#2D5F1E', '#4A8B3A', '#6BB757', '#8FD977', '#B4F199'];
 
