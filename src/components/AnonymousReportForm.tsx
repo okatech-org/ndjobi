@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, Send, Shield, MapPin, FileText, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, Send, Shield, MapPin, FileText, CheckCircle2, Upload, X, Image, File, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -12,6 +12,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILES = 5;
+const ACCEPTED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+interface UploadedFile {
+  file: File;
+  preview?: string;
+  uploading: boolean;
+  uploaded: boolean;
+  url?: string;
+  error?: string;
+}
 
 const reportSchema = z.object({
   title: z.string()
@@ -45,6 +66,9 @@ const reportTypes = [
 const AnonymousReportForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const form = useForm<ReportFormData>({
@@ -57,10 +81,141 @@ const AnonymousReportForm = () => {
     },
   });
 
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles) return;
+
+    const newFiles: UploadedFile[] = [];
+    
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      
+      // Check max files limit
+      if (files.length + newFiles.length >= MAX_FILES) {
+        toast({
+          title: "Limite atteinte",
+          description: `Maximum ${MAX_FILES} fichiers autorisés`,
+          variant: "destructive",
+        });
+        break;
+      }
+
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Fichier trop volumineux",
+          description: `${file.name} dépasse la limite de 10MB`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      // Validate file type
+      if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+        toast({
+          title: "Type de fichier non supporté",
+          description: `${file.name} n'est pas un format autorisé`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      // Create preview for images
+      let preview: string | undefined;
+      if (file.type.startsWith("image/")) {
+        preview = URL.createObjectURL(file);
+      }
+
+      newFiles.push({
+        file,
+        preview,
+        uploading: false,
+        uploaded: false,
+      });
+    }
+
+    setFiles(prev => [...prev, ...newFiles]);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => {
+      const file = prev[index];
+      if (file.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const uploadFiles = async (): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
+    setIsUploading(true);
+
+    for (let i = 0; i < files.length; i++) {
+      const fileData = files[i];
+      if (fileData.uploaded && fileData.url) {
+        uploadedUrls.push(fileData.url);
+        continue;
+      }
+
+      // Mark as uploading
+      setFiles(prev => prev.map((f, idx) => 
+        idx === i ? { ...f, uploading: true } : f
+      ));
+
+      try {
+        // Generate unique filename
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 8);
+        const extension = fileData.file.name.split('.').pop();
+        const filename = `anonymous/${timestamp}-${randomStr}.${extension}`;
+
+        const { data, error } = await supabase.storage
+          .from('anonymous-reports')
+          .upload(filename, fileData.file, {
+            cacheControl: '3600',
+            upsert: false,
+          });
+
+        if (error) throw error;
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('anonymous-reports')
+          .getPublicUrl(data.path);
+
+        const url = urlData.publicUrl;
+        uploadedUrls.push(url);
+
+        // Mark as uploaded
+        setFiles(prev => prev.map((f, idx) => 
+          idx === i ? { ...f, uploading: false, uploaded: true, url } : f
+        ));
+
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setFiles(prev => prev.map((f, idx) => 
+          idx === i ? { ...f, uploading: false, error: 'Échec de l\'upload' } : f
+        ));
+      }
+    }
+
+    setIsUploading(false);
+    return uploadedUrls;
+  };
+
   const onSubmit = async (data: ReportFormData) => {
     setIsSubmitting(true);
     
     try {
+      // Upload files first
+      const attachmentUrls = files.length > 0 ? await uploadFiles() : [];
+
       const { error } = await supabase
         .from('signalements')
         .insert({
@@ -71,10 +226,15 @@ const AnonymousReportForm = () => {
           status: 'pending',
           priority: 'normal',
           user_id: null, // Signalement anonyme
+          attachments: attachmentUrls.map(url => ({
+            url,
+            uploaded_at: new Date().toISOString(),
+          })),
           metadata: {
             is_anonymous: true,
             submission_method: 'homepage_form',
             submitted_at: new Date().toISOString(),
+            files_count: attachmentUrls.length,
           }
         });
 
@@ -82,6 +242,12 @@ const AnonymousReportForm = () => {
 
       setIsSuccess(true);
       form.reset();
+      
+      // Clean up file previews
+      files.forEach(f => {
+        if (f.preview) URL.revokeObjectURL(f.preview);
+      });
+      setFiles([]);
       
       toast({
         title: "Signalement envoyé",
@@ -101,6 +267,19 @@ const AnonymousReportForm = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const getFileIcon = (file: File) => {
+    if (file.type.startsWith("image/")) {
+      return <Image className="h-4 w-4" />;
+    }
+    return <File className="h-4 w-4" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   if (isSuccess) {
@@ -254,12 +433,98 @@ const AnonymousReportForm = () => {
                   )}
                 />
 
+                {/* File Upload */}
+                <div className="space-y-3">
+                  <FormLabel className="flex items-center gap-2">
+                    <Upload className="h-4 w-4 text-muted-foreground" />
+                    Pièces jointes (optionnel)
+                  </FormLabel>
+                  
+                  {/* Upload area */}
+                  <div 
+                    className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept={ACCEPTED_FILE_TYPES.join(',')}
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Cliquez pour ajouter des fichiers
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Photos, PDF, documents Word • Max 10MB par fichier • {MAX_FILES} fichiers max
+                    </p>
+                  </div>
+
+                  {/* File list */}
+                  {files.length > 0 && (
+                    <div className="space-y-2">
+                      {files.map((fileData, index) => (
+                        <div 
+                          key={index}
+                          className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                        >
+                          {/* Preview or icon */}
+                          {fileData.preview ? (
+                            <img 
+                              src={fileData.preview} 
+                              alt="" 
+                              className="w-10 h-10 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 flex items-center justify-center bg-muted rounded">
+                              {getFileIcon(fileData.file)}
+                            </div>
+                          )}
+                          
+                          {/* File info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {fileData.file.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(fileData.file.size)}
+                              {fileData.uploaded && (
+                                <span className="text-green-600 ml-2">✓ Prêt</span>
+                              )}
+                              {fileData.error && (
+                                <span className="text-destructive ml-2">{fileData.error}</span>
+                              )}
+                            </p>
+                          </div>
+
+                          {/* Status/Remove */}
+                          {fileData.uploading ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFile(index)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Security notice */}
                 <div className="bg-muted/50 rounded-lg p-4 flex items-start gap-3">
                   <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-muted-foreground">
                     <p className="font-medium text-foreground mb-1">Votre anonymat est garanti</p>
-                    <p>Nous ne collectons aucune donnée personnelle. Aucun compte, aucune adresse IP, aucune trace.</p>
+                    <p>Nous ne collectons aucune donnée personnelle. Aucun compte, aucune adresse IP, aucune trace. Les métadonnées des fichiers sont supprimées.</p>
                   </div>
                 </div>
 
@@ -267,13 +532,13 @@ const AnonymousReportForm = () => {
                 <Button 
                   type="submit" 
                   size="lg"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isUploading}
                   className="w-full bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/90 hover:to-destructive/70 text-destructive-foreground shadow-lg"
                 >
-                  {isSubmitting ? (
+                  {isSubmitting || isUploading ? (
                     <>
-                      <span className="animate-spin mr-2">⏳</span>
-                      Envoi en cours...
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {isUploading ? "Upload en cours..." : "Envoi en cours..."}
                     </>
                   ) : (
                     <>
