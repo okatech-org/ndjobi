@@ -17,9 +17,7 @@ export interface CasSecurite {
   menace: string;
   sourcesRenseignement?: string;
   coordination?: string;
-  prochaine
-
-Etape?: string;
+  prochaineEtape?: string;
 }
 
 export interface MenaceStrategique {

@@ -522,7 +522,8 @@ export default function PresidentDashboard() {
                       <Button 
                         onClick={() => {
                           enregistrerDecision(cas.id, 'approuver');
-                          toast.success('Cas approuvé', {
+                          toast({
+                            title: 'Cas approuvé',
                             description: 'Enquête lancée automatiquement'
                           });
                         }}
@@ -534,7 +535,10 @@ export default function PresidentDashboard() {
                       <Button 
                         onClick={() => {
                           enregistrerDecision(cas.id, 'enquete', 'Investigation approfondie requise');
-                          toast.info('Investigation ordonnée');
+                          toast({
+                            title: 'Investigation ordonnée',
+                            description: 'Le dossier a été transmis pour investigation'
+                          });
                         }}
                         variant="outline" 
                         className="flex-1"

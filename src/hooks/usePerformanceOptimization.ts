@@ -76,11 +76,11 @@ export const usePerformanceOptimization = (options: UsePerformanceOptimizationOp
     try {
       switch (key) {
         case 'system-stats':
-          return await PerformanceOptimizationService.getCachedSystemStats(forceRefresh);
+          return await PerformanceOptimizationService.getCachedSystemStats(forceRefresh) as T;
         case 'users':
-          return await PerformanceOptimizationService.getCachedUsers(forceRefresh);
+          return await PerformanceOptimizationService.getCachedUsers(forceRefresh) as T;
         case 'activity-logs':
-          return await PerformanceOptimizationService.getCachedActivityLogs(forceRefresh);
+          return await PerformanceOptimizationService.getCachedActivityLogs(forceRefresh) as T;
         default:
           return await fetcher();
       }

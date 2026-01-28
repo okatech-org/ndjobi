@@ -170,7 +170,8 @@ export class IAstedMobileDetection {
     }
 
     // Vérifier AudioContext
-    if (typeof window !== 'undefined' && !window.AudioContext && !window.webkitAudioContext) {
+    const hasAudioContext = typeof window !== 'undefined' && (window.AudioContext || (window as any).webkitAudioContext);
+    if (!hasAudioContext) {
       issues.push({
         type: 'critical',
         platform: 'ios',

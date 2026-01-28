@@ -119,13 +119,8 @@ class ProjectManagementService {
 
   async getSecurityAudit(): Promise<SecurityAuditItem[]> {
     try {
-      const { data, error } = await supabase
-        .from('admin_audit_log')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
+      // Note: admin_audit_log table doesn't exist in schema, using fallback data
+      console.log('Using fallback security audit data');
 
       const auditItems: SecurityAuditItem[] = [
         {
@@ -209,11 +204,8 @@ class ProjectManagementService {
 
   async getDatabaseTables(): Promise<DatabaseTable[]> {
     try {
-      const { data, error } = await supabase.rpc('get_database_stats');
-
-      if (error) {
-        console.log('RPC call failed, using fallback data');
-      }
+      // Note: get_database_stats RPC doesn't exist, using fallback data
+      console.log('Using fallback database tables data');
 
       return [
         { name: 'profiles', rowCount: 1247, size: '2.3 MB', indexes: 5 },

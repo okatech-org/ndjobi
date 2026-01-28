@@ -4,22 +4,18 @@
  */
 
 import React from 'react';
-import { IAstedFloatingButton } from './IAstedFloatingButton';
+import { IAstedFloatingButton } from '@/components/admin/IAstedFloatingButton';
 import { IAstedMobileButton } from './IAstedMobileButton';
 import { PerformanceOptimizationService } from '@/services/performanceOptimization';
 
-interface IAstedAdaptiveButtonProps {
-  className?: string;
-}
-
-export const IAstedAdaptiveButton: React.FC<IAstedAdaptiveButtonProps> = ({ className }) => {
+export const IAstedAdaptiveButton: React.FC = () => {
   // Détecter si on est sur mobile
   const isMobile = PerformanceOptimizationService.isMobileDevice();
 
   // Choisir automatiquement le bon composant
   if (isMobile) {
-    return <IAstedMobileButton className={className} />;
+    return <IAstedMobileButton />;
   }
 
-  return <IAstedFloatingButton className={className} />;
+  return <IAstedFloatingButton />;
 };

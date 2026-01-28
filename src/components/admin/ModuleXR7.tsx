@@ -397,8 +397,9 @@ export function ModuleXR7() {
 
       if (fetchError) throw fetchError;
 
-      const protocolesFormatted = (data || []).map((sig: any) => {
-        const endDate = new Date(sig.metadata.xr7_end_date);
+      const protocolesFormatted: ProtocoleActif[] = (data || []).map((sig: any) => {
+        const metadata = sig.metadata as Record<string, any> || {};
+        const endDate = new Date(metadata.xr7_end_date);
         const now = new Date();
         const diffMs = endDate.getTime() - now.getTime();
         const diffHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
@@ -407,12 +408,12 @@ export function ModuleXR7() {
           id: sig.id,
           signalement_id: sig.id,
           signalement_titre: sig.title || 'Sans titre',
-          date_activation: sig.metadata.xr7_activation_date,
-          date_expiration: sig.metadata.xr7_end_date,
+          date_activation: metadata.xr7_activation_date,
+          date_expiration: metadata.xr7_end_date,
           duree_restante_heures: diffHours,
-          raison: sig.metadata.xr7_reason || 'Non spécifiée',
-          autorisation: sig.metadata.xr7_judicial_authorization || 'Non spécifiée',
-          statut: diffHours > 0 ? 'actif' : 'expire'
+          raison: metadata.xr7_reason || 'Non spécifiée',
+          autorisation: metadata.xr7_judicial_authorization || 'Non spécifiée',
+          statut: (diffHours > 0 ? 'actif' : 'expire') as 'actif' | 'expire' | 'desactive'
         };
       });
 
@@ -552,7 +553,7 @@ export function ModuleXR7() {
 
       if (fetchError) throw fetchError;
 
-      const existingMetadata = existingSignalement?.metadata || {};
+      const existingMetadata = (existingSignalement?.metadata as Record<string, any>) || {};
 
       const { error } = await supabase
         .from('signalements')
@@ -621,7 +622,7 @@ export function ModuleXR7() {
 
       if (fetchError) throw fetchError;
 
-      const metadata = signalement?.metadata || {};
+      const metadata = (signalement?.metadata as Record<string, any>) || {};
 
       const { error } = await supabase
         .from('signalements')
@@ -727,26 +728,33 @@ export function ModuleXR7() {
 
       if (fetchError) throw fetchError;
 
-      const activations = (data || []).filter(s => s.metadata?.xr7_activated);
+      const activations = (data || []).filter(s => {
+        const meta = s.metadata as Record<string, any> | null;
+        return meta?.xr7_activated;
+      });
       const totalActivations = activations.length;
       
       const now = new Date();
       const debutMois = new Date(now.getFullYear(), now.getMonth(), 1);
-      const activationsMois = activations.filter(a => 
-        new Date(a.metadata.xr7_activation_date) >= debutMois
-      ).length;
+      const activationsMois = activations.filter(a => {
+        const meta = a.metadata as Record<string, any>;
+        return new Date(meta.xr7_activation_date) >= debutMois;
+      }).length;
 
-      const dureeMoyenne = activations.reduce((acc, a) => 
-        acc + (a.metadata.xr7_duration_hours || 24), 0
-      ) / (totalActivations || 1);
+      const dureeMoyenne = activations.reduce((acc, a) => {
+        const meta = a.metadata as Record<string, any>;
+        return acc + (meta.xr7_duration_hours || 24);
+      }, 0) / (totalActivations || 1);
 
-      const reussis = activations.filter(a => 
-        a.metadata.xr7_deactivation_date && !a.metadata.xr7_deactivated_manually
-      ).length;
+      const reussis = activations.filter(a => {
+        const meta = a.metadata as Record<string, any>;
+        return meta.xr7_deactivation_date && !meta.xr7_deactivated_manually;
+      }).length;
       const tauxReussite = (reussis / (totalActivations || 1)) * 100;
 
       const parCategorie = activations.reduce((acc: any, a) => {
-        const cat = a.corruption_category || a.type || 'Autre';
+        const meta = a.metadata as Record<string, any>;
+        const cat = meta.corruption_category || a.type || 'Autre';
         const existing = acc.find((item: any) => item.name === cat);
         if (existing) {
           existing.value++;
@@ -757,7 +765,8 @@ export function ModuleXR7() {
       }, []);
 
       const parMois = activations.reduce((acc: any, a) => {
-        const date = new Date(a.metadata.xr7_activation_date);
+        const meta = a.metadata as Record<string, any>;
+        const date = new Date(meta.xr7_activation_date);
         const mois = date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
         const existing = acc.find((item: any) => item.mois === mois);
         if (existing) {
@@ -770,7 +779,7 @@ export function ModuleXR7() {
 
       const parStatut = [
         { statut: 'Actifs', count: protocoles.filter(p => p.statut === 'actif').length },
-        { statut: 'Terminés', count: activations.filter(a => a.metadata.xr7_deactivation_date).length },
+        { statut: 'Terminés', count: activations.filter(a => (a.metadata as Record<string, any>).xr7_deactivation_date).length },
         { statut: 'Expirés', count: protocoles.filter(p => p.statut === 'expire').length }
       ];
 
