@@ -400,6 +400,7 @@ export type Database = {
       }
       signalements: {
         Row: {
+          assigned_agent_role: string | null
           attachments: Json | null
           created_at: string | null
           description: string
@@ -417,6 +418,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          assigned_agent_role?: string | null
           attachments?: Json | null
           created_at?: string | null
           description: string
@@ -434,6 +436,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          assigned_agent_role?: string | null
           attachments?: Json | null
           created_at?: string | null
           description?: string
