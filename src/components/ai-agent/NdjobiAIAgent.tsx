@@ -110,7 +110,7 @@ interface MessageAction {
 
 type FlowType = 'idle' | 'report' | 'project';
 type FlowStep = 'idle' | 'type' | 'location' | 'description' | 'witness' | 'review' | 'complete' |
-                'title' | 'category' | 'innovation' | 'stage';
+  'title' | 'category' | 'innovation' | 'stage';
 
 interface CollectedData {
   type?: string;
@@ -247,7 +247,7 @@ export default function NdjobiAIAgent() {
     setFlowType('report');
     setFlowStep('type');
     setCollectedData({ isAnonymous: true });
-    
+
     setTimeout(() => {
       addMessage(
         "Parfait ! Tapons le Ndjobi ensemble. 🎯\n\n❓ Quel type de corruption souhaitez-vous dénoncer ?\n\n💬 Vous pouvez :\n• Cliquer sur un bouton ci-dessous\n• Écrire directement votre message\n• 🎤 Utiliser la commande vocale",
@@ -270,7 +270,7 @@ export default function NdjobiAIAgent() {
     setFlowType('project');
     setFlowStep('title');
     setCollectedData({});
-    
+
     setTimeout(() => {
       addMessage(
         "Parfait ! Je vais vous aider à protéger votre projet innovant. 🛡️\n\n❓ Quel est le titre de votre projet ?\n\n(Soyez concis mais descriptif, ex: 'Application mobile de covoiturage urbain')",
@@ -282,7 +282,7 @@ export default function NdjobiAIAgent() {
 
   const handleReportFlow = async (userInput: string) => {
     const trimmed = userInput.trim();
-    
+
     switch (flowStep) {
       case 'type':
         setCollectedData(prev => ({ ...prev, type: trimmed }));
@@ -321,13 +321,13 @@ export default function NdjobiAIAgent() {
             );
             setIsTyping(false);
           }, 800);
-      return;
-    }
+          return;
+        }
 
         const improvedDesc = `${trimmed}\n\n[Faits rapportés le ${new Date().toLocaleDateString('fr-FR')}]`;
         setCollectedData(prev => ({ ...prev, description: improvedDesc }));
         setFlowStep('witness');
-        
+
         setTimeout(() => {
           addMessage(
             `Description enregistrée.\n\n👤 (Facultatif) Avez-vous des témoins à mentionner ?\n\nRépondez par "oui" si vous souhaitez ajouter un témoin, ou "non" pour passer cette étape.`,
@@ -361,7 +361,7 @@ export default function NdjobiAIAgent() {
 
   const handleProjectFlow = async (userInput: string) => {
     const trimmed = userInput.trim();
-    
+
     switch (flowStep) {
       case 'title':
         if (trimmed.length < 3) {
@@ -482,7 +482,7 @@ export default function NdjobiAIAgent() {
         `**Description :**\n${collectedData.description}\n\n` +
         `🔒 Dénonciation anonyme avec cryptage AES-256\n\n` +
         `Souhaitez-vous :\n• Taper le Ndjobi (envoyer) ?\n• Modifier des informations ?`;
-      
+
       addMessage(summary, true, [
         { label: "✅ Taper le Ndjobi", action: "submit_report", style: "success" },
         { label: "✏️ Modifier", action: "edit_report", style: "secondary" },
@@ -501,7 +501,7 @@ export default function NdjobiAIAgent() {
         `**Stade :** ${collectedData.development_stage}\n\n` +
         `🛡️ Protection blockchain avec certificat d'antériorité\n\n` +
         `Souhaitez-vous :\n• Envoyer ce projet ?\n• Modifier des informations ?`;
-      
+
       addMessage(summary, true, [
         { label: "✅ Envoyer", action: "submit_project", style: "success" },
         { label: "✏️ Modifier", action: "edit_project", style: "secondary" },
@@ -513,32 +513,28 @@ export default function NdjobiAIAgent() {
   const submitReport = async () => {
     setIsTyping(true);
     addMessage("submit_report", false);
-    
+
     try {
       const deviceId = deviceIdentityService.getDeviceId();
-      
+
       const signalementData: any = {
         title: `Signalement de ${collectedData.type || 'corruption'}`,
-        type: collectedData.type,
-        location: collectedData.location,
+        type: collectedData.type || 'corruption',
+        location: collectedData.location || '',
         description: collectedData.description,
-        status: 'pending_analysis',
-        priority: 'medium',
-        submission_method: 'chat_ai',
-        device_id: deviceId,
+        status: 'pending',
+        priority: 'normal',
+        metadata: {
+          submission_method: 'chat_ai',
+          is_anonymous: !user,
+          device_id: deviceId,
+          gps_latitude: collectedData.gps_latitude,
+          gps_longitude: collectedData.gps_longitude,
+        },
       };
-
-      if (collectedData.gps_latitude && collectedData.gps_longitude) {
-        signalementData.gps_latitude = collectedData.gps_latitude;
-        signalementData.gps_longitude = collectedData.gps_longitude;
-      }
 
       if (user) {
         signalementData.user_id = user.id;
-        signalementData.is_anonymous = false;
-      } else {
-        signalementData.user_id = null;
-        signalementData.is_anonymous = true;
       }
 
       const { data, error } = await supabase
@@ -554,10 +550,10 @@ export default function NdjobiAIAgent() {
       }
 
       setTimeout(() => {
-        const accountMsg = user 
-          ? `Votre dénonciation a été enregistrée et sera traitée dans les 24-48h.` 
+        const accountMsg = user
+          ? `Votre dénonciation a été enregistrée et sera traitée dans les 24-48h.`
           : `Votre dénonciation anonyme a été enregistrée.\n\n💡 Créez un compte pour suivre l'évolution de votre dossier !`;
-        
+
         addMessage(
           `✅ **Ndjobi tapé avec succès !**\n\n` +
           `📁 Numéro de dossier : **${data.id.substring(0, 8)}**\n\n` +
@@ -588,7 +584,7 @@ export default function NdjobiAIAgent() {
   const submitProject = async () => {
     setIsTyping(true);
     addMessage("submit_project", false);
-    
+
     try {
       const deviceId = deviceIdentityService.getDeviceId();
       const protectionNumber = `NDP-${Date.now().toString(36).toUpperCase()}`;
@@ -675,7 +671,7 @@ export default function NdjobiAIAgent() {
 
   const handleActionClick = (action: string) => {
     setIsTyping(true);
-    
+
     switch (action) {
       case 'start_report':
         addMessage("Je veux taper le Ndjobi", false);
@@ -692,8 +688,12 @@ export default function NdjobiAIAgent() {
         submitProject();
         break;
       case 'witness_yes':
+        addMessage("Oui, ajouter un témoin", false);
+        handleReportFlow("oui");
+        break;
       case 'witness_no':
-        handleSend();
+        addMessage("Non, continuer", false);
+        handleReportFlow("non");
         break;
       case 'edit_report':
       case 'edit_project':
@@ -779,7 +779,7 @@ export default function NdjobiAIAgent() {
             "Parfait ! 🎉\n\nEn créant un compte, vous pourrez :\n• Suivre vos signalements\n• Recevoir des notifications\n• Télécharger vos certificats\n• Accéder à votre historique\n\n📱 Vous allez être redirigé vers la page de connexion.",
             true
           );
-      setIsTyping(false);
+          setIsTyping(false);
           setTimeout(() => {
             window.location.reload();
           }, 2000);
@@ -794,7 +794,7 @@ export default function NdjobiAIAgent() {
 
   const getGPSLocation = () => {
     setIsTyping(true);
-    
+
     if (!navigator.geolocation) {
       setTimeout(() => {
         addMessage(
@@ -811,25 +811,25 @@ export default function NdjobiAIAgent() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        
+
         try {
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=fr`,
             { headers: { 'User-Agent': 'NDJOBI-App/1.0' } }
           );
-          
+
           const data = await response.json();
           const address = data.display_name || `GPS: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-          
-          setCollectedData(prev => ({ 
-            ...prev, 
+
+          setCollectedData(prev => ({
+            ...prev,
             location: address,
             gps_latitude: latitude,
-            gps_longitude: longitude 
+            gps_longitude: longitude
           }));
-          
+
           setFlowStep('description');
-          
+
           setTimeout(() => {
             addMessage(
               `📍 Position détectée :\n"${address}"\n\n📝 Maintenant, décrivez les faits en détail :\n\n• Que s'est-il passé ?\n• Quand ?\n• Qui est impliqué ?\n• Quelles sont les preuves ?\n\n(Minimum 10 caractères)`,
@@ -839,15 +839,15 @@ export default function NdjobiAIAgent() {
           }, 1000);
         } catch (error) {
           const fallbackLocation = `Position GPS: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-          setCollectedData(prev => ({ 
-            ...prev, 
+          setCollectedData(prev => ({
+            ...prev,
             location: fallbackLocation,
             gps_latitude: latitude,
-            gps_longitude: longitude 
+            gps_longitude: longitude
           }));
-          
+
           setFlowStep('description');
-          
+
           setTimeout(() => {
             addMessage(
               `📍 Position GPS enregistrée.\n\n📝 Décrivez les faits en détail :`,
@@ -860,7 +860,7 @@ export default function NdjobiAIAgent() {
       (error) => {
         setTimeout(() => {
           let errorMsg = "❌ Impossible d'obtenir votre position.\n\n";
-          
+
           if (error.code === error.PERMISSION_DENIED) {
             errorMsg += "Vous avez refusé l'accès à la localisation. Veuillez entrer l'adresse manuellement.";
           } else if (error.code === error.POSITION_UNAVAILABLE) {
@@ -868,7 +868,7 @@ export default function NdjobiAIAgent() {
           } else {
             errorMsg += "Délai dépassé. Veuillez entrer l'adresse manuellement.";
           }
-          
+
           addMessage(errorMsg, true);
           setIsTyping(false);
         }, 800);
@@ -887,7 +887,7 @@ export default function NdjobiAIAgent() {
         "Bonjour à vous ! Bienvenue.",
       ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-      
+
       return {
         text: `${greeting}\n\nJe suis l'Assistant Ndjobi, votre allié dans la lutte contre la corruption au Gabon.\n\n✨ Je peux vous aider à :\n• 🎯 Dénoncer un cas de corruption en toute sécurité\n• 🛡️ Protéger votre projet innovant\n• 💬 Répondre à vos questions\n\nComment puis-je vous aider aujourd'hui ?`,
         actions: [
@@ -985,14 +985,14 @@ export default function NdjobiAIAgent() {
             drag
             dragMomentum={false}
             dragElastic={0.1}
-            initial={{ 
-              scale: 0, 
-              opacity: 0, 
+            initial={{
+              scale: 0,
+              opacity: 0,
               rotate: -180
             }}
-            animate={{ 
-              scale: 1, 
-              opacity: 1, 
+            animate={{
+              scale: 1,
+              opacity: 1,
               rotate: 0
             }}
             exit={{ scale: 0, opacity: 0, rotate: 180 }}
@@ -1001,7 +1001,7 @@ export default function NdjobiAIAgent() {
             whileDrag={{ scale: 1.05, cursor: "grabbing" }}
             onClick={() => setIsOpen(true)}
             className="w-24 h-24 rounded-full shadow-2xl flex items-center justify-center cursor-grab active:cursor-grabbing z-50 group overflow-visible"
-            style={{ 
+            style={{
               position: "fixed",
               top: "calc(50vh + 50px)",
               right: "20px",
@@ -1012,61 +1012,61 @@ export default function NdjobiAIAgent() {
             aria-label="Ouvrir l'assistant IA Ndjobi - Déplaçable"
           >
             {/* Ondes / Rayons animés (3 couches) */}
-            <motion.div 
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40" 
-              animate={{ 
-                scale: [1, 1.8, 1], 
-                opacity: [0.6, 0, 0.6] 
-              }} 
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40"
+              animate={{
+                scale: [1, 1.8, 1],
+                opacity: [0.6, 0, 0.6]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
                 ease: "easeInOut",
-                delay: 0 
-              }} 
+                delay: 0
+              }}
             />
-            <motion.div 
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/30 to-primary/30" 
-              animate={{ 
-                scale: [1, 1.6, 1], 
-                opacity: [0.5, 0, 0.5] 
-              }} 
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/30 to-primary/30"
+              animate={{
+                scale: [1, 1.6, 1],
+                opacity: [0.5, 0, 0.5]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
                 ease: "easeInOut",
-                delay: 0.5 
-              }} 
+                delay: 0.5
+              }}
             />
-            <motion.div 
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/50 to-accent/30" 
-              animate={{ 
-                scale: [1, 1.4, 1], 
-                opacity: [0.7, 0, 0.7] 
-              }} 
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/50 to-accent/30"
+              animate={{
+                scale: [1, 1.4, 1],
+                opacity: [0.7, 0, 0.7]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
                 ease: "easeInOut",
-                delay: 1 
-              }} 
+                delay: 1
+              }}
             />
-            
+
             {/* Logo Ndjobi détouré - directement collé aux ondes avec animation */}
-            <motion.div 
+            <motion.div
               className="relative w-full h-full z-10 flex items-center justify-center"
-              animate={{ 
-                scale: [1, 1.15, 1] 
-              }} 
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
+              animate={{
+                scale: [1, 1.15, 1]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
               }}
             >
-              <img 
-                src={logoNdjobi} 
-                alt="Logo Ndjobi" 
+              <img
+                src={logoNdjobi}
+                alt="Logo Ndjobi"
                 className="w-full h-full object-contain rounded-full"
                 style={{
                   filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))",
@@ -1074,11 +1074,11 @@ export default function NdjobiAIAgent() {
                 }}
               />
             </motion.div>
-            
+
             {/* Badge IA */}
-            <motion.div 
-              initial={{ scale: 0 }} 
-              animate={{ scale: 1 }} 
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
               className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg border-2 border-white"
             >
               IA
@@ -1101,9 +1101,9 @@ export default function NdjobiAIAgent() {
               <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-amber-900 to-amber-700" />
               <div className="flex items-center gap-3 relative z-10">
                 <div className="w-12 h-12 bg-white/95 rounded-full flex items-center justify-center shadow-lg p-1.5">
-                  <img 
-                    src={logoNdjobi} 
-                    alt="Logo Ndjobi" 
+                  <img
+                    src={logoNdjobi}
+                    alt="Logo Ndjobi"
                     className="w-full h-full object-contain"
                   />
                 </div>
@@ -1141,11 +1141,10 @@ export default function NdjobiAIAgent() {
                               <button
                                 key={idx}
                                 onClick={() => handleActionClick(action.action)}
-                                className={`text-xs px-3 py-2 rounded-full font-medium transition-all shadow-sm hover:shadow-md ${
-                                  action.style === 'success' ? 'bg-green-500 hover:bg-green-600 text-white' :
+                                className={`text-xs px-3 py-2 rounded-full font-medium transition-all shadow-sm hover:shadow-md ${action.style === 'success' ? 'bg-green-500 hover:bg-green-600 text-white' :
                                   action.style === 'primary' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' :
-                                  'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                                }`}
+                                    'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                  }`}
                               >
                                 {action.label}
                               </button>
