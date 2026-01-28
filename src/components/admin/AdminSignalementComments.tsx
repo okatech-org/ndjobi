@@ -281,6 +281,7 @@ const AdminSignalementComments = () => {
 
     setSubmitting(true);
     try {
+      // Insert the admin reply
       const { error } = await supabase
         .from('signalement_comments')
         .insert({
@@ -291,6 +292,39 @@ const AdminSignalementComments = () => {
         });
 
       if (error) throw error;
+      
+      // Auto-mark all unread user messages as read when admin replies
+      const unreadUserMessages = comments.filter(c => !c.is_admin && !c.read_at);
+      if (unreadUserMessages.length > 0) {
+        const { error: markError } = await supabase
+          .from('signalement_comments')
+          .update({
+            read_at: new Date().toISOString(),
+            read_by: user.id
+          })
+          .eq('signalement_id', selectedSignalement.id)
+          .eq('is_admin', false)
+          .is('read_at', null);
+
+        if (markError) {
+          console.error('Error auto-marking messages as read:', markError);
+        } else {
+          // Update local state for read status
+          setComments(prev => prev.map(c => 
+            !c.is_admin && !c.read_at 
+              ? { ...c, read_at: new Date().toISOString(), read_by: user.id }
+              : c
+          ));
+
+          // Update signalement list
+          setSignalements(prev => prev.map(s => 
+            s.id === selectedSignalement.id ? { ...s, has_unread: false } : s
+          ));
+
+          // Refresh unread count in header
+          refetchUnreadCount();
+        }
+      }
       
       setNewReply("");
       toast.success("Réponse envoyée");
