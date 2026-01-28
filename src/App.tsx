@@ -22,6 +22,7 @@ import { PWAAuth } from "@/components/auth/PWAAuth";
 
 // Lazy loading UNIQUEMENT pour les routes rarement utilisées
 const AgentDashboard = lazy(() => import("./pages/dashboards/AgentDashboard"));
+const SpecializedAgentDashboard = lazy(() => import("./pages/dashboards/SpecializedAgentDashboard"));
 const AdminDashboard = lazy(() => import("./pages/dashboards/Admin"));
 const SuperAdminDashboard = lazy(() => import("./pages/dashboards/SuperAdminDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -35,8 +36,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [localDemoRole, setLocalDemoRole] = useState<string | null>(null);
   const [demoSessionVersion, setDemoSessionVersion] = useState(0);
 
-  const isPresident = user?.email === '24177888001@ndjobi.com' || 
-                      user?.phone === '+24177888001';
+  const isPresident = user?.email === '24177888001@ndjobi.com' ||
+    user?.phone === '+24177888001';
 
   useEffect(() => {
     try {
@@ -114,30 +115,40 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   const effectiveRole = localDemoRole || role || null;
+  // Mapping des rôles spécialisés vers leurs URLs
+  const getAgentDashboardUrl = (r: string | null): string => {
+    if (!r) return '/user';
+    switch (r) {
+      case 'super_admin': return '/super-admin';
+      case 'admin': return '/admin';
+      case 'sub_admin': return '/admin';
+      case 'agent': return '/agent';
+      case 'agent_anticorruption': return '/agent/anticorruption';
+      case 'agent_justice': return '/agent/justice';
+      case 'agent_interior': return '/agent/interior';
+      case 'agent_defense': return '/agent/defense';
+      case 'sub_admin_dgss': return '/agent/dgss';
+      case 'sub_admin_dgr': return '/agent/dgr';
+      default: return '/user';
+    }
+  };
+
   if (effectiveRole && location.pathname === '/') {
-    const dashboardUrl = effectiveRole === 'super_admin' ? '/super-admin' :
-                        isPresident ? '/admin' :
-                        effectiveRole === 'admin' ? '/admin' :
-                        effectiveRole === 'sub_admin' ? '/admin' :
-                        effectiveRole === 'agent' ? '/agent' : '/user';
+    const dashboardUrl = isPresident ? '/admin' : getAgentDashboardUrl(effectiveRole);
     console.log('📍 Redirection depuis / vers', dashboardUrl);
     return <Navigate to={dashboardUrl} replace />;
   }
 
-  if (effectiveRole && (location.pathname.startsWith('/dashboard') || 
-                        location.pathname.startsWith('/user') || 
-                        location.pathname.startsWith('/agent') ||
-                        location.pathname.startsWith('/admin') ||
-                        location.pathname.startsWith('/super-admin'))) {
-    const target = effectiveRole === 'super_admin' ? '/super-admin' :
-                   isPresident ? '/admin' :
-                   effectiveRole === 'admin' ? '/admin' :
-                   effectiveRole === 'sub_admin' ? '/admin' :
-                   effectiveRole === 'agent' ? '/agent' : '/user';
-    
+  if (effectiveRole && (location.pathname.startsWith('/dashboard') ||
+    location.pathname.startsWith('/user') ||
+    location.pathname.startsWith('/agent') ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/super-admin'))) {
+    const target = isPresident ? '/admin' : getAgentDashboardUrl(effectiveRole);
+
     const validPaths = [target, `${target}/`];
     const hasSubRoute = location.pathname.split('/').length > 2;
-    
+
     if (!location.pathname.startsWith(target) && !location.pathname.startsWith('/dashboard')) {
       console.log('📍 Correction route:', location.pathname, '->', target);
       return <Navigate to={target} replace />;
@@ -175,186 +186,248 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <OfflineBanner />
-        <OfflineIndicator />
-        <CookieConsent />
-        <BrowserRouter
+          <Toaster />
+          <Sonner />
+          <OfflineBanner />
+          <OfflineIndicator />
+          <CookieConsent />
+          <BrowserRouter
             future={{
               v7_startTransition: true,
               v7_relativeSplatPath: true,
             }}
           >
             <Routes>
-            <Route
-              path="/"
-              element={<Index />}
-            />
-            <Route
-              path="/auth"
-              element={
-                <PublicRoute>
-                  <Auth />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/auth/super-admin"
-              element={
-                <PublicRoute>
-                  <SuperAdminAuth />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/auth/pwa"
-              element={
-                <PublicRoute>
-                  <PWAAuth />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/report"
-              element={<Report />}
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* Redirections des anciennes routes /dashboard/* vers /{role}/* */}
-            <Route path="/dashboard/super-admin/*" element={<Navigate to="/super-admin" replace />} />
-            <Route path="/dashboard/admin/*" element={<Navigate to="/admin" replace />} />
-            <Route path="/dashboard/agent/*" element={<Navigate to="/agent" replace />} />
-            <Route path="/dashboard/user/*" element={<Navigate to="/user" replace />} />
-            
-            {/* Routes User - Citoyen */}
-            <Route
-              path="/user"
-              element={
-                <ProtectedRoute>
-                  <UserDashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* Routes Agent - Avec sous-routes pour extensibilité future */}
-            <Route
-              path="/agent"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace agent..." />}>
-                    <AgentDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* Routes Admin/Sub-Admin - Avec sous-routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace admin..." />}>
-                    <AdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* Routes Super Admin - Avec sous-routes dédiées */}
-            <Route
-              path="/super-admin"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du super admin..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/super-admin/system"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du système..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/super-admin/users"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement des utilisateurs..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/super-admin/project"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du projet..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/super-admin/xr7"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement du module XR-7..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/super-admin/visibility"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la visibilité..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/super-admin/visibilite"
-              element={<Navigate to="/super-admin/visibility" replace />}
-            />
-            <Route
-              path="/super-admin/config"
-              element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la configuration..." />}>
-                    <SuperAdminDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/statistiques" element={<Statistics />} />
-            <Route path="/suivi" element={<TrackReport />} />
-            <Route path="*" element={
-              <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la page..." />}>
-                <NotFound />
-              </Suspense>
-            } />
-          </Routes>
-          <NdjobiAgentVisibility />
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+              <Route
+                path="/"
+                element={<Index />}
+              />
+              <Route
+                path="/auth"
+                element={
+                  <PublicRoute>
+                    <Auth />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/auth/super-admin"
+                element={
+                  <PublicRoute>
+                    <SuperAdminAuth />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/auth/pwa"
+                element={
+                  <PublicRoute>
+                    <PWAAuth />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/report"
+                element={<Report />}
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Redirections des anciennes routes /dashboard/* vers /{role}/* */}
+              <Route path="/dashboard/super-admin/*" element={<Navigate to="/super-admin" replace />} />
+              <Route path="/dashboard/admin/*" element={<Navigate to="/admin" replace />} />
+              <Route path="/dashboard/agent/*" element={<Navigate to="/agent" replace />} />
+              <Route path="/dashboard/user/*" element={<Navigate to="/user" replace />} />
+
+              {/* Routes User - Citoyen */}
+              <Route
+                path="/user"
+                element={
+                  <ProtectedRoute>
+                    <UserDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Routes Agent - Avec sous-routes pour extensibilité future */}
+              <Route
+                path="/agent"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace agent..." />}>
+                      <AgentDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Routes Agents Spécialisés */}
+              <Route
+                path="/agent/anticorruption"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace Anti-Corruption..." />}>
+                      <SpecializedAgentDashboard agentRole="agent_anticorruption" />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/justice"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace Justice..." />}>
+                      <SpecializedAgentDashboard agentRole="agent_justice" />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/interior"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace Intérieur..." />}>
+                      <SpecializedAgentDashboard agentRole="agent_interior" />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/defense"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace Défense..." />}>
+                      <SpecializedAgentDashboard agentRole="agent_defense" />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/dgss"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace DGSS..." />}>
+                      <SpecializedAgentDashboard agentRole="sub_admin_dgss" />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/dgr"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace DGR..." />}>
+                      <SpecializedAgentDashboard agentRole="sub_admin_dgr" />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Routes Admin/Sub-Admin - Avec sous-routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de l'espace admin..." />}>
+                      <AdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Routes Super Admin - Avec sous-routes dédiées */}
+              <Route
+                path="/super-admin"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement du super admin..." />}>
+                      <SuperAdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/super-admin/system"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement du système..." />}>
+                      <SuperAdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/super-admin/users"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement des utilisateurs..." />}>
+                      <SuperAdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/super-admin/project"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement du projet..." />}>
+                      <SuperAdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/super-admin/xr7"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement du module XR-7..." />}>
+                      <SuperAdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/super-admin/visibility"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la visibilité..." />}>
+                      <SuperAdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/super-admin/visibilite"
+                element={<Navigate to="/super-admin/visibility" replace />}
+              />
+              <Route
+                path="/super-admin/config"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la configuration..." />}>
+                      <SuperAdminDashboard />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/statistiques" element={<Statistics />} />
+              <Route path="/suivi" element={<TrackReport />} />
+              <Route path="*" element={
+                <Suspense fallback={<LoadingFallback fullScreen message="Chargement de la page..." />}>
+                  <NotFound />
+                </Suspense>
+              } />
+            </Routes>
+            <NdjobiAgentVisibility />
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 };
