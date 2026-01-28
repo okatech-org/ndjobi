@@ -295,7 +295,9 @@ const AdminSignalementComments = () => {
       
       // Auto-mark all unread user messages as read when admin replies
       const unreadUserMessages = comments.filter(c => !c.is_admin && !c.read_at);
-      if (unreadUserMessages.length > 0) {
+      const unreadCount = unreadUserMessages.length;
+      
+      if (unreadCount > 0) {
         const { error: markError } = await supabase
           .from('signalement_comments')
           .update({
@@ -327,7 +329,21 @@ const AdminSignalementComments = () => {
       }
       
       setNewReply("");
-      toast.success("Réponse envoyée");
+      
+      // Show success message with auto-marked count
+      if (unreadCount > 0) {
+        toast.success(
+          <div className="flex items-center gap-2">
+            <CheckCheck className="h-4 w-4" />
+            <div>
+              <p className="font-medium">Réponse envoyée</p>
+              <p className="text-xs opacity-80">{unreadCount} message{unreadCount > 1 ? 's' : ''} marqué{unreadCount > 1 ? 's' : ''} comme lu{unreadCount > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+        );
+      } else {
+        toast.success("Réponse envoyée");
+      }
       
       // Refresh the list to update unread status
       fetchSignalementsWithComments();

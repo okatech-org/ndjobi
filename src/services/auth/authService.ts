@@ -472,15 +472,22 @@ export class AuthService {
         return '/super-admin';
       case 'admin':
       case 'sub_admin':
-      case 'sub_admin_dgss':
-      case 'sub_admin_dgr':
         return '/admin';
       case 'agent':
-      case 'agent_anticorruption':
-      case 'agent_justice':
-      case 'agent_interior':
-      case 'agent_defense':
         return '/agent';
+      // Agents spécialisés - dashboards dédiés
+      case 'agent_anticorruption':
+        return '/agent/anticorruption';
+      case 'agent_justice':
+        return '/agent/justice';
+      case 'agent_interior':
+        return '/agent/interior';
+      case 'agent_defense':
+        return '/agent/defense';
+      case 'sub_admin_dgss':
+        return '/agent/dgss';
+      case 'sub_admin_dgr':
+        return '/agent/dgr';
       case 'user':
         return '/user';
       default:
